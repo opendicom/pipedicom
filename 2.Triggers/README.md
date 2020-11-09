@@ -12,7 +12,7 @@ define en que minuto m de cada hora se inicia el comando que sigue.
 
 Para repetir la tarea más de una vez cada hora, se puede duplicar la linea con un m diferente en cada copia.
 
-### Ejemplo
+### Ejemplo con find
 
 ```
 10 * * * * find `date "+/RAID5_sd4/DICOM/\%-Y/\%-m/\%-d/0"` -type f -perm 644 -exec chmod 464 {} \;
@@ -22,8 +22,8 @@ Para repetir la tarea más de una vez cada hora, se puede duplicar la linea con 
 38 * * * * find `date "+/RAID5_sd4/DICOM/\%-Y/\%-m/\%-d/0"` -type f -perm 464 -exec /opt/dcm4che-2.0.24/bin/sr2img.sh {} \;
 
 ```
-En este ejemplo, programamos dos comandos en un ciclo alternativo cada media hora.
-El propósito de esta configuración es de iniciar una action sobre un archivo luego de 29 a 58 minutos de su creación. 
+En este ejemplo, programamos dos comandos con una frecuencia de media hora.
+El propósito de esta configuración es de iniciar una action sobre un archivo que fue creado hace 29 a 58 minutos 
 
 Usamos el comando find para encontrar los archivos. Usamos una modificación de permisos de los archivos para filtrar los archivos seleccionados:
 
@@ -36,6 +36,17 @@ Usamos el comando find para encontrar los archivos. Usamos una modificación de 
 | 10-39 | 40 | 68 | 29-58 |
 | 40-09 | 10 | 38 | 29-58 |
 
+Limites de este funcionamiento... no procesa los archivos descubiertos a partir de las 23:10. Para solucionar eso agregar un cron comando a las  
+
+Explicación del comando:
+```
+find `date "+/RAID5_sd4/DICOM/\%-Y/\%-m/\%-d/0"` -type f -perm 644 -exec chmod 464 {} \;
+```
+- find `date "+/RAID5_sd4/DICOM/\%-Y/\%-m/\%-d/0"` (buscar en la carpeta base. En nuestro caso, creamos la referencia a esta carpeta en forma dinámica, incluyendo componentes de tiempo
+- -type f (seleccionar los archivos)
+- -perm 644 (con permiso 644)
+- -exec /opt/dcm4che-2.0.24/bin/sr2img.sh {} \; (ruta completa del comando a ejecutar sobre la ruta indicada en $1 (primer argumento)
+    - `{} \;` (tratar cada ruta sucesivamente, con una nueva invocación al comando)
 
 
 
