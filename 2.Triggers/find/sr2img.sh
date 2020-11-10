@@ -92,3 +92,5 @@ else
         echo "                                                                               failed" >> /var/log/sr2img.log
     fi
 fi
+
+exit 0

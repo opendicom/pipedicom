@@ -31,5 +31,5 @@ Nos limitamos a la plataforma linux. Inicialmente Centos. Pero luego un distro l
 1. Conceptos
 2. Triggers
 3. Eslabones
-4. Docker
-5. Ejemplos
+4. Registro de eslabones
+5. Ejemplos de cadenas
