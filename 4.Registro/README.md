@@ -3,7 +3,7 @@
 Las funciones son genéricas para un tipo de input (B, X, J, I, S, E) y pueden depender de una herramienta externa.
 El nombre empieza con la letra mayuscula indicando el tipo de input.
 
-Ejemplos de nombres de funciones:
+Ejemplos de funciones:
 - Bpath2sopuid.sh
 - Bstow.sh
 

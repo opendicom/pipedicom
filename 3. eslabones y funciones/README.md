@@ -59,7 +59,11 @@ eslabón:
 
 ```
 #!/bin/sh
-# BB 
+# stdin: B
+# stdout: B
+# name: BCBSUpcs.sh
+# tool: Bstow.sh
+
 while read line; do
 
 RESPONSE=$( echo ${line} | ./Bstow.sh http://10.10.21.65:8080/dcm4chee-arc/aets/BCBSU/rs )
@@ -79,10 +83,13 @@ función:
 
 ```
 #!/bin/sh
-# B
-# $1 url 
-# /var/log/Bstow.log
-#requires mime.head and mime.tail in the same folder as the executable
+# stdin: B
+# stdout:
+# name: Bstow.sh
+# param $1: url 
+# log: /var/log/Bstow.log
+# requires: mime.head and mime.tail in the same folder as the executable
+# tool: sistem curl
 
 while read line
 do
@@ -134,6 +141,6 @@ exit 0
 ```
 
 Observamos que:
-- el script es de tipo B (ruta de instancia dicom binario en stdin)
+- el script es de tipo B- (ruta de instancia dicom binario en stdin)
 - requiere el url como parametro 1 ($1)
 - documenta la actividad realizada (pedido-respuesta) en /var/log/Bstow.log
