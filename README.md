@@ -23,7 +23,7 @@ Intentamos limitar las dependencias externas. Con la excepción de la dependenci
    
 ## Limitationes
 
-Nos limitamos a la plataforma linux. Inicialmente Centos. Pero luego un distro linux que corra en docker y que comparta con Centos la administración de tareas cron y la versión GNU de las herramientas de scripting.
+Nos limitamos a la plataforma linux. Inicialmente Centos.
 
 
 ## Capitulos del proyecto
