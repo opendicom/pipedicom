@@ -55,9 +55,11 @@ De esta forma, la cadena de eslabones es mucho más legible (porque aparece como
 
 ### Ejemplo de uso de función por un eslabón:
 
+eslabón:
+
 ```
 #!/bin/sh
-# II 
+# BB 
 while read line; do
 
 RESPONSE=$( echo ${line} | ./Bstow.sh http://10.10.21.65:8080/dcm4chee-arc/aets/BCBSU/rs )
@@ -68,14 +70,16 @@ exit 0
 ```
 
 Observamos que:
-- el script es de tipo II ( ruta de instancia en stdin y repetida en stdout)
+- el script es de tipo BB ( ruta de instancia dicom binario en stdin y repetida en stdout)
 - se usa la función Bstow.sh para cada ruta de instancia recibida
 - se agrega como parámetro el url del servico específico con el cual se realizará la transacción.
 - se captura una eventual respuesta de la función en la variable RESPONSE, por si se necesita más procesamiento diferenciado en función de la respuesta.
 
+función:
+
 ```
 #!/bin/sh
-# I
+# B
 # $1 url 
 # /var/log/Bstow.log
 #requires mime.head and mime.tail in the same folder as the executable
@@ -130,6 +134,6 @@ exit 0
 ```
 
 Observamos que:
-- el script es de tipo I (ruta de instancia en stdin)
+- el script es de tipo B (ruta de instancia dicom binario en stdin)
 - requiere el url como parametro 1 ($1)
 - documenta la actividad realizada (pedido-respuesta) en /var/log/Bstow.log
