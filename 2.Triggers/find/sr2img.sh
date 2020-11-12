@@ -1,9 +1,6 @@
 #!/bin/sh
-
-# sr2img.sh
-# Copyright 2020 __opendicom.com__. All rights reserved.
-
-#  $1 = path a new sr
+# name: sr2img.sh
+# param $1: path to a new sr
 
 # sends the corrected xml version of the olf sr to CIP apppacs-img
 # in case of BLUE CROSS, creates /var/spool/BCBSU/"$SOPUID" with corrected xml
@@ -69,7 +66,7 @@ else
     echo $NEWXML | ./xml2dcm -x -o /var/tmp/sr2.dcm  >> /dev/null
     ./dcmsnd -L SR:11111 CIP@192.168.10.123:21112 /var/tmp/sr2.dcm >> /dev/null
 
-    sleep 1
+    sleep 1 
 
     NEWPATH=$( echo "$SOPUID" | ./sopuid2CIPpacspath.sh )
     if [[ $NEWPATH != '' ]]; then

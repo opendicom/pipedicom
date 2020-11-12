@@ -24,15 +24,20 @@ Este script es apenas un proxy sin modificación del stream.
 
 Para hacer algo útil, colocar lineas de código entre do y done en base. Puden referirse a los argumentos del comando y al stdin. Se crea el stdout mediante uno o más comandos `echo`.
 
-## referirse a lso objetos dicom
+## referirse a los objetos dicom
 
 Según la fuente o el destino de los objetos dicom a procesar, se puede referir a ellos:
-1) (B) por la ruta al archivo **dicom binario**
-2) (X) por la ruta al archivo **dicom xml**
-3) (J) por la ruta al archivo **dicom json**
-4) (I) por el **SOPInstanceUID** del objeto
-5) (S) por el **SeriesInstanceUID** de la serie
-6) (E) por el **StudyInstanceUID** del estudio
+1) (A) por la ruta al archivo, independientemente de la representación B, X, o J
+2) (B) por la ruta al archivo **dicom binario**
+3) (X) por la ruta al archivo **dicom xml**
+4) (J) por la ruta al archivo **dicom json**
+5) (I) por el **SOPInstanceUID** del objeto
+6) (S) por el **SeriesInstanceUID** de la serie
+7) (E) por el **StudyInstanceUID** del estudio
+8) (U) por un url, sin precisión del contenido
+9) (W) por un url wado dicom binario
+
+10) (V) por un url de visualización (siempre final de una cadena
 
 Estas referencias determinan la clasificación de los eslabones en función del tipo de entrada y el tipo de salida. Por ejemplo un eslabon II recibe y envia SOPInstanceUID(s). 
 
@@ -62,11 +67,11 @@ eslabón:
 # stdin: B
 # stdout: B
 # name: BCBSUpcs.sh
-# tool: Bstow.sh
+# tool: BBstow.sh
 
 while read line; do
 
-RESPONSE=$( echo ${line} | ./Bstow.sh http://10.10.21.65:8080/dcm4chee-arc/aets/BCBSU/rs )
+RESPONSE=$( echo ${line} | ./BBstow.sh http://10.10.21.65:8080/dcm4chee-arc/aets/BCBSU/rs )
 
 echo "${line}"
 done
@@ -75,7 +80,7 @@ exit 0
 
 Observamos que:
 - el script es de tipo BB ( ruta de instancia dicom binario en stdin y repetida en stdout)
-- se usa la función Bstow.sh para cada ruta de instancia recibida
+- se usa la función BBstow.sh para cada ruta de instancia recibida
 - se agrega como parámetro el url del servico específico con el cual se realizará la transacción.
 - se captura una eventual respuesta de la función en la variable RESPONSE, por si se necesita más procesamiento diferenciado en función de la respuesta.
 
@@ -84,10 +89,10 @@ función:
 ```
 #!/bin/sh
 # stdin: B
-# stdout:
-# name: Bstow.sh
-# param $1: url 
-# log: /var/log/Bstow.log
+# stdout: B
+# name: BBstow.sh
+# param $1: url dicomweb store (also called stow)
+# log: /var/log/BBstow.log
 # requires: mime.head and mime.tail in the same folder as the executable
 # tool: sistem curl
 
@@ -96,51 +101,55 @@ do
 
 STOWRESP=$( cat mime.head ${line} mime.tail | curl -s -k -H "Content-Type: multipart/related; type=application/dicom; boundary=myboundary" "$1"/studies --data-binary @- )
 if [[ -z $STOWRESP ]]; then
-    echo "<stow source=\"${line}\"><response contents=\"not received or empty\"/></stow>" >> /var/log/Bstow.log
+    echo "<stow source=\"${line}\"><response contents=\"not received or empty\"/></stow>" >> /var/log/BBstow.log
 elif [[ $STOWRESP == *FailureReason* ]]; then 
 
     FailureReason=$( echo $STOWRESP | sed -E -e 's/^(.*tag=\"00081197\" vr=\"US\"><Value number=\"1\">)([^<]*)(.*)$/\2/')
     if [[ $FailureReason == "49442" ]]; then
-        echo "<stow source=\"${line}\"><response FailureReason=\"Referenced Transfer Syntax not supported\"/></stow>" >> /var/log/Bstow.log
+        echo "<stow source=\"${line}\"><response FailureReason=\"Referenced Transfer Syntax not supported\"/></stow>" >> /var/log/BBstow.log
     elif [[ $FailureReason == "272" ]]; then
             
 # Processing failure or was already stored
         SOPUID=$( echo "${line}" | ./DICMpath2sopuid.sh )
         QIDORESP=$(curl -s -k "$1"/instances?SOPInstanceUID="$SOPUID")
         if [[ -z $QIDORESP ]]; then
-            echo "<stow source=\"${line}\" SOPInstanceUID=\"$SOPUID\"><response FailureReason=\"Processing failure\"/></stow>" >> /var/log/Bstow.log
+            echo "<stow source=\"${line}\" SOPInstanceUID=\"$SOPUID\"><response FailureReason=\"Processing failure\"/></stow>" >> /var/log/BBstow.log
         else
-            echo "<stow source=\"${line}\"><response FailureReason=\"already stowed\"/></stow>" >> /var/log/Bstow.log
+            echo "<stow source=\"${line}\"><response FailureReason=\"already stowed\"/></stow>" >> /var/log/BBstow.log
         fi
         
     elif [[ $FailureReason == "290" ]]; then
-        echo "<stow source=\"${line}\"><response FailureReason=\"Referenced SOP Class not supported\"/></stow>" >> /var/log/Bstow.log
+        echo "<stow source=\"${line}\"><response FailureReason=\"Referenced SOP Class not supported\"/></stow>" >> /var/log/BBstow.log
     else
-        echo "<stow source=\"${line}\"><response FailureReason=\"$FailureReason\"/></stow>" >> /var/log/Bstow.log    
+        echo "<stow source=\"${line}\"><response FailureReason=\"$FailureReason\"/></stow>" >> /var/log/BBstow.log    
     fi    
 elif [[ $STOWRESP == *WarningReason* ]]; then 
     WarningReason=$( echo $STOWRESP | sed -E -e 's/^(.*tag=\"00081196\" vr=\"US\"><Value number=\"1\">)([^<]*)(.*)$/\2/')
     if [[ $WarningReason == "45056" ]]; then
-        echo "<stow source=\"${line}\"><response WarningReason=\"Coercion of Data Elements\"/></stow>" >> /var/log/Bstow.log
+        echo "<stow source=\"${line}\"><response WarningReason=\"Coercion of Data Elements\"/></stow>" >> /var/log/BBstow.log
     elif [[ $WarningReason == "45062" ]]; then
-        echo "<stow source=\"${line}\"><response WarningReason=\"Elements Discarded\"/></stow>" >> /var/log/Bstow.log
+        echo "<stow source=\"${line}\"><response WarningReason=\"Elements Discarded\"/></stow>" >> /var/log/BBstow.log
     elif [[ $WarningReason == "45063" ]]; then
-        echo "<stow source=\"${line}\"><response WarningReason=\"Data Set does not match SOP Class\"/></stow>" >> /var/log/Bstow.log
+        echo "<stow source=\"${line}\"><response WarningReason=\"Data Set does not match SOP Class\"/></stow>" >> /var/log/BBstow.log
     else
-        echo "<stow source=\"${line}\"><response WarningReason=\"$WarningReason\"/></stow>" >> /var/log/Bstow.log    
+        echo "<stow source=\"${line}\"><response WarningReason=\"$WarningReason\"/></stow>" >> /var/log/BBstow.log    
     fi
 elif [[ $STOWRESP == *RetrieveURL* ]]; then
-    echo "<stow source=\"${line}\"><response RetrieveURL=\"$( echo $STOWRESP | sed -E -e 's/^(.*UR\"><Value number=\"1\">)([^<]*)(<\/Value><\/DicomAttribute><\/Item>.*)$/\2/')\"/></stow>" >> /var/log/Bstow.log
+    echo "<stow source=\"${line}\"><response RetrieveURL=\"$( echo $STOWRESP | sed -E -e 's/^(.*UR\"><Value number=\"1\">)([^<]*)(<\/Value><\/DicomAttribute><\/Item>.*)$/\2/')\"/></stow>" >> /var/log/BBstow.log
 else
-    echo "<stow source=\"${line}\"><response contents=\"not DICOM conformant\"></stow>" >> /var/log/Bstow.log
+    echo "<stow source=\"${line}\"><response contents=\"not DICOM conformant\"></stow>" >> /var/log/BBstow.log
 fi
 
+echo "${line}"
 done 
-
 exit 0
 ```
 
 Observamos que:
 - el script es de tipo B- (ruta de instancia dicom binario en stdin)
 - requiere el url como parametro 1 ($1)
-- documenta la actividad realizada (pedido-respuesta) en /var/log/Bstow.log
+- documenta la actividad realizada (pedido-respuesta) en /var/log/BBstow.log
+
+## Fin de la cadena
+
+Para no generar correos a root, se termina la cadena con redirección del stdout a /dev/null
