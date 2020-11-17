@@ -1,6 +1,6 @@
 # Registro
 
-Las funciones son genéricas para un tipo de input (B, X, J, I, S, E) y pueden depender de una herramienta externa.
+Las funciones son genéricas para un tipo de input (B, X, J, I, S, E).
 El nombre empieza con la letra mayuscula indicando el tipo de input.
 
 Ejemplos de funciones:
@@ -16,4 +16,4 @@ Ejemplos de eslabones:
 - BCBSUpacs.sh
 - BCBSUpcs.sh
 
-Todos los nombres contienen la extensión .sh los diferencia de eventuales parámetros
+Todos los nombres de funciones y eslabones contienen la extensión .sh los diferencia de eventuales parámetros
