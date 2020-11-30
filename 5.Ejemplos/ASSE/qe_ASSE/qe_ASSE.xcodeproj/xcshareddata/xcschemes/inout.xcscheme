@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "4AE75174257550D40031C5A1"
-               BuildableName = "qeASSE"
-               BlueprintName = "qeASSE"
-               ReferencedContainer = "container:qeASSE.xcodeproj">
+               BuildableName = "qe_ASSE"
+               BlueprintName = "qe_ASSE"
+               ReferencedContainer = "container:qe_ASSE.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -45,9 +45,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4AE75174257550D40031C5A1"
-            BuildableName = "qeASSE"
-            BlueprintName = "qeASSE"
-            ReferencedContainer = "container:qeASSE.xcodeproj">
+            BuildableName = "qe_ASSE"
+            BlueprintName = "qe_ASSE"
+            ReferencedContainer = "container:qe_ASSE.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -62,9 +62,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4AE75174257550D40031C5A1"
-            BuildableName = "qeASSE"
-            BlueprintName = "qeASSE"
-            ReferencedContainer = "container:qeASSE.xcodeproj">
+            BuildableName = "qe_ASSE"
+            BlueprintName = "qe_ASSE"
+            ReferencedContainer = "container:qe_ASSE.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

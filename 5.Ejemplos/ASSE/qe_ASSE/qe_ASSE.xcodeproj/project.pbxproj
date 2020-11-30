@@ -23,7 +23,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		4AE75175257550D40031C5A1 /* qeASSE */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = qeASSE; sourceTree = BUILT_PRODUCTS_DIR; };
+		4AE75175257550D40031C5A1 /* qe_ASSE */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = qe_ASSE; sourceTree = BUILT_PRODUCTS_DIR; };
 		4AE75178257550D40031C5A1 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -41,7 +41,7 @@
 		4AE7516C257550D30031C5A1 = {
 			isa = PBXGroup;
 			children = (
-				4AE75177257550D40031C5A1 /* qeASSE */,
+				4AE75177257550D40031C5A1 /* qe_ASSE */,
 				4AE75176257550D40031C5A1 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -49,25 +49,25 @@
 		4AE75176257550D40031C5A1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				4AE75175257550D40031C5A1 /* qeASSE */,
+				4AE75175257550D40031C5A1 /* qe_ASSE */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		4AE75177257550D40031C5A1 /* qeASSE */ = {
+		4AE75177257550D40031C5A1 /* qe_ASSE */ = {
 			isa = PBXGroup;
 			children = (
 				4AE75178257550D40031C5A1 /* main.m */,
 			);
-			path = qeASSE;
+			path = qe_ASSE;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		4AE75174257550D40031C5A1 /* qeASSE */ = {
+		4AE75174257550D40031C5A1 /* qe_ASSE */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4AE7517C257550D40031C5A1 /* Build configuration list for PBXNativeTarget "qeASSE" */;
+			buildConfigurationList = 4AE7517C257550D40031C5A1 /* Build configuration list for PBXNativeTarget "qe_ASSE" */;
 			buildPhases = (
 				4AE75171257550D40031C5A1 /* Sources */,
 				4AE75172257550D40031C5A1 /* Frameworks */,
@@ -77,9 +77,9 @@
 			);
 			dependencies = (
 			);
-			name = qeASSE;
+			name = qe_ASSE;
 			productName = inout;
-			productReference = 4AE75175257550D40031C5A1 /* qeASSE */;
+			productReference = 4AE75175257550D40031C5A1 /* qe_ASSE */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -95,7 +95,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 4AE75170257550D40031C5A1 /* Build configuration list for PBXProject "qeASSE" */;
+			buildConfigurationList = 4AE75170257550D40031C5A1 /* Build configuration list for PBXProject "qe_ASSE" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -108,7 +108,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				4AE75174257550D40031C5A1 /* qeASSE */,
+				4AE75174257550D40031C5A1 /* qe_ASSE */,
 			);
 		};
 /* End PBXProject section */
@@ -255,7 +255,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		4AE75170257550D40031C5A1 /* Build configuration list for PBXProject "qeASSE" */ = {
+		4AE75170257550D40031C5A1 /* Build configuration list for PBXProject "qe_ASSE" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4AE7517A257550D40031C5A1 /* Debug */,
@@ -264,7 +264,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4AE7517C257550D40031C5A1 /* Build configuration list for PBXNativeTarget "qeASSE" */ = {
+		4AE7517C257550D40031C5A1 /* Build configuration list for PBXNativeTarget "qe_ASSE" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4AE7517D257550D40031C5A1 /* Debug */,

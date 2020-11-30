@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:/Volumes/GITHUB/pipedicom/5.Ejemplos/ASSE/qeASSE/qeASSE.xcodeproj">
+      location = "self:/Volumes/GITHUB/pipedicom/5.Ejemplos/ASSE/qe_ASSE/qe_ASSE.xcodeproj">
    </FileRef>
 </Workspace>
