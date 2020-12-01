@@ -150,18 +150,19 @@ UInt16 uint16FromCuartetBuffer( unsigned char* buffer, NSUInteger index)
    ;
 }
 
- UInt32 tagFromCuartetBuffer( unsigned char* buffer, NSUInteger index)
- {
- return   (byte2cuartet[buffer[index  ]] << 20)
- + (byte2cuartet[buffer[index+1]] << 16)
- + (byte2cuartet[buffer[index+2]] << 28)
- + (byte2cuartet[buffer[index+3]] << 24)
- + (byte2cuartet[buffer[index+4]] << 4)
- + (byte2cuartet[buffer[index+5]] << 0)
- + (byte2cuartet[buffer[index+6]] << 12)
- + (byte2cuartet[buffer[index+7]] << 8)
- ;
- }
+static uint16 zerozero=0x0;
+static uint32 zerozerozerozero=0x0;
+static uint32 ffffffff=0xffffffff;
+
+static uint32 fffee000=0xe000fffe;//start empty item
+static uint64 fffee00000000000=0xe000fffe;//start empty item
+static uint64 fffee000ffffffff=0xffffffffe000fffe;//start undefined item
+
+static uint64 fffee00d=0xe00dfffe;//end item
+static uint64 fffee00d00000000=0xe00dfffe;//end item
+
+static uint32 fffee0dd=0xe0ddfffe;//end sq
+static uint64 fffee0dd00000000=0xe0ddfffe;//end sq
 
 UInt32 uint32FromCuartetBuffer( unsigned char* buffer, NSUInteger index)
 {
@@ -176,6 +177,13 @@ UInt32 uint32FromCuartetBuffer( unsigned char* buffer, NSUInteger index)
           ;
 }
 
+uint32 uint32visual(uint32 tag)
+{
+   return   ((tag & 0xff000000)>>16)
+           +((tag & 0x00ff0000)>>16)
+           +((tag & 0x0000ff00)<<16)
+           +((tag & 0x000000ff)<<16);
+}
 
 UInt8 octetFromCuartetBuffer( unsigned char* buffer, NSUInteger index)
 {
@@ -197,19 +205,6 @@ void setMutabledataFromCuartetBuffer( unsigned char* buffer, NSUInteger startind
    }
 }
 
-static uint16 zerozero=0x0;
-static uint32 zerozerozerozero=0x0;
-static uint32 ffffffff=0xffffffff;
-
-static uint32 fffee000=0xfffee000;//00e0feff;//start empty item
-static uint64 fffee000ffffffff=0xffffffff00e0feff;//start undefined item
-static uint64 fffee00000000000=0x00e0feff;//start empty item
-
-static uint64 fffee00d=0xfffee00d;//0de0feff;//end item
-static uint64 fffee00d00000000=0x0de0feff;//end item
-
-static uint32 fffee0dd=0xfffee0dd;//dde0feff;//end sq
-static uint64 fffee0dd00000000=0xdde0feff;//end sq
 
 NSUInteger parseAttrList(
                          unsigned char* buffer,
@@ -223,7 +218,7 @@ NSUInteger parseAttrList(
                          NSMutableArray *bodydatas
                          )
 {
-   UInt32 tag = tagFromCuartetBuffer(buffer,index);
+   UInt32 tag = uint32FromCuartetBuffer(buffer,index);
    UInt16 vr;//value representation
    UInt16 vl;//value length
    UInt32 vll;// 4 bytes value length
@@ -245,10 +240,9 @@ NSUInteger parseAttrList(
             vl = uint16FromCuartetBuffer(buffer,index+12);
             [md appendBytes:&vl length:2];
             [headdatas addObject:[NSData dataWithData:md]];
-            
             [headstrings addObject:[NSString stringWithFormat:@"%@%08x%@~%c%c",
                                     basetag,
-                                    tag,
+                                    uint32visual(tag),
                                     branch,
                                     vr & 0xff,
                                     vr >> 8
@@ -286,7 +280,7 @@ NSUInteger parseAttrList(
             
             [headstrings addObject:[NSString stringWithFormat:@"%@%08x%@~%c%c",
                                     basetag,
-                                    tag,
+                                    uint32visual(tag),
                                     branch,
                                     vr & 0xff,
                                     vr >> 8
@@ -317,7 +311,7 @@ NSUInteger parseAttrList(
             
             [headstrings addObject:[NSString stringWithFormat:@"%@%08x%@~%c%c",
                                     basetag,
-                                    tag,
+                                    uint32visual(tag),
                                     branch,
                                     vr & 0xff,
                                     vr >> 8
@@ -356,7 +350,7 @@ NSUInteger parseAttrList(
             
             [headstrings addObject:[NSString stringWithFormat:@"%@%08x%@~%c%c",
                                     basetag,
-                                    tag,
+                                    uint32visual(tag),
                                     branch,
                                     vr & 0xff,
                                     vr >> 8
@@ -378,7 +372,7 @@ NSUInteger parseAttrList(
             //SQ unknown length
             
             //SQ empty?
-            uint32 nexttag=tagFromCuartetBuffer(buffer,index+16);
+            uint32 nexttag=uint32FromCuartetBuffer(buffer,index+16);
             if (nexttag==zerozerozerozero)
             {
                //empty sequence without end tag
@@ -390,7 +384,7 @@ NSUInteger parseAttrList(
                [headdatas addObject:[NSData dataWithData:md]];
                [headstrings addObject:[NSString stringWithFormat:@"%@%08x%@",
                                        basetag,
-                                       tag,
+                                       uint32visual(tag),
                                        branch.length?[branch stringByAppendingPathExtension:@"0"]:@"#0"
                                        ]
                 ];
@@ -421,7 +415,7 @@ NSUInteger parseAttrList(
                [headdatas addObject:[NSData dataWithData:md]];
                [headstrings addObject:[NSString stringWithFormat:@"%@%08x%@#",
                                        basetag,
-                                       tag,
+                                       uint32visual(tag),
                                        branch
                                        ]
                 ];
@@ -431,7 +425,7 @@ NSUInteger parseAttrList(
                [bodystrings addObject:@""];
                
                index+=24;
-               nexttag=tagFromCuartetBuffer(buffer,index);
+               nexttag=uint32FromCuartetBuffer(buffer,index);
                NSUInteger itemcounter=0;
                
                
@@ -440,7 +434,7 @@ NSUInteger parseAttrList(
                   itemcounter++;
                   
                   //newbasetag
-                  NSString *tagstring=[NSString stringWithFormat:@"%08x",tag];
+                  NSString *tagstring=[NSString stringWithFormat:@"%08x",uint32visual(tag)];
                   NSString *newbasetag=[NSString stringWithFormat:@"%@%@.",basetag,tagstring];
                   
                   //newbranch
@@ -450,11 +444,11 @@ NSUInteger parseAttrList(
                   
                   if (nexttag!=fffee000) //ERROR item without header
                   {
-#pragma mark ERROR3
-                     NSLog(@"ERROR3: no item start");
+#pragma mark ERROR2
+                     NSLog(@"ERROR2: no item start");
                      setMutabledataFromCuartetBuffer(buffer,index,postbuffer,md);
                      NSLog(@"%@",md.description);
-                     exit(3);
+                     exit(2);
                   }
                   else
                   {
@@ -472,11 +466,11 @@ NSUInteger parseAttrList(
                      }
                      else if (itemlength!=ffffffff) //item with defined length
                      {
-#pragma mark ERROR4
-                        NSLog(@"ERROR4: item with defined length. NOT IMPLEMENTED YET");
+#pragma mark ERROR3
+                        NSLog(@"ERROR3: item with defined length. NOT IMPLEMENTED YET");
                         setMutabledataFromCuartetBuffer(buffer,index,postbuffer,md);
                         NSLog(@"%@",md.description);
-                        exit(4);
+                        exit(3);
                      }
                      else //undefined length item
                      {
@@ -505,7 +499,7 @@ NSUInteger parseAttrList(
                         [headdatas addObject:[NSData dataWithBytes:&fffee00d00000000 length:8]];
                         [headstrings addObject:
                          [NSString stringWithFormat:
-                          @"%@FFFEEOOD%@",
+                          @"%@fffee00d%@",
                           newbasetag,
                           newbranch
                           ]
@@ -515,19 +509,19 @@ NSUInteger parseAttrList(
                         [bodydatas addObject:[NSData data]];
                         [bodystrings addObject:@""];
                         index+=16;
-                        nexttag=tagFromCuartetBuffer(buffer,index);
+                        nexttag=uint32FromCuartetBuffer(buffer,index);
                      }
                   }
                }
                //SQ end (nextitem==feff0dde)   $branch.Z
                [md setLength:0];
-               [md appendBytes:&fffee00d00000000 length:8];
+               [md appendBytes:&fffee0dd00000000 length:8];
                [headdatas addObject:[NSData dataWithData:md]];
                [headstrings addObject:
                 [NSString stringWithFormat:
-                 @"%@%08x.FFFEE0DD%@",
+                 @"%@%08x.fffee0dd%@",
                  basetag,
-                 tag,
+                 uint32visual(tag),
                  branch
                  ]
                 ];
@@ -544,21 +538,17 @@ NSUInteger parseAttrList(
             
          default://ERROR unknow VR
          {
-#pragma mark ERROR2
+#pragma mark ERROR4
             NSLog(@"vr: %d", vr);
-            NSLog(@"%@",headstrings);
-            NSLog(@"%@",headdatas.description);
-            NSLog(@"%@",bodystrings);
-            NSLog(@"%@",bodydatas.description);
-            NSLog(@"ERROR2: unknown VR");
+            NSLog(@"ERROR4: unknown VR");
             setMutabledataFromCuartetBuffer(buffer,index,postbuffer,md);
             NSLog(@"%@",md.description);
-            exit(2);
+            exit(4);
             
             break;
          }
       }
-      tag = tagFromCuartetBuffer(buffer,index);
+      tag = uint32FromCuartetBuffer(buffer,index);
    }
    return index;
 }
@@ -602,6 +592,11 @@ int main(int argc, const char * argv[]) {
                                         bodystrings,
                                         bodydatas
                                         );
+         NSLog(@"%@",headstrings);
+         //NSLog(@"%@",headdatas.description);
+         //NSLog(@"%@",bodystrings);
+         //NSLog(@"%@",bodydatas.description);
+
       }
       
    }//end autorelease pool
