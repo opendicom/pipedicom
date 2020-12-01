@@ -198,9 +198,9 @@ void setMutabledataFromCuartetBuffer( unsigned char* buffer, NSUInteger startind
    uint8 octet;
    for (NSUInteger i=startindex; i<afterindex; i+=2 )
    {
-      octet = (byte2cuartet[buffer[i+0]] << 4)
-      + (byte2cuartet[buffer[i+1]] << 0)
-      ;
+      octet = (byte2cuartet[buffer[i  ]] << 4)
+            + (byte2cuartet[buffer[i+1]] << 0)
+            ;
       [md appendBytes:&octet length:1];
    }
 }
@@ -252,22 +252,19 @@ NSUInteger parseAttrList(
             
             //body
             setMutabledataFromCuartetBuffer(buffer,index+16,index+16+vl+vl,md);
-            for (NSUInteger i=index+16; i<index+16+vl+vl; i+=2 )
-            {
-               octet = octetFromCuartetBuffer(buffer,i);
-               [md appendBytes:&octet length:1];
-            }
             [bodydatas addObject:[NSData dataWithData:md]];
             [bodystrings addObject:[[NSString alloc]initWithData:md encoding:NSISOLatin1StringEncoding]];
             index+=16+vl+vl;
             break;
          }
             
-#pragma mark SH LO PN CS
+#pragma mark SH LO PN CS DS LT
          case 0x4853:
          case 0x4f4c:
          case 0x4e50:
          case 0x5343:
+         case 0x5344:
+         case 0x544c:
          {
             //body string without start and end spaces
             //head
@@ -573,6 +570,7 @@ int main(int argc, const char * argv[]) {
       //get dicomattrs
       for (NSString *pk in pksarray)
       {
+         NSLog(@"--------------");
          NSLog(@"pk:%@",pk);
 #pragma mark loop for each pk parse dicom attrs
          NSData *dicomattrs=dicomattrs4pk([pk longLongValue]);
@@ -592,11 +590,71 @@ int main(int argc, const char * argv[]) {
                                         bodystrings,
                                         bodydatas
                                         );
-         NSLog(@"%@",headstrings);
+         //NSLog(@"%@",headstrings);
          //NSLog(@"%@",headdatas.description);
          //NSLog(@"%@",bodystrings);
          //NSLog(@"%@",bodydatas.description);
 
+         BOOL modify=false;
+         
+#pragma mark find attr 00080080~LO (institution)
+         NSUInteger institutionindex=[headstrings indexOfObject:@"00080080~LO"];
+         if (institutionindex!=NSNotFound)
+            NSLog(@" '%@' %@",
+                  bodystrings[institutionindex],
+                  bodydatas[institutionindex]
+                  );
+         if ([bodystrings[institutionindex] isEqualToString:@"Documents "])
+         {
+            modify=true;
+            [bodystrings replaceObjectAtIndex:institutionindex withObject:@"HPediatrico"];
+            NSData *HPediatricodata=[@"HPediatrico " dataUsingEncoding:NSISOLatin1StringEncoding];
+            [bodydatas replaceObjectAtIndex:institutionindex withObject:HPediatricodata];
+            NSLog(@"='%@' %@",
+                  bodystrings[institutionindex],
+                  bodydatas[institutionindex]
+                  );
+
+            NSMutableData *institutionheaddata=[NSMutableData dataWithData:headdatas[institutionindex]];
+            uint16 HPediatricolength=HPediatricodata.length;
+            [institutionheaddata replaceBytesInRange:NSMakeRange(6,2) withBytes:&HPediatricolength];
+            [headdatas replaceObjectAtIndex:institutionindex withObject:institutionheaddata];
+            NSLog(@"%@ %@",headstrings[institutionindex],headdatas[institutionindex]);
+         }
+         
+#pragma mark find attr 00081060~PN (reporting)
+         NSUInteger reportingindex=[headstrings indexOfObject:@"00081060~PN"];
+         if (reportingindex!=NSNotFound) NSLog(@" '%@'",bodystrings[reportingindex]);
+         if ([bodystrings[reportingindex] isEqualToString:@"Documents^^-"])
+         {
+            modify=true;
+            [bodystrings replaceObjectAtIndex:reportingindex withObject:@"HPediatrico^^-"];
+            NSData *HPediatricodata=[@"HPediatrico^^-" dataUsingEncoding:NSISOLatin1StringEncoding];
+            [bodydatas replaceObjectAtIndex:reportingindex withObject:HPediatricodata];
+            NSLog(@"='%@' %@",
+                  bodystrings[reportingindex],
+                  bodydatas[reportingindex]
+                  );
+            
+            NSMutableData *reportingheaddata=[NSMutableData dataWithData:headdatas[reportingindex]];
+            uint16 HPediatricolength=HPediatricodata.length;
+            [reportingheaddata replaceBytesInRange:NSMakeRange(6,2) withBytes:&HPediatricolength];
+            [headdatas replaceObjectAtIndex:reportingindex withObject:reportingheaddata];
+            NSLog(@"%@ %@",headstrings[reportingindex],headdatas[reportingindex]);
+         }
+
+         if (modify)
+         {
+            NSMutableData *outputdata=[NSMutableData data];
+            for (NSUInteger i=0; i<headdatas.count;i++)
+            {
+               [outputdata appendData:headdatas[i]];
+               NSLog(@"%@",[headdatas[i] description]);
+               [outputdata appendData:bodydatas[i]];
+               NSLog(@"         %@",[bodydatas[i] description]);
+            }
+            [outputdata writeToFile:[[@"/Users/Shared/dicomattrs" stringByAppendingPathComponent:pk]stringByAppendingPathExtension:@"dcm"] atomically:NO];
+         }
       }
       
    }//end autorelease pool
