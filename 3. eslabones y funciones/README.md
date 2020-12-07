@@ -27,17 +27,18 @@ Para hacer algo útil, colocar lineas de código entre do y done en base. Puden 
 ## referirse a los objetos dicom
 
 Según la fuente o el destino de los objetos dicom a procesar, se puede referir a ellos:
-(A) por la ruta al archivo, independientemente de la representación B, X, o J
-(B) por la ruta al archivo **dicom binario**
-(X) por la ruta al archivo **dicom xml**
-(J) por la ruta al archivo **dicom json**
-(P) por la ruta al archivo **dicom plist** ( [[headstrings],[bodystrings],[headdatas],[bodydatas]] )
-(I) por el **SOPInstanceUID** del objeto
-(S) por el **SeriesInstanceUID** de la serie
-(E) por el **StudyInstanceUID** del estudio
-(U) por un url, sin precisión del contenido
-(W) por un url wado dicom binario
-(V) por un url de visualización (siempre final de una cadena
+-    (A) por la ruta al archivo, independientemente de la representación B, X, o J
+-    (B) por la ruta al archivo **dicom binario**
+-    (X) por la ruta al archivo **dicom xml**
+-    (J) por la ruta al archivo **dicom json**
+-    (P) por la ruta al archivo **dicom plist** ( [[headstrings],[bodystrings],[headdatas],[bodydatas]] )
+-    (O) identificador de un objeto de una tabla en una base de datos
+-    (I) por el **SOPInstanceUID** del objeto
+-    (S) por el **SeriesInstanceUID** de la serie
+-    (E) por el **StudyInstanceUID** del estudio
+-    (U) por un url, sin precisión del contenido
+-    (W) por un url wado dicom binario
+-    (V) por un url de visualización (siempre final de una cadena
 
 Estas referencias determinan la clasificación de los eslabones en función del tipo de entrada y el tipo de salida. Por ejemplo un eslabon II recibe y envia SOPInstanceUID(s). 
 
