@@ -92,6 +92,35 @@ int bash(NSData *writeData, NSMutableData *readData)
    return task(@"/bin/bash",@[@"-s"], writeData, readData);
 }
 
+int writeToFile(NSString *filepath, NSArray *headdatas, NSArray *bodydatas)
+{
+   NSMutableData *outputdata=[NSMutableData data];
+   for (NSUInteger i=0; i<headdatas.count;i++)
+   {
+      [outputdata appendData:headdatas[i]];
+      //NSLog(@"%@",[headdatas[i] description]);
+      [outputdata appendData:bodydatas[i]];
+      //NSLog(@"         %@",[bodydatas[i] description]);
+   }
+   [outputdata writeToFile:filepath atomically:NO];
+   return 0;
+}
+
+#pragma mark - string functions
+
+NSString *trimLeadingAndTrailingSpaces(NSString *inputString)
+{
+   NSMutableString *mutableString=[NSMutableString stringWithString:inputString];
+   while ([mutableString hasPrefix:@" "])
+   {
+      [mutableString deleteCharactersInRange:NSMakeRange(0,1)];
+   }
+   while ([mutableString hasSuffix:@" "])
+   {
+      [mutableString deleteCharactersInRange:NSMakeRange(mutableString.length-1,1)];
+   }
+   return [NSString stringWithString:mutableString];
+}
 #pragma mark - mysql queries
 NSData *dicomattrs4pk(long long pk)
 {
@@ -222,15 +251,19 @@ NSUInteger parseAttrList(
    UInt16 vr;//value representation
    UInt16 vl;//value length
    UInt32 vll;// 4 bytes value length
-   unsigned char octet;
    NSMutableData *md = [NSMutableData data];//mutable data value itself
    while (tag!=fffee00d &&  index < postbuffer)
    {
       vr  = uint16FromCuartetBuffer(buffer,index+8);
       switch (vr) {
-#pragma mark DA DT AS
+#pragma mark attribute AT
+         case 0x5441:
+         {
+            break;
+         }
+
+#pragma mark DA AS (pair fixed width ISO-IR 6)
          case 0x4144:
-         case 0x4d54:
          case 0x5341:
          {
             //head
@@ -248,7 +281,7 @@ NSUInteger parseAttrList(
                                     vr >> 8
                                     ]
              ];
-            NSLog(@"%@",headstrings.lastObject);
+            //NSLog(@"%@",headstrings.lastObject);
             
             //body
             setMutabledataFromCuartetBuffer(buffer,index+16,index+16+vl+vl,md);
@@ -258,13 +291,45 @@ NSUInteger parseAttrList(
             break;
          }
             
-#pragma mark SH LO PN CS DS LT
-         case 0x4853:
-         case 0x4f4c:
-         case 0x4e50:
+#pragma mark TM (ISO-IR 6)
+         case 0x4d54:
+         {
+            /*
+             A string of characters of the format HHMMSS.FFFFFF; where HH contains hours (range "00" - "23"), MM contains minutes (range "00" - "59"), SS contains seconds (range "00" - "60"), and FFFFFF contains a fractional part of a second as small as 1 millionth of a second (range "000000" - "999999"). A 24-hour clock is used. Midnight shall be represented by only "0000" since "2400" would violate the hour range. The string may be padded with trailing spaces. Leading and embedded spaces are not allowed.
+             
+             One or more of the components MM, SS, or FFFFFF may be unspecified as long as every component to the right of an unspecified component is also unspecified, which indicates that the value is not precise to the precision of those unspecified components.
+             
+             The FFFFFF component, if present, shall contain 1 to 6 digits. If FFFFFF is unspecified the preceding "." shall not be included.
+             
+             Examples:
+             
+             "070907.0705 " represents a time of 7 hours, 9 minutes and 7.0705 seconds.
+             
+             "1010" represents a time of 10 hours, and 10 minutes.
+             
+             "021 " is an invalid value.
+             
+             Note
+             The ACR-NEMA Standard 300 (predecessor to DICOM) supported a string of characters of the format HH:MM:SS.frac for this VR. Use of this format is not compliant.
+             
+             See also DT VR in this table.
+             
+             The SS component may have a value of 60 only for a leap second.
+             */
+            break;
+         }
+
+#pragma mark DT (datetime ISO-IR 6)
+         case 0x5444:
+         {
+            break;
+         }
+
+#pragma mark CS DS IS AE (ISO-IR 6 <16 trim first and last spaces)
          case 0x5343:
          case 0x5344:
-         case 0x544c:
+         case 0x5349:
+         case 0x4541:
          {
             //body string without start and end spaces
             //head
@@ -283,21 +348,25 @@ NSUInteger parseAttrList(
                                     vr >> 8
                                     ]
              ];
-            NSLog(@"%@",headstrings.lastObject);
-            
-            //body
             setMutabledataFromCuartetBuffer(buffer,index+16,index+16+vl+vl,md);
             [bodydatas addObject:[NSData dataWithData:md]];
             
-#pragma mark remove start and end spaces
-            [bodystrings addObject:[[NSString alloc]initWithData:md encoding:NSISOLatin1StringEncoding]];
+            [bodystrings addObject:
+             trimLeadingAndTrailingSpaces([[NSString alloc]initWithData:md encoding:NSASCIIStringEncoding])
+             ];
             index+=16+vl+vl;
             break;
          }
-            
-#pragma mark UI
-         case 0x4955:
+
+         
+#pragma mark SH LO PN LT ST
+         case 0x4853:
+         case 0x4f4c:
+         case 0x4e50:
+         case 0x544c:
+         case 0x5453:
          {
+            //body string without start and end spaces
             //head
             [md setLength:0];
             [md appendBytes:&tag length:4];
@@ -314,7 +383,43 @@ NSUInteger parseAttrList(
                                     vr >> 8
                                     ]
              ];
-            NSLog(@"%@",headstrings.lastObject);
+            setMutabledataFromCuartetBuffer(buffer,index+16,index+16+vl+vl,md);
+            [bodydatas addObject:[NSData dataWithData:md]];
+            
+#pragma mark remove start and end spaces
+            [bodystrings addObject:[[NSString alloc]initWithData:md encoding:NSISOLatin1StringEncoding]];
+            index+=16+vl+vl;
+            break;
+         }
+
+#pragma mark UC
+         case 0x4355:
+         {
+            //Unlimited Characters
+            break;
+         }
+
+#pragma mark UI
+         case 0x4955:
+         {
+            //Unique Identifier (UID)
+            //head
+            [md setLength:0];
+            [md appendBytes:&tag length:4];
+            [md appendBytes:&vr length:2];
+            vl = uint16FromCuartetBuffer(buffer,index+12);
+            [md appendBytes:&vl length:2];
+            [headdatas addObject:[NSData dataWithData:md]];
+            
+            [headstrings addObject:[NSString stringWithFormat:@"%@%08x%@~%c%c",
+                                    basetag,
+                                    uint32visual(tag),
+                                    branch,
+                                    vr & 0xff,
+                                    vr >> 8
+                                    ]
+             ];
+            //NSLog(@"%@",headstrings.lastObject);
             
             //body
             setMutabledataFromCuartetBuffer(buffer,index+16,index+16+vl+vl,md);
@@ -332,10 +437,20 @@ NSUInteger parseAttrList(
             index+=16+vl+vl;
             break;
          }
-            
+
+#pragma mark UR
+         case 0x5255:
+         {
+            //Universal Resource Identifier or Universal Resource Locator (URI/URL)
+            break;
+         }
+
 #pragma mark UT
          case 0x5455:
          {
+            /*
+             A character string that may contain one or more paragraphs. It may contain the Graphic Character set and the Control Characters, CR, LF, FF, and ESC. It may be padded with trailing spaces, which may be ignored, but leading spaces are considered to be significant. Data Elements with this VR shall not be multi-valued and therefore character code 5CH (the BACKSLASH "\" in ISO-IR 6) may be used.
+             */
             //head
             [md setLength:0];
             [md appendBytes:&tag length:4];
@@ -355,8 +470,8 @@ NSUInteger parseAttrList(
              ];
             
             //body
-            setMutabledataFromCuartetBuffer(buffer,index+24,index+24+vll+vll,md);
-            NSLog(@"%@",headstrings.lastObject);
+          setMutabledataFromCuartetBuffer(buffer,index+24,index+24+vll+vll,md);
+            //NSLog(@"%@",headstrings.lastObject);
             [bodydatas addObject:[NSData dataWithData:md]];
             [bodystrings addObject:[[NSString alloc]initWithData:md  encoding:NSISOLatin1StringEncoding]];
             index+=24+vll+vll;
@@ -385,7 +500,7 @@ NSUInteger parseAttrList(
                                        branch.length?[branch stringByAppendingPathExtension:@"0"]:@"#0"
                                        ]
                 ];
-               NSLog(@"%@",headstrings.lastObject);
+               //NSLog(@"%@",headstrings.lastObject);
                //NSLog(@"%@",headdatas.lastObject);
                
                [bodydatas addObject:[NSData data]];
@@ -395,7 +510,7 @@ NSUInteger parseAttrList(
             }
             else if (nexttag!=ffffffff) //SQ with defined length
             {
-#pragma mark ERROR1
+#pragma mark ERROR1: SQ defined length
                NSLog(@"ERROR1: SQ with defined length. NOT IMPLEMENTED YET");
                setMutabledataFromCuartetBuffer(buffer,index,postbuffer,md);
                NSLog(@"%@",md.description);
@@ -416,7 +531,7 @@ NSUInteger parseAttrList(
                                        branch
                                        ]
                 ];
-               NSLog(@"%@",headstrings.lastObject);
+               //NSLog(@"%@",headstrings.lastObject);
                //NSLog(@"%@",headdatas.lastObject);
                [bodydatas addObject:[NSData data]];
                [bodystrings addObject:@""];
@@ -441,7 +556,7 @@ NSUInteger parseAttrList(
                   
                   if (nexttag!=fffee000) //ERROR item without header
                   {
-#pragma mark ERROR2
+#pragma mark ERROR2: no item start
                      NSLog(@"ERROR2: no item start");
                      setMutabledataFromCuartetBuffer(buffer,index,postbuffer,md);
                      NSLog(@"%@",md.description);
@@ -455,7 +570,7 @@ NSUInteger parseAttrList(
                         //empty sequence without end tag
                         [headdatas addObject:[NSData dataWithBytes:&fffee00000000000 length:8]];
                         [headstrings addObject:[newbasetag stringByAppendingString:newbranch]];
-                        NSLog(@"%@",headstrings.lastObject);
+                        //NSLog(@"%@",headstrings.lastObject);
                         //NSLog(@"%@",headdatas.lastObject);
                         [bodydatas addObject:[NSData data]];
                         [bodystrings addObject:@""];
@@ -463,7 +578,7 @@ NSUInteger parseAttrList(
                      }
                      else if (itemlength!=ffffffff) //item with defined length
                      {
-#pragma mark ERROR3
+#pragma mark ERROR3: item defined length
                         NSLog(@"ERROR3: item with defined length. NOT IMPLEMENTED YET");
                         setMutabledataFromCuartetBuffer(buffer,index,postbuffer,md);
                         NSLog(@"%@",md.description);
@@ -522,7 +637,7 @@ NSUInteger parseAttrList(
                  branch
                  ]
                 ];
-               NSLog(@"%@",headstrings.lastObject);
+               //NSLog(@"%@",headstrings.lastObject);
                //NSLog(@"%@",headdatas.lastObject);
                [bodydatas addObject:[NSData data]];
                [bodystrings addObject:@""];
@@ -531,11 +646,127 @@ NSUInteger parseAttrList(
             
             break;
          }
+
+#pragma mark attribute UN
+         case 0x4E55:
+         {
+            //Unknown
+            break;
+         }
+
+#pragma mark attribute SL
+         case 0x4C53:
+         {
+            //Signed Long
+            break;
+         }
             
+#pragma mark attribute UL
+         case 0x4C55:
+         {
+            //Unsigned Long
+            break;
+         }
+
             
+#pragma mark attribute SS
+         case 0x5353:
+         {
+            //Signed Short
+            break;
+         }
+            
+#pragma mark attribute US
+         case 0x5355:
+         {
+            //Unsigned Short
+            break;
+         }
+
+#pragma mark attribute SV
+         case 0x5653:
+         {
+            //Signed 64-bit Very Long
+            break;
+         }
+
+#pragma mark attribute UV
+         case 0x5655:
+         {
+            //Unsigned 64-bit Very Long
+            break;
+         }
+
+#pragma mark attribute FL
+         case 0x4C46:
+         {
+            break;
+         }
+            
+#pragma mark attribute FD
+         case 0x4446:
+         {
+            break;
+         }
+
+#pragma mark attribute OB
+         case 0x424F:
+         {
+            /*
+             An octet-stream where the encoding of the contents is specified by the negotiated Transfer Syntax. OB is a VR that is insensitive to byte ordering (see Section 7.3). The octet-stream shall be padded with a single trailing NULL byte value (00H) when necessary to achieve even length.
+             */
+            break;
+         }
+            
+#pragma mark attribute OD
+         case 0x444F:
+         {
+            /*
+             A stream of 64-bit IEEE 754:1985 floating point words. OD is a VR that requires byte swapping within each 64-bit word when changing byte ordering (see Section 7.3).
+             */
+            break;
+         }
+            
+#pragma mark attribute OF
+         case 0x464F:
+         {
+            /*
+             A stream of 32-bit IEEE 754:1985 floating point words. OF is a VR that requires byte swapping within each 32-bit word when changing byte ordering (see Section 7.3).
+             */
+            break;
+         }
+            
+#pragma mark attribute OL
+         case 0x4C4F:
+         {
+            /*
+             A stream of 32-bit words where the encoding of the contents is specified by the negotiated Transfer Syntax. OL is a VR that requires byte swapping within each word when changing byte ordering (see Section 7.3).
+             */
+            break;
+         }
+            
+#pragma mark attribute OV
+         case 0x564F:
+         {
+            /*
+             A stream of 64-bit words where the encoding of the contents is specified by the negotiated Transfer Syntax. OV is a VR that requires byte swapping within each word when changing byte ordering (see Section 7.3).
+             */
+            break;
+         }
+            
+#pragma mark attribute OW
+         case 0x574F:
+         {
+            /*
+             A stream of 16-bit words where the encoding of the contents is specified by the negotiated Transfer Syntax. OW is a VR that requires byte swapping within each word when changing byte ordering (see Section 7.3).
+             */
+            break;
+         }
+            
+
          default://ERROR unknow VR
          {
-#pragma mark ERROR4
+#pragma mark ERROR4: unknown VR
             NSLog(@"vr: %d", vr);
             NSLog(@"ERROR4: unknown VR");
             setMutabledataFromCuartetBuffer(buffer,index,postbuffer,md);
@@ -590,9 +821,9 @@ int main(int argc, const char * argv[]) {
                                         bodystrings,
                                         bodydatas
                                         );
-         //NSLog(@"%@",headstrings);
+         NSLog(@"%@",headstrings);
          //NSLog(@"%@",headdatas.description);
-         //NSLog(@"%@",bodystrings);
+         NSLog(@"%@",bodystrings);
          //NSLog(@"%@",bodydatas.description);
 
          BOOL modify=false;
@@ -600,61 +831,59 @@ int main(int argc, const char * argv[]) {
 #pragma mark find attr 00080080~LO (institution)
          NSUInteger institutionindex=[headstrings indexOfObject:@"00080080~LO"];
          if (institutionindex!=NSNotFound)
+         {
             NSLog(@" '%@' %@",
                   bodystrings[institutionindex],
                   bodydatas[institutionindex]
                   );
-         if ([bodystrings[institutionindex] isEqualToString:@"Documents "])
-         {
-            modify=true;
-            [bodystrings replaceObjectAtIndex:institutionindex withObject:@"HPediatrico"];
-            NSData *HPediatricodata=[@"HPediatrico " dataUsingEncoding:NSISOLatin1StringEncoding];
-            [bodydatas replaceObjectAtIndex:institutionindex withObject:HPediatricodata];
-            NSLog(@"='%@' %@",
-                  bodystrings[institutionindex],
-                  bodydatas[institutionindex]
-                  );
+            if ([bodystrings[institutionindex] isEqualToString:@"Documents "])
+            {
+               modify=true;
+               [bodystrings replaceObjectAtIndex:institutionindex withObject:@"HPediatrico"];
+               NSData *HPediatricodata=[@"HPediatrico " dataUsingEncoding:NSISOLatin1StringEncoding];
+               [bodydatas replaceObjectAtIndex:institutionindex withObject:HPediatricodata];
+               NSLog(@"='%@' %@",
+                     bodystrings[institutionindex],
+                     bodydatas[institutionindex]
+                     );
 
-            NSMutableData *institutionheaddata=[NSMutableData dataWithData:headdatas[institutionindex]];
-            uint16 HPediatricolength=HPediatricodata.length;
-            [institutionheaddata replaceBytesInRange:NSMakeRange(6,2) withBytes:&HPediatricolength];
-            [headdatas replaceObjectAtIndex:institutionindex withObject:institutionheaddata];
-            NSLog(@"%@ %@",headstrings[institutionindex],headdatas[institutionindex]);
+               NSMutableData *institutionheaddata=[NSMutableData dataWithData:headdatas[institutionindex]];
+               uint16 HPediatricolength=HPediatricodata.length;
+               [institutionheaddata replaceBytesInRange:NSMakeRange(6,2) withBytes:&HPediatricolength];
+               [headdatas replaceObjectAtIndex:institutionindex withObject:institutionheaddata];
+               //NSLog(@"%@ %@",headstrings[institutionindex],headdatas[institutionindex]);
+            }
          }
          
 #pragma mark find attr 00081060~PN (reporting)
          NSUInteger reportingindex=[headstrings indexOfObject:@"00081060~PN"];
-         if (reportingindex!=NSNotFound) NSLog(@" '%@'",bodystrings[reportingindex]);
-         if ([bodystrings[reportingindex] isEqualToString:@"Documents^^-"])
+         if (reportingindex!=NSNotFound)
          {
-            modify=true;
-            [bodystrings replaceObjectAtIndex:reportingindex withObject:@"HPediatrico^^-"];
-            NSData *HPediatricodata=[@"HPediatrico^^-" dataUsingEncoding:NSISOLatin1StringEncoding];
-            [bodydatas replaceObjectAtIndex:reportingindex withObject:HPediatricodata];
-            NSLog(@"='%@' %@",
+            NSLog(@" '%@' %@",
                   bodystrings[reportingindex],
-                  bodydatas[reportingindex]
+                  [bodydatas[reportingindex] description]
                   );
-            
-            NSMutableData *reportingheaddata=[NSMutableData dataWithData:headdatas[reportingindex]];
-            uint16 HPediatricolength=HPediatricodata.length;
-            [reportingheaddata replaceBytesInRange:NSMakeRange(6,2) withBytes:&HPediatricolength];
-            [headdatas replaceObjectAtIndex:reportingindex withObject:reportingheaddata];
-            NSLog(@"%@ %@",headstrings[reportingindex],headdatas[reportingindex]);
-         }
-
-         if (modify)
-         {
-            NSMutableData *outputdata=[NSMutableData data];
-            for (NSUInteger i=0; i<headdatas.count;i++)
+            if ([bodystrings[reportingindex] isEqualToString:@"Documents^^-"])
             {
-               [outputdata appendData:headdatas[i]];
-               NSLog(@"%@",[headdatas[i] description]);
-               [outputdata appendData:bodydatas[i]];
-               NSLog(@"         %@",[bodydatas[i] description]);
+               modify=true;
+               [bodystrings replaceObjectAtIndex:reportingindex withObject:@"HPediatrico^^-"];
+               NSData *HPediatricodata=[@"HPediatrico^^-" dataUsingEncoding:NSISOLatin1StringEncoding];
+               [bodydatas replaceObjectAtIndex:reportingindex withObject:HPediatricodata];
+               NSLog(@"='%@' %@",
+                     bodystrings[reportingindex],
+                     bodydatas[reportingindex]
+                     );
+               
+               NSMutableData *reportingheaddata=[NSMutableData dataWithData:headdatas[reportingindex]];
+               uint16 HPediatricolength=HPediatricodata.length;
+               [reportingheaddata replaceBytesInRange:NSMakeRange(6,2) withBytes:&HPediatricolength];
+               [headdatas replaceObjectAtIndex:reportingindex withObject:reportingheaddata];
+               //NSLog(@"%@ %@",headstrings[reportingindex],headdatas[reportingindex]);
             }
-            [outputdata writeToFile:[[@"/Users/Shared/dicomattrs" stringByAppendingPathComponent:pk]stringByAppendingPathExtension:@"dcm"] atomically:NO];
          }
+         
+         
+         if (modify) writeToFile([[@"/Users/Shared/dicomattrs" stringByAppendingPathComponent:pk]stringByAppendingPathExtension:@"dcm"], headdatas, bodydatas);
       }
       
    }//end autorelease pool

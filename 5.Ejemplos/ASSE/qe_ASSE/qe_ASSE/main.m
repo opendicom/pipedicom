@@ -36,11 +36,11 @@ int execTask(NSDictionary *environment, NSString *launchPath, NSArray *launchArg
    return terminationStatus;
 }
 
-NSData *dicomattrspk4study(NSString *studywhere)
+NSData *dicomattrspk4study(NSString *select)
 {
    NSMutableData *dicomattrsdata=[NSMutableData data];
    NSDictionary *sqlpwdenv=@{@"MYSQL_PWD":@"ridi.SUY2014-pacs"};
-   NSString *bashcmdstring=[NSString stringWithFormat:@"echo \"select dicomattrs_fk from study %@\" |  /usr/local/mysql/bin/mysql -u root -h 10.200.120.19 --column-names=0 pacsdb",studywhere];
+   NSString *bashcmdstring=[NSString stringWithFormat:@"echo \"%@\" |  /usr/local/mysql/bin/mysql -u root -h 10.200.120.19 --column-names=0 pacsdb",select];
    //NSLog(@"%@",bashcmdstring);
    NSData *bashcmddata=[bashcmdstring dataUsingEncoding:NSUTF8StringEncoding];
    if (!execTask(sqlpwdenv, @"/bin/bash", @[@"-s"], bashcmddata, dicomattrsdata)) return [NSData dataWithData:dicomattrsdata];
