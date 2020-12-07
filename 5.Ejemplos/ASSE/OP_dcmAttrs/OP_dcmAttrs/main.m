@@ -1,6 +1,19 @@
 #import <Foundation/Foundation.h>
 
 #pragma mark - terminal execution
+
+/*
+void ERLog(NSString *format, ...)
+{
+   
+   va_list args;
+   va_start(args, format);
+   [[[NSString alloc] initWithFormat:format arguments:args] writeToFile:@"/Users/Shared/e_dcmAttrs.log" atomically:false encoding:NSUTF8StringEncoding error:nil];
+   va_end(args);
+    
+}
+*/
+
 int execTask(NSDictionary *environment, NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutableData *readData)
 {
    NSTask *task=[[NSTask alloc]init];
@@ -33,7 +46,7 @@ int execTask(NSDictionary *environment, NSString *launchPath, NSArray *launchArg
    
    [task waitUntilExit];
    int terminationStatus = [task terminationStatus];
-   if (terminationStatus!=0) NSLog(@"ERROR task terminationStatus: %d",terminationStatus);
+   if (terminationStatus!=0) exit(terminationStatus);//ERLog(@"ERROR task terminationStatus: %d",terminationStatus);
    return terminationStatus;
 }
 
@@ -47,7 +60,7 @@ int execUTF8Bash(NSDictionary *environment, NSString *writeString, NSMutableData
     NSRange firstBackSlashOffset=[sqlOnly rangeOfString:@"\\"];
     LOG_VERBOSE(@"%@",[sqlOnly substringFromIndex:firstBackSlashOffset.location + 2]);
     }
-    else*/ NSLog(@"%@",writeString);
+    else*/ //ERLog(@"%@",writeString);
    
    return execTask(environment, @"/bin/bash",@[@"-s"], [writeString dataUsingEncoding:NSUTF8StringEncoding], readData);
 }
@@ -83,7 +96,7 @@ int task(NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutable
    
    [task waitUntilExit];
    int terminationStatus = [task terminationStatus];
-   if (terminationStatus!=0) NSLog(@"ERROR task terminationStatus: %d",terminationStatus);
+   if (terminationStatus!=0) exit(terminationStatus); //ERLog(@"ERROR task terminationStatus: %d",terminationStatus);
    return terminationStatus;
 }
 
@@ -91,18 +104,40 @@ int bash(NSData *writeData, NSMutableData *readData)
 {
    return task(@"/bin/bash",@[@"-s"], writeData, readData);
 }
-
+/*
 int writeToFile(NSString *filepath, NSArray *headdatas, NSArray *bodydatas)
 {
    NSMutableData *outputdata=[NSMutableData data];
    for (NSUInteger i=0; i<headdatas.count;i++)
    {
       [outputdata appendData:headdatas[i]];
-      //NSLog(@"%@",[headdatas[i] description]);
+      //ERLog(@"%@",[headdatas[i] description]);
       [outputdata appendData:bodydatas[i]];
-      //NSLog(@"         %@",[bodydatas[i] description]);
+      //ERLog(@"         %@",[bodydatas[i] description]);
    }
    [outputdata writeToFile:filepath atomically:NO];
+   return 0;
+}
+*/
+
+int stream4arrays(NSArray *headstrings, NSArray *bodystrings, NSArray *headdatas, NSArray *bodydatas)
+{
+   NSError *error;//dataWithPropertyList:format:options:error:
+   NSData *data =
+   [
+    NSPropertyListSerialization
+    dataWithPropertyList:@[
+                           headstrings,
+                           bodystrings,
+                           headdatas,
+                           bodydatas
+                           ]
+    format:NSPropertyListBinaryFormat_v1_0
+    options:0
+    error:&error
+    ];
+   [data writeToFile:@"/dev/stdout" atomically:NO];
+   //[[NSFileHandle fileHandleWithStandardOutput]writeData:data];
    return 0;
 }
 
@@ -127,7 +162,7 @@ NSData *dicomattrs4pk(long long pk)
    NSMutableData *dicomattrsdata=[NSMutableData data];
    NSDictionary *sqlpwdenv=@{@"MYSQL_PWD":@"ridi.SUY2014-pacs"};
    NSString *bashcmdstring=[NSString stringWithFormat:@"echo \"select HEX(attrs) from dicomattrs where pk=%lld\" |  /usr/local/mysql/bin/mysql -u root -h 10.200.120.19 --column-names=0 pacsdb",pk];
-   //NSLog(@"%@",bashcmdstring);
+   //ERLog(@"%@",bashcmdstring);
    NSData *bashcmddata=[bashcmdstring dataUsingEncoding:NSUTF8StringEncoding];
    if (!execTask(sqlpwdenv, @"/bin/bash", @[@"-s"], bashcmddata, dicomattrsdata)) return [NSData dataWithData:dicomattrsdata];
    return nil;
@@ -281,7 +316,7 @@ NSUInteger parseAttrList(
                                     vr >> 8
                                     ]
              ];
-            //NSLog(@"%@",headstrings.lastObject);
+            //ERLog(@"%@",headstrings.lastObject);
             
             //body
             setMutabledataFromCuartetBuffer(buffer,index+16,index+16+vl+vl,md);
@@ -316,8 +351,29 @@ NSUInteger parseAttrList(
              
              The SS component may have a value of 60 only for a leap second.
              */
-            break;
-         }
+            //head
+            [md setLength:0];
+            [md appendBytes:&tag length:4];
+            [md appendBytes:&vr length:2];
+            vl = uint16FromCuartetBuffer(buffer,index+12);
+            [md appendBytes:&vl length:2];
+            [headdatas addObject:[NSData dataWithData:md]];
+            [headstrings addObject:[NSString stringWithFormat:@"%@%08x%@~%c%c",
+                                    basetag,
+                                    uint32visual(tag),
+                                    branch,
+                                    vr & 0xff,
+                                    vr >> 8
+                                    ]
+             ];
+            //ERLog(@"%@",headstrings.lastObject);
+            
+            //body
+            setMutabledataFromCuartetBuffer(buffer,index+16,index+16+vl+vl,md);
+            [bodydatas addObject:[NSData dataWithData:md]];
+            [bodystrings addObject:[[NSString alloc]initWithData:md encoding:NSISOLatin1StringEncoding]];
+            index+=16+vl+vl;
+            break;         }
 
 #pragma mark DT (datetime ISO-IR 6)
          case 0x5444:
@@ -419,7 +475,7 @@ NSUInteger parseAttrList(
                                     vr >> 8
                                     ]
              ];
-            //NSLog(@"%@",headstrings.lastObject);
+            //ERLog(@"%@",headstrings.lastObject);
             
             //body
             setMutabledataFromCuartetBuffer(buffer,index+16,index+16+vl+vl,md);
@@ -471,7 +527,7 @@ NSUInteger parseAttrList(
             
             //body
           setMutabledataFromCuartetBuffer(buffer,index+24,index+24+vll+vll,md);
-            //NSLog(@"%@",headstrings.lastObject);
+            //ERLog(@"%@",headstrings.lastObject);
             [bodydatas addObject:[NSData dataWithData:md]];
             [bodystrings addObject:[[NSString alloc]initWithData:md  encoding:NSISOLatin1StringEncoding]];
             index+=24+vll+vll;
@@ -500,8 +556,8 @@ NSUInteger parseAttrList(
                                        branch.length?[branch stringByAppendingPathExtension:@"0"]:@"#0"
                                        ]
                 ];
-               //NSLog(@"%@",headstrings.lastObject);
-               //NSLog(@"%@",headdatas.lastObject);
+               //ERLog(@"%@",headstrings.lastObject);
+               //ERLog(@"%@",headdatas.lastObject);
                
                [bodydatas addObject:[NSData data]];
                [bodystrings addObject:@""];
@@ -511,9 +567,9 @@ NSUInteger parseAttrList(
             else if (nexttag!=ffffffff) //SQ with defined length
             {
 #pragma mark ERROR1: SQ defined length
-               NSLog(@"ERROR1: SQ with defined length. NOT IMPLEMENTED YET");
+               //ERLog(@"ERROR1: SQ with defined length. NOT IMPLEMENTED YET");
                setMutabledataFromCuartetBuffer(buffer,index,postbuffer,md);
-               NSLog(@"%@",md.description);
+               //ERLog(@"%@",md.description);
                exit(1);
             }
             else //SQ with feff0dde end tag
@@ -531,8 +587,8 @@ NSUInteger parseAttrList(
                                        branch
                                        ]
                 ];
-               //NSLog(@"%@",headstrings.lastObject);
-               //NSLog(@"%@",headdatas.lastObject);
+               //ERLog(@"%@",headstrings.lastObject);
+               //ERLog(@"%@",headdatas.lastObject);
                [bodydatas addObject:[NSData data]];
                [bodystrings addObject:@""];
                
@@ -557,9 +613,9 @@ NSUInteger parseAttrList(
                   if (nexttag!=fffee000) //ERROR item without header
                   {
 #pragma mark ERROR2: no item start
-                     NSLog(@"ERROR2: no item start");
+                     //ERLog(@"ERROR2: no item start");
                      setMutabledataFromCuartetBuffer(buffer,index,postbuffer,md);
-                     NSLog(@"%@",md.description);
+                     //ERLog(@"%@",md.description);
                      exit(2);
                   }
                   else
@@ -570,8 +626,8 @@ NSUInteger parseAttrList(
                         //empty sequence without end tag
                         [headdatas addObject:[NSData dataWithBytes:&fffee00000000000 length:8]];
                         [headstrings addObject:[newbasetag stringByAppendingString:newbranch]];
-                        //NSLog(@"%@",headstrings.lastObject);
-                        //NSLog(@"%@",headdatas.lastObject);
+                        //ERLog(@"%@",headstrings.lastObject);
+                        //ERLog(@"%@",headdatas.lastObject);
                         [bodydatas addObject:[NSData data]];
                         [bodystrings addObject:@""];
                         index+=16;
@@ -579,9 +635,9 @@ NSUInteger parseAttrList(
                      else if (itemlength!=ffffffff) //item with defined length
                      {
 #pragma mark ERROR3: item defined length
-                        NSLog(@"ERROR3: item with defined length. NOT IMPLEMENTED YET");
+                        //ERLog(@"ERROR3: item with defined length. NOT IMPLEMENTED YET");
                         setMutabledataFromCuartetBuffer(buffer,index,postbuffer,md);
-                        NSLog(@"%@",md.description);
+                        //ERLog(@"%@",md.description);
                         exit(3);
                      }
                      else //undefined length item
@@ -589,8 +645,8 @@ NSUInteger parseAttrList(
                         //item head
                         [headdatas addObject:[NSData dataWithBytes:&fffee000ffffffff length:8]];
                         [headstrings addObject:[NSString stringWithFormat:@"%@%@%@",basetag,tagstring,newbranch]];
-                        NSLog(@"%@",headstrings.lastObject);
-                        //NSLog(@"%@",headdatas.lastObject);
+                        //ERLog(@"%@",headstrings.lastObject);
+                        //ERLog(@"%@",headdatas.lastObject);
                         [bodydatas addObject:[NSData data]];
                         [bodystrings addObject:@""];
                         
@@ -616,8 +672,8 @@ NSUInteger parseAttrList(
                           newbranch
                           ]
                          ];
-                        NSLog(@"%@",headstrings.lastObject);
-                        //NSLog(@"%@",headdatas.lastObject);
+                        //ERLog(@"%@",headstrings.lastObject);
+                        //ERLog(@"%@",headdatas.lastObject);
                         [bodydatas addObject:[NSData data]];
                         [bodystrings addObject:@""];
                         index+=16;
@@ -637,8 +693,8 @@ NSUInteger parseAttrList(
                  branch
                  ]
                 ];
-               //NSLog(@"%@",headstrings.lastObject);
-               //NSLog(@"%@",headdatas.lastObject);
+               //ERLog(@"%@",headstrings.lastObject);
+               //ERLog(@"%@",headdatas.lastObject);
                [bodydatas addObject:[NSData data]];
                [bodystrings addObject:@""];
                index+=16;
@@ -767,10 +823,10 @@ NSUInteger parseAttrList(
          default://ERROR unknow VR
          {
 #pragma mark ERROR4: unknown VR
-            NSLog(@"vr: %d", vr);
-            NSLog(@"ERROR4: unknown VR");
+            //ERLog(@"vr: %d", vr);
+            //ERLog(@"ERROR4: unknown VR");
             setMutabledataFromCuartetBuffer(buffer,index,postbuffer,md);
-            NSLog(@"%@",md.description);
+            //ERLog(@"%@",md.description);
             exit(4);
             
             break;
@@ -789,20 +845,16 @@ int main(int argc, const char * argv[]) {
       NSString *inputstring;
       NSArray *args=[[NSProcessInfo processInfo] arguments];
       if (args.count>1) inputstring=args[1];
-      else
-      {
-         // read and update dicomattrs
-         NSData *stdinData =[[NSFileHandle fileHandleWithStandardInput] readDataToEndOfFile];
-         inputstring=[[NSString alloc]initWithData:stdinData encoding:NSUTF8StringEncoding];
-      }
+      else inputstring = [[[NSString alloc] initWithData:[[NSFileHandle fileHandleWithStandardInput] availableData] encoding:NSUTF8StringEncoding] stringByTrimmingCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+
       NSArray *pksarray=[inputstring componentsSeparatedByString:@"\n"];
-      NSLog(@"%@",pksarray.description);
+      //ERLog(@"%@",pksarray.description);
       
       //get dicomattrs
       for (NSString *pk in pksarray)
       {
-         NSLog(@"--------------");
-         NSLog(@"pk:%@",pk);
+         //ERLog(@"--------------");
+         //ERLog(@"pk:%@",pk);
 #pragma mark loop for each pk parse dicom attrs
          NSData *dicomattrs=dicomattrs4pk([pk longLongValue]);
          unsigned char* cuartets=(unsigned char*)[dicomattrs bytes];
@@ -821,37 +873,36 @@ int main(int argc, const char * argv[]) {
                                         bodystrings,
                                         bodydatas
                                         );
-         NSLog(@"%@",headstrings);
-         //NSLog(@"%@",headdatas.description);
-         NSLog(@"%@",bodystrings);
-         //NSLog(@"%@",bodydatas.description);
+         //ERLog(@"%@",headstrings);
+         //ERLog(@"%@",headdatas.description);
+         //ERLog(@"%@",bodystrings);
+         //ERLog(@"%@",bodydatas.description);
 
          BOOL modify=false;
-         
 #pragma mark find attr 00080080~LO (institution)
          NSUInteger institutionindex=[headstrings indexOfObject:@"00080080~LO"];
          if (institutionindex!=NSNotFound)
          {
-            NSLog(@" '%@' %@",
-                  bodystrings[institutionindex],
-                  bodydatas[institutionindex]
-                  );
+            //ERLog(@" '%@' %@",
+            //      bodystrings[institutionindex],
+            //      bodydatas[institutionindex]
+            //      );
             if ([bodystrings[institutionindex] isEqualToString:@"Documents "])
             {
                modify=true;
                [bodystrings replaceObjectAtIndex:institutionindex withObject:@"HPediatrico"];
                NSData *HPediatricodata=[@"HPediatrico " dataUsingEncoding:NSISOLatin1StringEncoding];
                [bodydatas replaceObjectAtIndex:institutionindex withObject:HPediatricodata];
-               NSLog(@"='%@' %@",
-                     bodystrings[institutionindex],
-                     bodydatas[institutionindex]
-                     );
+               //ERLog(@"='%@' %@",
+               //      bodystrings[institutionindex],
+               //      bodydatas[institutionindex]
+               //      );
 
                NSMutableData *institutionheaddata=[NSMutableData dataWithData:headdatas[institutionindex]];
                uint16 HPediatricolength=HPediatricodata.length;
                [institutionheaddata replaceBytesInRange:NSMakeRange(6,2) withBytes:&HPediatricolength];
                [headdatas replaceObjectAtIndex:institutionindex withObject:institutionheaddata];
-               //NSLog(@"%@ %@",headstrings[institutionindex],headdatas[institutionindex]);
+               //ERLog(@"%@ %@",headstrings[institutionindex],headdatas[institutionindex]);
             }
          }
          
@@ -859,31 +910,30 @@ int main(int argc, const char * argv[]) {
          NSUInteger reportingindex=[headstrings indexOfObject:@"00081060~PN"];
          if (reportingindex!=NSNotFound)
          {
-            NSLog(@" '%@' %@",
-                  bodystrings[reportingindex],
-                  [bodydatas[reportingindex] description]
-                  );
+            //ERLog(@" '%@' %@",
+            //      bodystrings[reportingindex],
+            //      [bodydatas[reportingindex] description]
+            //      );
             if ([bodystrings[reportingindex] isEqualToString:@"Documents^^-"])
             {
                modify=true;
                [bodystrings replaceObjectAtIndex:reportingindex withObject:@"HPediatrico^^-"];
                NSData *HPediatricodata=[@"HPediatrico^^-" dataUsingEncoding:NSISOLatin1StringEncoding];
                [bodydatas replaceObjectAtIndex:reportingindex withObject:HPediatricodata];
-               NSLog(@"='%@' %@",
-                     bodystrings[reportingindex],
-                     bodydatas[reportingindex]
-                     );
-               
+              
                NSMutableData *reportingheaddata=[NSMutableData dataWithData:headdatas[reportingindex]];
                uint16 HPediatricolength=HPediatricodata.length;
                [reportingheaddata replaceBytesInRange:NSMakeRange(6,2) withBytes:&HPediatricolength];
                [headdatas replaceObjectAtIndex:reportingindex withObject:reportingheaddata];
-               //NSLog(@"%@ %@",headstrings[reportingindex],headdatas[reportingindex]);
+               //ERLog(@"%@ %@",headstrings[reportingindex],headdatas[reportingindex]);
             }
          }
          
-         
+#pragma mark output
+         stream4arrays(headstrings, bodystrings, headdatas, bodydatas);
+         /*
          if (modify) writeToFile([[@"/Users/Shared/dicomattrs" stringByAppendingPathComponent:pk]stringByAppendingPathExtension:@"dcm"], headdatas, bodydatas);
+          */
       }
       
    }//end autorelease pool

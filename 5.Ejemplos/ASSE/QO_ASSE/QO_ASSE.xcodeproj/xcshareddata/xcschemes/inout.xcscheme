@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1020"
+   LastUpgradeVersion = "1210"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4A1A91FE25755E9800030C6B"
-               BuildableName = "e_dcmAttrs"
-               BlueprintName = "e_dcmAttrs"
-               ReferencedContainer = "container:e_dcmAttrs.xcodeproj">
+               BlueprintIdentifier = "4AE75174257550D40031C5A1"
+               BuildableName = "QO_ASSE"
+               BlueprintName = "QO_ASSE"
+               ReferencedContainer = "container:QO_ASSE.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -29,15 +29,6 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4A1A91FE25755E9800030C6B"
-            BuildableName = "e_dcmAttrs"
-            BlueprintName = "e_dcmAttrs"
-            ReferencedContainer = "container:e_dcmAttrs.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </TestAction>
@@ -55,18 +46,12 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4A1A91FE25755E9800030C6B"
-            BuildableName = "e_dcmAttrs"
-            BlueprintName = "e_dcmAttrs"
-            ReferencedContainer = "container:e_dcmAttrs.xcodeproj">
+            BlueprintIdentifier = "4AE75174257550D40031C5A1"
+            BuildableName = "QO_ASSE"
+            BlueprintName = "QO_ASSE"
+            ReferencedContainer = "container:QO_ASSE.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
-      <CommandLineArguments>
-         <CommandLineArgument
-            argument = "335754160"
-            isEnabled = "YES">
-         </CommandLineArgument>
-      </CommandLineArguments>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
@@ -80,10 +65,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4A1A91FE25755E9800030C6B"
-            BuildableName = "e_dcmAttrs"
-            BlueprintName = "e_dcmAttrs"
-            ReferencedContainer = "container:e_dcmAttrs.xcodeproj">
+            BlueprintIdentifier = "4AE75174257550D40031C5A1"
+            BuildableName = "QO_ASSE"
+            BlueprintName = "QO_ASSE"
+            ReferencedContainer = "container:QO_ASSE.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

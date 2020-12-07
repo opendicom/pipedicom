@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:e_dcmAttrs.xcodeproj">
+      location = "self:/Volumes/IN/GitHub/pipedicom/5.Ejemplos/ASSE/e_dcmAttrs/OP_dcmAttrs.xcodeproj">
    </FileRef>
 </Workspace>
