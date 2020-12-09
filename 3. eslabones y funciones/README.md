@@ -24,11 +24,15 @@ Este script es apenas un proxy sin modificación del stream.
 
 Para hacer algo útil, colocar lineas de código entre do y done en base. Puden referirse a los argumentos del comando y al stdin. Se crea el stdout mediante uno o más comandos `echo`.
 
-## referirse a los objetos dicom
+## prefijo de los nombres de eslabones
 
-Según la fuente o el destino de los objetos dicom a procesar, se puede referir a ellos:
--    (A) por la ruta al archivo, independientemente de la representación B, X, o J
--    (B) por la ruta al archivo **dicom binario**
+Cada eslabón empieza con un prefijo de dos mayusculas y un guíon bajo. La primera mayuscula indica el tipo de stream recibido en stdin y el segundo el stream entregado en stdout.
+
+Mayusculas en el prefijo:
+-    (A) dicom cualquier representación D, B, H, X, o J
+-    (B) dicom binario base64
+-    (D) dicom binario
+-    (H) dicom binario hexa (1 octet ASCII 0-0A-F para cada grupo de 4 bytes)
 -    (X) por la ruta al archivo **dicom xml**
 -    (J) por la ruta al archivo **dicom json**
 -    (P) por la ruta al archivo **dicom plist** ( [[headstrings],[bodystrings],[headdatas],[bodydatas]] )
