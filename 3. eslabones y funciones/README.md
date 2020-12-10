@@ -29,26 +29,25 @@ Para hacer algo útil, colocar lineas de código entre do y done en base. Puden 
 Cada eslabón empieza con un prefijo de dos mayusculas y un guíon bajo. La primera mayuscula indica el tipo de stream recibido en stdin y el segundo el stream entregado en stdout.
 
 Mayusculas en el prefijo:
--    (A) dicom cualquier representación D, B, H, X, o J
+-    (A) dicom (cualquier representación D, B, H, X, J o P)
 -    (B) dicom binario base64
 -    (D) dicom binario
 -    (H) dicom binario hexa (1 octet ASCII 0-0A-F para cada grupo de 4 bytes)
--    (X) por la ruta al archivo **dicom xml**
--    (J) por la ruta al archivo **dicom json**
--    (P) por la ruta al archivo **dicom plist** ( [[headstrings],[bodystrings],[headdatas],[bodydatas]] )
--    (O) identificador de un objeto de una tabla en una base de datos
--    (I) por el **SOPInstanceUID** del objeto
--    (S) por el **SeriesInstanceUID** de la serie
--    (E) por el **StudyInstanceUID** del estudio
--    (U) por un url, sin precisión del contenido
--    (W) por un url wado dicom binario
--    (V) por un url de visualización (siempre final de una cadena
+-    (X) dicom xml
+-    (J) dicom json
+-    (P) plist ( [[headstrings],[bodystrings],[headdatas],[bodydatas]] )
+-    (O) identificador de un objeto de una tabla de base de datos
+-    (I) SOPInstanceUID del objeto
+-    (S) SeriesInstanceUID de la serie
+-    (E) StudyInstanceUID del estudio
+-    (R) Ruta a archivo dicom (cualquier representación D, B, H, X, J o P)
+-    (U) ur la stream dicom (cualquier representación D, B, H, X, J o P), sin precisión del contenido
+-    (W) url wado dicom binario
+-    (V) url de visualización (siempre final de una cadena)
 
 Estas referencias determinan la clasificación de los eslabones en función del tipo de entrada y el tipo de salida. Por ejemplo un eslabon II recibe y envia SOPInstanceUID(s). 
 
-Se pueden enviar uno o más objetos. 
-
-En caso de no tener objetos a enviar, se termina la cadena.
+Se pueden enviar uno o más objetos. En caso de no tener objetos a enviar, se termina la cadena.
 
 ## Eslabon y función
 
@@ -69,10 +68,10 @@ eslabón:
 
 ```
 #!/bin/sh
-# stdin: B
-# stdout: B
+# stdin: R
+# stdout: R
 # name: BCBSUpcs.sh
-# tool: BBstow.sh
+# tool: RRstow.sh
 
 while read line; do
 
@@ -84,8 +83,8 @@ exit 0
 ```
 
 Observamos que:
-- el script es de tipo BB ( ruta de instancia dicom binario en stdin y repetida en stdout)
-- se usa la función BBstow.sh para cada ruta de instancia recibida
+- el script es de tipo RR ( ruta en stdin y repetida en stdout)
+- se usa la función RRstow.sh para cada ruta de instancia recibida
 - se agrega como parámetro el url del servico específico con el cual se realizará la transacción.
 - se captura una eventual respuesta de la función en la variable RESPONSE, por si se necesita más procesamiento diferenciado en función de la respuesta.
 
@@ -93,9 +92,9 @@ función:
 
 ```
 #!/bin/sh
-# stdin: B
-# stdout: B
-# name: BBstow.sh
+# stdin: R
+# stdout: R
+# name: RRstow.sh
 # param $1: url dicomweb store (also called stow)
 # log: /var/log/BBstow.log
 # requires: mime.head and mime.tail in the same folder as the executable
