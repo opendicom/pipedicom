@@ -443,54 +443,47 @@ NSUInteger parseAttrList(
 #pragma mark -
 int main(int argc, const char * argv[]) {
    @autoreleasepool {
-      NSData *linedata=nil;//stdin (1 message only)
-      zeroData=[NSData dataWithBytes:&zero length:1];
-#pragma marks args
-      //H2X [logfile [loglevel [testsampleline]]]
-      //1 logfile default: /Volumes/LOG/H2P.log
-      //2 loglevel [ DEBUG | VERBOSE | INFO | WARNING | ERROR | EXCEPTION] default: ERROR
-      //3 testsampleline para testing desde IDE
-      
-      
-      NSArray *args=[[NSProcessInfo processInfo] arguments];
-      switch (args.count) {
-         case 4:
-            linedata=[args[3] dataUsingEncoding:NSUTF8StringEncoding];
-            
-         case 3:
-#pragma mark loglevel
-            ODLogLevel=(ODLogLevelEnum)[@[@"DEBUG",@"VERBOSE",@"INFO",@"WARNING",@"ERROR",@"EXCEPTION"] indexOfObject:args[2]];
 
-         case 2:
-#pragma mark logfile
-            if (
-                   ![args[1] hasPrefix:@"/Users/Shared"]
-                && ![args[1] hasPrefix:@"/Volumes/LOG"]
-                )
-            {
-               NSLog(@"usage : H2P [logfile [loglevel [testsampleline]]]. Logfile should be in /Users/Shared or /Volumes/LOG");
-               exit(0);
-            }
-            if ([args[1] hasSuffix:@".log"])
-               freopen([args[1] cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
-            else freopen([[args[1] stringByAppendingPathExtension:@".log"] cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
-            break;
+      zeroData=[NSData dataWithBytes:&zero length:1];      
+      
+      NSProcessInfo *processInfo=[NSProcessInfo processInfo];
+      
+#pragma marks environment
 
-         case 1:
-#pragma mark defaults
-            //no arguments
-            ODLogLevel=4;//ERROR
-            freopen([@"/Users/Shared/H2P.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
-            linedata = [[NSFileHandle fileHandleWithStandardInput] availableData];
-            break;
-            
-         default:
-            NSLog(@"usage : H2P [logfile [loglevel [testsampleline]]]");
-            exit(0);
-            break;
+      NSDictionary *environment=processInfo.environment;
+      
+      //H2XlogLevel
+      if (environment[@"H2XlogLevel"])
+      {
+         NSUInteger logLevel=[@[@"DEBUG",@"VERBOSE",@"INFO",@"WARNING",@"ERROR",@"EXCEPTION"] indexOfObject:environment[@"H2XlogLevel"]];
+         if (logLevel!=NSNotFound) ODLogLevel=(ODLogLevelEnum)logLevel;
+         else ODLogLevel=4;//ERROR (default)
       }
+      else ODLogLevel=4;//ERROR (default)
+      
+      
+      //H2XlogPath
+      NSString *logPath=environment[@"H2XlogPath"];
+      if (logPath && ([logPath hasPrefix:@"/Users/Shared"] || [logPath hasPrefix:@"/Volumes/LOG"]))
+      {
+         if ([logPath hasSuffix:@".log"])
+            freopen([logPath cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
+         else freopen([[logPath stringByAppendingPathExtension:@".log"] cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
+      }
+      else freopen([@"/Users/Shared/H2X.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
+      
 
-      LOG_DEBUG(@"%@",[args description]);
+      //H2XtestPath
+      NSData *linedata=nil;
+      NSString *testPath=environment[@"H2XtestPath"];
+      if (testPath) linedata=[NSData dataWithContentsOfFile:testPath];
+      else linedata = [[NSFileHandle fileHandleWithStandardInput] availableData];
+      
+      
+      LOG_DEBUG(@"%@",[environment description]);
+
+#pragma marks args
+      //H2X (no params)
       
 #pragma mark in out
       if (linedata.length)

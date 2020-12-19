@@ -11,55 +11,58 @@
 int main(int argc, const char * argv[]) {
    @autoreleasepool {
 
-      NSError *error=nil;
-      NSData *transformerdata=nil;
+      NSProcessInfo *processInfo=[NSProcessInfo processInfo];
+      
+#pragma marks environment
+
+      NSDictionary *environment=processInfo.environment;
+      
+      //P2PlogLevel
+      if (environment[@"P2PlogLevel"])
+      {
+         NSUInteger logLevel=[@[@"DEBUG",@"VERBOSE",@"INFO",@"WARNING",@"ERROR",@"EXCEPTION"] indexOfObject:environment[@"P2PlogLevel"]];
+         if (logLevel!=NSNotFound) ODLogLevel=(ODLogLevelEnum)logLevel;
+         else ODLogLevel=4;//ERROR (default)
+      }
+      else ODLogLevel=4;//ERROR (default)
+      
+      
+      //P2PlogPath
+      NSString *logPath=environment[@"P2PlogPath"];
+      if (logPath && ([logPath hasPrefix:@"/Users/Shared"] || [logPath hasPrefix:@"/Volumes/LOG"]))
+      {
+         if ([logPath hasSuffix:@".log"])
+            freopen([logPath cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
+         else freopen([[logPath stringByAppendingPathExtension:@".log"] cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
+      }
+      else freopen([@"/Users/Shared/P2P.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
+      
+
+      //P2PtestPath
+      NSData *linedata=nil;
+      NSString *testPath=environment[@"P2PtestPath"];
+      if (testPath) linedata=[NSData dataWithContentsOfFile:testPath];
+      else linedata = [[NSFileHandle fileHandleWithStandardInput] availableData];
+      
+      
+      LOG_DEBUG(@"%@",[environment description]);
 
 #pragma marks args
-      //P2P [ transformer [logfile [loglevel]]]
+      //P2P transformer
       //1 transformer script file path
-      //2 logfile default: /Volumes/LOG/H2P.log
-      //3 loglevel [ DEBUG | VERBOSE | INFO | WARNING | ERROR | EXCEPTION] default: ERROR
-
       
-      NSArray *args=[[NSProcessInfo processInfo] arguments];
-      switch (args.count) {
-         case 4:
-#pragma mark loglevel
-            ODLogLevel=(ODLogLevelEnum)[@[@"DEBUG",@"VERBOSE",@"INFO",@"WARNING",@"ERROR",@"EXCEPTION"] indexOfObject:args[3]];
-            
-         case 3:
-#pragma mark logfile
-            if (
-                   ![args[2] hasPrefix:@"/Users/Shared"]
-                && ![args[2] hasPrefix:@"/Volumes/LOG"]
-                )
-            {
-               NSLog(@"usage : P2P [transformer [logfile [loglevel]]]. Logfile should be in /Users/Shared or /Volumes/LOG");
-               exit(0);
-            }
-            if ([args[2] hasSuffix:@".log"])
-               freopen([args[2] cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
-            else freopen([[args[2] stringByAppendingPathExtension:@".log"] cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
-            break;
-
-
-         case 2:
-            transformerdata=[NSData dataWithContentsOfFile:args[1]];
-
-         case 1:
-#pragma mark defaults
-            //no arguments
-            ODLogLevel=4;//ERROR
-            freopen([@"/Users/Shared/P2P.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
-            break;
-            
-         default:
-            NSLog(@"usage : P2P [transformer [logfile [loglevel]]]");
-            exit(0);
-            break;
+      NSArray *args=processInfo.arguments;
+      if (args.count < 2)
+      {
+         LOG_ERROR(@"P2P requires a transformer parameter");
+         exit(1)
       }
-
       LOG_DEBUG(@"%@",[args description]);
+      
+      
+      NSData *transformerdata=[NSData dataWithContentsOfFile:args[1]];
+      NSError *error=nil;
+
 
 #pragma mark plistdata
       NSData *plistdata = [[NSFileHandle fileHandleWithStandardInput] availableData];
