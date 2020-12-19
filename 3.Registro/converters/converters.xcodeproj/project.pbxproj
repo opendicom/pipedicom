@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4A7B8576258002A100E62971 /* APath.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A7B8575258002A100E62971 /* APath.h */; };
-		4A7B8578258002A100E62971 /* APath.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7B8577258002A100E62971 /* APath.m */; };
 		4A7B85862580037E00E62971 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7B85852580037E00E62971 /* main.m */; };
 		4A7B85A325824EAE00E62971 /* utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7B859F25824EAE00E62971 /* utils.m */; };
 		4A7B85A425824EAE00E62971 /* ODLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7B85A025824EAE00E62971 /* ODLog.m */; };
@@ -72,8 +70,6 @@
 
 /* Begin PBXFileReference section */
 		4A7B8572258002A100E62971 /* libconverters.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libconverters.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		4A7B8575258002A100E62971 /* APath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = APath.h; sourceTree = "<group>"; };
-		4A7B8577258002A100E62971 /* APath.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = APath.m; sourceTree = "<group>"; };
 		4A7B85832580037E00E62971 /* H2P */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = H2P; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A7B85852580037E00E62971 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4A7B859F25824EAE00E62971 /* utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = utils.m; sourceTree = "<group>"; };
@@ -149,7 +145,6 @@
 				4A7B85A025824EAE00E62971 /* ODLog.m */,
 				4A7B85A225824EAE00E62971 /* utils.h */,
 				4A7B859F25824EAE00E62971 /* utils.m */,
-				4A7B8574258002A100E62971 /* APath */,
 				4A7B85842580037E00E62971 /* H2P */,
 				4A7B85B22582AB4600E62971 /* P2D */,
 				4A7B85C52583A2C800E62971 /* P2P */,
@@ -172,15 +167,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		4A7B8574258002A100E62971 /* APath */ = {
-			isa = PBXGroup;
-			children = (
-				4A7B8575258002A100E62971 /* APath.h */,
-				4A7B8577258002A100E62971 /* APath.m */,
-			);
-			path = APath;
-			sourceTree = "<group>";
-		};
 		4A7B85842580037E00E62971 /* H2P */ = {
 			isa = PBXGroup;
 			children = (
@@ -201,7 +187,6 @@
 		4A7B85BB2583A0BC00E62971 /* test files */ = {
 			isa = PBXGroup;
 			children = (
-				4A7B85BC2583A0E500E62971 /* test.xml.plist */,
 			);
 			path = "test files";
 			sourceTree = "<group>";
@@ -225,7 +210,7 @@
 		4A7B85E4258BC16A00E62971 /* P */ = {
 			isa = PBXGroup;
 			children = (
-				4A7B85AC2582A4C300E62971 /* dicomattrs.hex */,
+				4A7B85BC2583A0E500E62971 /* test.xml.plist */,
 			);
 			path = P;
 			sourceTree = "<group>";
@@ -241,6 +226,7 @@
 		4A7B8607258D461E00E62971 /* testing */ = {
 			isa = PBXGroup;
 			children = (
+				4A7B8643258E1F8A00E62971 /* H */,
 				4A7B85E4258BC16A00E62971 /* P */,
 				4A7B861E258D48DF00E62971 /* X */,
 			);
@@ -257,6 +243,14 @@
 			path = X;
 			sourceTree = "<group>";
 		};
+		4A7B8643258E1F8A00E62971 /* H */ = {
+			isa = PBXGroup;
+			children = (
+				4A7B85AC2582A4C300E62971 /* dicomattrs.hex */,
+			);
+			path = H;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -264,7 +258,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4A7B8576258002A100E62971 /* APath.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -429,7 +422,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4A7B8578258002A100E62971 /* APath.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
