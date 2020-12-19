@@ -16,9 +16,8 @@ Intentamos limitar las dependencias externas. Con la excepción de la dependenci
 - curl para comunicación http
 - librarías dicom sh
    - dcmtk
-   - dcm4che1
-   - dcm4che2
-   - dcm4che5
+   - dcm4che
+   - saxon
    - etc
    
 ## Limitationes
