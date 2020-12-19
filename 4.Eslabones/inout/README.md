@@ -24,41 +24,16 @@ Este script es apenas un proxy sin modificación del stream.
 
 Para hacer algo útil, colocar lineas de código entre do y done en base. Puden referirse a los argumentos del comando y al stdin. Se crea el stdout mediante uno o más comandos `echo`.
 
-## prefijo de los nombres de eslabones
 
-Cada eslabón empieza con un prefijo de dos mayusculas y un guíon bajo. La primera mayuscula indica el tipo de stream recibido en stdin y el segundo el stream entregado en stdout.
-
-Mayusculas en el prefijo:
--    (A) dicom (cualquier representación D, B, H, X, J o P)
--    (B) dicom binario base64
--    (D) dicom binario
--    (H) dicom binario hexa (1 octet ASCII 0-0A-F para cada grupo de 4 bytes)
--    (I) dicom xml
--    (J) dicom json
--    (P) plist ( [[headstrings],[bodystrings],[headdatas],[bodydatas]] )
--    (X) opendicom xml
--    (O) identificador de un objeto de una tabla de base de datos
--    (I) SOPInstanceUID del objeto
--    (S) SeriesInstanceUID de la serie
--    (E) StudyInstanceUID del estudio
--    (R) Ruta a archivo dicom (cualquier representación D, B, H, X, J o P)
--    (U) ur la stream dicom (cualquier representación D, B, H, X, J o P), sin precisión del contenido
--    (W) url wado dicom binario
--    (V) url de visualización (siempre final de una cadena)
-
-Estas referencias determinan la clasificación de los eslabones en función del tipo de entrada y el tipo de salida. Por ejemplo un eslabon II recibe y envia SOPInstanceUID(s). 
-
-Se pueden enviar uno o más objetos. En caso de no tener objetos a enviar, se termina la cadena.
-
-## Eslabon y función
+## Eslabon y ejecutable
 
 Cualquier transacción con un PACS o cualquier nodo dicom está normalizada por un protocolo estándar. Lo que especializa una transacción son los paramétros específicos del pacs (aet, ip, puerto, url, ...).
 
-Definimos entonces por separado del eslabón específico que realiza una transacción con un pacs particular, una función genérica de acceso al pacs. Cuando se ejecuta el eslabón, este agrega sus parametros específicos al comando y terceriza su ejecución. 
+Definimos entonces por separado del eslabón específico que realiza una transacción con un pacs particular, un ejecutable genérico de acceso al pacs. Cuando se ejecuta el eslabón, este agrega sus parametros específicos al comando y terceriza su ejecución. 
 
 De esta forma, la cadena de eslabones es mucho más legible (porque aparece como una cadena de nombres de comandos sin parametros), y el código genérico de acceso a cualquier PACS está definido una sola vez en la función correspondiente.
 
-| eslabón | función |
+| eslabón | ejecutable |
 |--|--|
 | nombre con sigla de la institución | nombre con referencia a la herramienta |
 | stdin y stdout para engancharse y enganchar a otro eslabon | stdout con resultado de la transacción |
@@ -89,7 +64,7 @@ Observamos que:
 - se agrega como parámetro el url del servico específico con el cual se realizará la transacción.
 - se captura una eventual respuesta de la función en la variable RESPONSE, por si se necesita más procesamiento diferenciado en función de la respuesta.
 
-función:
+ejecutable:
 
 ```
 #!/bin/sh

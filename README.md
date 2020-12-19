@@ -30,6 +30,6 @@ Nos limitamos a la plataforma linux. Inicialmente Centos.
 
 1. Conceptos
 2. Triggers
-3. Eslabones
-4. Registro de eslabones
-5. Ejemplos de cadenas
+3. Ejecutables
+4. Eslabones
+5. Cadenas
