@@ -444,7 +444,7 @@ NSUInteger parseAttrList(
 int main(int argc, const char * argv[]) {
    @autoreleasepool {
 
-      zeroData=[NSData dataWithBytes:&zero length:1];      
+      zeroData=[NSData dataWithBytes:&zero length:1];
       
       NSProcessInfo *processInfo=[NSProcessInfo processInfo];
       
@@ -508,7 +508,54 @@ int main(int argc, const char * argv[]) {
          NSXMLDocument *xmlDocument=[[NSXMLDocument alloc] initWithRootElement:dataset];
          [xmlDocument setCharacterEncoding:@"UTF-8"];
          [xmlDocument setVersion:@"1.1"];
-         [[xmlDocument XMLData] writeToFile:@"/dev/stdout" atomically:NO];
+
+#pragma marks args
+         
+         NSArray *args=processInfo.arguments;
+       
+         //without args: in>out
+         if (args.count==1) [[xmlDocument XMLData] writeToFile:@"/dev/stdout" atomically:NO];
+         else //H2X [XSL1TransformationPath [params...]]
+         {
+            NSData *xsl1data=[NSData dataWithContentsOfFile:args[1]];
+            if (!xsl1data)
+            {
+               LOG_ERROR(@"arg XSL1TransformationPath %@ not available",args[1]);
+               exit(2);
+            }
+
+            NSMutableDictionary *xslparams=[NSMutableDictionary dictionary];
+            for (NSString *string in [args subarrayWithRange:NSMakeRange(2,args.count - 2)])
+            {
+               NSArray *keyValue=[string componentsSeparatedByString:@"="];
+               if (keyValue.count != 2)
+               {
+                  LOG_ERROR(@"xsl1t params in %@ should be key=value",args[1]);
+                  exit(3);
+               }
+               [xslparams setValue:keyValue[1] forKey:keyValue[0]];
+            }
+
+            LOG_DEBUG(@"xsl1t %@ with params : %@",args[1],[xslparams description]);
+            
+            NSError *error=nil;
+            id result=[xmlDocument objectByApplyingXSLT:xsl1data arguments:xslparams error:&error];
+            if (!result)
+            {
+               LOG_WARNING(@"Error with xsl %@",[args description]);
+               [[NSData data] writeToFile:@"/dev/stdout" atomically:NO];               
+            }
+            else if ([result isMemberOfClass:[NSXMLDocument class]])
+            {
+               LOG_VERBOSE(@"xml result");
+               [[result XMLData] writeToFile:@"/dev/stdout" atomically:NO];
+            }
+            else
+            {
+               LOG_VERBOSE(@"data result");
+               [result writeToFile:@"/dev/stdout" atomically:NO];
+            }
+         }
       }
       else [[NSData data] writeToFile:@"/dev/stdout" atomically:NO];
    }//end autorelease pool

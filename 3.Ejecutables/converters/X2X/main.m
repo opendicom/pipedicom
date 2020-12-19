@@ -47,63 +47,61 @@ int main(int argc, const char * argv[]) {
       
       
 #pragma marks args
-      //X2X XSL1TransformationPath [params...]
-      NSArray *args=[[NSProcessInfo processInfo] arguments];
-            
-      if (args.count==1)
-      {
-         LOG_ERROR(@"arg XSL1TransformationPath required");
-         exit(1);
-      }
-
-      NSData *xsl1data=[NSData dataWithContentsOfFile:args[1]];
-      if (!xsl1data)
-      {
-         LOG_ERROR(@"arg XSL1TransformationPath %@ not available",args[1]);
-         exit(2);
-      }
-
-      NSMutableDictionary *xslparams=[NSMutableDictionary dictionary];
-      for (NSString *string in [args subarrayWithRange:NSMakeRange(2,args.count - 2)])
-      {
-         NSArray *keyValue=[string componentsSeparatedByString:@"="];
-         if (keyValue.count != 2)
-         {
-            LOG_ERROR(@"xsl1t params in %@ should be key=value",args[1]);
-            exit(3);
-         }
-         [xslparams setValue:keyValue[1] forKey:keyValue[0]];
-      }
-
-      LOG_DEBUG(@"xsl1t %@ with params : %@",args[1],[xslparams description]);
       
-#pragma mark in out
-      if (linedata.length)
+      NSArray *args=[[NSProcessInfo processInfo] arguments];
+      
+      if (args.count==1) [linedata writeToFile:@"/dev/stdout" atomically:NO]; //without args: in>out
+      else //X2X [XSL1TransformationPath [params...]]
       {
-         NSError *error=nil;
-         NSXMLDocument *xmlDocument=[[NSXMLDocument alloc]initWithData:linedata options:0 error:&error];
-         //https://developer.apple.com/documentation/foundation/nsxmlnodeoptions
-         if (!xmlDocument)
+         NSData *xsl1data=[NSData dataWithContentsOfFile:args[1]];
+         if (!xsl1data)
          {
-            if (error) LOG_INFO(@"%@",[error description]);
-            [[NSData data] writeToFile:@"/dev/stdout" atomically:NO];
+            LOG_ERROR(@"arg XSL1TransformationPath %@ not available",args[1]);
+            exit(2);
          }
-         else
+
+         NSMutableDictionary *xslparams=[NSMutableDictionary dictionary];
+         for (NSString *string in [args subarrayWithRange:NSMakeRange(2,args.count - 2)])
          {
-            id result=[xmlDocument objectByApplyingXSLT:xsl1data arguments:xslparams error:&error];
-            if (!result)
+            NSArray *keyValue=[string componentsSeparatedByString:@"="];
+            if (keyValue.count != 2)
             {
-               LOG_WARNING(@"Error with xsl %@",[args description]);
+               LOG_ERROR(@"xsl1t params in %@ should be key=value",args[1]);
+               exit(3);
             }
-            else if ([result isMemberOfClass:[NSXMLDocument class]])
+            [xslparams setValue:keyValue[1] forKey:keyValue[0]];
+         }
+
+         LOG_DEBUG(@"xsl1t %@ with params : %@",args[1],[xslparams description]);
+         
+   #pragma mark in out
+         if (linedata.length)
+         {
+            NSError *error=nil;
+            NSXMLDocument *xmlDocument=[[NSXMLDocument alloc]initWithData:linedata options:0 error:&error];
+            //https://developer.apple.com/documentation/foundation/nsxmlnodeoptions
+            if (!xmlDocument)
             {
-               LOG_VERBOSE(@"xml result");
-               [[result XMLData] writeToFile:@"/dev/stdout" atomically:NO];
+               if (error) LOG_INFO(@"%@",[error description]);
+               [[NSData data] writeToFile:@"/dev/stdout" atomically:NO];
             }
             else
             {
-               LOG_VERBOSE(@"data result");
-               [result writeToFile:@"/dev/stdout" atomically:NO];
+               id result=[xmlDocument objectByApplyingXSLT:xsl1data arguments:xslparams error:&error];
+               if (!result)
+               {
+                  LOG_WARNING(@"Error with xsl %@",[args description]);
+               }
+               else if ([result isMemberOfClass:[NSXMLDocument class]])
+               {
+                  LOG_VERBOSE(@"xml result");
+                  [[result XMLData] writeToFile:@"/dev/stdout" atomically:NO];
+               }
+               else
+               {
+                  LOG_VERBOSE(@"data result");
+                  [result writeToFile:@"/dev/stdout" atomically:NO];
+               }
             }
          }
       }
