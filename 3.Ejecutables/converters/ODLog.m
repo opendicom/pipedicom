@@ -1,11 +1,3 @@
-//
-//  ODLog.m
-//  httpdicom
-//
-//  Created by jacquesfauquex on 20180113.
-//  Copyright © 2018 opendicom.com. All rights reserved.
-//
-
 #import "ODLog.h"
 #include <time.h>
 

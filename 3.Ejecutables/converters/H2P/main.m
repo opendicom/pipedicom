@@ -1,56 +1,12 @@
 #import <Foundation/Foundation.h>
 #import "utils.h"
 #import "ODLog.h"
+#import "Hcuartets.h"
 
 //H2P
 //stdin string based dicom mysql hexa representation
 //stdout data based plist with 4 arrays (headstrings,bodystrings,headdatas,bodydatas)
 
-#pragma mark - cuartet parsing
-const unsigned char byte2cuartet[] =
-{
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0x00,0x01,0x02,0x03,0x04,0x05,0x06,0x07,
-   0x08,0x09,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,
-   0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF
-};
-
-UInt16 uint16FromCuartetBuffer( unsigned char* buffer, NSUInteger index)
-{
-   return   (byte2cuartet[buffer[index  ]] << 4)
-   + (byte2cuartet[buffer[index+1]] << 0)
-   + (byte2cuartet[buffer[index+2]] << 12)
-   + (byte2cuartet[buffer[index+3]] << 8)
-   ;
-}
 
 static uint16 zerozero=0x0;
 static uint32 zerozerozerozero=0x0;
@@ -66,46 +22,6 @@ static uint64 fffee00d00000000=0xe00dfffe;//end item
 static uint32 fffee0dd=0xe0ddfffe;//end sq
 static uint64 fffee0dd00000000=0xe0ddfffe;//end sq
 
-UInt32 uint32FromCuartetBuffer( unsigned char* buffer, NSUInteger index)
-{
-   return   (byte2cuartet[buffer[index  ]] << 4)
-          + (byte2cuartet[buffer[index+1]] << 0)
-          + (byte2cuartet[buffer[index+2]] << 12)
-          + (byte2cuartet[buffer[index+3]] << 8)
-          + (byte2cuartet[buffer[index+4]] << 20)
-          + (byte2cuartet[buffer[index+5]] << 16)
-          + (byte2cuartet[buffer[index+6]] << 28)
-          + (byte2cuartet[buffer[index+7]] << 24)
-          ;
-}
-
-uint32 uint32visual(uint32 tag)
-{
-   return   ((tag & 0xff000000)>>16)
-           +((tag & 0x00ff0000)>>16)
-           +((tag & 0x0000ff00)<<16)
-           +((tag & 0x000000ff)<<16);
-}
-
-UInt8 octetFromCuartetBuffer( unsigned char* buffer, NSUInteger index)
-{
-   return   (byte2cuartet[buffer[index  ]] << 4)
-   + (byte2cuartet[buffer[index+1]] << 0)
-   ;
-}
-
-void setMutabledataFromCuartetBuffer( unsigned char* buffer, NSUInteger startindex, NSUInteger afterindex, NSMutableData *md)
-{
-   [md setLength:0];
-   uint8 octet;
-   for (NSUInteger i=startindex; i<afterindex; i+=2 )
-   {
-      octet = (byte2cuartet[buffer[i  ]] << 4)
-            + (byte2cuartet[buffer[i+1]] << 0)
-            ;
-      [md appendBytes:&octet length:1];
-   }
-}
 
 
 NSUInteger parseAttrList(
@@ -146,7 +62,7 @@ NSUInteger parseAttrList(
             vl = uint16FromCuartetBuffer(buffer,index+12);
             [md appendBytes:&vl length:2];
             [headdatas addObject:[NSData dataWithData:md]];
-            [headstrings addObject:[NSString stringWithFormat:@"%@%08x%@~%c%c",
+            [headstrings addObject:[NSString stringWithFormat:@"%@%08X%@~%c%c",
                                     basetag,
                                     uint32visual(tag),
                                     branch,
@@ -196,7 +112,7 @@ NSUInteger parseAttrList(
             vl = uint16FromCuartetBuffer(buffer,index+12);
             [md appendBytes:&vl length:2];
             [headdatas addObject:[NSData dataWithData:md]];
-            [headstrings addObject:[NSString stringWithFormat:@"%@%08x%@~%c%c",
+            [headstrings addObject:[NSString stringWithFormat:@"%@%08X%@~%c%c",
                                     basetag,
                                     uint32visual(tag),
                                     branch,
@@ -234,7 +150,7 @@ NSUInteger parseAttrList(
             [md appendBytes:&vl length:2];
             [headdatas addObject:[NSData dataWithData:md]];
             
-            [headstrings addObject:[NSString stringWithFormat:@"%@%08x%@~%c%c",
+            [headstrings addObject:[NSString stringWithFormat:@"%@%08X%@~%c%c",
                                     basetag,
                                     uint32visual(tag),
                                     branch,
@@ -268,7 +184,7 @@ NSUInteger parseAttrList(
             [md appendBytes:&vl length:2];
             [headdatas addObject:[NSData dataWithData:md]];
             
-            [headstrings addObject:[NSString stringWithFormat:@"%@%08x%@~%c%c",
+            [headstrings addObject:[NSString stringWithFormat:@"%@%08X%@~%c%c",
                                     basetag,
                                     uint32visual(tag),
                                     branch,
@@ -304,7 +220,7 @@ NSUInteger parseAttrList(
             [md appendBytes:&vl length:2];
             [headdatas addObject:[NSData dataWithData:md]];
             
-            [headstrings addObject:[NSString stringWithFormat:@"%@%08x%@~%c%c",
+            [headstrings addObject:[NSString stringWithFormat:@"%@%08X%@~%c%c",
                                     basetag,
                                     uint32visual(tag),
                                     branch,
@@ -353,7 +269,7 @@ NSUInteger parseAttrList(
             [md appendBytes:&vll length:4];
             [headdatas addObject:[NSData dataWithData:md]];
             
-            [headstrings addObject:[NSString stringWithFormat:@"%@%08x%@~%c%c",
+            [headstrings addObject:[NSString stringWithFormat:@"%@%08X%@~%c%c",
                                     basetag,
                                     uint32visual(tag),
                                     branch,
@@ -387,7 +303,7 @@ NSUInteger parseAttrList(
                [md appendBytes:&zerozero length:2];
                [md appendBytes:&zerozerozerozero length:4];
                [headdatas addObject:[NSData dataWithData:md]];
-               [headstrings addObject:[NSString stringWithFormat:@"%@%08x%@",
+               [headstrings addObject:[NSString stringWithFormat:@"%@%08X%@",
                                        basetag,
                                        uint32visual(tag),
                                        branch.length?[branch stringByAppendingPathExtension:@"0"]:@"#0"
@@ -418,7 +334,7 @@ NSUInteger parseAttrList(
                [md appendBytes:&zerozero length:2];
                [md appendBytes:&ffffffff length:4];
                [headdatas addObject:[NSData dataWithData:md]];
-               [headstrings addObject:[NSString stringWithFormat:@"%@%08x%@#",
+               [headstrings addObject:[NSString stringWithFormat:@"%@%08X%@#",
                                        basetag,
                                        uint32visual(tag),
                                        branch
@@ -439,7 +355,7 @@ NSUInteger parseAttrList(
                   itemcounter++;
                   
                   //newbasetag
-                  NSString *tagstring=[NSString stringWithFormat:@"%08x",uint32visual(tag)];
+                  NSString *tagstring=[NSString stringWithFormat:@"%08X",uint32visual(tag)];
                   NSString *newbasetag=[NSString stringWithFormat:@"%@%@.",basetag,tagstring];
                   
                   //newbranch
@@ -524,7 +440,7 @@ NSUInteger parseAttrList(
                [headdatas addObject:[NSData dataWithData:md]];
                [headstrings addObject:
                 [NSString stringWithFormat:
-                 @"%@%08x.fffee0dd%@",
+                 @"%@%08X.fffee0dd%@",
                  basetag,
                  uint32visual(tag),
                  branch
@@ -678,7 +594,7 @@ NSUInteger parseAttrList(
 
 int main(int argc, const char * argv[]) {
    @autoreleasepool {
-      
+      NSError *error=nil;
       NSProcessInfo *processInfo=[NSProcessInfo processInfo];
       
 #pragma marks environment

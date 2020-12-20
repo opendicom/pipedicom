@@ -1,5 +1,4 @@
-#ifndef utils_h
-#define utils_h
+#import <Foundation/Foundation.h>
 
 #pragma mark - terminal execution
 
@@ -12,5 +11,3 @@ int execTask(NSDictionary *environment, NSString *launchPath, NSArray *launchArg
 void trimLeadingSpaces(NSMutableString *mutableString);
 void trimTrailingSpaces(NSMutableString *mutableString);
 void trimLeadingAndTrailingSpaces(NSMutableString *mutableString);
-
-#endif /* utils_h */

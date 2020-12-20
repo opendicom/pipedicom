@@ -18,6 +18,10 @@
 		4A7B85F0258C570900E62971 /* utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7B859F25824EAE00E62971 /* utils.m */; };
 		4A7B85FD258CD7A700E62971 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7B85FC258CD7A700E62971 /* main.m */; };
 		4A7B860E258D475300E62971 /* ODLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7B85A025824EAE00E62971 /* ODLog.m */; };
+		4A7B864B258F10C000E62971 /* Hcuartets.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7B864A258F10C000E62971 /* Hcuartets.m */; };
+		4A7B864C258F10C000E62971 /* Hcuartets.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7B864A258F10C000E62971 /* Hcuartets.m */; };
+		4A7B865A258F15AF00E62971 /* Hcuartets.h in Sources */ = {isa = PBXBuildFile; fileRef = 4A7B8653258F111300E62971 /* Hcuartets.h */; };
+		4A7B8661258F199800E62971 /* Hcuartets.h in Sources */ = {isa = PBXBuildFile; fileRef = 4A7B8653258F111300E62971 /* Hcuartets.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -89,6 +93,8 @@
 		4A7B8615258D484500E62971 /* xslt2.xsl */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = xslt2.xsl; sourceTree = "<group>"; };
 		4A7B8616258D484500E62971 /* dataset.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = dataset.xml; sourceTree = "<group>"; };
 		4A7B8617258D484500E62971 /* xslt1.xsl */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = xslt1.xsl; sourceTree = "<group>"; };
+		4A7B864A258F10C000E62971 /* Hcuartets.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Hcuartets.m; sourceTree = "<group>"; };
+		4A7B8653258F111300E62971 /* Hcuartets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Hcuartets.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -145,6 +151,8 @@
 				4A7B85A025824EAE00E62971 /* ODLog.m */,
 				4A7B85A225824EAE00E62971 /* utils.h */,
 				4A7B859F25824EAE00E62971 /* utils.m */,
+				4A7B8653258F111300E62971 /* Hcuartets.h */,
+				4A7B864A258F10C000E62971 /* Hcuartets.m */,
 				4A7B85842580037E00E62971 /* H2P */,
 				4A7B85B22582AB4600E62971 /* P2D */,
 				4A7B85C52583A2C800E62971 /* P2P */,
@@ -429,7 +437,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4A7B8661258F199800E62971 /* Hcuartets.h in Sources */,
 				4A7B85A425824EAE00E62971 /* ODLog.m in Sources */,
+				4A7B864B258F10C000E62971 /* Hcuartets.m in Sources */,
 				4A7B85862580037E00E62971 /* main.m in Sources */,
 				4A7B85A325824EAE00E62971 /* utils.m in Sources */,
 			);
@@ -456,7 +466,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4A7B865A258F15AF00E62971 /* Hcuartets.h in Sources */,
 				4A7B85DB258BC12800E62971 /* main.m in Sources */,
+				4A7B864C258F10C000E62971 /* Hcuartets.m in Sources */,
 				4A7B85EA258C570500E62971 /* ODLog.m in Sources */,
 				4A7B85F0258C570900E62971 /* utils.m in Sources */,
 			);
@@ -667,7 +679,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -676,7 +688,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

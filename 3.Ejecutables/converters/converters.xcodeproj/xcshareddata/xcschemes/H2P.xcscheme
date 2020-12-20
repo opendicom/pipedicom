@@ -50,20 +50,23 @@
             ReferencedContainer = "container:converters.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
-      <CommandLineArguments>
-         <CommandLineArgument
-            argument = "/Users/Shared/H2Ptesting.log"
+      <EnvironmentVariables>
+         <EnvironmentVariable
+            key = "H2PlogLevel"
+            value = "DEBUG"
             isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "DEBUG"
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "H2PlogPath"
+            value = "/Users/Shared/H2Ptesting.log"
             isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "0800050043530A0049534F5F4952203130300800600043530400444F4320080070004C4F16006F70656E6469636F6D20284A6573726F73205341292008003E104C4F16005369676E6564436C696E6963616C446F63756D656E7420000E0055492C00322E32352E31323238303139333737313339313636323037373136393234393039393735383730343530343920001100495304002D3136204000440244410800323032303131313740004502544D0600313031363535"
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "H2PtestPath"
+            value = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/testing/H/dicomattrs.hex"
             isEnabled = "YES">
-         </CommandLineArgument>
-      </CommandLineArguments>
+         </EnvironmentVariable>
+      </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
