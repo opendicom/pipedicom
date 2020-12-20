@@ -18,10 +18,11 @@ Lista de los tipos de input y output:
 -    (B) dataset dicom binario base64
 -    (D) dataset dicom binario
 -    (H) dataset dicom binario hexa (1 octet ASCII 0-0A-F para cada grupo de 4 bytes)
--    (I) dataset dicom xml
--    (J) dataset dicom json
+-    (I) dataset dicom json
+-    (J) dataset  contextual key-values json
+-    (K) dataset dicom xml
 -    (P) dataset plist ( [[headstrings],[bodystrings],[headdatas],[bodydatas]] )
--    (X) dataset opendicom xml
+-    (X) dataset contextual key-values xml
 -    (O) identificador de un objeto de una tabla de base de datos
 -    (I) SOPInstanceUID del objeto
 -    (S) SeriesInstanceUID de la serie
