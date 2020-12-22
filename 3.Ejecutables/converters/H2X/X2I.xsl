@@ -26,6 +26,20 @@
         </xsl:call-template>
         <xsl:text>}</xsl:text>    
     </xsl:template>
+    
+    <xsl:template name="extensionNumber">
+        <xsl:param name="dotString"/>
+        <xsl:choose>
+            <xsl:when test="contains($dotString, '.')">
+                <xsl:call-template name="extensionNumber">
+                    <xsl:with-param name="dotString" select="substring-after($dotString, '.')"/>
+                </xsl:call-template>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="number($dotString)"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </xsl:template>
 
     <!-- recursive -->
     <xsl:template name="next">
@@ -60,8 +74,8 @@
             </xsl:when>
             <xsl:otherwise>
                 
-                <xsl:variable name="newLevel" select="string-length(@b) - string-length(translate(@b, '.',''))"/>
                 <xsl:variable name="a" select="$list[$index]"/>
+                <xsl:variable name="newLevel" select="string-length($a/@b) - string-length(translate($a/@b, '.',''))"/>
                 <xsl:choose>
 
                     <xsl:when test="($previousVr='SQ') and not($newLevel &gt; $previousLevel)"><!-- end empty SQ -->
@@ -75,7 +89,7 @@
                     </xsl:when>
                     
                     <xsl:when test="($previousVr='SQ')"><!-- SQ start -->
-                        <xsl:text>[{</xsl:text>
+                        <xsl:text>{</xsl:text>
                         <xsl:call-template name="next">
                             <xsl:with-param name="index" select="$index"/>
                             <xsl:with-param name="previousBranch" select="$previousBranch"/>
@@ -94,8 +108,25 @@
                         </xsl:call-template>                
                     </xsl:when>
                     
-                    <xsl:when test="not($a/@b = $previousBranch)"><!-- new item -->
-                        <xsl:text>},{</xsl:text>
+                    <xsl:when test="not($a/@b = $previousBranch)"><!-- next new item? -->                         
+                        <!-- greater last number? -->
+                        <xsl:variable name="cbExtensionInt">
+                            <xsl:call-template name="extensionNumber">
+                                <xsl:with-param name="dotString" select="$a/@b"/>
+                            </xsl:call-template>
+                        </xsl:variable>
+                        <xsl:variable name="pbExtensionInt">
+                            <xsl:call-template name="extensionNumber">
+                                <xsl:with-param name="dotString" select="$previousBranch"/>
+                            </xsl:call-template>
+                        </xsl:variable>
+                        <xsl:choose>
+                            <xsl:when test="(string-length($a/@b) = string-length($previousBranch)) and ($cbExtensionInt = $pbExtensionInt + 1)">
+                                <xsl:text>},{</xsl:text>
+                            </xsl:when>
+                            <xsl:otherwise><xsl:text>ERROR: item lacking</xsl:text></xsl:otherwise>
+                        </xsl:choose>
+                        
                         <xsl:call-template name="next">
                             <xsl:with-param name="index" select="$index"/>
                             <xsl:with-param name="previousBranch" select="$a/@b"/>
@@ -103,13 +134,17 @@
                             <xsl:with-param name="previousVr" select="''"/>
                         </xsl:call-template>
                     </xsl:when>
-             
+                                       
                     <xsl:otherwise>
                         <xsl:if test="not($previousVr='')">
                             <xsl:text>,</xsl:text>
                         </xsl:if>
                         <xsl:value-of select="concat('&quot;',substring($a/@t,string-length($a/@t) - 7,8),'&quot;:{&quot;vr&quot;:&quot;',$a/@r,'&quot;,&quot;Value&quot;:[')"/>
                         <xsl:choose>
+                            
+                            <xsl:when test="$a/@r = 'SQ'">
+                            </xsl:when>
+
                             <xsl:when test="contains($number_r , $a/@r)">
                                 <xsl:for-each select="$a/*">
                                     <xsl:if test="position()>1">
@@ -117,6 +152,7 @@
                                     </xsl:if>                            
                                     <xsl:value-of select="text()"/>
                                 </xsl:for-each>                               
+                                <xsl:text>]}</xsl:text>
                             </xsl:when>
                             
                             <xsl:when test="contains($person_r,$a/@r)">
@@ -126,6 +162,7 @@
                                     </xsl:if>                            
                                     <xsl:value-of select="concat('{&quot;Alphabetic&quot;:&quot;',text(),'&quot;}')"/>
                                 </xsl:for-each>                               
+                                <xsl:text>]}</xsl:text>
                             </xsl:when>
                             
                             <xsl:when test="contains($base64_r,$a/@r)">
@@ -135,6 +172,7 @@
                                     </xsl:if>                            
                                     <xsl:value-of select="concat('&quot;',text(),'&quot;')"/>
                                 </xsl:for-each>                               
+                                <xsl:text>]}</xsl:text>
                             </xsl:when>
                                                             
                             <xsl:otherwise><!-- $string_r -->
@@ -144,9 +182,10 @@
                                     </xsl:if>                            
                                     <xsl:value-of select="concat('&quot;',text(),'&quot;')"/>
                                 </xsl:for-each>
+                                <xsl:text>]}</xsl:text>
                             </xsl:otherwise>
                         </xsl:choose>
-                        <xsl:text>]}</xsl:text>
+
                         <xsl:call-template name="next">
                             <xsl:with-param name="index" select="$index + 1"/>
                             <xsl:with-param name="previousBranch" select="$a/@b"/>
