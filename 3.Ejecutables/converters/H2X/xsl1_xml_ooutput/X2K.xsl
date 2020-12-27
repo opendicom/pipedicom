@@ -180,10 +180,87 @@
     </xsl:template>
     
     <xsl:template match="dx:PN"><!-- person name -->
-        <xsl:element name="Value">
+        <xsl:element name="PersonName">
             <xsl:attribute name="number"><xsl:value-of select="position()"/></xsl:attribute>
-            <xsl:copy-of select="text()"/>
+            <xsl:if test="string-length(.) > 0 ">            
+                <xsl:variable name="alphabetic" select="substring-before(.,'=')"/>                
+                <xsl:element name="Alphabetic">
+                    <xsl:call-template name="nameComponents">
+                        <xsl:with-param name="name" select="$alphabetic"/>
+                    </xsl:call-template>
+                </xsl:element>
+                <xsl:variable name="nonAlphabetic" select="substring-after(.,'=')"/>   
+                <xsl:if test="(string-length(.) != string-length($nonAlphabetic)) and (string-length($nonAlphabetic) > 0) ">
+                    <xsl:variable name="ideographic" select="substring-before($nonAlphabetic,'=')"/>                                
+                    <xsl:element name="Ideographic">
+                        <xsl:call-template name="nameComponents">
+                            <xsl:with-param name="name" select="$ideographic"/>
+                        </xsl:call-template>                    
+                    </xsl:element>
+                    <xsl:variable name="phonetic" select="substring-after($nonAlphabetic,'=')"/>   
+                    <xsl:if test="(string-length($nonAlphabetic) != string-length($phonetic)) and (string-length($phonetic) > 0)">                                
+                        <xsl:element name="Phonetic">
+                            <xsl:call-template name="nameComponents">
+                                <xsl:with-param name="name" select="$phonetic"/>
+                            </xsl:call-template>                    
+                        </xsl:element>
+                    </xsl:if>                    
+                <xsl:element name="Phonetic">
+                </xsl:element>
+                </xsl:if>
+            </xsl:if>
         </xsl:element>
+    </xsl:template>
+
+    <xsl:template name="nameComponents">
+        <xsl:param name="name"/>
+        
+        <xsl:variable name="familyName" select="substring-before($name,'^')"/>                
+        <xsl:if test="string-length($familyName) > 0">
+            <xsl:element name="FamilyName">
+                <xsl:value-of select="$familyName"/>
+            </xsl:element>            
+        </xsl:if>
+        
+        <xsl:variable name="noFamilyName" select="substring-after($name,'^')"/>  
+        <xsl:if test="string-length($noFamilyName) != string-length($name)">
+        
+            <xsl:variable name="givenName" select="substring-before($noFamilyName,'^')"/>                
+            <xsl:if test="string-length($givenName) > 0">
+                <xsl:element name="GivenName">
+                    <xsl:value-of select="$givenName"/>
+                </xsl:element>            
+            </xsl:if>
+            
+            <xsl:variable name="noGivenName" select="substring-after($noFamilyName,'^')"/>  
+            <xsl:if test="string-length($noGivenName) != string-length($noFamilyName)">
+                               
+                <xsl:variable name="middleName" select="substring-before($noGivenName,'^')"/>                
+                <xsl:if test="string-length($middleName) > 0">
+                    <xsl:element name="MiddleName">
+                        <xsl:value-of select="$middleName"/>
+                    </xsl:element>            
+                </xsl:if>
+                
+                <xsl:variable name="noMiddleName" select="substring-after($noGivenName,'^')"/>  
+                <xsl:if test="string-length($noMiddleName) != string-length($noGivenName)">                    
+                    
+                    <xsl:variable name="namePrefix" select="substring-before($noMiddleName,'^')"/>                
+                    <xsl:if test="string-length($namePrefix) > 0">
+                        <xsl:element name="NamePrefix">
+                            <xsl:value-of select="$namePrefix"/>
+                        </xsl:element>            
+                    </xsl:if>
+                    
+                    <xsl:variable name="nameSuffix" select="substring-after($noMiddleName,'^')"/>  
+                    <xsl:if test="string-length($nameSuffix) != string-length($noMiddleName)">              
+                        <xsl:element name="NameSuffix">
+                            <xsl:value-of select="$nameSuffix"/>
+                        </xsl:element>
+                    </xsl:if>
+                </xsl:if>
+            </xsl:if>
+        </xsl:if>
     </xsl:template>
     
 </xsl:stylesheet>
