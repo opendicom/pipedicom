@@ -182,33 +182,37 @@
     <xsl:template match="dx:PN"><!-- person name -->
         <xsl:element name="PersonName">
             <xsl:attribute name="number"><xsl:value-of select="position()"/></xsl:attribute>
-            <xsl:if test="string-length(.) > 0 ">            
-                <xsl:variable name="alphabetic" select="substring-before(.,'=')"/>                
-                <xsl:element name="Alphabetic">
-                    <xsl:call-template name="nameComponents">
-                        <xsl:with-param name="name" select="$alphabetic"/>
-                    </xsl:call-template>
-                </xsl:element>
-                <xsl:variable name="nonAlphabetic" select="substring-after(.,'=')"/>   
-                <xsl:if test="(string-length(.) != string-length($nonAlphabetic)) and (string-length($nonAlphabetic) > 0) ">
-                    <xsl:variable name="ideographic" select="substring-before($nonAlphabetic,'=')"/>                                
-                    <xsl:element name="Ideographic">
+
+                <xsl:variable name="alphabetic" select="substring-before(.,'=')"/> 
+                <xsl:if test="string-length(translate($alphabetic,'^','')) > 0">
+                    <xsl:element name="Alphabetic">
                         <xsl:call-template name="nameComponents">
-                            <xsl:with-param name="name" select="$ideographic"/>
-                        </xsl:call-template>                    
+                            <xsl:with-param name="name" select="$alphabetic"/>
+                        </xsl:call-template>
                     </xsl:element>
+                </xsl:if>
+                
+                <xsl:variable name="nonAlphabetic" select="substring-after(.,'=')"/>   
+                <xsl:if test="string-length(.) != string-length($nonAlphabetic)"> 
+                    
+                    <xsl:variable name="ideographic" select="substring-before($nonAlphabetic,'=')"/>                                
+                    <xsl:if test="string-length(translate($ideographic,'^','')) > 0">
+                        <xsl:element name="Ideographic">
+                            <xsl:call-template name="nameComponents">
+                                <xsl:with-param name="name" select="$ideographic"/>
+                            </xsl:call-template>                    
+                        </xsl:element>
+                    </xsl:if>
+                    
                     <xsl:variable name="phonetic" select="substring-after($nonAlphabetic,'=')"/>   
-                    <xsl:if test="(string-length($nonAlphabetic) != string-length($phonetic)) and (string-length($phonetic) > 0)">                                
+                    <xsl:if test="string-length(translate($phonetic,'^','')) > 0">
                         <xsl:element name="Phonetic">
                             <xsl:call-template name="nameComponents">
                                 <xsl:with-param name="name" select="$phonetic"/>
                             </xsl:call-template>                    
                         </xsl:element>
                     </xsl:if>                    
-                <xsl:element name="Phonetic">
-                </xsl:element>
-                </xsl:if>
-            </xsl:if>
+               </xsl:if>
         </xsl:element>
     </xsl:template>
 
@@ -253,7 +257,7 @@
                     </xsl:if>
                     
                     <xsl:variable name="nameSuffix" select="substring-after($noMiddleName,'^')"/>  
-                    <xsl:if test="string-length($nameSuffix) != string-length($noMiddleName)">              
+                    <xsl:if test="string-length($nameSuffix) > 0">              
                         <xsl:element name="NameSuffix">
                             <xsl:value-of select="$nameSuffix"/>
                         </xsl:element>
