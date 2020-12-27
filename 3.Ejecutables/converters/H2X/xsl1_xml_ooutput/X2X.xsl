@@ -5,7 +5,8 @@
     xmlns:dx="xmldicom.xsd" 
     xsi:schemaLocation="xmldicom.xsd https://raw.githubusercontent.com/jacquesfauquex/DICOM_contextualizedKey-values/master/xml/xmldicom.xsd">
     <xsl:output method="text"/>
-
+    <!--  creates opendicom xml with end SQ start item and end item from opendicom xml -->
+    
     <xsl:variable name="tagBranchList">
         <xsl:for-each select="/dx:dataset/dx:a">
             <xsl:element name="a"><xsl:copy-of select="@b"/><xsl:copy-of select="@t"/><xsl:copy-of select="@r"/><xsl:attribute name="tb"><xsl:call-template name="tagBranch"><xsl:with-param name="t" select="@t"/><xsl:with-param name="b" select="@b"/></xsl:call-template></xsl:attribute><xsl:copy-of select="*"/></xsl:element>

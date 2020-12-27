@@ -6,6 +6,7 @@
     xsi:schemaLocation="xmldicom.xsd https://raw.githubusercontent.com/jacquesfauquex/DICOM_contextualizedKey-values/master/xml/xmldicom.xsd">
     <xsl:output method="text"/>
     <!-- https://www.json.org/json-en.html -->
+    <!-- creates opendicom json from opendicom xml -->
 
     <xsl:variable name="tagBranchList">
         <xsl:for-each select="/dx:dataset/dx:a">
