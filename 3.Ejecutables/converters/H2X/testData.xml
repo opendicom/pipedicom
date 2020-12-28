@@ -14,8 +14,10 @@
     <a b="1" t="00080070" r="LO">
         <LO>opendicom (Jesros SA)</LO>
     </a>
-    <a b="1" t="0008103E" r="LO">
-        <LO>SignedClinicalDocument</LO>
+    <a b="1" t="0008103E" r="PN">
+        <PN>a^^^^=a</PN>
+        <PN>a^b^c^d^e==^^^^e</PN>
+        <PN>a^^c=a^^^d=a^^^^e</PN>
     </a>
     <a b="1" t="0020000E" r="UI">
         <UI>2.25.122801937713916620771692490997587045049</UI>
