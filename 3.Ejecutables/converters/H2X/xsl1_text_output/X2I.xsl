@@ -131,7 +131,17 @@
                         </xsl:call-template>
                     </xsl:when>
                     
-                    <xsl:when test="$previousLevel &gt; $newLevel"><!-- end item and SQ -->
+                    <xsl:when test="$previousLevel - $newLevel &gt; 1"><!-- end item and SQ -->
+                        <xsl:text>}]}</xsl:text>
+                        <xsl:call-template name="next">
+                            <xsl:with-param name="index" select="$index"/>
+                            <xsl:with-param name="previousBranch" select="$previousBranch"/>
+                            <xsl:with-param name="previousLevel" select="$previousLevel - 1"/>
+                            <xsl:with-param name="previousVr" select="$previousVr"/>
+                        </xsl:call-template>                
+                    </xsl:when>
+                    
+                    <xsl:when test="$previousLevel - $newLevel = 1"><!-- end item and SQ -->
                         <xsl:text>}]},</xsl:text>
                         <xsl:call-template name="next">
                             <xsl:with-param name="index" select="$index"/>
@@ -142,7 +152,7 @@
                     </xsl:when>
                     
                     
-                    <xsl:when test="$a/@r = ''"><!-- empty item? -->                         
+                    <xsl:when test="$a/@r = 'IQ'"><!-- empty item? -->                         
                         <!--<xsl:text>},{</xsl:text>-->
                         <xsl:call-template name="next">
                             <xsl:with-param name="index" select="$index + 1"/>

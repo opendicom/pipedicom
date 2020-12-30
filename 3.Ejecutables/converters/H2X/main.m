@@ -169,11 +169,11 @@ NSUInteger parseAttrList(
                index+=24;
                nexttag=uint32FromCuartetBuffer(buffer,index);
                if (nexttag==0xe0ddfffe) [dataset addChild:aArray(branch,chain,tag,vr,@[],false,false)];//fffee0dd
-               NSUInteger itemcounter=0;
+               unsigned int itemcounter=0;
                while (nexttag!=0xe0ddfffe)//not the end of the SQ
                {
                   itemcounter++;
-                  NSString *newbranch=[branch stringByAppendingFormat:@".%lu",(unsigned long)itemcounter];
+                  NSString *newbranch=[branch stringByAppendingFormat:@".%08X",itemcounter];
                   NSString *tagstring=[NSString stringWithFormat:@"%08X",uint32visual(tag)];
                   NSString *newchain=[NSString stringWithFormat:@"%@%@.",chain,tagstring];
                   
@@ -410,7 +410,7 @@ int main(int argc, const char * argv[]) {
                                         0,
                                         linedata.length-1,
                                         @"",
-                                        @"1",
+                                        @"00000001",
                                         dataset
                                         );
          LOG_VERBOSE(@"index:%lu size:%lu",(unsigned long)index,linedata.length-1);
