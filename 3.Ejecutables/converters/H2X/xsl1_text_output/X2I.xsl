@@ -3,40 +3,54 @@
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:dx="xmldicom.xsd" 
-    xsi:schemaLocation="xmldicom.xsd https://raw.githubusercontent.com/jacquesfauquex/DICOM_contextualizedKey-values/master/xml/xmldicom.xsd">
+    xsi:schemaLocation="xmldicom.xsd 
+    https://raw.githubusercontent.com/jacquesfauquex/DICOM_contextualizedKey-values/master/xml/xmldicom.xsd"
+    >
     <xsl:output method="text"/>
     <!-- https://www.json.org/json-en.html -->
     <!-- creates dicom json from opendicom xml -->
     
-    <xsl:variable name="tagBranchList">
+    
+    <xsl:variable name="branchTagList">
         <xsl:for-each select="/dx:dataset/dx:a">
-            <xsl:element name="a"><xsl:copy-of select="@b"/><xsl:copy-of select="@t"/><xsl:copy-of select="@r"/><xsl:attribute name="tb"><xsl:call-template name="tagBranch"><xsl:with-param name="t" select="@t"/><xsl:with-param name="b" select="@b"/></xsl:call-template></xsl:attribute><xsl:copy-of select="*"/></xsl:element>
-       </xsl:for-each>
+            <xsl:element name="a">
+                <xsl:copy-of select="@b"/>
+                <xsl:copy-of select="@t"/>
+                <xsl:copy-of select="@r"/>
+                <xsl:attribute name="bt">
+                    <xsl:call-template name="branchTag">
+                        <xsl:with-param name="b" select="@b"/>
+                        <xsl:with-param name="t" select="@t"/>
+                    </xsl:call-template>                    
+                </xsl:attribute> 
+                <xsl:copy-of select="*"/>
+            </xsl:element>
+        </xsl:for-each>
     </xsl:variable>
-
-    <xsl:template name="tagBranch">
-        <xsl:param name="t"/>
+    
+    <xsl:template name="branchTag">
         <xsl:param name="b"/>
+        <xsl:param name="t"/>
         <xsl:choose>
-            <xsl:when test="contains($t, '.')">
-                <xsl:value-of select="concat(substring-before($t, '.'),'-',substring-before($b, '.'),'.')"/>
-                <xsl:call-template name="tagBranch">
-                   <xsl:with-param name="t" select="substring-after($t, '.')"/>
+            <xsl:when test="contains($b, '.')">
+                <xsl:value-of select="concat(substring-before($b, '.'),'-',substring-before($t, '.'),'.')"/>
+                <xsl:call-template name="branchTag">
                     <xsl:with-param name="b" select="substring-after($b, '.')"/>
+                    <xsl:with-param name="t" select="substring-after($t, '.')"/>
                 </xsl:call-template>
             </xsl:when>
             <xsl:otherwise>
-                <xsl:value-of select="concat($t,'-',$b)"/>
+                <xsl:value-of select="concat($b,'-',$t)"/>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
     
     <xsl:variable name="list">
-        <xsl:for-each select="$tagBranchList/*">
-            <xsl:sort select="@tb" data-type="text" order="ascending"/>
+        <xsl:for-each select="$branchTagList/*">
+            <xsl:sort select="@bt" data-type="text" order="ascending"/>
             <xsl:copy-of select="."/>
         </xsl:for-each>
-    </xsl:variable>
+    </xsl:variable>    
     
     <xsl:variable name="afterList" select="count($list/a) + 1"/>
     

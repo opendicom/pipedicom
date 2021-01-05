@@ -11,7 +11,7 @@
     <!-- https://www.json.org/json-en.html -->
     <!-- creates opendicom json from opendicom xml -->
 
-    <xsl:variable name="tagBranchList">
+    <xsl:variable name="branchTagList">
         <xsl:for-each select="/dx:dataset/dx:a">
             <xsl:element name="a">
                 <xsl:copy-of select="@b"/>
@@ -46,8 +46,8 @@
     </xsl:template>
     
     <xsl:variable name="list">
-        <xsl:for-each select="$tagBranchList/*">
-            <xsl:sort select="@tb" data-type="text" order="ascending"/>
+        <xsl:for-each select="$branchTagList/*">
+            <xsl:sort select="@bt" data-type="text" order="ascending"/>
             <xsl:copy-of select="."/>
         </xsl:for-each>
     </xsl:variable>    
@@ -63,10 +63,13 @@
     <xsl:template match="/dx:dataset">
         <xsl:text>{</xsl:text>
         <xsl:for-each select="$list/a">
+            
             <xsl:if test="position()>1">
                 <xsl:text>,</xsl:text>
             </xsl:if>
+            
             <xsl:value-of select="concat(' &quot;',@bt,'~',@r,'&quot; :[')"/>
+            
             <xsl:choose>
                 <xsl:when test="contains($number_r , @r)">
                     <xsl:for-each select="*">
