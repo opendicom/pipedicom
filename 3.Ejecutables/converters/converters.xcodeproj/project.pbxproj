@@ -73,6 +73,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4A4260F625A66032001E0B52 /* X2M.xsl */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = X2M.xsl; sourceTree = "<group>"; };
+		4A4260F725A66032001E0B52 /* X2I.xsl */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = X2I.xsl; sourceTree = "<group>"; };
+		4A4260F825A66032001E0B52 /* X2K.xsl */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = X2K.xsl; sourceTree = "<group>"; };
+		4A4260FA25A66032001E0B52 /* testData.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = testData.xml; sourceTree = "<group>"; };
+		4A4260FB25A66032001E0B52 /* X2J.xsl */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = X2J.xsl; sourceTree = "<group>"; };
+		4A4260FC25A66032001E0B52 /* K2X.xsl */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = K2X.xsl; sourceTree = "<group>"; };
+		4A4260FD25A66032001E0B52 /* X2I.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = X2I.json; sourceTree = "<group>"; };
+		4A4260FE25A66032001E0B52 /* xmldicom.xsd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = xmldicom.xsd; sourceTree = "<group>"; };
 		4A7B8572258002A100E62971 /* libconverters.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libconverters.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A7B85832580037E00E62971 /* H2P */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = H2P; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A7B85852580037E00E62971 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -143,9 +151,36 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4A4260F425A65FA6001E0B52 /* obsolete */ = {
+			isa = PBXGroup;
+			children = (
+				4A7B85842580037E00E62971 /* H2P */,
+				4A7B85B22582AB4600E62971 /* P2D */,
+				4A7B85C52583A2C800E62971 /* P2P */,
+				4A7B85E4258BC16A00E62971 /* P */,
+			);
+			path = obsolete;
+			sourceTree = "<group>";
+		};
+		4A4260F525A66032001E0B52 /* X_xsl1 */ = {
+			isa = PBXGroup;
+			children = (
+				4A4260F625A66032001E0B52 /* X2M.xsl */,
+				4A4260F725A66032001E0B52 /* X2I.xsl */,
+				4A4260F825A66032001E0B52 /* X2K.xsl */,
+				4A4260FA25A66032001E0B52 /* testData.xml */,
+				4A4260FB25A66032001E0B52 /* X2J.xsl */,
+				4A4260FC25A66032001E0B52 /* K2X.xsl */,
+				4A4260FD25A66032001E0B52 /* X2I.json */,
+				4A4260FE25A66032001E0B52 /* xmldicom.xsd */,
+			);
+			path = X_xsl1;
+			sourceTree = "<group>";
+		};
 		4A7B8569258002A100E62971 = {
 			isa = PBXGroup;
 			children = (
+				4A4260F425A65FA6001E0B52 /* obsolete */,
 				4A7B8607258D461E00E62971 /* testing */,
 				4A7B85A125824EAE00E62971 /* ODLog.h */,
 				4A7B85A025824EAE00E62971 /* ODLog.m */,
@@ -153,9 +188,7 @@
 				4A7B859F25824EAE00E62971 /* utils.m */,
 				4A7B8653258F111300E62971 /* Hcuartets.h */,
 				4A7B864A258F10C000E62971 /* Hcuartets.m */,
-				4A7B85842580037E00E62971 /* H2P */,
-				4A7B85B22582AB4600E62971 /* P2D */,
-				4A7B85C52583A2C800E62971 /* P2P */,
+				4A4260F525A66032001E0B52 /* X_xsl1 */,
 				4A7B85D9258BC12800E62971 /* H2X */,
 				4A7B85FB258CD7A700E62971 /* X2X */,
 				4A7B8573258002A100E62971 /* Products */,
@@ -235,7 +268,6 @@
 			isa = PBXGroup;
 			children = (
 				4A7B8643258E1F8A00E62971 /* H */,
-				4A7B85E4258BC16A00E62971 /* P */,
 				4A7B861E258D48DF00E62971 /* X */,
 			);
 			path = testing;
