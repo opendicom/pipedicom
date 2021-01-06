@@ -19,7 +19,8 @@ Lista de los tipos de input y output:
 -    (D) dataset dicom binario
 -    (H) dataset dicom binario hexa (1 octet ASCII 0-0A-F para cada grupo de 4 bytes)
 -    (I) dataset dicom json
--    (J) dataset  contextual key-values json
+-    (J) dataset contextualized key-values json
+-    (M) dataset contextualized key-values json marshalled (ready for serialization)
 -    (K) dataset dicom xml
 -    (P) dataset plist ( [[headstrings],[bodystrings],[headdatas],[bodydatas]] )
 -    (X) dataset contextual key-values xml
