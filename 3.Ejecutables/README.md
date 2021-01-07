@@ -13,9 +13,7 @@ Cada ejecutable cumple una acción entre input y output.
 ## Nombre de los ejecutables
 El nombre de los ejecutables empieza con dos mayusculas. La primera indica el tipo de input y la segunda el tipo de output
 
-Lista de los tipos de input y output:
-
-
+Lista de los tipos de input y output con datos:
 -    (A) dataset dicom (B, D, G, H, J, K, M o X)
 -    (B) dataset contextualized key-values bson
 -    (D) dataset dicom binario
@@ -26,13 +24,13 @@ Lista de los tipos de input y output:
 -    (M) dataset contextualized key-values json marshalled (ready for serialization)
 -    (X) dataset contextualized key-values xml
 
-
+Lista de los tipos de input y output identificadores:
 -    (O) identificador de un objeto de una tabla de base de datos (I, S, o E)
 -    (I) SOPInstanceUID del objeto
 -    (S) SeriesInstanceUID de la serie
 -    (E) StudyInstanceUID del estudio
 
-
+Lista de los tipos de input y output con rutas y urls:
 -    (R) Ruta en sistema de archivo a archivo dicom (B, D, G, H, J, K, M o X)
 -    (U) url a stream dicom (B, D, G, H, J, K, M o X)
 -    (W) url wado dicom binario
