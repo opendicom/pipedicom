@@ -21,7 +21,6 @@ Lista de los tipos de input y output con datos:
 -    (H) dataset dicom binario hexa (1 octet ASCII 0-0A-F para cada grupo de 4 bytes)
 -    (J) dataset contextualized key-values json (ready for serialization)
 -    (K) dataset dicom xml
--    (Y) dataset contextualized key-value json marshalled (ready for serialization)
 -    (X) dataset contextualized key-values xml (ready for serialization)
 
 Lista de los tipos de input y output identificadores:
@@ -31,7 +30,7 @@ Lista de los tipos de input y output identificadores:
 -    (E) StudyInstanceUID del estudio
 
 Lista de los tipos de input y output con rutas y urls:
--    (R) Ruta en sistema de archivo a archivo dicom (B, D, G, H, J, K, M o X)
--    (U) url a stream dicom (B, D, G, H, J, K, M o X)
+-    (R) Ruta en sistema de archivo a archivo dicom (B, D, G, H, J, K o X)
+-    (U) url a stream dicom (B, D, G, H, J, K o X)
 -    (W) url wado dicom binario
 -    (V) url de visualización (siempre final de una cadena)
