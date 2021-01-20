@@ -1,67 +1,193 @@
 #import <Foundation/Foundation.h>
 #import "utils.h"
 #import "ODLog.h"
-#import "Hcuartets.h"
 
 //H2X
 //stdin string based dicom mysql hexa representation
-//stdout opendicom xml (DICOM_contextualizedKey-values)
-//https://github.com/jacquesfauquex/DICOM_contextualizedKey-values/blob/master/xml/xmldicom.xsd
+//stdout mapxmldicom xml (DICOM_contextualizedKey-values)
+//https://raw.githubusercontent.com/jacquesfauquex/DICOM_contextualizedKey-values/master/mapxmldicom/mapxmldicom.xsd
 
 #pragma mark - xml elements
 const unsigned char zero=0x0;
 static NSData *zeroData=nil;
 
-NSXMLElement *aEmpty(NSString *branch, NSString *tagchain, NSString *vrstring)
+
+NSXMLNode *makeKey(NSString *branch,uint32 tag,uint16 vr)
 {
+   return [NSXMLNode attributeWithName:@"key"stringValue:
+           [NSString
+            stringWithFormat:@"%@-%08X_%c%c",
+            branch,
+            uint32visual(tag),
+            vr & 0xff,
+            vr >> 8
+           ]
+          ];
+}
+
+NSXMLElement *stringOrArray(
+   NSString *branch,
+   uint32 tag,
+   uint16 vr,
+   NSArray *array,
+   BOOL trimLeading,
+   BOOL trimTrailing
+)
+{
+   NSXMLElement *node=nil;
+   NSXMLNode *key=makeKey(branch,tag,vr);
    
-   NSXMLElement *a=[NSXMLElement elementWithName:@"a"];
-   [a addAttribute:[NSXMLNode attributeWithName:@"b" stringValue:branch]];
-   [a addAttribute:[NSXMLNode attributeWithName:@"t" stringValue:tagchain]];
-   [a addAttribute:[NSXMLNode attributeWithName:@"r" stringValue:vrstring]];
-   return a;
-}
-
-NSXMLElement *aArray(NSString *branch, NSString *chain, uint32 tag, uint16 vr, NSArray *array, BOOL trimLeading, BOOL trimTrailing)
-{
-   NSString *vrString=[NSString stringWithFormat:@"%c%c", vr & 0xff, vr >> 8];
-   NSXMLElement *a=aEmpty(
-                       branch,
-                       [NSString stringWithFormat:@"%@%08X",chain,uint32visual(tag)],
-                       vrString
-                       );
-   for (NSString *value in array)
+   if (array.count==1)
    {
-      NSMutableString *mutableString=[NSMutableString stringWithString:value];
-      if (trimLeading) trimLeadingSpaces(mutableString);
-      if (trimTrailing) trimTrailingSpaces(mutableString);
-      [a addChild:[NSXMLElement elementWithName:vrString stringValue:mutableString]];
+      node=[NSXMLElement elementWithName:@"string"];
+      [node addAttribute:key];
+      if (trimLeading || trimTrailing)
+      {
+         NSMutableString *mutableString=[NSMutableString stringWithString:array[0]];
+         if (trimLeading) trimLeadingSpaces(mutableString);
+         if (trimTrailing) trimTrailingSpaces(mutableString);
+         [node setStringValue:mutableString];
+      }
+      else [node setStringValue:array[0]];
    }
-   return a;
+   else
+   {
+      node=[NSXMLElement elementWithName:@"array"];
+      [node addAttribute:key];
+
+      if (trimLeading || trimTrailing)
+      {
+         for (NSString *value in array)
+         {
+            NSMutableString *mutableString=[NSMutableString stringWithString:value];
+            if (trimLeading) trimLeadingSpaces(mutableString);
+            if (trimTrailing) trimTrailingSpaces(mutableString);
+            [node addChild:[NSXMLElement elementWithName:@"string" stringValue:mutableString]];
+         }
+      }
+      else
+      {
+         for (NSString *value in array)
+         {
+            [node addChild:[NSXMLElement elementWithName:@"string" stringValue:value]];
+         }
+      }
+   }
+   return node;
 }
 
+
+
+NSXMLElement *numberOrArray(
+   NSString *branch,
+   uint32 tag,
+   uint16 vr,
+   NSArray *array
+)
+{
+   NSXMLElement *node=nil;
+   NSXMLNode *key=makeKey(branch,tag,vr);
+
+   if (array.count==1)
+   {
+      node=[NSXMLElement elementWithName:@"number"];
+      [node addAttribute:key];
+      [node setStringValue:array[0]];
+   }
+   else
+   {
+      node=[NSXMLElement elementWithName:@"array"];
+      [node addAttribute:key];
+
+      for (NSString *value in array)
+      {
+         [node addChild:[NSXMLElement elementWithName:@"number" stringValue:value]];
+      }
+   }
+   return node;
+}
+
+
+NSXMLElement *emptyArray(
+   NSString *branch,
+   uint32 tag,
+   uint16 vr
+)
+{
+   NSXMLElement *node=[NSXMLElement elementWithName:@"array"];
+   NSXMLNode *key=makeKey(branch,tag,vr);
+   [node addAttribute:key];
+   return node;
+}
+
+/*
+NSXMLElement *null(
+   NSString *branch,
+   uint32 tag,
+   uint16 vr
+)
+{
+   NSXMLElement *node=[NSXMLElement elementWithName:@"null"];
+   NSXMLNode *key=makeKey(branch,tag,vr);
+   [node addAttribute:key];
+   return node;
+}
+
+
+NSXMLElement *booleanTrue(
+   NSString *branch,
+   uint32 tag,
+   uint16 vr
+)
+{
+   NSXMLElement *node=[NSXMLElement elementWithName:@"boolean"];
+   NSXMLNode *key=makeKey(branch,tag,vr);
+   [node addAttribute:key];
+   [node setStringValue:@"true"];
+   return node;
+}
+
+
+NSXMLElement *booleanFalse(
+   NSString *branch,
+   uint32 tag,
+   uint16 vr
+)
+{
+   NSXMLElement *node=[NSXMLElement elementWithName:@"boolean"];
+   NSXMLNode *key=makeKey(branch,tag,vr);
+   [node addAttribute:key];
+   [node setStringValue:@"false"];
+   return node;
+}
+*/
 #pragma mark -
 
 NSUInteger parseAttrList(
-                         unsigned char* buffer,
+                         unsigned short* shortsBuffer,
                          NSUInteger index,
-                         NSUInteger postbuffer,
-                         NSString *chain,
+                         NSUInteger postShortsBuffer,
                          NSString *branch,
                          NSXMLElement *dataset
                          )
 {
-   UInt32 tag = uint32FromCuartetBuffer(buffer,index);
+   UInt32 tag = ( shortsBuffer[index]   << 8  )
+              + ( shortsBuffer[index+1] << 8 )
+   ;
+   
    UInt16 vr;//value representation
    UInt16 vl;//value length
    UInt32 vll;// 4 bytes value length
    NSMutableData *md=[NSMutableData data];
    
    
-   while (tag!=0xe00dfffe &&  index < postbuffer) //fffee00d
+   while (tag!=0xe00dfffe &&  index < postShortsBuffer) //fffee00d
    {
-      vr = uint16FromCuartetBuffer(buffer,index+8);
-      vl = uint16FromCuartetBuffer(buffer,index+12);
+      vr = ( shortsBuffer[index+4]   << 4  )
+         + ( shortsBuffer[index+5] << 12 )
+      ;
+      uint16FromCuartetshortsBuffer(shortsBuffer,index+8);
+      vl = uint16FromCuartetshortsBuffer(shortsBuffer,index+12);
       
       switch (vr) {
             
@@ -86,12 +212,11 @@ NSUInteger parseAttrList(
          case 0x5453://ST
          case 0x4d54://TM
          {
-            setMutabledataFromCuartetBuffer(buffer,index+16,index+16+vl+vl,md);
-            [dataset addChild:aArray(branch,chain,tag,vr,[[[NSString alloc]initWithData:md encoding:NSISOLatin1StringEncoding]componentsSeparatedByString:@"\\"],true,true)];
+            setMutabledataFromCuartetshortsBuffer(shortsBuffer,index+16,index+16+vl+vl,md);
+            [dataset addChild:stringOrArray(branch,tag,vr,[[[NSString alloc]initWithData:md encoding:NSISOLatin1StringEncoding]componentsSeparatedByString:@"\\"],true,true)];
             index+=16+vl+vl;
             break;
          }
-
 
 #pragma mark UC
          case 0x4355:
@@ -103,7 +228,7 @@ NSUInteger parseAttrList(
 #pragma mark UI
          case 0x4955://UI
          {
-            setMutabledataFromCuartetBuffer(buffer,index+16,index+16+vl+vl,md);
+            setMutabledataFromCuartetshortsBuffer(shortsBuffer,index+16,index+16+vl+vl,md);
             NSRange zerorange=[md rangeOfData:zeroData options:NSDataSearchBackwards range:NSMakeRange(0,md.length)];
             //remove eventual padding 0x00
             while (zerorange.location != NSNotFound)
@@ -111,7 +236,7 @@ NSUInteger parseAttrList(
                [md replaceBytesInRange:zerorange withBytes:NULL length:0];
                zerorange=[md rangeOfData:zeroData options:NSDataSearchBackwards range:NSMakeRange(0,zerorange.location)];
             }
-            [dataset addChild:aArray(branch,chain,tag,vr, [[[NSString alloc]initWithData:md encoding:NSISOLatin1StringEncoding]componentsSeparatedByString:@"\\"],false,false)];
+            [dataset addChild:stringOrArray(branch,tag,vr, [[[NSString alloc]initWithData:md encoding:NSISOLatin1StringEncoding]componentsSeparatedByString:@"\\"],false,false)];
             index+=16+vl+vl;
             break;
          }
@@ -129,11 +254,11 @@ NSUInteger parseAttrList(
             /*
              A character string that may contain one or more paragraphs. It may contain the Graphic Character set and the Control Characters, CR, LF, FF, and ESC. It may be padded with trailing spaces, which may be ignored, but leading spaces are considered to be significant. Data Elements with this VR shall not be multi-valued and therefore character code 5CH (the BACKSLASH "\" in ISO-IR 6) may be used.
              */
-            vll = uint32FromCuartetBuffer(buffer,index+16);
-            setMutabledataFromCuartetBuffer(buffer,index+24,index+24+vll+vll,md);
-            [dataset addChild:aArray(
+            
+            vll = uint32FromCuartetshortsBuffer(shortsBuffer,index+16);
+            setMutabledataFromCuartetshortsBuffer(shortsBuffer,index+24,index+24+vll+vll,md);
+            [dataset addChild:stringOrArray(
                                      branch,
-                                     chain,
                                      tag,
                                      vr,
                                      @[[[NSString alloc]initWithData:md encoding:NSISOLatin1StringEncoding]],
@@ -142,74 +267,81 @@ NSUInteger parseAttrList(
                                      )];
             index+=24+vll+vll;
             break;
+             
          }
             
 #pragma mark SQ
          case 0x5153://SQ
          {
-            //SQ unknown length
-            
+            unsigned int itemcounter=1;
+            NSString *branchTag=[branch stringByAppendingFormat:@"-%08X",uint32visual(tag)];
+
             //SQ empty?
-            uint32 nexttag=uint32FromCuartetBuffer(buffer,index+16);
+            uint32 nexttag=uint32FromCuartetshortsBuffer(shortsBuffer,index+16);
             if (nexttag==0x0)
             {
-               [dataset addChild:aArray(branch,chain,tag,vr,@[],false,false)];
+               [dataset addChild:emptyArray(branch,tag,vr)];
+               index+=16;
+               [dataset addChild:emptyArray([branchTag stringByAppendingFormat:@".%08X",itemcounter],0xe0ddfffe,vr)];
                index+=16;
             }
             else if (nexttag!=0xffffffff) //SQ with defined length
             {
 #pragma mark ERROR1: SQ defined length
                //logger(@"ERROR1: SQ with defined length. NOT IMPLEMENTED YET");
-               setMutabledataFromCuartetBuffer(buffer,index,postbuffer,md);
+               setMutabledataFromCuartetshortsBuffer(shortsBuffer,index,postshortsBuffer,md);
                //logger(@"%@",md.description);
                exit(1);
             }
             else //SQ with feff0dde end tag
             {
                index+=24;
-               nexttag=uint32FromCuartetBuffer(buffer,index);
-               if (nexttag==0xe0ddfffe) [dataset addChild:aArray(branch,chain,tag,vr,@[],false,false)];//fffee0dd
-               unsigned int itemcounter=0;
+               nexttag=uint32FromCuartetshortsBuffer(shortsBuffer,index);
                while (nexttag!=0xe0ddfffe)//not the end of the SQ
                {
-                  itemcounter++;
-                  NSString *newbranch=[branch stringByAppendingFormat:@".%08X",itemcounter];
-                  NSString *tagstring=[NSString stringWithFormat:@"%08X",uint32visual(tag)];
-                  NSString *newchain=[NSString stringWithFormat:@"%@%@.",chain,tagstring];
-                  
                   if (nexttag!=0xe000fffe) //fffee000 ERROR item without header
                   {
 #pragma mark ERROR2: no item start
                      //logger(@"ERROR2: no item start");
-                     setMutabledataFromCuartetBuffer(buffer,index,postbuffer,md);
+                     setMutabledataFromCuartetshortsBuffer(shortsBuffer,index,postshortsBuffer,md);
                      //logger(@"%@",md.description);
                      exit(2);
                   }
                   else
                   {
-                     uint32 itemlength=uint32FromCuartetBuffer(buffer,index+8);
+                     uint32 itemlength=uint32FromCuartetshortsBuffer(shortsBuffer,index+8);
                      if (itemlength==0)//empty item
                      {
-                        [dataset addChild:aArray(newbranch,newchain,tag,vr,@[],false,false)];
-                        index+=16;
+                        [dataset addChild:emptyArray([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5149)];//IQ
+
+                        [dataset addChild:emptyArray([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5A49)];//IZ
                      }
                      else if (itemlength!=0xffffffff) //item with defined length
                      {
 #pragma mark ERROR3: item defined length
                         //logger(@"ERROR3: item with defined length. NOT IMPLEMENTED YET");
-                        setMutabledataFromCuartetBuffer(buffer,index,postbuffer,md);
+                        setMutabledataFromCuartetshortsBuffer(shortsBuffer,index,postshortsBuffer,md);
                         //logger(@"%@",md.description);
                         exit(3);
                      }
                      else //undefined length item
                      {
+                        [dataset addChild:emptyArray([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5149)];//IQ
+
 #pragma mark recursion
-                        index=parseAttrList(buffer,index,postbuffer,newchain,newbranch,dataset);
+                        index=parseAttrList(shortsBuffer,index,postshortsBuffer,[branchTag stringByAppendingFormat:@".%08X",itemcounter],dataset);
+
+                        [dataset addChild:emptyArray([branchTag stringByAppendingFormat:@".%08X",itemcounter],0xe00dfffe,0x5A49)];//IZ
+
                         index+=16;
-                        nexttag=uint32FromCuartetBuffer(buffer,index);
+                        nexttag=uint32FromCuartetshortsBuffer(shortsBuffer,index);
                      }
                   }
+                  itemcounter++;
                }
+               
+               [dataset addChild:emptyArray([branchTag stringByAppendingString:@"FFFFFFFF"],0xe0ddfffe,0x5A51)];
+
                index+=16;
             }
             
@@ -338,14 +470,14 @@ NSUInteger parseAttrList(
 #pragma mark ERROR4: unknown VR
             //logger(@"vr: %d", vr);
             //logger(@"ERROR4: unknown VR");
-            setMutabledataFromCuartetBuffer(buffer,index,postbuffer,md);
+            setMutabledataFromCuartetshortsBuffer(shortsBuffer,index,postshortsBuffer,md);
             //logger(@"%@",md.description);
             exit(4);
             
             break;
          }
       }
-      tag = uint32FromCuartetBuffer(buffer,index);
+      tag = uint32FromCuartetshortsBuffer(shortsBuffer,index);
    }
    return index;
 }
@@ -363,9 +495,9 @@ int main(int argc, const char * argv[]) {
       NSDictionary *environment=processInfo.environment;
       
       //H2XlogLevel
-      if (environment[@"H2XlogLevel"])
+      if (environment[@"D2MlogLevel"])
       {
-         NSUInteger logLevel=[@[@"DEBUG",@"VERBOSE",@"INFO",@"WARNING",@"ERROR",@"EXCEPTION"] indexOfObject:environment[@"H2XlogLevel"]];
+         NSUInteger logLevel=[@[@"DEBUG",@"VERBOSE",@"INFO",@"WARNING",@"ERROR",@"EXCEPTION"] indexOfObject:environment[@"D2MlogLevel"]];
          if (logLevel!=NSNotFound) ODLogLevel=(ODLogLevelEnum)logLevel;
          else ODLogLevel=4;//ERROR (default)
       }
@@ -373,51 +505,58 @@ int main(int argc, const char * argv[]) {
       
       
       //H2XlogPath
-      NSString *logPath=environment[@"H2XlogPath"];
+      NSString *logPath=environment[@"D2MlogPath"];
       if (logPath && ([logPath hasPrefix:@"/Users/Shared"] || [logPath hasPrefix:@"/Volumes/LOG"]))
       {
          if ([logPath hasSuffix:@".log"])
             freopen([logPath cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
          else freopen([[logPath stringByAppendingPathExtension:@".log"] cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
       }
-      else freopen([@"/Users/Shared/H2X.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
+      else freopen([@"/Users/Shared/D2M.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
       
 
-      //H2XtestPath
-      NSData *linedata=nil;
-      NSString *testPath=environment[@"H2XtestPath"];
-      if (testPath) linedata=[NSData dataWithContentsOfFile:testPath];
-      else linedata = [[NSFileHandle fileHandleWithStandardInput] availableData];
+      //D2MtestPath
+      NSData *data=nil;
+      NSString *testPath=environment[@"D2MtestPath"];
+      if (testPath) data=[NSData dataWithContentsOfFile:testPath];
+      else data = [[NSFileHandle fileHandleWithStandardInput] availableData];
       
-      
-      LOG_DEBUG(@"%@",[environment description]);
-
-#pragma marks args
-      //H2X (no params)
+      LOG_DEBUG(@"environment:\r%@",[environment description]);
       
 #pragma mark in out
-      if (linedata.length)
+      if (data.length)
       {
-         unsigned char* cuartets=(unsigned char*)[linedata bytes];
+         unsigned char* bytes=(unsigned short*)[data bytes];
+         unsigned short shorts=&bytes;
          
-         NSXMLElement *dataset=[NSXMLElement elementWithName:@"dataset"];
-         [dataset addNamespace:[NSXMLNode namespaceWithName:@"" stringValue:@"xmldicom.xsd"]];
-         [dataset addNamespace:[NSXMLNode namespaceWithName:@"xsi" stringValue:@"http://www.w3.org/2001/XMLSchema-instance"]];
-         [dataset addAttribute:[NSXMLNode attributeWithName:@"xsi:schemaLocation" stringValue:@"xmldicom.xsd https://raw.githubusercontent.com/jacquesfauquex/DICOM_contextualizedKey-values/master/xml/xmldicom.xsd"]];
- 
+         if (data.length < 5)
+         {
+            LOG_WARNING(@"dicom binary data too small %@",[args description]);
+            [[NSData data] writeToFile:@"/dev/stdout" atomically:NO];
+         }
+         
+         NSUInteger datasetShortOffset=0;
+         //skip preambule?
+         if (data.length > 132 && shorts[64]='ID' && shorts[65]='MC') datasetShortOffset=66;
+
+         NSXMLElement *root=[NSXMLElement elementWithName:@"map"];
+         NSXMLElement *dataset=[NSXMLElement elementWithName:@"map"];
+         [root addChild:dataset];
+         [dataset addAttribute:[NSXMLNode attributeWithName:@"key"stringValue:@"dataset"]];
+         
+         
          NSUInteger index=parseAttrList(
-                                        cuartets,
-                                        0,
-                                        linedata.length-1,
-                                        @"",
+                                        shorts,
+                                        datasetShortOffset,
+                                        (data.length -1) / 2,
                                         @"00000001",
                                         dataset
                                         );
-         LOG_VERBOSE(@"index:%lu size:%lu",(unsigned long)index,linedata.length-1);
+         LOG_VERBOSE(@"index:%lu size:%lu",(unsigned long)index,data.length-1);
          
-         NSXMLDocument *xmlDocument=[[NSXMLDocument alloc] initWithRootElement:dataset];
+         NSXMLDocument *xmlDocument=[[NSXMLDocument alloc] initWithRootElement:root];
          [xmlDocument setCharacterEncoding:@"UTF-8"];
-         [xmlDocument setVersion:@"1.1"];
+         [xmlDocument setVersion:@"1.0"];
 
 #pragma marks args
          

@@ -52,7 +52,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/H2X/X2I.xsl"
+            argument = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/X_xslt1/X2I.xsl"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>

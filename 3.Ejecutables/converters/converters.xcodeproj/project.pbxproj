@@ -114,6 +114,12 @@
 		4A7B8617258D484500E62971 /* xslt1.xsl */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = xslt1.xsl; sourceTree = "<group>"; };
 		4A7B864A258F10C000E62971 /* Hcuartets.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Hcuartets.m; sourceTree = "<group>"; };
 		4A7B8653258F111300E62971 /* Hcuartets.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Hcuartets.h; sourceTree = "<group>"; };
+		4ABDE91825B1A8FE00C8D33F /* M.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = M.xml; sourceTree = "<group>"; };
+		4ABDE91B25B1A8FE00C8D33F /* N.xsd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = N.xsd; sourceTree = "<group>"; };
+		4ABDE91C25B1A8FE00C8D33F /* N.rng */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = N.rng; sourceTree = "<group>"; };
+		4ABDE91E25B1A8FE00C8D33F /* M2N.xsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = M2N.xsl; sourceTree = "<group>"; };
+		4ABDE92025B1A8FE00C8D33F /* N2M.xsl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = N2M.xsl; sourceTree = "<group>"; };
+		4ABDE92125B1A8FE00C8D33F /* M.xsd */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = M.xsd; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -180,7 +186,7 @@
 			path = obsolete;
 			sourceTree = "<group>";
 		};
-		4A4260F525A66032001E0B52 /* X_xsl1 */ = {
+		4A4260F525A66032001E0B52 /* X(obsolete) */ = {
 			isa = PBXGroup;
 			children = (
 				4A4260F625A66032001E0B52 /* X2M.xsl */,
@@ -191,15 +197,15 @@
 				4A4260FC25A66032001E0B52 /* K2X.xsl */,
 				4A4260FE25A66032001E0B52 /* xmldicom.xsd */,
 			);
-			path = X_xsl1;
+			path = "X(obsolete)";
 			sourceTree = "<group>";
 		};
-		4A42610425A73C6B001E0B52 /* D2X */ = {
+		4A42610425A73C6B001E0B52 /* D2M */ = {
 			isa = PBXGroup;
 			children = (
 				4A42610525A73C6B001E0B52 /* main.m */,
 			);
-			path = D2X;
+			path = D2M;
 			sourceTree = "<group>";
 		};
 		4A7B8569258002A100E62971 = {
@@ -213,10 +219,11 @@
 				4A7B859F25824EAE00E62971 /* utils.m */,
 				4A7B8653258F111300E62971 /* Hcuartets.h */,
 				4A7B864A258F10C000E62971 /* Hcuartets.m */,
-				4A4260F525A66032001E0B52 /* X_xsl1 */,
-				4A7B85D9258BC12800E62971 /* H2X */,
-				4A7B85FB258CD7A700E62971 /* X2X */,
-				4A42610425A73C6B001E0B52 /* D2X */,
+				4A4260F525A66032001E0B52 /* X(obsolete) */,
+				4ABDE91725B1A8FE00C8D33F /* M */,
+				4A7B85D9258BC12800E62971 /* H2M */,
+				4A7B85FB258CD7A700E62971 /* M2M */,
+				4A42610425A73C6B001E0B52 /* D2M */,
 				4A7B8573258002A100E62971 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -267,12 +274,12 @@
 			path = P2P;
 			sourceTree = "<group>";
 		};
-		4A7B85D9258BC12800E62971 /* H2X */ = {
+		4A7B85D9258BC12800E62971 /* H2M */ = {
 			isa = PBXGroup;
 			children = (
 				4A7B85DA258BC12800E62971 /* main.m */,
 			);
-			path = H2X;
+			path = H2M;
 			sourceTree = "<group>";
 		};
 		4A7B85E4258BC16A00E62971 /* P */ = {
@@ -283,12 +290,12 @@
 			path = P;
 			sourceTree = "<group>";
 		};
-		4A7B85FB258CD7A700E62971 /* X2X */ = {
+		4A7B85FB258CD7A700E62971 /* M2M */ = {
 			isa = PBXGroup;
 			children = (
 				4A7B85FC258CD7A700E62971 /* main.m */,
 			);
-			path = X2X;
+			path = M2M;
 			sourceTree = "<group>";
 		};
 		4A7B8607258D461E00E62971 /* testing */ = {
@@ -316,6 +323,19 @@
 				4A7B85AC2582A4C300E62971 /* dicomattrs.hex */,
 			);
 			path = H;
+			sourceTree = "<group>";
+		};
+		4ABDE91725B1A8FE00C8D33F /* M */ = {
+			isa = PBXGroup;
+			children = (
+				4ABDE91825B1A8FE00C8D33F /* M.xml */,
+				4ABDE91B25B1A8FE00C8D33F /* N.xsd */,
+				4ABDE91C25B1A8FE00C8D33F /* N.rng */,
+				4ABDE91E25B1A8FE00C8D33F /* M2N.xsl */,
+				4ABDE92025B1A8FE00C8D33F /* N2M.xsl */,
+				4ABDE92125B1A8FE00C8D33F /* M.xsd */,
+			);
+			path = M;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

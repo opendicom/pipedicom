@@ -14,14 +14,14 @@ Cada ejecutable cumple una acción entre input y output.
 El nombre de los ejecutables empieza con dos mayusculas. La primera indica el tipo de input y la segunda el tipo de output
 
 Lista de los tipos de input y output con datos:
--    (A) dataset dicom (B, D, G, H, J, K o X)
+-    (A) dataset dicom (B, D, G, H, J, M o N)
 -    (B) dataset contextualized key-values bson (ready for serialization)
 -    (D) dataset dicom binario
 -    (G) dataset dicom json
 -    (H) dataset dicom binario hexa (1 octet ASCII 0-0A-F para cada grupo de 4 bytes)
 -    (J) dataset contextualized key-values json (ready for serialization)
--    (K) dataset dicom xml
--    (X) dataset contextualized key-values xml (ready for serialization)
+-    (M) dataset contextualized key-values xml map (ready for serialization)
+-    (N) dataset native dicom xml
 
 Lista de los tipos de input y output identificadores:
 -    (O) identificador de un objeto de una tabla de base de datos (I, S, o E)
@@ -31,6 +31,6 @@ Lista de los tipos de input y output identificadores:
 
 Lista de los tipos de input y output con rutas y urls:
 -    (R) Ruta en sistema de archivo a archivo dicom (B, D, G, H, J, K o X)
--    (U) url a stream dicom (B, D, G, H, J, K o X)
+-    (U) url a stream dicom (B, D, G, H, J, M o N)
 -    (W) url wado dicom binario
 -    (V) url de visualización (siempre final de una cadena)

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    PS 3.19-2011  A.1.6          Schema
+  The Normative version of the XML Schema for the Native DICOM Model follows:
+-->
+<xs:schema 
+  xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  elementFormDefault="qualified" 
+  targetNamespace="http://dicom.nema.org/PS3.19/models/NativeDICOM" 
+  xmlns:DICM="http://dicom.nema.org/PS3.19/models/NativeDICOM"
+  xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning" 
+  vc:minVersion="1.1"
+  >
+  <!--
+    This schema was created as an intermediary, a means of describing
+    native binary encoded DICOM objects as XML Infosets, thus allowing
+    one to manipulate binary DICOM objects using familiar XML tools.
+    As such, the schema is designed to facilitate a simple, mechanical,
+    bi-directional translation between binary encoded DICOM and XML-like
+    constructs without constraints, and to simplify identifying portions
+    of a DICOM object using XPath statements.
+    
+    Since this schema has minimal type checking, it is neither intended
+    to be used for any operation that involves hand coding, nor to
+    describe a definitive, fully validating encoding of DICOM concepts
+    into XML, as what one might use, for example, in a robust XML
+    database system or in XML-based forms, though it may be used
+    as a means for translating binary DICOM Objects into such a form
+    (e.g. through an XSLT script).
+  -->
+  <xs:element name="NativeDicomModel" type="DICM:DicomDataSet"/>
+  <!--
+    A DICOM Data Set is as defined in PS3.5. It does not appear
+    as an XML Element, since it does not appear in the binary encoded
+    DICOM objects. It exists here merely as a documentation aid.
+  -->
+  <xs:complexType name="DicomDataSet">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" ref="DICM:DicomAttribute"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="DicomAttribute">
+    <xs:complexType>
+      <xs:choice minOccurs="0">
+        <xs:element ref="DICM:BulkData"/>
+        <xs:element ref="DICM:InlineBinary"/>
+        <xs:element ref="DICM:Value" maxOccurs="unbounded"/>
+        <xs:element ref="DICM:Item" maxOccurs="unbounded"/>
+        <xs:element ref="DICM:PersonName" maxOccurs="unbounded"/>
+      </xs:choice>
+      <xs:attribute name="tag" use="required">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+             <xs:pattern value="[0-9A-F]{8}"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      
+      <xs:attribute name="vr">
+        <xs:simpleType>
+          <xs:restriction base="xs:token">
+            <xs:enumeration value="AE"/>
+            <xs:enumeration value="AS"/>
+            <xs:enumeration value="AT"/>
+            <xs:enumeration value="CS"/>
+            <xs:enumeration value="DA"/>
+            <xs:enumeration value="DS"/>
+            <xs:enumeration value="DT"/>
+            <xs:enumeration value="FL"/>
+            <xs:enumeration value="FD"/>
+            <xs:enumeration value="IS"/>
+            <xs:enumeration value="LO"/>
+            <xs:enumeration value="LT"/>
+            <xs:enumeration value="OB"/>
+            <xs:enumeration value="OD"/>
+            <xs:enumeration value="OF"/>
+            <xs:enumeration value="OL"/>
+            <xs:enumeration value="OW"/>
+            <xs:enumeration value="PN"/>
+            <xs:enumeration value="SH"/>
+            <xs:enumeration value="SL"/>
+            <xs:enumeration value="SQ"/>
+            <xs:enumeration value="SS"/>
+            <xs:enumeration value="ST"/>
+            <xs:enumeration value="TM"/>
+            <xs:enumeration value="UC"/>
+            <xs:enumeration value="UI"/>
+            <xs:enumeration value="UL"/>
+            <xs:enumeration value="UN"/>
+            <xs:enumeration value="UR"/>
+            <xs:enumeration value="US"/>
+            <xs:enumeration value="UT"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+
+      <xs:attribute name="keyword" type="xs:token"/>
+
+      <xs:attribute name="privateCreator" type="xs:string"/>
+      <xs:assert test="( substring(@tag,4,1) = ('1','3','5','7','9','B','D','F') and @privateCreator ) or (substring(@tag,4,1) = ('0','2','4','6','8','A','C','E') and not(@privateCreator))"/>
+      <xs:assert test="((@vr = 'SQ') and DICM:Item) or ((@vr = 'PN') and DICM:PersonName) or ((@vr = ('OB','OD','OF','OL','OW','SS','UN','US')) and (DICM:BulkData or DICM:Inline)) or (not(@vr = ('OB','OD','OF','OL','OW','PN','SQ','UN')) and DICM:Value) or not(@vr)"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="BulkData">
+    <xs:complexType>
+      <xs:attribute name="uuid" type="xs:string"/><!-- itutx667 -->
+      <xs:attribute name="uri" type="xs:anyURI"/>
+        <xs:assert test="(@uuid) or not(@uri)" />
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="InlineBinary" type="xs:base64Binary"/>
+  <xs:element name="Value">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+          <xs:attribute name="number" use="required" type="xs:positiveInteger"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="Item">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="DICM:DicomDataSet">
+          <xs:attribute name="number" use="required" type="xs:positiveInteger"/>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="PersonName">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Alphabetic" type="DICM:NameComponents" minOccurs="0"/>
+        <xs:element name="Ideographic" type="DICM:NameComponents" minOccurs="0"/>
+        <xs:element name="Phonetic" type="DICM:NameComponents" minOccurs="0"/>
+      </xs:sequence>
+      <xs:attribute name="number" use="required" type="xs:positiveInteger"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="NameComponents">
+    <xs:sequence>
+      <xs:element name="FamilyName" type="xs:string" minOccurs="0"/>
+      <xs:element name="GivenName" type="xs:string" minOccurs="0"/>
+      <xs:element name="MiddleName" type="xs:string" minOccurs="0"/>
+      <xs:element name="NamePrefix" type="xs:string" minOccurs="0"/>
+      <xs:element name="NameSuffix" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
