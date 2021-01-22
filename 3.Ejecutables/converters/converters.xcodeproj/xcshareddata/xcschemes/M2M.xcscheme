@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4A7B85822580037E00E62971"
-               BuildableName = "H2P"
-               BlueprintName = "H2P"
+               BlueprintIdentifier = "4A7B85F9258CD7A700E62971"
+               BuildableName = "M2M"
+               BlueprintName = "M2M"
                ReferencedContainer = "container:converters.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -44,26 +44,27 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4A7B85822580037E00E62971"
-            BuildableName = "H2P"
-            BlueprintName = "H2P"
+            BlueprintIdentifier = "4A7B85F9258CD7A700E62971"
+            BuildableName = "M2M"
+            BlueprintName = "M2M"
             ReferencedContainer = "container:converters.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "/Volumes/GITHUB/APath/parser/APath/testing/X/xslt1.xsl"
+            isEnabled = "YES">
+         </CommandLineArgument>
+      </CommandLineArguments>
       <EnvironmentVariables>
          <EnvironmentVariable
-            key = "H2PlogLevel"
+            key = "X2XlogLevel"
             value = "DEBUG"
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "H2PlogPath"
-            value = "/Users/Shared/H2Ptesting.log"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-         <EnvironmentVariable
-            key = "H2PtestPath"
-            value = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/testing/H/dicomattrs.hex"
+            key = "X2XtestPath"
+            value = "/Volumes/GITHUB/APath/parser/APath/testing/X/dataset.xml"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>
@@ -78,9 +79,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4A7B85822580037E00E62971"
-            BuildableName = "H2P"
-            BlueprintName = "H2P"
+            BlueprintIdentifier = "4A7B85F9258CD7A700E62971"
+            BuildableName = "M2M"
+            BlueprintName = "M2M"
             ReferencedContainer = "container:converters.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
