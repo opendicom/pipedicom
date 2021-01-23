@@ -79,19 +79,11 @@ NSUInteger parseAttrList(
       
       vr = shortsBuffer[shortsIndex+2];
       switch (vr) {
-            
-#pragma mark AT (hexBinary 4 bytes)
-         case 0x5441:
-         {
-            break;
-         }
 
-#pragma mark AE CS DS DT IS LO LT PN SH ST TM
+#pragma mark AE CS DT LO LT PN SH ST TM
          case 0x4541://AE
          case 0x5343://CS
-         case 0x5344://DS
          case 0x5444://DT
-         case 0x5349://IS
          case 0x4f4c://LO
          case 0x544c://LT
          case 0x4e50://PN
@@ -132,9 +124,28 @@ NSUInteger parseAttrList(
 
 #pragma mark UC
          case 0x4355:
+         /*
+          Unlimited Characters
+         */
+#pragma mark UR
+         case 0x5255://UR
+         /*
+          Universal Resource Identifier or Universal Resource Locator (URI/URL)
+         */
+#pragma mark UT
+         case 0x5455://UT
+         /*
+          A character string that may contain one or more paragraphs. It may contain the Graphic Character set and the Control Characters, CR, LF, FF, and ESC. It may be padded with trailing spaces, which may be ignored, but leading spaces are considered to be significant. Data Elements with this VR shall not be multi-valued and therefore character code 5CH (the BACKSLASH "\" in ISO-IR 6) may be used.
+         */
          {
-            //Unlimited Characters
-            break;
+            uint32 vll = ( shortsBuffer[shortsIndex+4]       )
+                       + ( shortsBuffer[shortsIndex+5] << 16 )
+            ;
+            NSXMLElement *element=dcmArray(branch,tag,vr);
+            [element addChild:[NSXMLElement elementWithName:@"string" stringValue:[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((shortsIndex+6)*2,vll)] encoding:NSISOLatin1StringEncoding]]];
+            [dataset addChild:element];
+            shortsIndex+=6+(vll/2);
+            break;             
          }
 
 #pragma mark UI
@@ -161,38 +172,8 @@ NSUInteger parseAttrList(
             shortsIndex+=4+(vl/2);
             break;
          }
-
-#pragma mark UR
-         case 0x5255://UR
-         {
-            //Universal Resource Identifier or Universal Resource Locator (URI/URL)
-            break;
-         }
-
-#pragma mark UT
-         case 0x5455://UT
-         {
-            /*
-             A character string that may contain one or more paragraphs. It may contain the Graphic Character set and the Control Characters, CR, LF, FF, and ESC. It may be padded with trailing spaces, which may be ignored, but leading spaces are considered to be significant. Data Elements with this VR shall not be multi-valued and therefore character code 5CH (the BACKSLASH "\" in ISO-IR 6) may be used.
-             */
-            /*
-            vll = uint32FromCuartetshortsBuffer(shortsBuffer,shortsIndex+16);
-            setMutabledataFromCuartetshortsBuffer(shortsBuffer,shortsIndex+24,shortsIndex+24+vll+vll,md);
-            [dataset addChild:stringOrArray(
-                                     branch,
-                                     tag,
-                                     vr,
-                                     @[[[NSString alloc]initWithData:md encoding:NSISOLatin1StringEncoding]],
-                                     false,
-                                     true
-                                     )];
-            shortsIndex+=24+vll+vll;
-             */
-            break;
-             
-         }
             
-#pragma mark SQ
+#pragma mark - SQ
          case 0x5153://SQ
          {
             unsigned int itemcounter=1;
@@ -203,22 +184,23 @@ NSUInteger parseAttrList(
                                  +((tag & 0x000000ff)<<16)
                                  ];
 
-            //SQ empty?
-            uint32 nexttag=shortsBuffer[shortsIndex+4]+(shortsBuffer[shortsIndex+5]<<16);
+            uint32 nexttag=shortsBuffer[shortsIndex+4]+(shortsBuffer[shortsIndex+5]<<16);//SQ size
             if (nexttag==0x0)
             {
+#pragma mark SQ empty
                [dataset addChild:dcmArray(branch,tag,vr)];
                [dataset addChild:dcmNull([branchTag stringByAppendingFormat:@".%08X",itemcounter],0xe0ddfffe,vr)];
                shortsIndex+=6;
             }
             else if (nexttag!=0xffffffff) //SQ with defined length
             {
-#pragma mark ERROR1: SQ defined length
+#pragma mark SQ defined length
                NSLog(@"ERROR1: SQ with defined length. NOT IMPLEMENTED YET");
                exit(1);
             }
             else //SQ with feff0dde end tag
             {
+#pragma mark SQ with closing marker
                [dataset addChild:dcmArray(branch,tag,vr)];
                shortsIndex+=6;//inside the SQ
                nexttag=shortsBuffer[shortsIndex]+(shortsBuffer[shortsIndex+1]<<16);
@@ -227,25 +209,27 @@ NSUInteger parseAttrList(
                   while (nexttag==0xe000fffe)
                   {
                      uint32 itemlength=shortsBuffer[shortsIndex+2]+(shortsBuffer[shortsIndex+3]<<16);;
-                     if (itemlength==0)//empty item
+                     if (itemlength==0)
                      {
+#pragma mark IT empty
                         [dataset addChild:dcmNull([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5149)];//IQ
 
                         [dataset addChild:dcmNull([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5A49)];//IZ
 
                         shortsIndex+=4;//out of empty item
                      }
-                     else if (itemlength!=0xffffffff) //item with defined length
+                     else if (itemlength!=0xffffffff)
                      {
-   #pragma mark ERROR3: item defined length
+#pragma mark IT defined length
                         NSLog(@"ERROR3: item with defined length. NOT IMPLEMENTED YET");
                         exit(3);
                      }
-                     else //undefined length item
+                     else
                      {
+#pragma mark IT with closing marker
                         [dataset addChild:dcmNull([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5149)];//IQ
                         shortsIndex+=4;//inside item
-   #pragma mark recursion
+#pragma mark recursion
                         shortsIndex=parseAttrList(
    data,
    shortsBuffer,
@@ -262,9 +246,32 @@ NSUInteger parseAttrList(
                      itemcounter++;
                   }
                }
+#pragma mark SQ closing marker
                [dataset addChild:dcmNull([branchTag stringByAppendingPathExtension:@"FFFFFFFF"],0xe0ddfffe,0x5A51)];
                shortsIndex+=8;
             }
+            break;
+         }
+
+#pragma mark - IS DS
+         case 0x5344://DS
+         case 0x5349://IS
+         {
+            //variable length (eventually ended with 0x20
+            
+            NSArray *arrayContents=[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((shortsIndex+4)*2,vl)] encoding:NSISOLatin1StringEncoding]componentsSeparatedByString:@"\\"];
+
+            NSXMLElement *element=dcmArray(branch,tag,vr);
+            for (NSString *value in arrayContents)
+            {
+               NSMutableString *mutableString=[NSMutableString stringWithString:value];
+               trimLeadingSpaces(mutableString);
+               trimTrailingSpaces(mutableString);
+               [element addChild:[NSXMLElement elementWithName:@"number" stringValue:mutableString]];
+            }
+            [dataset addChild:element];
+            
+            shortsIndex+=4+(vl/2);
             break;
          }
 
@@ -455,37 +462,31 @@ NSUInteger parseAttrList(
             break;
          }
 
-#pragma mark OB
+#pragma mark OB OD OF OL OV OW UN
          case 0x424F:
             /*
              An octet-stream where the encoding of the contents is specified by the negotiated Transfer Syntax. OB is a VR that is insensitive to byte ordering (see Section 7.3). The octet-stream shall be padded with a single trailing NULL byte value (00H) when necessary to achieve even length.
              */
-#pragma mark OD
          case 0x444F:
             /*
              A stream of 64-bit IEEE 754:1985 floating point words. OD is a VR that requires byte swapping within each 64-bit word when changing byte ordering (see Section 7.3).
              */
-#pragma mark OF
          case 0x464F:
             /*
              A stream of 32-bit IEEE 754:1985 floating point words. OF is a VR that requires byte swapping within each 32-bit word when changing byte ordering (see Section 7.3).
              */
-#pragma mark OL
          case 0x4C4F:
             /*
              A stream of 32-bit words where the encoding of the contents is specified by the negotiated Transfer Syntax. OL is a VR that requires byte swapping within each word when changing byte ordering (see Section 7.3).
              */
-#pragma mark OV
          case 0x564F:
             /*
              A stream of 64-bit words where the encoding of the contents is specified by the negotiated Transfer Syntax. OV is a VR that requires byte swapping within each word when changing byte ordering (see Section 7.3).
              */
-#pragma mark OW
          case 0x574F:
             /*
              A stream of 16-bit words where the encoding of the contents is specified by the negotiated Transfer Syntax. OW is a VR that requires byte swapping within each word when changing byte ordering (see Section 7.3).
              */
-#pragma mark UN
          case 0x4E55:
          {
             uint32 vll = ( shortsBuffer[shortsIndex+4]       )
@@ -504,6 +505,12 @@ NSUInteger parseAttrList(
          }
             
             
+#pragma mark TODO AT (hexBinary 4 bytes)
+         case 0x5441:
+         {
+            break;
+         }
+
 
          default://ERROR unknow VR
          {
