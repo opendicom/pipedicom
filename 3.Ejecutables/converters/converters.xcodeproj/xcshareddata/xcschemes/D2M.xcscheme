@@ -53,7 +53,7 @@
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "D2MtestPath"
-            value = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/testing/D/SCSFREN.dcm"
+            value = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/testing/D/FluroWithDisplayShutter.dcm"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>

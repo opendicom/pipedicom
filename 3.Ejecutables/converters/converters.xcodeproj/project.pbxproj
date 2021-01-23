@@ -70,6 +70,7 @@
 		4A434CC125B9980400065B64 /* SCSH32.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = SCSH32.dcm; sourceTree = "<group>"; };
 		4A434CC225B9980400065B64 /* SCSARAB.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = SCSARAB.dcm; sourceTree = "<group>"; };
 		4A434CC325B9980400065B64 /* SCSI2.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = SCSI2.dcm; sourceTree = "<group>"; };
+		4A434CCC25BB445100065B64 /* FluroWithDisplayShutter.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = FluroWithDisplayShutter.dcm; sourceTree = "<group>"; };
 		4A7B8572258002A100E62971 /* libconverters.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libconverters.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A7B85852580037E00E62971 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4A7B859F25824EAE00E62971 /* utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = utils.m; sourceTree = "<group>"; };
@@ -165,6 +166,7 @@
 		4A434CB825B996A200065B64 /* D */ = {
 			isa = PBXGroup;
 			children = (
+				4A434CCC25BB445100065B64 /* FluroWithDisplayShutter.dcm */,
 				4A434CC225B9980400065B64 /* SCSARAB.dcm */,
 				4A434CBB25B9980400065B64 /* SCSFREN.dcm */,
 				4A434CBF25B9980400065B64 /* SCSGERM.dcm */,

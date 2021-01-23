@@ -11,14 +11,6 @@
 const unsigned char zero=0x0;
 static NSData *zeroData=nil;
 
-uint32 uint32visual(uint32 tag)
-{
-   return   ((tag & 0xff000000)>>16)
-           +((tag & 0x00ff0000)>>16)
-           +((tag & 0x0000ff00)<<16)
-           +((tag & 0x000000ff)<<16);
-}
-
 
 NSXMLElement *dcmArray(
    NSString *branch,
@@ -31,7 +23,10 @@ NSXMLElement *dcmArray(
                    [NSString
                     stringWithFormat:@"%@-%08X_%c%c",
                     branch,
-                    uint32visual(tag),
+                     ((tag & 0xff000000)>>16)
+                    +((tag & 0x00ff0000)>>16)
+                    +((tag & 0x0000ff00)<<16)
+                    +((tag & 0x000000ff)<<16),
                     vr & 0xff,
                     vr >> 8
                    ]
@@ -52,7 +47,10 @@ NSXMLElement *dcmNull(
                    [NSString
                     stringWithFormat:@"%@-%08X_%c%c",
                     branch,
-                    uint32visual(tag),
+                     ((tag & 0xff000000)>>16)
+                    +((tag & 0x00ff0000)>>16)
+                    +((tag & 0x0000ff00)<<16)
+                    +((tag & 0x000000ff)<<16),
                     vr & 0xff,
                     vr >> 8
                    ]
@@ -64,10 +62,10 @@ NSXMLElement *dcmNull(
 #pragma mark -
 
 NSUInteger parseAttrList(
-                         NSData* data,
-                         unsigned short* shortsBuffer,
+                         NSData *data,
+                         unsigned short *shortsBuffer,
                          NSUInteger shortsIndex,
-                         NSUInteger postShortsBuffer,
+                         NSUInteger postShortsIndex,
                          NSString *branch,
                          NSXMLElement *dataset
                          )
@@ -75,7 +73,7 @@ NSUInteger parseAttrList(
    UInt16 vr;//value representation
    UInt32 tag =   shortsBuffer[shortsIndex  ]
               + ( shortsBuffer[shortsIndex+1] << 16 );
-   while (tag!=0xe00dfffe &&  shortsIndex < postShortsBuffer) //fffee00d
+   while (tag!=0xe00dfffe &&  shortsIndex < postShortsIndex) //(end item)
    {
       UInt16 vl = shortsBuffer[shortsIndex+3];//for AE,AS,AT,CS,DA,DS,DT,FL,FD,IS,LO,LT,PN,SH,SL,SS,ST,TM,UI,UL,US
       
@@ -197,79 +195,76 @@ NSUInteger parseAttrList(
 #pragma mark SQ
          case 0x5153://SQ
          {
-            /*
             unsigned int itemcounter=1;
-            NSString *branchTag=[branch stringByAppendingFormat:@"-%08X",uint32visual(tag)];
+            NSString *branchTag=[branch stringByAppendingFormat:@"-%08X",
+                                  ((tag & 0xff000000)>>16)
+                                 +((tag & 0x00ff0000)>>16)
+                                 +((tag & 0x0000ff00)<<16)
+                                 +((tag & 0x000000ff)<<16)
+                                 ];
 
             //SQ empty?
-            uint32 nexttag=uint32FromCuartetshortsBuffer(shortsBuffer,shortsIndex+16);
+            uint32 nexttag=shortsBuffer[shortsIndex+4]+(shortsBuffer[shortsIndex+5]<<16);
             if (nexttag==0x0)
             {
                [dataset addChild:dcmArray(branch,tag,vr)];
-               shortsIndex+=16;
-               [dataset addChild:dcmArray([branchTag stringByAppendingFormat:@".%08X",itemcounter],0xe0ddfffe,vr)];
-               shortsIndex+=16;
+               [dataset addChild:dcmNull([branchTag stringByAppendingFormat:@".%08X",itemcounter],0xe0ddfffe,vr)];
+               shortsIndex+=6;
             }
             else if (nexttag!=0xffffffff) //SQ with defined length
             {
 #pragma mark ERROR1: SQ defined length
-               //logger(@"ERROR1: SQ with defined length. NOT IMPLEMENTED YET");
-               setMutabledataFromCuartetshortsBuffer(shortsBuffer,shortsIndex,postshortsBuffer,md);
-               //logger(@"%@",md.description);
+               NSLog(@"ERROR1: SQ with defined length. NOT IMPLEMENTED YET");
                exit(1);
             }
             else //SQ with feff0dde end tag
             {
-               shortsIndex+=24;
-               nexttag=uint32FromCuartetshortsBuffer(shortsBuffer,shortsIndex);
-               while (nexttag!=0xe0ddfffe)//not the end of the SQ
+               [dataset addChild:dcmArray(branch,tag,vr)];
+               shortsIndex+=6;//inside the SQ
+               nexttag=shortsBuffer[shortsIndex]+(shortsBuffer[shortsIndex+1]<<16);
+               if (nexttag!=0xe0ddfffe)//SQ with contents
                {
-                  if (nexttag!=0xe000fffe) //fffee000 ERROR item without header
+                  while (nexttag==0xe000fffe)
                   {
-#pragma mark ERROR2: no item start
-                     //logger(@"ERROR2: no item start");
-                     setMutabledataFromCuartetshortsBuffer(shortsBuffer,shortsIndex,postshortsBuffer,md);
-                     //logger(@"%@",md.description);
-                     exit(2);
-                  }
-                  else
-                  {
-                     uint32 itemlength=uint32FromCuartetshortsBuffer(shortsBuffer,shortsIndex+8);
+                     uint32 itemlength=shortsBuffer[shortsIndex+2]+(shortsBuffer[shortsIndex+3]<<16);;
                      if (itemlength==0)//empty item
                      {
-                        [dataset addChild:dcmArray([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5149)];//IQ
+                        [dataset addChild:dcmNull([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5149)];//IQ
 
-                        [dataset addChild:dcmArray([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5A49)];//IZ
+                        [dataset addChild:dcmNull([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5A49)];//IZ
+
+                        shortsIndex+=4;//out of empty item
                      }
                      else if (itemlength!=0xffffffff) //item with defined length
                      {
-#pragma mark ERROR3: item defined length
-                        //logger(@"ERROR3: item with defined length. NOT IMPLEMENTED YET");
-                        setMutabledataFromCuartetshortsBuffer(shortsBuffer,shortsIndex,postshortsBuffer,md);
-                        //logger(@"%@",md.description);
+   #pragma mark ERROR3: item defined length
+                        NSLog(@"ERROR3: item with defined length. NOT IMPLEMENTED YET");
                         exit(3);
                      }
                      else //undefined length item
                      {
-                        [dataset addChild:dcmArray([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5149)];//IQ
+                        [dataset addChild:dcmNull([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5149)];//IQ
+                        shortsIndex+=4;//inside item
+   #pragma mark recursion
+                        shortsIndex=parseAttrList(
+   data,
+   shortsBuffer,
+   shortsIndex,
+   postShortsIndex,
+   [branchTag stringByAppendingFormat:@".%08X",itemcounter],
+   dataset
+                                                  );
 
-#pragma mark recursion
-                        shortsIndex=parseAttrList(shortsBuffer,shortsIndex,postshortsBuffer,[branchTag stringByAppendingFormat:@".%08X",itemcounter],dataset);
-
-                        [dataset addChild:dcmArray([branchTag stringByAppendingFormat:@".%08X",itemcounter],0xe00dfffe,0x5A49)];//IZ
-
-                        shortsIndex+=16;
-                        nexttag=uint32FromCuartetshortsBuffer(shortsBuffer,shortsIndex);
+                        [dataset addChild:dcmNull([branchTag stringByAppendingFormat:@".%08X",itemcounter],0xe00dfffe,0x5A49)];//IZ
                      }
-                  }
-                  itemcounter++;
-               }
-               
-               [dataset addChild:dcmArray([branchTag stringByAppendingString:@"FFFFFFFF"],0xe0ddfffe,0x5A51)];
+                     nexttag=shortsBuffer[shortsIndex]+(shortsBuffer[shortsIndex+1]<<16);
 
-               shortsIndex+=16;
+                     itemcounter++;
+                  }
+               }
+               [dataset addChild:dcmNull([branchTag stringByAppendingPathExtension:@"FFFFFFFF"],0xe0ddfffe,0x5A51)];
+               shortsIndex+=8;
             }
-            */
             break;
          }
 
@@ -503,7 +498,7 @@ NSUInteger parseAttrList(
             [element addChild:[NSXMLElement elementWithName:@"string" stringValue:base64string]];
             [dataset addChild:element];
 
-            shortsIndex+=6+(vll/2);
+            shortsIndex+= 6 + (vll/2);
 
             break;
          }
@@ -586,14 +581,13 @@ int main(int argc, const char * argv[]) {
          
          
          NSUInteger index=parseAttrList(
-                                        data,
-                                        shorts,
-                                        datasetShortOffset,
-                                        (data.length -1) / 2,
-                                        @"00000001",
-                                        dataset
-                                        );
-         LOG_VERBOSE(@"index:%lu size:%lu",(unsigned long)index,data.length-1);
+data,
+shorts,
+datasetShortOffset,
+(data.length -1) / 2,
+@"00000001",
+dataset
+);
          
          NSXMLDocument *xmlDocument=[[NSXMLDocument alloc] initWithRootElement:root];
          [xmlDocument setCharacterEncoding:@"UTF-8"];
@@ -605,7 +599,7 @@ int main(int argc, const char * argv[]) {
        
          //without args: in>out
          if (args.count==1) [[xmlDocument XMLData] writeToFile:@"/dev/stdout" atomically:NO];
-         else //H2X [XSL1TransformationPath [params...]]
+         else //[XSL1TransformationPath [params...]]
          {
             NSData *xsl1data=[NSData dataWithContentsOfFile:args[1]];
             if (!xsl1data)
