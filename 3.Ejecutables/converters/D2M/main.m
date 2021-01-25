@@ -145,7 +145,7 @@ NSUInteger parseAttrList(
             [element addChild:[NSXMLElement elementWithName:@"string" stringValue:[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((shortsIndex+6)*2,vll)] encoding:NSISOLatin1StringEncoding]]];
             [dataset addChild:element];
             shortsIndex+=6+(vll/2);
-            break;             
+            break;
          }
 
 #pragma mark UI
@@ -538,7 +538,6 @@ int main(int argc, const char * argv[]) {
 
       NSDictionary *environment=processInfo.environment;
       
-      //H2XlogLevel
       if (environment[@"D2MlogLevel"])
       {
          NSUInteger logLevel=[@[@"DEBUG",@"VERBOSE",@"INFO",@"WARNING",@"ERROR",@"EXCEPTION"] indexOfObject:environment[@"D2MlogLevel"]];
@@ -595,7 +594,11 @@ datasetShortOffset,
 @"00000001",
 dataset
 );
-         
+         if (index < (data.length -1) / 2)
+         {
+            LOG_ERROR(@"parsing not completed");
+         }
+
          NSXMLDocument *xmlDocument=[[NSXMLDocument alloc] initWithRootElement:root];
          [xmlDocument setCharacterEncoding:@"UTF-8"];
          [xmlDocument setVersion:@"1.0"];
@@ -603,52 +606,40 @@ dataset
 #pragma marks args
          
          NSArray *args=processInfo.arguments;
+         NSUInteger argscount=args.count;
+         NSArray *xslt1Paths=nil;
+         if (argscount>1)
+            xslt1Paths =[args subarrayWithRange:NSMakeRange(1, argscount-1)];
+         else xslt1Paths=[NSArray array];//empty array
        
-         //without args: in>out
-         if (args.count==1) [[xmlDocument XMLData] writeToFile:@"/dev/stdout" atomically:NO];
-         else //[XSL1TransformationPath [params...]]
+         id result=nil;
+         for (NSString *xslt1Path in xslt1Paths)
          {
-            NSData *xsl1data=[NSData dataWithContentsOfFile:args[1]];
+            NSData *xsl1data=[NSData dataWithContentsOfFile:xslt1Path];
             if (!xsl1data)
             {
                LOG_ERROR(@"arg XSL1TransformationPath %@ not available",args[1]);
                exit(2);
             }
 
-            NSMutableDictionary *xslparams=[NSMutableDictionary dictionary];
-            for (NSString *string in [args subarrayWithRange:NSMakeRange(2,args.count - 2)])
-            {
-               NSArray *keyValue=[string componentsSeparatedByString:@"="];
-               if (keyValue.count != 2)
-               {
-                  LOG_ERROR(@"xsl1t params in %@ should be key=value",args[1]);
-                  exit(3);
-               }
-               [xslparams setValue:keyValue[1] forKey:keyValue[0]];
-            }
-
+            NSMutableDictionary *xslparams=environment[[xslt1Path lastPathComponent]];
             LOG_DEBUG(@"xsl1t %@ with params : %@",args[1],[xslparams description]);
             
             NSError *error=nil;
             id result=[xmlDocument objectByApplyingXSLT:xsl1data arguments:xslparams error:&error];
             if (!result)
             {
-               LOG_WARNING(@"Error with xsl %@",[args description]);
+               LOG_WARNING(@"Error 5 with xsl %@",[args description]);
                [[NSData data] writeToFile:@"/dev/stdout" atomically:NO];
+               exit(5);
             }
-            else if ([result isMemberOfClass:[NSXMLDocument class]])
-            {
-               LOG_VERBOSE(@"xml result");
-               [[result XMLData] writeToFile:@"/dev/stdout" atomically:NO];
-            }
-            else
-            {
-               LOG_VERBOSE(@"data result");
-               [result writeToFile:@"/dev/stdout" atomically:NO];
-            }
+            [xmlDocument setRootElement:[result rootElement]];
          }
+         if ([result isMemberOfClass:[NSXMLDocument class]])
+            [[result XMLData] writeToFile:@"/dev/stdout" atomically:NO];
+         else [result writeToFile:@"/dev/stdout" atomically:NO];
       }
-      else [[NSData data] writeToFile:@"/dev/stdout" atomically:NO];
+      else [[NSData data] writeToFile:@"/dev/stdout" atomically:NO];//empty data
    }//end autorelease pool
    return 0;
 }
