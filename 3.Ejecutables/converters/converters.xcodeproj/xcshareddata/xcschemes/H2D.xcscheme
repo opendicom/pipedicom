@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "4A7B85D7258BC12800E62971"
-               BuildableName = "H2M"
-               BlueprintName = "H2M"
+               BuildableName = "H2D"
+               BlueprintName = "H2D"
                ReferencedContainer = "container:converters.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,31 +45,30 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4A7B85D7258BC12800E62971"
-            BuildableName = "H2M"
-            BlueprintName = "H2M"
+            BuildableName = "H2D"
+            BlueprintName = "H2D"
             ReferencedContainer = "container:converters.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
-      <CommandLineArguments>
-         <CommandLineArgument
-            argument = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/X_xslt1/X2I.xsl"
-            isEnabled = "NO">
-         </CommandLineArgument>
-      </CommandLineArguments>
       <EnvironmentVariables>
          <EnvironmentVariable
-            key = "H2XlogPath"
+            key = "H2DlogLevel"
             value = "DEBUG"
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "H2XlogPath"
+            key = "H2DlogPath"
             value = "/Users/Shared/H2Xtesting.log"
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "H2XtestPath"
+            key = "H2DtestPath"
             value = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/testing/H/dicomattrs.hex"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "H2Doutput"
+            value = "/Users/Shared/H2D.dcm"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>
@@ -85,8 +84,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4A7B85D7258BC12800E62971"
-            BuildableName = "H2M"
-            BlueprintName = "H2M"
+            BuildableName = "H2D"
+            BlueprintName = "H2D"
             ReferencedContainer = "container:converters.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

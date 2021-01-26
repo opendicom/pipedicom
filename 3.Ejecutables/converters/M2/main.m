@@ -1,7 +1,7 @@
 #import <Foundation/Foundation.h>
 #import "ODLog.h"
 
-//X2X
+//M2
 //stdin & stdout opendicom xml (DICOM_contextualizedKey-values)
 //https://github.com/jacquesfauquex/DICOM_contextualizedKey-values/blob/master/xml/xmldicom.xsd
 

@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "4A7B85F9258CD7A700E62971"
-               BuildableName = "M2M"
-               BlueprintName = "M2M"
+               BuildableName = "M2"
+               BlueprintName = "M2"
                ReferencedContainer = "container:converters.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,8 +45,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4A7B85F9258CD7A700E62971"
-            BuildableName = "M2M"
-            BlueprintName = "M2M"
+            BuildableName = "M2"
+            BlueprintName = "M2"
             ReferencedContainer = "container:converters.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -80,8 +80,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4A7B85F9258CD7A700E62971"
-            BuildableName = "M2M"
-            BlueprintName = "M2M"
+            BuildableName = "M2"
+            BlueprintName = "M2"
             ReferencedContainer = "container:converters.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
