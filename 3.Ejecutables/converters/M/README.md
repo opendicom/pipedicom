@@ -1,10 +1,11 @@
 # mapxmldicom (M) and extensions
 
-mapxmldicom (M) in the form of a XPath 3.1 explorable working XML DOM is our foundamental parsing result target.
-It may also be processed with textual tools other than XPath 3.1 when serialized in XML text or XML JSON.
+mapxmldicom (M) in the form of a XPath 3.1 explorable working XML DOM is our fundamental parsing result target.
+It may be processed with textual tools other than XPath 3.1 when serialized into XML text or XML JSON.
 
 - M.xml is an example of the XML text serialization
 - M.xsd is the schema which validates the structure of the XML text serialization
+- schema-for-json.xsd is the official validation schema for the node to be passed as first argument of the function xml-to-json(). Our M.xsd is a restriction of this schema
 - M2J.xsl is a simple conversion of the XML text serialization to the JSON one. It is using esentially one XSLT 3 command only, xml-to-json() 
 
 ## mapxmldicom (M) and native (N) xml representation

@@ -308,7 +308,7 @@ NSUInteger parseAttrList(
             while (shortsIndex < afterValues)
             {
                ul=shortsBuffer[shortsIndex] + (shortsBuffer[shortsIndex+1]<<16);
-               [element addChild:[NSXMLElement elementWithName:@"number" stringValue:[NSString stringWithFormat:@"%lul",ul]]];
+               [element addChild:[NSXMLElement elementWithName:@"number" stringValue:[NSString stringWithFormat:@"%lu",ul]]];
                shortsIndex+=2;
             }
             
@@ -557,6 +557,9 @@ int main(int argc, const char * argv[]) {
       }
       else freopen([@"/Users/Shared/D2M.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
       
+      //D2Moutput
+      NSString *D2Moutput=environment[@"D2Moutput"];
+      if (!D2Moutput) D2Moutput=@"/dev/stdout";
 
       //D2MtestPath
       NSData *data=nil;
@@ -567,20 +570,20 @@ int main(int argc, const char * argv[]) {
       LOG_DEBUG(@"environment:\r%@",[environment description]);
       
 #pragma mark in out
-      if (data.length)
+      if (data.length <10)
+      {
+         LOG_WARNING(@"dicom binary data too small");
+         [[NSData data] writeToFile:D2Moutput atomically:NO];
+      }
+      else
       {
          unsigned short *shorts=(unsigned short*)[data bytes];
-         if (data.length < 5)
-         {
-            LOG_WARNING(@"dicom binary data too small %@",[data description]);
-            [[NSData data] writeToFile:@"/dev/stdout" atomically:NO];
-         }
-         
          NSUInteger datasetShortOffset=0;
          //skip preambule?
          if (data.length > 132 && shorts[64]==0x4944 && shorts[65]==0x4d43) datasetShortOffset=66;
 
          NSXMLElement *root=[NSXMLElement elementWithName:@"map"];
+         [root addNamespace:[NSXMLNode namespaceWithName:@"" stringValue:@"http://www.w3.org/2005/xpath-functions"]];
          NSXMLElement *dataset=[NSXMLElement elementWithName:@"map"];
          [root addChild:dataset];
          [dataset addAttribute:[NSXMLNode attributeWithName:@"key"stringValue:@"dataset"]];
@@ -612,7 +615,7 @@ dataset
             xslt1Paths =[args subarrayWithRange:NSMakeRange(1, argscount-1)];
          else xslt1Paths=[NSArray array];//empty array
        
-         id result=nil;
+         id result=xmlDocument;
          for (NSString *xslt1Path in xslt1Paths)
          {
             NSData *xsl1data=[NSData dataWithContentsOfFile:xslt1Path];
@@ -636,10 +639,9 @@ dataset
             [xmlDocument setRootElement:[result rootElement]];
          }
          if ([result isMemberOfClass:[NSXMLDocument class]])
-            [[result XMLData] writeToFile:@"/dev/stdout" atomically:NO];
-         else [result writeToFile:@"/dev/stdout" atomically:NO];
+            [[result XMLData] writeToFile:D2Moutput atomically:NO];
+         else [result writeToFile:D2Moutput atomically:NO];
       }
-      else [[NSData data] writeToFile:@"/dev/stdout" atomically:NO];//empty data
    }//end autorelease pool
    return 0;
 }

@@ -2,8 +2,12 @@
 #import "ODLog.h"
 
 //M2
-//stdin & stdout opendicom xml (DICOM_contextualizedKey-values)
-//https://github.com/jacquesfauquex/DICOM_contextualizedKey-values/blob/master/xml/xmldicom.xsd
+//stdin
+//stdout depends on the xslt1
+//special cases include :
+// xslt1 B.xslt (further serializes in bson)
+// xslt1 D.xslt (further serializes in binary dicom)
+//wherehttps://github.com/jacquesfauquex/DICOM_contextualizedKey-values/blob/master/xml/xmldicom.xsd
 
 
 int main(int argc, const char * argv[]) {
@@ -35,6 +39,9 @@ int main(int argc, const char * argv[]) {
       }
       else freopen([@"/Users/Shared/X2X.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
       
+      //M2output
+      NSString *M2output=environment[@"M2output"];
+      if (!M2output) M2output=@"/dev/stdout";
 
       //X2XtestPath
       NSData *linedata=nil;
@@ -50,7 +57,7 @@ int main(int argc, const char * argv[]) {
       
       NSArray *args=[[NSProcessInfo processInfo] arguments];
       
-      if (args.count==1) [linedata writeToFile:@"/dev/stdout" atomically:NO]; //without args: in>out
+      if (args.count==1) [linedata writeToFile:M2output atomically:NO]; //without args: in>out
       else //X2X [XSL1TransformationPath [params...]]
       {
          NSData *xsl1data=[NSData dataWithContentsOfFile:args[1]];
@@ -83,7 +90,7 @@ int main(int argc, const char * argv[]) {
             if (!xmlDocument)
             {
                if (error) LOG_INFO(@"%@",[error description]);
-               [[NSData data] writeToFile:@"/dev/stdout" atomically:NO];
+               [[NSData data] writeToFile:M2output atomically:NO];
             }
             else
             {
@@ -95,12 +102,12 @@ int main(int argc, const char * argv[]) {
                else if ([result isMemberOfClass:[NSXMLDocument class]])
                {
                   LOG_VERBOSE(@"xml result");
-                  [[result XMLData] writeToFile:@"/dev/stdout" atomically:NO];
+                  [[result XMLData] writeToFile:M2output atomically:NO];
                }
                else
                {
                   LOG_VERBOSE(@"data result");
-                  [result writeToFile:@"/dev/stdout" atomically:NO];
+                  [result writeToFile:M2output atomically:NO];
                }
             }
          }

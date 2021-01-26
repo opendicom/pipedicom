@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4A42610225A73C6B001E0B52"
-               BuildableName = "D2M"
-               BlueprintName = "D2M"
+               BlueprintIdentifier = "4AAE866925C0C19600117D26"
+               BuildableName = "B2M"
+               BlueprintName = "B2M"
                ReferencedContainer = "container:converters.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -44,24 +44,12 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4A42610225A73C6B001E0B52"
-            BuildableName = "D2M"
-            BlueprintName = "D2M"
+            BlueprintIdentifier = "4AAE866925C0C19600117D26"
+            BuildableName = "B2M"
+            BlueprintName = "B2M"
             ReferencedContainer = "container:converters.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
-      <EnvironmentVariables>
-         <EnvironmentVariable
-            key = "D2MtestPath"
-            value = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/testing/D/FluroWithDisplayShutter.dcm"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-         <EnvironmentVariable
-            key = "D2Moutput"
-            value = "/Users/Shared/D2M.xml"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-      </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -73,9 +61,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4A42610225A73C6B001E0B52"
-            BuildableName = "D2M"
-            BlueprintName = "D2M"
+            BlueprintIdentifier = "4AAE866925C0C19600117D26"
+            BuildableName = "B2M"
+            BlueprintName = "B2M"
             ReferencedContainer = "container:converters.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
