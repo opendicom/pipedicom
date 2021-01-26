@@ -73,21 +73,6 @@ UInt32 uint32FromCuartetBuffer( unsigned char* buffer, NSUInteger index)
           ;
 }
 
-uint32 uint32visual(uint32 tag)
-{
-   return   ((tag & 0xff000000)>>16)
-           +((tag & 0x00ff0000)>>16)
-           +((tag & 0x0000ff00)<<16)
-           +((tag & 0x000000ff)<<16);
-}
-
-UInt8 octetFromCuartetBuffer( unsigned char* buffer, NSUInteger index)
-{
-   return   (byte2cuartet[buffer[index  ]] << 4)
-   + (byte2cuartet[buffer[index+1]] << 0)
-   ;
-}
-
 void setMutabledataFromCuartetBuffer( unsigned char* buffer, NSUInteger startindex, NSUInteger afterindex, NSMutableData *md)
 {
    [md setLength:0];
@@ -126,16 +111,12 @@ NSUInteger parseAttrList(
       [D appendBytes:&vl length:2];
       switch (vr) {
             
-#pragma mark attribute AT (hexBinary 4 bytes)
-         case 0x5441:
-         {
-            break;
-         }
 
-#pragma mark DA AS AE CS DS DT IS LO LT PN SH ST TM UI
+#pragma mark vl
          case 0x4144://DA
          case 0x5341://AS
          case 0x4541://AE
+         case 0x5441://AT
          case 0x5343://CS
          case 0x5344://DS
          case 0x5444://DT
@@ -147,6 +128,12 @@ NSUInteger parseAttrList(
          case 0x5453://ST
          case 0x4d54://TM
          case 0x4955://UI
+         case 0x4C53://SL
+         case 0x4C55://UL
+         case 0x5353://SS
+         case 0x5355://US
+         case 0x4C46://FL
+         case 0x4446://FD
          {
             [md setLength:0];
             setMutabledataFromCuartetBuffer(buffer,index+16,index+16+vl+vl,md);
@@ -156,26 +143,44 @@ NSUInteger parseAttrList(
          }
 
 
-#pragma mark UC
+#pragma mark vll
          case 0x4355:
-         {
-            //Unlimited Characters
-            break;
-         }
-
-#pragma mark UR
+         /*
+          Unlimited Characters
+         */
          case 0x5255://UR
-         {
-            //Universal Resource Identifier or Universal Resource Locator (URI/URL)
-            break;
-         }
-
-#pragma mark UT
+         /*
+          Universal Resource Identifier or Universal Resource Locator (URI/URL)
+         */
          case 0x5455://UT
-         {
+         case 0x5653://SV
+         case 0x5655://UV
+         case 0x4E55://UN
+         case 0x424F://OB
             /*
-             A character string that may contain one or more paragraphs. It may contain the Graphic Character set and the Control Characters, CR, LF, FF, and ESC. It may be padded with trailing spaces, which may be ignored, but leading spaces are considered to be significant. Data Elements with this VR shall not be multi-valued and therefore character code 5CH (the BACKSLASH "\" in ISO-IR 6) may be used.
+             An octet-stream where the encoding of the contents is specified by the negotiated Transfer Syntax. OB is a VR that is insensitive to byte ordering (see Section 7.3). The octet-stream shall be padded with a single trailing NULL byte value (00H) when necessary to achieve even length.
              */
+         case 0x444F://OD
+            /*
+             A stream of 64-bit IEEE 754:1985 floating point words. OD is a VR that requires byte swapping within each 64-bit word when changing byte ordering (see Section 7.3).
+             */
+         case 0x464F://OF
+            /*
+             A stream of 32-bit IEEE 754:1985 floating point words. OF is a VR that requires byte swapping within each 32-bit word when changing byte ordering (see Section 7.3).
+             */
+         case 0x4C4F://OL
+            /*
+             A stream of 32-bit words where the encoding of the contents is specified by the negotiated Transfer Syntax. OL is a VR that requires byte swapping within each word when changing byte ordering (see Section 7.3).
+             */
+         case 0x564F://OV
+            /*
+             A stream of 64-bit words where the encoding of the contents is specified by the negotiated Transfer Syntax. OV is a VR that requires byte swapping within each word when changing byte ordering (see Section 7.3).
+             */
+         case 0x574F://OW
+            /*
+             A stream of 16-bit words where the encoding of the contents is specified by the negotiated Transfer Syntax. OW is a VR that requires byte swapping within each word when changing byte ordering (see Section 7.3).
+             */
+         {
             
             vll = uint32FromCuartetBuffer(buffer,index+16);
             [D appendBytes:&vll length:4];
@@ -244,122 +249,6 @@ NSUInteger parseAttrList(
             break;
          }
 
-#pragma mark attribute UN
-         case 0x4E55:
-         {
-            //Unknown
-            break;
-         }
-
-#pragma mark attribute SL
-         case 0x4C53:
-         {
-            //Signed Long
-            break;
-         }
-            
-#pragma mark attribute UL
-         case 0x4C55:
-         {
-            //Unsigned Long
-            break;
-         }
-
-            
-#pragma mark attribute SS
-         case 0x5353:
-         {
-            //Signed Short
-            break;
-         }
-            
-#pragma mark attribute US
-         case 0x5355:
-         {
-            //Unsigned Short
-            break;
-         }
-
-#pragma mark attribute SV
-         case 0x5653:
-         {
-            //Signed 64-bit Very Long
-            break;
-         }
-
-#pragma mark attribute UV
-         case 0x5655:
-         {
-            //Unsigned 64-bit Very Long
-            break;
-         }
-
-#pragma mark attribute FL
-         case 0x4C46:
-         {
-            break;
-         }
-            
-#pragma mark attribute FD
-         case 0x4446:
-         {
-            break;
-         }
-
-#pragma mark attribute OB
-         case 0x424F:
-         {
-            /*
-             An octet-stream where the encoding of the contents is specified by the negotiated Transfer Syntax. OB is a VR that is insensitive to byte ordering (see Section 7.3). The octet-stream shall be padded with a single trailing NULL byte value (00H) when necessary to achieve even length.
-             */
-            break;
-         }
-            
-#pragma mark attribute OD
-         case 0x444F:
-         {
-            /*
-             A stream of 64-bit IEEE 754:1985 floating point words. OD is a VR that requires byte swapping within each 64-bit word when changing byte ordering (see Section 7.3).
-             */
-            break;
-         }
-            
-#pragma mark attribute OF
-         case 0x464F:
-         {
-            /*
-             A stream of 32-bit IEEE 754:1985 floating point words. OF is a VR that requires byte swapping within each 32-bit word when changing byte ordering (see Section 7.3).
-             */
-            break;
-         }
-            
-#pragma mark attribute OL
-         case 0x4C4F:
-         {
-            /*
-             A stream of 32-bit words where the encoding of the contents is specified by the negotiated Transfer Syntax. OL is a VR that requires byte swapping within each word when changing byte ordering (see Section 7.3).
-             */
-            break;
-         }
-            
-#pragma mark attribute OV
-         case 0x564F:
-         {
-            /*
-             A stream of 64-bit words where the encoding of the contents is specified by the negotiated Transfer Syntax. OV is a VR that requires byte swapping within each word when changing byte ordering (see Section 7.3).
-             */
-            break;
-         }
-            
-#pragma mark attribute OW
-         case 0x574F:
-         {
-            /*
-             A stream of 16-bit words where the encoding of the contents is specified by the negotiated Transfer Syntax. OW is a VR that requires byte swapping within each word when changing byte ordering (see Section 7.3).
-             */
-            break;
-         }
-            
 
          default://ERROR unknow VR
          {
