@@ -53,18 +53,23 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "/Volumes/GITHUB/APath/parser/APath/testing/X/xslt1.xsl"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
       <EnvironmentVariables>
          <EnvironmentVariable
-            key = "X2XlogLevel"
+            key = "M2logLevel"
             value = "DEBUG"
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "X2XtestPath"
-            value = "/Volumes/GITHUB/APath/parser/APath/testing/X/dataset.xml"
+            key = "M2testPath"
+            value = "/Users/Shared/D2M.xml"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "M2output"
+            value = "/Users/Shared/M2.xml"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>
