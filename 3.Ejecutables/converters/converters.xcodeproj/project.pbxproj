@@ -11,6 +11,8 @@
 		4A025E7525E529C4005AA1A3 /* DCMcharset.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABF584125CECD4700EB725E /* DCMcharset.m */; };
 		4A025E7C25E529C9005AA1A3 /* ODLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7B85A025824EAE00E62971 /* ODLog.m */; };
 		4A025E9025E52A19005AA1A3 /* utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7B859F25824EAE00E62971 /* utils.m */; };
+		4A025EA725E593E0005AA1A3 /* D2dict.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A025EA625E593E0005AA1A3 /* D2dict.m */; };
+		4A025EBE25E5A21B005AA1A3 /* D2xml.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A025EBD25E5A21B005AA1A3 /* D2xml.m */; };
 		4A42610625A73C6B001E0B52 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A42610525A73C6B001E0B52 /* main.m */; };
 		4A434CAE25B990C800065B64 /* ODLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7B85A025824EAE00E62971 /* ODLog.m */; };
 		4A434CB325B990CC00065B64 /* utils.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7B859F25824EAE00E62971 /* utils.m */; };
@@ -79,6 +81,10 @@
 		4A025E5E25E418E5005AA1A3 /* DCMcharset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCMcharset.h; sourceTree = "<group>"; };
 		4A025E6625E43D0D005AA1A3 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4A025E6725E43D0D005AA1A3 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		4A025EA625E593E0005AA1A3 /* D2dict.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = D2dict.m; sourceTree = "<group>"; };
+		4A025EAF25E5944E005AA1A3 /* D2dict.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = D2dict.h; sourceTree = "<group>"; };
+		4A025EBC25E5A1DE005AA1A3 /* D2xml.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = D2xml.h; sourceTree = "<group>"; };
+		4A025EBD25E5A21B005AA1A3 /* D2xml.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = D2xml.m; sourceTree = "<group>"; };
 		4A4260F625A66032001E0B52 /* X2M.xsl */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = X2M.xsl; sourceTree = "<group>"; };
 		4A4260F725A66032001E0B52 /* X2I.xsl */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = X2I.xsl; sourceTree = "<group>"; };
 		4A4260F825A66032001E0B52 /* X2K.xsl */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = X2K.xsl; sourceTree = "<group>"; };
@@ -186,6 +192,8 @@
 			children = (
 				4A025E6625E43D0D005AA1A3 /* README.md */,
 				4A025E6725E43D0D005AA1A3 /* main.m */,
+				4A025EA625E593E0005AA1A3 /* D2dict.m */,
+				4A025EAF25E5944E005AA1A3 /* D2dict.h */,
 			);
 			path = D2J;
 			sourceTree = "<group>";
@@ -209,6 +217,8 @@
 			children = (
 				4AAE863B25C029BA00117D26 /* README.md */,
 				4A42610525A73C6B001E0B52 /* main.m */,
+				4A025EBC25E5A1DE005AA1A3 /* D2xml.h */,
+				4A025EBD25E5A21B005AA1A3 /* D2xml.m */,
 			);
 			path = D2M;
 			sourceTree = "<group>";
@@ -559,6 +569,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4A025EBE25E5A21B005AA1A3 /* D2xml.m in Sources */,
 				4A42610625A73C6B001E0B52 /* main.m in Sources */,
 				4A434CAE25B990C800065B64 /* ODLog.m in Sources */,
 				4A434CB325B990CC00065B64 /* utils.m in Sources */,
@@ -612,6 +623,7 @@
 				4A025E7525E529C4005AA1A3 /* DCMcharset.m in Sources */,
 				4A025E7C25E529C9005AA1A3 /* ODLog.m in Sources */,
 				4A025E9025E52A19005AA1A3 /* utils.m in Sources */,
+				4A025EA725E593E0005AA1A3 /* D2dict.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
