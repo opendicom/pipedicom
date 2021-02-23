@@ -786,9 +786,31 @@ NSUInteger D2J(
          }
             
             
-#pragma mark TODO AT (hexBinary 4 bytes)
+#pragma mark AT
          case 0x5441:
          {
+            //hexBinary 4 bytes
+
+            shortsIndex+=4;
+            if (!vl)
+            {
+               [JSONdataset setObject:@[] forKey:keydcmArray(branch,tag,vr)];
+            }
+            else
+            {
+               NSUInteger afterValues=shortsIndex + (vl/2);
+               uint16 group=0;
+               uint16 element=0;
+               NSMutableArray *values=[NSMutableArray array];
+               while (shortsIndex < afterValues)
+               {
+                  group=shortsBuffer[shortsIndex];
+                  element=shortsBuffer[shortsIndex+1];
+                  [values addObject:[NSString stringWithFormat:@"%02X%02X%02X%02X",group / 0x100,group & 0xFF,element / 0x100,element & 0xFF]];
+                  shortsIndex+=4;
+               }
+               [JSONdataset setObject:values forKey:keydcmArray(branch,tag,vr)];
+            }
             break;
          }
 

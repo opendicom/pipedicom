@@ -730,9 +730,27 @@ NSUInteger D2M(
          }
             
             
-#pragma mark TODO AT (hexBinary 4 bytes)
+#pragma mark AT
          case 0x5441:
          {
+            //hexBinary 4 bytes
+
+            NSXMLElement *XMLelement=XMLdcmArray(branch,tag,vr);
+            shortsIndex+=4;
+            if (vl)
+            {
+               NSUInteger afterValues=shortsIndex + (vl/2);
+               uint16 group;
+               uint16 element;
+               while (shortsIndex < afterValues)
+               {
+                  group=shortsBuffer[shortsIndex];
+                  element=shortsBuffer[shortsIndex+1];
+                  [XMLelement addChild:[NSXMLElement elementWithName:@"string" stringValue:[NSString stringWithFormat:@"%02X%02X%02X%02X",group/0x100,group & 0xFF,element/0x100,element & 0xFF]]];
+                  shortsIndex+=4;
+               }
+            }
+            [XMLdataset addChild:XMLelement];
             break;
          }
 
