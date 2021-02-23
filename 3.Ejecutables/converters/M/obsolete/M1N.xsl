@@ -4,9 +4,9 @@
     xml:space="default"
     >
     <xsl:output method="xml" />
-    <!-- ====================================================== -->
-    <!-- dicom native xml from contextualized key values xml map-->
-    <!-- ====================================================== -->
+    <!-- ======================================================= -->
+    <!-- dicom native xml from contextualized key values xml map -->
+    <!-- ======================================================= -->
     
 <!-- 
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"

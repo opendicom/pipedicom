@@ -3,14 +3,14 @@
 #import "utils.h"
 #import "ODLog.h"
 
-//D2M
+//D2J
 //stdin binary dicom
-//stdout mapxmldicom xml (DICOM_contextualizedKey-values)
+//stdout mapxmldicom JSON (DICOM_contextualizedKey-values)
 //https://raw.githubusercontent.com/jacquesfauquex/DICOM_contextualizedKey-values/master/mapxmldicom/mapxmldicom.xsd
 
 
 
-#pragma mark - const data markers
+#pragma mark - const NSData markers
 const unsigned char zero=0x0;
 static NSData *zeroData=nil;
 const unsigned char backslash='\\';
@@ -19,15 +19,13 @@ const unsigned char equal='=';
 static NSData *equalData=nil;
 
 
-NSXMLElement *XMLdcmArray(
+NSString *keydcmArray(
    NSString *branch,
    uint32 tag,
    uint16 vr
 )
 {
-   NSXMLElement *node=[NSXMLElement elementWithName:@"array"];
-   NSXMLNode *key=[NSXMLNode attributeWithName:@"key"stringValue:
-                   [NSString
+   return [NSString
                     stringWithFormat:@"%@-%08X_%c%c",
                     branch,
                      ((tag & 0xff000000)>>16)
@@ -36,22 +34,17 @@ NSXMLElement *XMLdcmArray(
                     +((tag & 0x000000ff)<<16),
                     vr & 0xff,
                     vr >> 8
-                   ]
-                  ];
-   [node addAttribute:key];
-   return node;
+   ];
 }
 
-NSXMLElement *XMLdcmArrayPrefixed(
+NSString *keydcmArrayPrefixed(
    NSString *branch,
    uint32 tag,
    uint16 vr,
    NSString *p
 )
 {
-  NSXMLElement *node=[NSXMLElement elementWithName:@"array"];
-  NSXMLNode *key=[NSXMLNode attributeWithName:@"key"stringValue:
-                  [NSString
+  return [NSString
                    stringWithFormat:@"%@-%08X_%@%c%c",
                    branch,
                     ((tag & 0xff000000)>>16)
@@ -61,22 +54,17 @@ NSXMLElement *XMLdcmArrayPrefixed(
                    p,
                    vr & 0xff,
                    vr >> 8
-                  ]
-                 ];
-  [node addAttribute:key];
-  return node;
+  ];
 }
 
 
-NSXMLElement *XMLdcmNull(
+NSString *keydcmNull(
    NSString *branch,
    uint32 tag,
    uint16 vr
 )
 {
-   NSXMLElement *XMLdcmNull=[NSXMLElement elementWithName:@"null"];
-   NSXMLNode *key=[NSXMLNode attributeWithName:@"key"stringValue:
-                   [NSString
+   return [NSString
                     stringWithFormat:@"%@-%08X_%c%c",
                     branch,
                      ((tag & 0xff000000)>>16)
@@ -85,21 +73,18 @@ NSXMLElement *XMLdcmNull(
                     +((tag & 0x000000ff)<<16),
                     vr & 0xff,
                     vr >> 8
-                   ]
-                  ];
-   [XMLdcmNull addAttribute:key];
-   return XMLdcmNull;
+   ];
 }
 
 #pragma mark -
 
-NSUInteger D2M(
+NSUInteger D2J(
                          NSData *data,
                          unsigned short *shortsBuffer,
                          NSUInteger shortsIndex,
                          NSUInteger postShortsIndex,
                          NSString *branch,
-                         NSXMLElement *XMLdataset,
+                         NSMutableDictionary *JSONdataset,
                          NSString *vrCharsetPrefix,
                          uint16 vrCharsetUint16
                          )
@@ -116,16 +101,19 @@ NSUInteger D2M(
       vr = shortsBuffer[shortsIndex+2];
       switch (vr) {
 
+            
 #pragma mark AS DA
          case 0x5341://AS 4 chars (one value only)
          case 0x4144://DA 8 chars (one value only)
          {
-            NSXMLElement *XMLelement=XMLdcmArray(branch,tag,vr);
-            if (vl)
+            if (!vl)
             {
-               [XMLelement addChild:[NSXMLElement elementWithName:@"string" stringValue:[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((shortsIndex+4)*2,vl)] encoding:NSISOLatin1StringEncoding]]];
+               [JSONdataset setObject:@[] forKey:keydcmArray(branch,tag,vr)];
             }
-            [XMLdataset addChild:XMLelement];
+            else
+            {
+               [JSONdataset setObject:@[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((shortsIndex+4)*2,vl)] encoding:NSISOLatin1StringEncoding]] forKey:keydcmArray(branch,tag,vr)];
+            }
             shortsIndex+=4+(vl/2);
             break;
          }
@@ -137,41 +125,52 @@ NSUInteger D2M(
          case 0x4d54://TM
          {
             //variable length (eventually ended with 0x20
-            NSXMLElement *XMLelement=XMLdcmArray(branch,tag,vr);
-            if (vl)
+            
+            if (!vl)
+            {
+               [JSONdataset setObject:@[] forKey:keydcmArray(branch,tag,vr)];
+            }
+            else
             {
                NSArray *arrayContents=[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((shortsIndex+4)*2,vl)] encoding:NSISOLatin1StringEncoding]componentsSeparatedByString:@"\\"];
 
+               NSMutableArray *values=[NSMutableArray array];
                for (NSString *value in arrayContents)
                {
                   NSMutableString *mutableString=[NSMutableString stringWithString:value];
                   trimLeadingSpaces(mutableString);
                   trimTrailingSpaces(mutableString);
-                  [XMLelement addChild:[NSXMLElement elementWithName:@"string" stringValue:mutableString]];
+                  [values addObject:mutableString];
                }
+               [JSONdataset setObject:values forKey:keydcmArray(branch,tag,vr)];
             }
-            [XMLdataset addChild:XMLelement];
             shortsIndex+=4+(vl/2);
             break;
          }
 
-
+            
 #pragma mark CS
          case 0x5343://CS
          {
             //variable length (eventually ended with 0x20
-            NSXMLElement *XMLelement=XMLdcmArray(branch,tag,vr);
-            if (vl)
+            if (!vl)
+            {
+               [JSONdataset setObject:@[] forKey:keydcmArray(branch,tag,vr)];
+            }
+            else
             {
                NSArray *arrayContents=[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((shortsIndex+4)*2,vl)] encoding:NSISOLatin1StringEncoding]componentsSeparatedByString:@"\\"];
 
+               NSMutableArray *values=[NSMutableArray array];
                for (NSString *value in arrayContents)
                {
                   NSMutableString *mutableString=[NSMutableString stringWithString:value];
                   trimLeadingSpaces(mutableString);
                   trimTrailingSpaces(mutableString);
-                  [XMLelement addChild:[NSXMLElement elementWithName:@"string" stringValue:mutableString]];
+                  [values addObject:mutableString];
                }
+               [JSONdataset setObject:values forKey:keydcmArray(branch,tag,vr)];
+    
                
                if (tag==0x050008)
                {
@@ -179,12 +178,12 @@ NSUInteger D2M(
                   vrCharsetUint16New=0;
                   
                   int nextFiveBits=1;
-                  for (NSXMLNode *charsetNode in [XMLelement children])
+                  for (NSString *cs in values)
                   {
-                     uint16 i=encodingCSindex([charsetNode stringValue]);
+                     uint16 i=encodingCSindex(cs);
                      if (i==encodingTotal)//=not in the array
                      {
-                        LOG_WARNING(@"%@: bad encoding %@. Replaced by default charset",XMLelement.name,[charsetNode stringValue]);
+                        LOG_WARNING(@"%@: bad encoding %@. Replaced by default charset",keydcmArray(branch,tag,vr),cs);
                         i=0;
                      }
                      vrCharsetUint16New += i * nextFiveBits;
@@ -193,12 +192,11 @@ NSUInteger D2M(
                   }
                }
             }
-            [XMLdataset addChild:XMLelement];
             shortsIndex+=4+(vl/2);
             break;
          }
 
-            
+
 #pragma mark LO LT PN SH ST
          case 0x4f4c://LO
          case 0x544c://LT
@@ -207,21 +205,24 @@ NSUInteger D2M(
          {
             //variable length (eventually ended with 0x20
             //specific charset
-            
-            NSXMLElement *XMLelement=XMLdcmArrayPrefixed(branch,tag,vr,vrCharsetPrefixNew);
-            if (vl)
+            if (!vl)
+            {
+               [JSONdataset setObject:@[] forKey:keydcmArrayPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
+            }
+            else
             {
                NSArray *arrayContents=[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((shortsIndex+4)*2,vl)] encoding:encodingNS[vrCharsetUint16]]componentsSeparatedByString:@"\\"];
 
+               NSMutableArray *values=[NSMutableArray array];
                for (NSString *value in arrayContents)
                {
                   NSMutableString *mutableString=[NSMutableString stringWithString:value];
                   trimLeadingSpaces(mutableString);
                   trimTrailingSpaces(mutableString);
-                  [XMLelement addChild:[NSXMLElement elementWithName:@"string" stringValue:mutableString]];
+                  [values addObject:mutableString];
                }
+               [JSONdataset setObject:values forKey:keydcmArrayPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
             }
-            [XMLdataset addChild:XMLelement];
             shortsIndex+=4+(vl/2);
             break;
          }
@@ -231,15 +232,18 @@ NSUInteger D2M(
          {
             //variable length (eventually ended with 0x20
             //specific charset
-
-            NSXMLElement *XMLelement=XMLdcmArrayPrefixed(branch,tag,vr,vrCharsetPrefixNew);
-            if (vl)
+            if (!vl)
+            {
+               [JSONdataset setObject:@[] forKey:keydcmArrayPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
+            }
+            else
             {
                NSData *contentsData=[data subdataWithRange:NSMakeRange((shortsIndex+4)*2,vl)];
                
+               NSMutableArray *values=[NSMutableArray array];
                if (contentsData.length)
                {
-#pragma mark for each name
+   #pragma mark for each name
                   NSRange remainingContentsRange=NSMakeRange(0, contentsData.length);
                   while (remainingContentsRange.location <= contentsData.length)
                   {
@@ -265,7 +269,6 @@ NSUInteger D2M(
                         }
                      }
                      NSData *nameData=[contentsData subdataWithRange:nameRange];
-                     NSMutableString *nameString=[NSMutableString string];
                      int compoundEncoding=vrCharsetUint16New;
                      
    #pragma mark for each representation
@@ -297,18 +300,18 @@ NSUInteger D2M(
                         NSMutableString *representationString=[[NSMutableString alloc]initWithData:representationData encoding:encodingNS[compoundEncoding & 31]];
                         trimLeadingSpaces(representationString);
                         trimTrailingSpaces(representationString);
-                        [nameString appendString:representationString];
+                        [values addObject:representationString];
                         compoundEncoding /= 32;
                     }
-                     [XMLelement addChild:[NSXMLElement elementWithName:@"string" stringValue:nameString]];
                   }
+                  [JSONdataset setObject:values forKey:keydcmArrayPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
                }
             }
-            [XMLdataset addChild:XMLelement];
             shortsIndex+=4+(vl/2);
             break;
          }
 
+            
 #pragma mark UC UT
             
          // specific charset dependant
@@ -324,12 +327,14 @@ NSUInteger D2M(
             uint32 vll = ( shortsBuffer[shortsIndex+4]       )
                        + ( shortsBuffer[shortsIndex+5] << 16 )
             ;
-            NSXMLElement *XMLelement=XMLdcmArrayPrefixed(branch,tag,vr,vrCharsetPrefixNew);
-            if (vll)
+            if (!vll)
             {
-               [XMLelement addChild:[NSXMLElement elementWithName:@"string" stringValue:[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((shortsIndex+6)*2,vll)] encoding:encodingNS[vrCharsetUint16]]]];
+               [JSONdataset setObject:@[] forKey:keydcmArrayPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
             }
-            [XMLdataset addChild:XMLelement];
+            else
+            {
+               [JSONdataset setObject:@[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((shortsIndex+6)*2,vll)] encoding:encodingNS[vrCharsetUint16]]] forKey:keydcmArrayPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
+            }
             shortsIndex+=6+(vll/2);
             break;
          }
@@ -338,18 +343,20 @@ NSUInteger D2M(
          case 0x5255://UR
          /*
           Universal Resource Identifier or Universal Resource Locator (URI/URL)
-          UTF-8
+          always UTF-8
          */
          {
             uint32 vll = ( shortsBuffer[shortsIndex+4]       )
                        + ( shortsBuffer[shortsIndex+5] << 16 )
             ;
-            NSXMLElement *XMLelement=XMLdcmArray(branch,tag,vr);
-            if (vll)
+            if (!vll)
             {
-               [XMLelement addChild:[NSXMLElement elementWithName:@"string" stringValue:[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((shortsIndex+6)*2,vll)] encoding:NSUTF8StringEncoding]]];
+               [JSONdataset setObject:@[] forKey:keydcmArrayPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
             }
-            [XMLdataset addChild:XMLelement];
+            else
+            {
+               [JSONdataset setObject:@[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((shortsIndex+6)*2,vll)] encoding:NSUTF8StringEncoding]] forKey:keydcmArray(branch,tag,vr)];
+            }
             shortsIndex+=6+(vll/2);
             break;
          }
@@ -366,18 +373,16 @@ NSUInteger D2M(
                [md replaceBytesInRange:zerorange withBytes:NULL length:0];
                zerorange=[md rangeOfData:zeroData options:NSDataSearchBackwards range:NSMakeRange(0,zerorange.location)];
             }
-            NSXMLElement *XMLelement=XMLdcmArray(branch,tag,vr);
-            if (md.length)
+            if (!md.length)
             {
-               NSArray *arrayContents=[[[NSString alloc]initWithData:md encoding:NSISOLatin1StringEncoding]componentsSeparatedByString:@"\\"];
-
-               for (NSString *value in arrayContents)
-               {
-                  NSMutableString *mutableString=[NSMutableString stringWithString:value];
-                  [XMLelement addChild:[NSXMLElement elementWithName:@"string" stringValue:mutableString]];
-               }
+               [JSONdataset setObject:@[] forKey:keydcmArray(branch,tag,vr)];
             }
-            [XMLdataset addChild:XMLelement];
+            else
+            {
+               NSArray *arrayContents=[[[NSString alloc]initWithData:md encoding:NSUTF8StringEncoding]componentsSeparatedByString:@"\\"];
+               [JSONdataset setObject:arrayContents forKey:keydcmArray(branch,tag,vr)];
+            }
+
             shortsIndex+=4+(vl/2);
             break;
          }
@@ -397,8 +402,8 @@ NSUInteger D2M(
             if (nexttag==0x0)
             {
 #pragma mark SQ empty
-               [XMLdataset addChild:XMLdcmNull(branch,tag,vr)];
-               [XMLdataset addChild:XMLdcmNull([branchTag stringByAppendingFormat:@".%08X",itemcounter],0xe0ddfffe,vr)];
+               [JSONdataset setObject:[NSNull null] forKey:keydcmNull(branch,tag,vr)];
+               [JSONdataset setObject:[NSNull null] forKey:keydcmNull([branchTag stringByAppendingFormat:@".%08X",itemcounter],0xe0ddfffe,vr)];
                shortsIndex+=6;
             }
             else if (nexttag!=0xffffffff) //SQ with defined length
@@ -410,7 +415,7 @@ NSUInteger D2M(
             else //SQ with feff0dde end tag
             {
 #pragma mark SQ with closing marker
-               [XMLdataset addChild:XMLdcmNull(branch,tag,vr)];
+               [JSONdataset setObject:[NSNull null] forKey:keydcmNull(branch,tag,vr)];
                shortsIndex+=6;//inside the SQ
                nexttag=shortsBuffer[shortsIndex]+(shortsBuffer[shortsIndex+1]<<16);
                if (nexttag!=0xe0ddfffe)//SQ with contents
@@ -421,9 +426,9 @@ NSUInteger D2M(
                      if (itemlength==0)
                      {
 #pragma mark IT empty
-                        [XMLdataset addChild:XMLdcmNull([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5149)];//IQ
+                        [JSONdataset setObject:[NSNull null] forKey:keydcmNull([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5149)];//IQ
 
-                        [XMLdataset addChild:XMLdcmNull([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5A49)];//IZ
+                        [JSONdataset setObject:[NSNull null] forKey:keydcmNull([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5A49)];//IZ
 
                         shortsIndex+=4;//out of empty item
                      }
@@ -436,21 +441,21 @@ NSUInteger D2M(
                      else
                      {
 #pragma mark IT with closing marker
-                        [XMLdataset addChild:XMLdcmNull([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5149)];//IQ
+                        [JSONdataset setObject:[NSNull null] forKey:keydcmNull([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5149)];//IQ
                         shortsIndex+=4;//inside item
 #pragma mark recursion
-                        shortsIndex=D2M(
+                        shortsIndex=D2J(
    data,
    shortsBuffer,
    shortsIndex,
    postShortsIndex,
    [branchTag stringByAppendingFormat:@".%08X",itemcounter],
-   XMLdataset,
+   JSONdataset,
    vrCharsetPrefixNew,
    vrCharsetUint16New
                                                   );
 
-                        [XMLdataset addChild:XMLdcmNull([branchTag stringByAppendingFormat:@".%08X",itemcounter],0xe00dfffe,0x5A49)];//IZ
+                        [JSONdataset setObject:[NSNull null] forKey:keydcmNull([branchTag stringByAppendingFormat:@".%08X",itemcounter],0xe00dfffe,0x5A49)];//IZ
                      }
                      nexttag=shortsBuffer[shortsIndex]+(shortsBuffer[shortsIndex+1]<<16);
 
@@ -458,55 +463,81 @@ NSUInteger D2M(
                   }
                }
 #pragma mark SQ closing marker
-               [XMLdataset addChild:XMLdcmNull([branchTag stringByAppendingPathExtension:@"FFFFFFFF"],0xe0ddfffe,0x5A51)];
+               [JSONdataset setObject:[NSNull null] forKey:keydcmNull([branchTag stringByAppendingPathExtension:@"FFFFFFFF"],0xe0ddfffe,0x5A51)];
                shortsIndex+=8;
             }
             break;
          }
 
-#pragma mark - IS DS
-         case 0x5344://DS
+#pragma mark - IS
          case 0x5349://IS
          {
             //variable length (eventually ended with 0x20
-            NSXMLElement *XMLelement=XMLdcmArray(branch,tag,vr);
-            if (vl)
+            if (!vl)
+            {
+               [JSONdataset setObject:@[] forKey:keydcmArray(branch,tag,vr)];
+            }
+            else
             {
                NSArray *arrayContents=[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((shortsIndex+4)*2,vl)] encoding:NSISOLatin1StringEncoding]componentsSeparatedByString:@"\\"];
 
+               NSMutableArray *values=[NSMutableArray array];
                for (NSString *value in arrayContents)
                {
-                  NSMutableString *mutableString=[NSMutableString stringWithString:value];
-                  trimLeadingSpaces(mutableString);
-                  trimTrailingSpaces(mutableString);
-                  [XMLelement addChild:[NSXMLElement elementWithName:@"number" stringValue:mutableString]];
+                  [values addObject:[NSNumber numberWithLongLong:[value longLongValue]]];
                }
+               [JSONdataset setObject:values forKey:keydcmArray(branch,tag,vr)];
             }
-            [XMLdataset addChild:XMLelement];
-            
             shortsIndex+=4+(vl/2);
             break;
          }
 
 
+#pragma mark DS
+         case 0x5344://DS
+         {
+            //variable length (eventually ended with 0x20
+            if (!vl)
+            {
+               [JSONdataset setObject:@[] forKey:keydcmArray(branch,tag,vr)];
+            }
+            else
+            {
+               NSArray *arrayContents=[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((shortsIndex+4)*2,vl)] encoding:NSISOLatin1StringEncoding]componentsSeparatedByString:@"\\"];
+
+               NSMutableArray *values=[NSMutableArray array];
+               for (NSString *value in arrayContents)
+               {
+                  [values addObject:[NSNumber numberWithDouble:[value doubleValue]]];
+               }
+               [JSONdataset setObject:values forKey:keydcmArray(branch,tag,vr)];
+            }
+            shortsIndex+=4+(vl/2);
+            break;
+         }
+
 #pragma mark SL
          case 0x4C53:
          {
             //Signed Long
-            NSXMLElement *XMLelement=XMLdcmArray(branch,tag,vr);
             shortsIndex+=4;
-            if (vl)
+            if (!vl)
+            {
+               [JSONdataset setObject:@[] forKey:keydcmArray(branch,tag,vr)];
+            }
+            else
             {
                NSUInteger afterValues=shortsIndex + (vl/2);
                long sl;
+               NSMutableArray *values=[NSMutableArray array];
                while (shortsIndex < afterValues)
                {
                   sl=shortsBuffer[shortsIndex] + (shortsBuffer[shortsIndex+1]<<16);
-                  [XMLelement addChild:[NSXMLElement elementWithName:@"number" stringValue:[NSString stringWithFormat:@"%ld",sl]]];
+                  [values addObject:[NSNumber numberWithLong:sl]];
                   shortsIndex+=2;
                }
+               [JSONdataset setObject:values forKey:keydcmArray(branch,tag,vr)];
             }
-            [XMLdataset addChild:XMLelement];
             break;
          }
             
@@ -514,20 +545,24 @@ NSUInteger D2M(
          case 0x4C55:
          {
             //Unsigned Long
-            NSXMLElement *XMLelement=XMLdcmArray(branch,tag,vr);
             shortsIndex+=4;
-            if (vl)
+            if (!vl)
+            {
+               [JSONdataset setObject:@[] forKey:keydcmArray(branch,tag,vr)];
+            }
+            else
             {
                NSUInteger afterValues=shortsIndex + (vl/2);
                unsigned long ul;
+               NSMutableArray *values=[NSMutableArray array];
                while (shortsIndex < afterValues)
                {
                   ul=shortsBuffer[shortsIndex] + (shortsBuffer[shortsIndex+1]<<16);
-                  [XMLelement addChild:[NSXMLElement elementWithName:@"number" stringValue:[NSString stringWithFormat:@"%lu",ul]]];
+                  [values addObject:[NSNumber numberWithUnsignedLong:ul]];
                   shortsIndex+=2;
                }
+               [JSONdataset setObject:values forKey:keydcmArray(branch,tag,vr)];
             }
-            [XMLdataset addChild:XMLelement];
             break;
          }
 
@@ -536,20 +571,24 @@ NSUInteger D2M(
          case 0x5353:
          {
             //Signed Short
-            NSXMLElement *XMLelement=XMLdcmArray(branch,tag,vr);
             shortsIndex+=4;
-            if (vl)
+            if (!vl)
+            {
+               [JSONdataset setObject:@[] forKey:keydcmArray(branch,tag,vr)];
+            }
+            else
             {
                NSUInteger afterValues=shortsIndex + (vl/2);
                short ss;
+               NSMutableArray *values=[NSMutableArray array];
                while (shortsIndex < afterValues)
                {
                   ss=shortsBuffer[shortsIndex];
-                  [XMLelement addChild:[NSXMLElement elementWithName:@"number" stringValue:[NSString stringWithFormat:@"%d",ss]]];
+                  [values addObject:[NSNumber numberWithShort:ss]];
                   shortsIndex++;
                }
+               [JSONdataset setObject:values forKey:keydcmArray(branch,tag,vr)];
             }
-            [XMLdataset addChild:XMLelement];
             break;
          }
             
@@ -557,21 +596,24 @@ NSUInteger D2M(
          case 0x5355:
          {
             //Unsigned Short
-            NSXMLElement *XMLelement=XMLdcmArray(branch,tag,vr);
             shortsIndex+=4;
-            if (vl)
+            if (!vl)
+            {
+               [JSONdataset setObject:@[] forKey:keydcmArray(branch,tag,vr)];
+            }
+            else
             {
                NSUInteger afterValues=shortsIndex + (vl/2);
                unsigned short us;
+               NSMutableArray *values=[NSMutableArray array];
                while (shortsIndex < afterValues)
                {
                   us=shortsBuffer[shortsIndex];
-                  [XMLelement addChild:[NSXMLElement elementWithName:@"number" stringValue:[NSString stringWithFormat:@"%d",us]]];
+                  [values addObject:[NSNumber numberWithUnsignedShort:us]];
                   shortsIndex++;
                }
+               [JSONdataset setObject:values forKey:keydcmArray(branch,tag,vr)];
             }
-               
-            [XMLdataset addChild:XMLelement];
             break;
          }
 
@@ -582,13 +624,16 @@ NSUInteger D2M(
             uint32 vll = ( shortsBuffer[shortsIndex+4]       )
                        + ( shortsBuffer[shortsIndex+5] << 16 )
             ;
-
-            NSXMLElement *XMLelement=XMLdcmArray(branch,tag,vr);
             shortsIndex+=6;
-            if (vll)
+            if (!vll)
+            {
+               [JSONdataset setObject:@[] forKey:keydcmArray(branch,tag,vr)];
+            }
+            else
             {
                NSUInteger afterValues=shortsIndex + (vll/2);
                long long sll;
+               NSMutableArray *values=[NSMutableArray array];
                while (shortsIndex < afterValues)
                {
                   sll=  shortsBuffer[shortsIndex]
@@ -596,11 +641,11 @@ NSUInteger D2M(
                      + (shortsBuffer[shortsIndex+2]*0x100000000)
                      + (shortsBuffer[shortsIndex+3]*0x1000000000000)
                   ;
-                  [XMLelement addChild:[NSXMLElement elementWithName:@"number" stringValue:[NSString stringWithFormat:@"%lld",sll]]];
+                  [values addObject:[NSNumber numberWithLongLong:sll]];
                   shortsIndex+=4;
                }
+               [JSONdataset setObject:values forKey:keydcmArray(branch,tag,vr)];
             }
-            [XMLdataset addChild:XMLelement];
             break;
          }
 
@@ -611,13 +656,16 @@ NSUInteger D2M(
             uint32 vll = ( shortsBuffer[shortsIndex+4]       )
                        + ( shortsBuffer[shortsIndex+5] << 16 )
             ;
-
-            NSXMLElement *XMLelement=XMLdcmArray(branch,tag,vr);
             shortsIndex+=6;
-            if (vll)
+            if (!vll)
+            {
+               [JSONdataset setObject:@[] forKey:keydcmArray(branch,tag,vr)];
+            }
+            else
             {
                NSUInteger afterValues=shortsIndex + (vll/2);
                unsigned long long ull;
+               NSMutableArray *values=[NSMutableArray array];
                while (shortsIndex < afterValues)
                {
                   ull=  shortsBuffer[shortsIndex]
@@ -625,11 +673,11 @@ NSUInteger D2M(
                      + (shortsBuffer[shortsIndex+2]*0x100000000)
                      + (shortsBuffer[shortsIndex+3]*0x1000000000000)
                   ;
-                  [XMLelement addChild:[NSXMLElement elementWithName:@"number" stringValue:[NSString stringWithFormat:@"%lld",ull]]];
+                  [values addObject:[NSNumber numberWithUnsignedLongLong:ull]];
                   shortsIndex+=4;
                }
+               [JSONdataset setObject:values forKey:keydcmArray(branch,tag,vr)];
             }
-            [XMLdataset addChild:XMLelement];
             break;
          }
 
@@ -637,39 +685,47 @@ NSUInteger D2M(
          case 0x4C46:
          {
             //Float
-            NSXMLElement *XMLelement=XMLdcmArray(branch,tag,vr);
             shortsIndex+=4;
-            if (vl)
+            if (!vl)
+            {
+               [JSONdataset setObject:@[] forKey:keydcmArray(branch,tag,vr)];
+            }
+            else
             {
                NSUInteger afterValues=shortsIndex + (vl/2);
                unsigned long ul;
                const unsigned long *pul=&ul;
                const float *pf=NULL;
                pf=(float*)pul;
+               NSMutableArray *values=[NSMutableArray array];
                while (shortsIndex < afterValues)
                {
                   ul=shortsBuffer[shortsIndex] + (shortsBuffer[shortsIndex+1]<<16);
-                  [XMLelement addChild:[NSXMLElement elementWithName:@"number" stringValue:[NSString stringWithFormat:@"%f",*pf]]];
+                  [values addObject:[NSNumber numberWithFloat:*pf]];
                   shortsIndex+=2;
                }
+               [JSONdataset setObject:values forKey:keydcmArray(branch,tag,vr)];
             }
-            [XMLdataset addChild:XMLelement];
             break;
          }
             
 #pragma mark FD
          case 0x4446:
          {
-            //double
-            NSXMLElement *XMLelement=XMLdcmArray(branch,tag,vr);
+            //Double
             shortsIndex+=4;
-            if (vl)
+            if (!vl)
             {
-               NSUInteger afterValues=shortsIndex + (vl/2);
+               [JSONdataset setObject:@[] forKey:keydcmArray(branch,tag,vr)];
+            }
+            else
+            {
+              NSUInteger afterValues=shortsIndex + (vl/2);
                unsigned long long ull;
                const unsigned long long *pull=&ull;
                const double *pd=NULL;
                pd=(double*)pull;
+               NSMutableArray *values=[NSMutableArray array];
                while (shortsIndex < afterValues)
                {
                   ull=  shortsBuffer[shortsIndex]
@@ -677,11 +733,11 @@ NSUInteger D2M(
                      + (shortsBuffer[shortsIndex+2]*0x100000000)
                      + (shortsBuffer[shortsIndex+3]*0x1000000000000)
                   ;
-                  [XMLelement addChild:[NSXMLElement elementWithName:@"number" stringValue:[NSString stringWithFormat:@"%f",*pd]]];
+                  [values addObject:[NSNumber numberWithDouble:*pd]];
                   shortsIndex+=4;
                }
+               [JSONdataset setObject:values forKey:keydcmArray(branch,tag,vr)];
             }
-            [XMLdataset addChild:XMLelement];
             break;
          }
 
@@ -715,15 +771,15 @@ NSUInteger D2M(
             uint32 vll = ( shortsBuffer[shortsIndex+4]       )
                        + ( shortsBuffer[shortsIndex+5] << 16 )
             ;
-            NSXMLElement *XMLelement=XMLdcmArray(branch,tag,vr);
-            if (vll)
+            if (!vll)
+            {
+               [JSONdataset setObject:@[] forKey:keydcmArray(branch,tag,vr)];
+            }
+            else
             {
                NSString *base64string= [[NSString alloc] initWithData:[[data subdataWithRange:NSMakeRange((shortsIndex+6)*2,vll)]base64EncodedDataWithOptions:0] encoding:NSASCIIStringEncoding];
-
-               [XMLelement addChild:[NSXMLElement elementWithName:@"string" stringValue:base64string]];
+               [JSONdataset setObject:@[base64string] forKey:keydcmArray(branch,tag,vr)];
             }
-            [XMLdataset addChild:XMLelement];
-
             shortsIndex+= 6 + (vll/2);
 
             break;
@@ -764,9 +820,9 @@ int main(int argc, const char * argv[]) {
 
       NSDictionary *environment=processInfo.environment;
       
-      if (environment[@"D2MlogLevel"])
+      if (environment[@"D2JlogLevel"])
       {
-         NSUInteger logLevel=[@[@"DEBUG",@"VERBOSE",@"INFO",@"WARNING",@"ERROR",@"EXCEPTION"] indexOfObject:environment[@"D2MlogLevel"]];
+         NSUInteger logLevel=[@[@"DEBUG",@"VERBOSE",@"INFO",@"WARNING",@"ERROR",@"EXCEPTION"] indexOfObject:environment[@"D2JlogLevel"]];
          if (logLevel!=NSNotFound) ODLogLevel=(ODLogLevelEnum)logLevel;
          else ODLogLevel=4;//ERROR (default)
       }
@@ -774,22 +830,22 @@ int main(int argc, const char * argv[]) {
       
       
       //H2XlogPath
-      NSString *logPath=environment[@"D2MlogPath"];
+      NSString *logPath=environment[@"D2JlogPath"];
       if (logPath && ([logPath hasPrefix:@"/Users/Shared"] || [logPath hasPrefix:@"/Volumes/LOG"]))
       {
          if ([logPath hasSuffix:@".log"])
             freopen([logPath cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
          else freopen([[logPath stringByAppendingPathExtension:@".log"] cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
       }
-      else freopen([@"/Users/Shared/D2M.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
+      else freopen([@"/Users/Shared/D2J.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
       
       //D2Moutput
-      NSString *D2Moutput=environment[@"D2Moutput"];
-      if (!D2Moutput) D2Moutput=@"/dev/stdout";
+      NSString *D2Joutput=environment[@"D2Joutput"];
+      if (!D2Joutput) D2Joutput=@"/dev/stdout";
 
       //D2MtestPath
       NSData *data=nil;
-      NSString *testPath=environment[@"D2MtestPath"];
+      NSString *testPath=environment[@"D2JtestPath"];
       if (testPath) data=[NSData dataWithContentsOfFile:testPath];
       else data = [[NSFileHandle fileHandleWithStandardInput] availableData];
       
@@ -799,6 +855,7 @@ int main(int argc, const char * argv[]) {
       if (data.length <10)
       {
          LOG_WARNING(@"dicom binary data too small");
+         [[NSData data] writeToFile:D2Joutput atomically:NO];
       }
       else
       {
@@ -818,19 +875,16 @@ int main(int argc, const char * argv[]) {
             vrCharsetPrefix=@"1100";//default latin1 for datasets
             vrCharsetUint16=1;
          }
-         NSXMLElement *root=[NSXMLElement elementWithName:@"map"];
-         [root addNamespace:[NSXMLNode namespaceWithName:@"" stringValue:@"http://www.w3.org/2005/xpath-functions"]];
-         NSXMLElement *XMLdataset=[NSXMLElement elementWithName:@"map"];
-         [root addChild:XMLdataset];
-         [XMLdataset addAttribute:[NSXMLNode attributeWithName:@"key"stringValue:@"dataset"]];
 
-         NSUInteger index=D2M(
+         NSMutableDictionary *JSONdataset=[NSMutableDictionary dictionary];
+         
+         NSUInteger index=D2J(
                               data,
                               shorts,
                               datasetShortOffset,
                               (data.length -1) / 2,
                               @"00000001",
-                              XMLdataset,
+                              JSONdataset,
                               vrCharsetPrefix,
                               vrCharsetUint16
                               );
@@ -838,46 +892,13 @@ int main(int argc, const char * argv[]) {
          {
             LOG_ERROR(@"parsing not completed");
          }
-
-         NSXMLDocument *xmlDocument=[[NSXMLDocument alloc] initWithRootElement:root];
-         [xmlDocument setCharacterEncoding:@"UTF-8"];
-         [xmlDocument setVersion:@"1.0"];
-
-#pragma marks args
-         
-         NSArray *args=processInfo.arguments;
-         NSUInteger argscount=args.count;
-         NSArray *xslt1Paths=nil;
-         if (argscount>1)
-            xslt1Paths =[args subarrayWithRange:NSMakeRange(1, argscount-1)];
-         else xslt1Paths=[NSArray array];//empty array
-       
-         id result=xmlDocument;
-         for (NSString *xslt1Path in xslt1Paths)
+         NSError *error;
+         NSData *JSONdata=[NSJSONSerialization dataWithJSONObject:JSONdataset options:NSJSONWritingSortedKeys error:&error];//|| NSJSONWritingWithoutEscapingSlashes
+         if (!JSONdata)
          {
-            NSData *xsl1data=[NSData dataWithContentsOfFile:xslt1Path];
-            if (!xsl1data)
-            {
-               LOG_ERROR(@"arg XSL1TransformationPath %@ not available",args[1]);
-               exit(2);
-            }
-
-            NSMutableDictionary *xslparams=environment[[xslt1Path lastPathComponent]];
-            LOG_DEBUG(@"xsl1t %@ with params : %@",args[1],[xslparams description]);
-            
-            NSError *error=nil;
-            id result=[xmlDocument objectByApplyingXSLT:xsl1data arguments:xslparams error:&error];
-            if (!result)
-            {
-               LOG_WARNING(@"Error 5 with xsl %@",[args description]);
-               [[NSData data] writeToFile:@"/dev/stdout" atomically:NO];
-               exit(5);
-            }
-            [xmlDocument setRootElement:[result rootElement]];
+            LOG_ERROR(@"could not transform to JSON: %@",[JSONdataset description]);
          }
-         if ([result isMemberOfClass:[NSXMLDocument class]])
-            [[result XMLData] writeToFile:D2Moutput atomically:NO];
-         else [result writeToFile:D2Moutput atomically:NO];
+         else [JSONdata writeToFile:D2Joutput atomically:NO];
       }
    }//end autorelease pool
    return 0;
