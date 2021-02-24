@@ -7,17 +7,9 @@
 
 #import <Foundation/Foundation.h>
 #import "DCMcharset.h"
+#import "NSData+DCMmarkers.h"
 #import "utils.h"
 #import "ODLog.h"
-
-
-#pragma mark - const data markers
-const unsigned char zero=0x0;
-static NSData *zeroData=nil;
-const unsigned char backslash='\\';
-static NSData *backslashData=nil;
-const unsigned char equal='=';
-static NSData *equalData=nil;
 
 
 NSXMLElement *xmlArray(
@@ -252,7 +244,7 @@ NSUInteger D2M(
                      }
                      else
                      {
-                        NSRange backslashRange=[contentsData rangeOfData:backslashData options:0 range:remainingContentsRange];
+                        NSRange backslashRange=[contentsData rangeOfData:NSData.backslash options:0 range:remainingContentsRange];
                         if (backslashRange.location==NSNotFound)
                         {
                            nameRange=NSMakeRange(remainingContentsRange.location, remainingContentsRange.length);
@@ -281,7 +273,7 @@ NSUInteger D2M(
                         }
                         else
                         {
-                           NSRange equalRange=[contentsData rangeOfData:equalData options:0 range:remainingNameRange];
+                           NSRange equalRange=[contentsData rangeOfData:NSData.equal options:0 range:remainingNameRange];
                            if (equalRange.location==NSNotFound)
                            {
                               representationRange=NSMakeRange(remainingNameRange.location, remainingNameRange.length);
@@ -360,12 +352,12 @@ NSUInteger D2M(
          case 0x4955://UI
          {
             NSMutableData *md=[NSMutableData dataWithData:[data subdataWithRange:NSMakeRange((shortsIndex+4)*2,vl)]];
-            NSRange zerorange=[md rangeOfData:zeroData options:NSDataSearchBackwards range:NSMakeRange(0,md.length)];
+            NSRange zerorange=[md rangeOfData:NSData.zero options:NSDataSearchBackwards range:NSMakeRange(0,md.length)];
             //remove eventual padding 0x00
             while (zerorange.location != NSNotFound)
             {
                [md replaceBytesInRange:zerorange withBytes:NULL length:0];
-               zerorange=[md rangeOfData:zeroData options:NSDataSearchBackwards range:NSMakeRange(0,zerorange.location)];
+               zerorange=[md rangeOfData:NSData.zero options:NSDataSearchBackwards range:NSMakeRange(0,zerorange.location)];
             }
             NSXMLElement *xmlElement=xmlArray(branch,tag,vr);
             if (md.length)
@@ -778,11 +770,6 @@ int D2xml(NSData *data, NSXMLElement *xml)
       LOG_WARNING(@"dicom binary data too small");
       return 0;//failed
    }
-
-   zeroData=[NSData dataWithBytes:&zero length:1];
-   backslashData=[NSData dataWithBytes:&backslash length:1];
-   equalData=[NSData dataWithBytes:&equal length:1];
-
 
    unsigned short *shorts=(unsigned short*)[data bytes];
    NSUInteger datasetShortOffset=0;

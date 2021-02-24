@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet  
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:dx="xmldicom.xsd" 
-    xsi:schemaLocation="xmldicom.xsd 
-    https://raw.githubusercontent.com/jacquesfauquex/DICOM_contextualizedKey-values/master/xml/xmldicom.xsd"
     xml:space="default"
     >
     <xsl:output method="xml" />
-    <!-- ==================================================== -->
-    <!-- creates dicom xml from contextualized key values xml -->
-    <!-- ==================================================== -->
+    <!-- ======================================================= -->
+    <!-- dicom native xml from contextualized key values xml map -->
+    <!-- ======================================================= -->
     
+<!-- 
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:map="mapdicom.xsd" 
+    xsi:schemaLocation="mapdicom.xsd 
+    mapdicom.xsd"
 
+    -->
+    
     <!-- string functions -->
     
     <xsl:template name="extensionNumber">
@@ -47,7 +50,7 @@
     <!-- ordered list -->
     
     <xsl:variable name="branchTagList">
-        <xsl:for-each select="/dx:dataset/dx:a">
+        <xsl:for-each select="/map/map/*">
             <xsl:element name="dx:a">
                 <xsl:copy-of select="@b"/>
                 <xsl:copy-of select="@t"/>
@@ -115,7 +118,7 @@
 
     <!-- root template -->
     
-    <xsl:template match="/dx:dataset">
+    <xsl:template match="/map">
         <NativeDicomModel>
             <xsl:apply-templates select="$list/dx:a[@l=0]" mode="dataset"/>
         </NativeDicomModel>    

@@ -1,6 +1,6 @@
 # mapxmldicom (M) and extensions
 
-mapxmldicom (M) in the form of a XPath 3.1 explorable working XML DOM is our fundamental parsing result target.
+mapxmldicom (M) is a XPath 3.1 explorable XML DOM.
 It may be processed with textual tools other than XPath 3.1 when serialized into XML text or XML JSON.
 
 A sample of M, together with validation schemas, is found in testing/M
