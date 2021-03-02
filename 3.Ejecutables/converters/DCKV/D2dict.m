@@ -10,7 +10,7 @@
 #import "NSData+DCMmarkers.h"
 #import "utils.h"
 #import "ODLog.h"
-
+#import "B64.h"
 
 
 NSString *key(
@@ -20,7 +20,7 @@ NSString *key(
 )
 {
    return [NSString
-                    stringWithFormat:@"%@-%08X_%c%c",
+                    stringWithFormat:@"%@_%08X-%c%c",
                     branch,
                      ((tag & 0xff000000)>>16)
                     +((tag & 0x00ff0000)>>16)
@@ -39,7 +39,7 @@ NSString *keyPrefixed(
 )
 {
   return [NSString
-                   stringWithFormat:@"%@-%08X_%@%c%c",
+                   stringWithFormat:@"%@_%08X-%@%c%c",
                    branch,
                     ((tag & 0xff000000)>>16)
                    +((tag & 0x00ff0000)>>16)
@@ -63,7 +63,9 @@ NSUInteger D2J(
                          NSString *branch,
                          NSMutableDictionary *dict,
                          NSString *vrCharsetPrefix,
-                         uint16 vrCharsetUint16
+                         uint16 vrCharsetUint16,
+                         NSString *originalPath,
+                         long long minSize
                          )
 {
    UInt16 vr;//value representation
@@ -368,7 +370,7 @@ NSUInteger D2J(
          case 0x5153://SQ
          {
             unsigned int itemcounter=1;
-            NSString *branchTag=[branch stringByAppendingFormat:@"-%08X",
+            NSString *branchTag=[branch stringByAppendingFormat:@"_%08X",
                                   ((tag & 0xff000000)>>16)
                                  +((tag & 0x00ff0000)>>16)
                                  +((tag & 0x0000ff00)<<16)
@@ -429,8 +431,10 @@ NSUInteger D2J(
    [branchTag stringByAppendingFormat:@".%08X",itemcounter],
    dict,
    vrCharsetPrefixNew,
-   vrCharsetUint16New
-                                                  );
+   vrCharsetUint16New,
+   originalPath,
+   minSize
+   );
 
                         [dict setObject:[NSNull null] forKey:key([branchTag stringByAppendingFormat:@".%08X",itemcounter],0xe00dfffe,0x5A49)];//IZ
                      }
@@ -440,7 +444,7 @@ NSUInteger D2J(
                   }
                }
 #pragma mark SQ closing marker
-               [dict setObject:[NSNull null] forKey:key([branchTag stringByAppendingPathExtension:@"FFFFFFFF"],0xe0ddfffe,0x5A51)];
+               [dict setObject:[NSNull null] forKey:key([branchTag stringByAppendingPathExtension:@"FFFFFFFF"],0xe0ddfffe,0x5A53)];
                shortsIndex+=8;
             }
             break;
@@ -719,32 +723,33 @@ NSUInteger D2J(
          }
 
 #pragma mark OB OD OF OL OV OW UN
-         case 0x424F:
+         case 0x424F://OB
             /*
              An octet-stream where the encoding of the contents is specified by the negotiated Transfer Syntax. OB is a VR that is insensitive to byte ordering (see Section 7.3). The octet-stream shall be padded with a single trailing NULL byte value (00H) when necessary to achieve even length.
              */
-         case 0x444F:
+         case 0x444F://OD
             /*
              A stream of 64-bit IEEE 754:1985 floating point words. OD is a VR that requires byte swapping within each 64-bit word when changing byte ordering (see Section 7.3).
              */
-         case 0x464F:
+         case 0x464F://OF
             /*
              A stream of 32-bit IEEE 754:1985 floating point words. OF is a VR that requires byte swapping within each 32-bit word when changing byte ordering (see Section 7.3).
              */
-         case 0x4C4F:
+         case 0x4C4F://OL
             /*
              A stream of 32-bit words where the encoding of the contents is specified by the negotiated Transfer Syntax. OL is a VR that requires byte swapping within each word when changing byte ordering (see Section 7.3).
              */
-         case 0x564F:
+         case 0x564F://OV
             /*
              A stream of 64-bit words where the encoding of the contents is specified by the negotiated Transfer Syntax. OV is a VR that requires byte swapping within each word when changing byte ordering (see Section 7.3).
              */
-         case 0x574F:
+         case 0x574F://OW
             /*
              A stream of 16-bit words where the encoding of the contents is specified by the negotiated Transfer Syntax. OW is a VR that requires byte swapping within each word when changing byte ordering (see Section 7.3).
              */
-         case 0x4E55:
+         case 0x4E55://UN
          {
+#pragma mark TODO atributo pixels comprimido y con tamaño indefinido
             uint32 vll = ( shortsBuffer[shortsIndex+4]       )
                        + ( shortsBuffer[shortsIndex+5] << 16 )
             ;
@@ -752,10 +757,17 @@ NSUInteger D2J(
             {
                [dict setObject:@[] forKey:key(branch,tag,vr)];
             }
+            else if (originalPath && (vll > minSize))
+            {
+               NSString *urlString=[NSString stringWithFormat:@"file:%@?offset=%lu&amp;length=%d",originalPath,(shortsIndex+6)*2,vll];
+               [dict setObject:@[@{ @"BulkData":urlString}] forKey:key(branch,tag,vr)];
+            }
             else
             {
-               NSString *base64string= [[NSString alloc] initWithData:[[data subdataWithRange:NSMakeRange((shortsIndex+6)*2,vll)]base64EncodedDataWithOptions:0] encoding:NSASCIIStringEncoding];
-               [dict setObject:@[base64string] forKey:key(branch,tag,vr)];
+               NSData *contents=[data subdataWithRange:NSMakeRange((shortsIndex+6)*2,vll)];
+               
+               //convert to JSON base64 (solidus written \/)
+               [dict setObject:@[B64JSONstringWithData(contents)] forKey:key(branch,tag,vr)];
             }
             shortsIndex+= 6 + (vll/2);
 
@@ -810,7 +822,12 @@ NSUInteger D2J(
 
 
 
-int D2dict(NSData *data, NSMutableDictionary *dict)
+int D2dict(
+           NSData *data,
+           NSMutableDictionary *dict,
+           NSString *originalPath,
+           long long minSize
+           )
 {
    if (data.length <10)
    {
@@ -844,7 +861,9 @@ int D2dict(NSData *data, NSMutableDictionary *dict)
                         @"00000001",
                         dict,
                         vrCharsetPrefix,
-                        vrCharsetUint16
+                        vrCharsetUint16,
+                        originalPath,
+                        minSize
                         );
    if (index < (data.length -1) / 2)
    {

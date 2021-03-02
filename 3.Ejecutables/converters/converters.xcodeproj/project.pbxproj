@@ -22,12 +22,35 @@
 		4A025F8A25E60CCA005AA1A3 /* D2dict.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A025EA625E593E0005AA1A3 /* D2dict.m */; };
 		4A025F8B25E60CCA005AA1A3 /* dict2D.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABE45AC25C87F610072B84E /* dict2D.m */; };
 		4A025FC425E625ED005AA1A3 /* NSData+DCMmarkers.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A025FA925E61B97005AA1A3 /* NSData+DCMmarkers.m */; };
-		4A025FDA25E627CC005AA1A3 /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
 		4A02600325E6290A005AA1A3 /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
+		4A02602725E6778F005AA1A3 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A02602625E6778F005AA1A3 /* main.m */; };
 		4A42610625A73C6B001E0B52 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A42610525A73C6B001E0B52 /* main.m */; };
+		4A44191225E866110091495B /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
+		4A44191325E866110091495B /* DCKV.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		4A44191525E866180091495B /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
+		4A44191625E866180091495B /* DCKV.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		4A44192A25EC4A490091495B /* B64.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A44192825EC4A490091495B /* B64.m */; };
+		4A44192B25EC4A490091495B /* B64.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A44192925EC4A490091495B /* B64.h */; };
 		4A7B85DB258BC12800E62971 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7B85DA258BC12800E62971 /* main.m */; };
 		4AAE862D25C0253500117D26 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AAE862C25C0253500117D26 /* main.m */; };
-		4ABE45AD25C882690072B84E /* dict2D.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABE45AC25C87F610072B84E /* dict2D.m */; };
+		4AE7CEAA25E7CBE0004942E3 /* dicomattrs.hex in Resources */ = {isa = PBXBuildFile; fileRef = 4A7B85AC2582A4C300E62971 /* dicomattrs.hex */; };
+		4AE7CEAB25E7CBE0004942E3 /* FluroWithDisplayShutter.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4A434CCC25BB445100065B64 /* FluroWithDisplayShutter.dcm */; };
+		4AE7CEAC25E7CBE0004942E3 /* SCSARAB.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4A434CC225B9980400065B64 /* SCSARAB.dcm */; };
+		4AE7CEAD25E7CBE0004942E3 /* SCSFREN.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4A434CBB25B9980400065B64 /* SCSFREN.dcm */; };
+		4AE7CEAE25E7CBE0004942E3 /* SCSGERM.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4A434CBF25B9980400065B64 /* SCSGERM.dcm */; };
+		4AE7CEAF25E7CBE0004942E3 /* SCSGREEK.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4A434CBC25B9980400065B64 /* SCSGREEK.dcm */; };
+		4AE7CEB025E7CBE0004942E3 /* SCSH31.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4A434CBD25B9980400065B64 /* SCSH31.dcm */; };
+		4AE7CEB125E7CBE0004942E3 /* SCSH32.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4A434CC125B9980400065B64 /* SCSH32.dcm */; };
+		4AE7CEB225E7CBE0004942E3 /* SCSHBRW.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4A434CB925B9980400065B64 /* SCSHBRW.dcm */; };
+		4AE7CEB325E7CBE0004942E3 /* SCSI2.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4A434CC325B9980400065B64 /* SCSI2.dcm */; };
+		4AE7CEB425E7CBE0004942E3 /* SCSRUSS.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4A434CBA25B9980400065B64 /* SCSRUSS.dcm */; };
+		4AE7CEB525E7CBE0004942E3 /* SCSX1.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4A434CBE25B9980400065B64 /* SCSX1.dcm */; };
+		4AE7CEB625E7CBE0004942E3 /* SCSX2.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4A434CC025B9980400065B64 /* SCSX2.dcm */; };
+		4AE7CEB725E7CBE0004942E3 /* M.xsd in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE92125B1A8FE00C8D33F /* M.xsd */; };
+		4AE7CEB825E7CBE0004942E3 /* M1N.xsl in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE91E25B1A8FE00C8D33F /* M1N.xsl */; };
+		4AE7CEB925E7CBE0004942E3 /* N1M.xsl in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE92025B1A8FE00C8D33F /* N1M.xsl */; };
+		4AE7CEBA25E7CBE0004942E3 /* M3J.xsl in Resources */ = {isa = PBXBuildFile; fileRef = 4AAE863E25C029DC00117D26 /* M3J.xsl */; };
+		4AE7CEBB25E7CBE0004942E3 /* N.xsd in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE91B25B1A8FE00C8D33F /* N.xsd */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -39,6 +62,13 @@
 			remoteInfo = DCKV;
 		};
 		4A02600125E628FF005AA1A3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4A7B856A258002A100E62971 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4A025F3A25E5C455005AA1A3;
+			remoteInfo = DCKV;
+		};
+		4A02604125E6E0F1005AA1A3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4A7B856A258002A100E62971 /* Project object */;
 			proxyType = 1;
@@ -57,6 +87,28 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
+		4A44191425E866110091495B /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				4A44191325E866110091495B /* DCKV.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4A44191725E866180091495B /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				4A44191625E866180091495B /* DCKV.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4A7B85D6258BC12800E62971 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -67,24 +119,6 @@
 			runOnlyForDeploymentPostprocessing = 1;
 		};
 		4A7B85F8258CD7A700E62971 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
-		4AAE866825C0C19600117D26 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
-		4ABF586025DC043B00EB725E /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -108,6 +142,7 @@
 		4A025F3E25E5C455005AA1A3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4A025FA825E61B97005AA1A3 /* NSData+DCMmarkers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+DCMmarkers.h"; sourceTree = "<group>"; };
 		4A025FA925E61B97005AA1A3 /* NSData+DCMmarkers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+DCMmarkers.m"; sourceTree = "<group>"; };
+		4A02602625E6778F005AA1A3 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4A42610325A73C6B001E0B52 /* D2M */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = D2M; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A42610525A73C6B001E0B52 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4A434CB925B9980400065B64 /* SCSHBRW.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = SCSHBRW.dcm; sourceTree = "<group>"; };
@@ -122,6 +157,8 @@
 		4A434CC225B9980400065B64 /* SCSARAB.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = SCSARAB.dcm; sourceTree = "<group>"; };
 		4A434CC325B9980400065B64 /* SCSI2.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = SCSI2.dcm; sourceTree = "<group>"; };
 		4A434CCC25BB445100065B64 /* FluroWithDisplayShutter.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = FluroWithDisplayShutter.dcm; sourceTree = "<group>"; };
+		4A44192825EC4A490091495B /* B64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = B64.m; sourceTree = "<group>"; };
+		4A44192925EC4A490091495B /* B64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = B64.h; sourceTree = "<group>"; };
 		4A7B859F25824EAE00E62971 /* utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = utils.m; sourceTree = "<group>"; };
 		4A7B85A025824EAE00E62971 /* ODLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ODLog.m; sourceTree = "<group>"; };
 		4A7B85A125824EAE00E62971 /* ODLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ODLog.h; sourceTree = "<group>"; };
@@ -184,6 +221,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4A44191225E866110091495B /* DCKV.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -191,7 +229,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4A025FDA25E627CC005AA1A3 /* DCKV.framework in Frameworks */,
+				4A44191525E866180091495B /* DCKV.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -203,8 +241,6 @@
 			children = (
 				4A025E6625E43D0D005AA1A3 /* README.md */,
 				4A025E6725E43D0D005AA1A3 /* main.m */,
-				4A025EA625E593E0005AA1A3 /* D2dict.m */,
-				4A025EAF25E5944E005AA1A3 /* D2dict.h */,
 			);
 			path = D2J;
 			sourceTree = "<group>";
@@ -212,6 +248,8 @@
 		4A025F3C25E5C455005AA1A3 /* DCKV */ = {
 			isa = PBXGroup;
 			children = (
+				4A44192925EC4A490091495B /* B64.h */,
+				4A44192825EC4A490091495B /* B64.m */,
 				4A025FA825E61B97005AA1A3 /* NSData+DCMmarkers.h */,
 				4A025FA925E61B97005AA1A3 /* NSData+DCMmarkers.m */,
 				4A025E5E25E418E5005AA1A3 /* DCMcharset.h */,
@@ -222,6 +260,10 @@
 				4A7B859F25824EAE00E62971 /* utils.m */,
 				4A025F3D25E5C455005AA1A3 /* DCKV.h */,
 				4A025F3E25E5C455005AA1A3 /* Info.plist */,
+				4ABE45AB25C87F610072B84E /* dict2D.h */,
+				4ABE45AC25C87F610072B84E /* dict2D.m */,
+				4A025EA625E593E0005AA1A3 /* D2dict.m */,
+				4A025EAF25E5944E005AA1A3 /* D2dict.h */,
 			);
 			path = DCKV;
 			sourceTree = "<group>";
@@ -254,6 +296,7 @@
 		4A02600C25E62E1F005AA1A3 /* Formats */ = {
 			isa = PBXGroup;
 			children = (
+				4A02605025E6ECA7005AA1A3 /* J */,
 				4A02600D25E62E4B005AA1A3 /* H */,
 				4A434CB825B996A200065B64 /* D */,
 				4ABDE91725B1A8FE00C8D33F /* M */,
@@ -268,6 +311,13 @@
 				4A7B85AC2582A4C300E62971 /* dicomattrs.hex */,
 			);
 			path = H;
+			sourceTree = "<group>";
+		};
+		4A02605025E6ECA7005AA1A3 /* J */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = J;
 			sourceTree = "<group>";
 		};
 		4A42610425A73C6B001E0B52 /* D2M */ = {
@@ -378,8 +428,7 @@
 		4ABF583625CEC1EB00EB725E /* J2D */ = {
 			isa = PBXGroup;
 			children = (
-				4ABE45AB25C87F610072B84E /* dict2D.h */,
-				4ABE45AC25C87F610072B84E /* dict2D.m */,
+				4A02602625E6778F005AA1A3 /* main.m */,
 			);
 			path = J2D;
 			sourceTree = "<group>";
@@ -398,6 +447,7 @@
 				4A025F6625E60BE0005AA1A3 /* D2dict.h in Headers */,
 				4A025F6725E60BE0005AA1A3 /* dict2D.h in Headers */,
 				4A025F5C25E60BBA005AA1A3 /* DCMcharset.h in Headers */,
+				4A44192B25EC4A490091495B /* B64.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -480,11 +530,12 @@
 			buildPhases = (
 				4AAE866625C0C19600117D26 /* Sources */,
 				4AAE866725C0C19600117D26 /* Frameworks */,
-				4AAE866825C0C19600117D26 /* CopyFiles */,
+				4A44191425E866110091495B /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				4A02604225E6E0F1005AA1A3 /* PBXTargetDependency */,
 			);
 			name = J2D;
 			productName = B2M;
@@ -497,7 +548,7 @@
 			buildPhases = (
 				4ABF585E25DC043B00EB725E /* Sources */,
 				4ABF585F25DC043B00EB725E /* Frameworks */,
-				4ABF586025DC043B00EB725E /* CopyFiles */,
+				4A44191725E866180091495B /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -565,6 +616,24 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4AE7CEAA25E7CBE0004942E3 /* dicomattrs.hex in Resources */,
+				4AE7CEAB25E7CBE0004942E3 /* FluroWithDisplayShutter.dcm in Resources */,
+				4AE7CEAC25E7CBE0004942E3 /* SCSARAB.dcm in Resources */,
+				4AE7CEAD25E7CBE0004942E3 /* SCSFREN.dcm in Resources */,
+				4AE7CEAE25E7CBE0004942E3 /* SCSGERM.dcm in Resources */,
+				4AE7CEAF25E7CBE0004942E3 /* SCSGREEK.dcm in Resources */,
+				4AE7CEB025E7CBE0004942E3 /* SCSH31.dcm in Resources */,
+				4AE7CEB125E7CBE0004942E3 /* SCSH32.dcm in Resources */,
+				4AE7CEB225E7CBE0004942E3 /* SCSHBRW.dcm in Resources */,
+				4AE7CEB325E7CBE0004942E3 /* SCSI2.dcm in Resources */,
+				4AE7CEB425E7CBE0004942E3 /* SCSRUSS.dcm in Resources */,
+				4AE7CEB525E7CBE0004942E3 /* SCSX1.dcm in Resources */,
+				4AE7CEB625E7CBE0004942E3 /* SCSX2.dcm in Resources */,
+				4AE7CEB725E7CBE0004942E3 /* M.xsd in Resources */,
+				4AE7CEB825E7CBE0004942E3 /* M1N.xsl in Resources */,
+				4AE7CEB925E7CBE0004942E3 /* N1M.xsl in Resources */,
+				4AE7CEBA25E7CBE0004942E3 /* M3J.xsl in Resources */,
+				4AE7CEBB25E7CBE0004942E3 /* N.xsd in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -579,6 +648,7 @@
 				4A025FC425E625ED005AA1A3 /* NSData+DCMmarkers.m in Sources */,
 				4A025F8725E60CCA005AA1A3 /* ODLog.m in Sources */,
 				4A025F8825E60CCA005AA1A3 /* utils.m in Sources */,
+				4A44192A25EC4A490091495B /* B64.m in Sources */,
 				4A025F8925E60CCA005AA1A3 /* D2xml.m in Sources */,
 				4A025F8A25E60CCA005AA1A3 /* D2dict.m in Sources */,
 				4A025F8B25E60CCA005AA1A3 /* dict2D.m in Sources */,
@@ -605,7 +675,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4ABE45AD25C882690072B84E /* dict2D.m in Sources */,
 				4AAE862D25C0253500117D26 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -614,6 +683,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4A02602725E6778F005AA1A3 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -638,6 +708,11 @@
 			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
 			targetProxy = 4A02600125E628FF005AA1A3 /* PBXContainerItemProxy */;
 		};
+		4A02604225E6E0F1005AA1A3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
+			targetProxy = 4A02604125E6E0F1005AA1A3 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -648,11 +723,12 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = DCKV/Info.plist;
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				INSTALL_PATH = /Library/Frameworks;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -661,7 +737,8 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_BUNDLE_IDENTIFIER = com.opendicom.jacquesfauquex.DCKV;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				SKIP_INSTALL = YES;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = NO;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -674,11 +751,12 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				INFOPLIST_FILE = DCKV/Info.plist;
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				INSTALL_PATH = /Library/Frameworks;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -687,7 +765,8 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_BUNDLE_IDENTIFIER = com.opendicom.jacquesfauquex.DCKV;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				SKIP_INSTALL = YES;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SKIP_INSTALL = NO;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -696,18 +775,22 @@
 		4A42610825A73C6B001E0B52 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Debug;
 		};
 		4A42610925A73C6B001E0B52 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Release;
 		};
@@ -825,36 +908,44 @@
 		4A7B85DD258BC12800E62971 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Debug;
 		};
 		4A7B85DE258BC12800E62971 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Release;
 		};
 		4A7B85FF258CD7A700E62971 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Debug;
 		};
 		4A7B8600258CD7A700E62971 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Release;
 		};
@@ -879,18 +970,24 @@
 		4ABF586625DC043B00EB725E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Debug;
 		};
 		4ABF586725DC043B00EB725E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "-";
 				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Release;
 		};

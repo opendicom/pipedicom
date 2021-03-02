@@ -21,7 +21,7 @@ NSXMLElement *xmlArray(
    NSXMLElement *node=[NSXMLElement elementWithName:@"array"];
    NSXMLNode *key=[NSXMLNode attributeWithName:@"key"stringValue:
                    [NSString
-                    stringWithFormat:@"%@-%08X_%c%c",
+                    stringWithFormat:@"%@_%08X-%c%c",
                     branch,
                      ((tag & 0xff000000)>>16)
                     +((tag & 0x00ff0000)>>16)
@@ -45,7 +45,7 @@ NSXMLElement *xmlArrayPrefixed(
   NSXMLElement *node=[NSXMLElement elementWithName:@"array"];
   NSXMLNode *key=[NSXMLNode attributeWithName:@"key"stringValue:
                   [NSString
-                   stringWithFormat:@"%@-%08X_%@%c%c",
+                   stringWithFormat:@"%@_%08X-%@%c%c",
                    branch,
                     ((tag & 0xff000000)>>16)
                    +((tag & 0x00ff0000)>>16)
@@ -70,7 +70,7 @@ NSXMLElement *xmlNull(
    NSXMLElement *xmlNull=[NSXMLElement elementWithName:@"null"];
    NSXMLNode *key=[NSXMLNode attributeWithName:@"key"stringValue:
                    [NSString
-                    stringWithFormat:@"%@-%08X_%c%c",
+                    stringWithFormat:@"%@_%08X-%c%c",
                     branch,
                      ((tag & 0xff000000)>>16)
                     +((tag & 0x00ff0000)>>16)
@@ -379,7 +379,7 @@ NSUInteger D2M(
          case 0x5153://SQ
          {
             unsigned int itemcounter=1;
-            NSString *branchTag=[branch stringByAppendingFormat:@"-%08X",
+            NSString *branchTag=[branch stringByAppendingFormat:@"_%08X",
                                   ((tag & 0xff000000)>>16)
                                  +((tag & 0x00ff0000)>>16)
                                  +((tag & 0x0000ff00)<<16)
@@ -451,7 +451,7 @@ NSUInteger D2M(
                   }
                }
 #pragma mark SQ closing marker
-               [xml addChild:xmlNull([branchTag stringByAppendingPathExtension:@"FFFFFFFF"],0xe0ddfffe,0x5A51)];
+               [xml addChild:xmlNull([branchTag stringByAppendingPathExtension:@"FFFFFFFF"],0xe0ddfffe,0x5A53)];
                shortsIndex+=8;
             }
             break;

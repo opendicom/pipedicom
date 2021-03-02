@@ -50,15 +50,26 @@
             ReferencedContainer = "container:converters.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/Formats/D/FluroWithDisplayShutter.dcm"
+            isEnabled = "YES">
+         </CommandLineArgument>
+      </CommandLineArguments>
       <EnvironmentVariables>
          <EnvironmentVariable
-            key = "D2JtestPath"
-            value = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/testing/D/FluroWithDisplayShutter.dcm"
+            key = "D2JoutputDir"
+            value = "/Users/Shared/"
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "D2Joutput"
-            value = "/Users/Shared/D2J.json"
+            key = "D2JbyRefToOriginalMinSize"
+            value = "1000"
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "D2JrelativePathComponents"
+            value = "2"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>
