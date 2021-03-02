@@ -159,6 +159,7 @@
 		4A434CCC25BB445100065B64 /* FluroWithDisplayShutter.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = FluroWithDisplayShutter.dcm; sourceTree = "<group>"; };
 		4A44192825EC4A490091495B /* B64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = B64.m; sourceTree = "<group>"; };
 		4A44192925EC4A490091495B /* B64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = B64.h; sourceTree = "<group>"; };
+		4A44193425EE53CE0091495B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4A7B859F25824EAE00E62971 /* utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = utils.m; sourceTree = "<group>"; };
 		4A7B85A025824EAE00E62971 /* ODLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ODLog.m; sourceTree = "<group>"; };
 		4A7B85A125824EAE00E62971 /* ODLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ODLog.h; sourceTree = "<group>"; };
@@ -353,13 +354,14 @@
 		4A7B8569258002A100E62971 = {
 			isa = PBXGroup;
 			children = (
+				4A44193425EE53CE0091495B /* README.md */,
 				4A02600C25E62E1F005AA1A3 /* Formats */,
 				4A025FD925E627CC005AA1A3 /* Frameworks */,
+				4A025E6525E43D0D005AA1A3 /* D2J */,
+				4ABF583625CEC1EB00EB725E /* J2D */,
 				4A7B85D9258BC12800E62971 /* H2D */,
 				4A42610425A73C6B001E0B52 /* D2M */,
 				4AAE862B25C0253500117D26 /* M2 */,
-				4A025E6525E43D0D005AA1A3 /* D2J */,
-				4ABF583625CEC1EB00EB725E /* J2D */,
 				4A7B8573258002A100E62971 /* Products */,
 			);
 			sourceTree = "<group>";

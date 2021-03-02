@@ -2,15 +2,6 @@
 
 Dicom binary to JSON mapxmldicom
 
-export start=$(gdate +%s.%N);./D2J /Volumes/GITHUB/pipedicom/3.Ejecutables/converters/Formats/D/FluroWithDisplayShutter.dcm | ./J2D > /Users/Shared/a.dcm; export stop=$(gdate +%s.%N); echo "$stop - $start" | bc
-
-.041595000
-
-
-export start=$(gdate +%s.%N);./dcm2json /Volumes/GITHUB/pipedicom/3.Ejecutables/converters/Formats/D/FluroWithDisplayShutter.dcm | ./json2dcm -j - -o /Users/Shared/dcm4che.dcm; export stop=$(gdate +%s.%N); echo "$stop - $start" | bc
-
-.286682000
-
 ## Environment
 Apart from eventual parameters for the application of xslt transformations, the executable also looks for:
 - "D2MlogLevel" (authorized values: "DEBUG","VERBOSE","INFO","WARNING","ERROR","EXCEPTION"). If the variable is not set, the default log level is "ERROR"
