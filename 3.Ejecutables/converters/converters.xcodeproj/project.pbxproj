@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0718621625F65AF000802276 /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
+		0718621925F6826800802276 /* FluroWithDisplayShutter.json in Resources */ = {isa = PBXBuildFile; fileRef = 0718621725F6825F00802276 /* FluroWithDisplayShutter.json */; };
+		0718621A25F6826B00802276 /* SCSARAB.json in Resources */ = {isa = PBXBuildFile; fileRef = 0718621825F6825F00802276 /* SCSARAB.json */; };
+		0718621C25F684AC00802276 /* SCSFREN.json in Resources */ = {isa = PBXBuildFile; fileRef = 0718621B25F6849900802276 /* SCSFREN.json */; };
 		4A025E6825E43D0D005AA1A3 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A025E6725E43D0D005AA1A3 /* main.m */; };
 		4A025F3F25E5C455005AA1A3 /* DCKV.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A025F3D25E5C455005AA1A3 /* DCKV.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A025F5C25E60BBA005AA1A3 /* DCMcharset.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A025E5E25E418E5005AA1A3 /* DCMcharset.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -26,9 +30,6 @@
 		4A02602725E6778F005AA1A3 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A02602625E6778F005AA1A3 /* main.m */; };
 		4A42610625A73C6B001E0B52 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A42610525A73C6B001E0B52 /* main.m */; };
 		4A44191225E866110091495B /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
-		4A44191325E866110091495B /* DCKV.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		4A44191525E866180091495B /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
-		4A44191625E866180091495B /* DCKV.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4A44192A25EC4A490091495B /* B64.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A44192825EC4A490091495B /* B64.m */; };
 		4A44192B25EC4A490091495B /* B64.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A44192925EC4A490091495B /* B64.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		4A7B85DB258BC12800E62971 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7B85DA258BC12800E62971 /* main.m */; };
@@ -53,30 +54,6 @@
 		4AE7CEBB25E7CBE0004942E3 /* N.xsd in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE91B25B1A8FE00C8D33F /* N.xsd */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		4A025FDB25E627E6005AA1A3 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4A7B856A258002A100E62971 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 4A025F3A25E5C455005AA1A3;
-			remoteInfo = DCKV;
-		};
-		4A02600125E628FF005AA1A3 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4A7B856A258002A100E62971 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 4A025F3A25E5C455005AA1A3;
-			remoteInfo = DCKV;
-		};
-		4A02604125E6E0F1005AA1A3 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4A7B856A258002A100E62971 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 4A025F3A25E5C455005AA1A3;
-			remoteInfo = DCKV;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXCopyFilesBuildPhase section */
 		4A42610125A73C6B001E0B52 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -86,28 +63,6 @@
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 1;
-		};
-		4A44191425E866110091495B /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				4A44191325E866110091495B /* DCKV.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4A44191725E866180091495B /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				4A44191625E866180091495B /* DCKV.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 		4A7B85D6258BC12800E62971 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -130,6 +85,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0718621725F6825F00802276 /* FluroWithDisplayShutter.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FluroWithDisplayShutter.json; sourceTree = "<group>"; };
+		0718621825F6825F00802276 /* SCSARAB.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = SCSARAB.json; sourceTree = "<group>"; };
+		0718621B25F6849900802276 /* SCSFREN.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = SCSFREN.json; sourceTree = "<group>"; };
 		4A025E5E25E418E5005AA1A3 /* DCMcharset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCMcharset.h; sourceTree = "<group>"; };
 		4A025E6625E43D0D005AA1A3 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4A025E6725E43D0D005AA1A3 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -230,7 +188,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4A44191525E866180091495B /* DCKV.framework in Frameworks */,
+				0718621625F65AF000802276 /* DCKV.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -317,6 +275,9 @@
 		4A02605025E6ECA7005AA1A3 /* J */ = {
 			isa = PBXGroup;
 			children = (
+				0718621B25F6849900802276 /* SCSFREN.json */,
+				0718621725F6825F00802276 /* FluroWithDisplayShutter.json */,
+				0718621825F6825F00802276 /* SCSARAB.json */,
 			);
 			path = J;
 			sourceTree = "<group>";
@@ -464,6 +425,7 @@
 				4A025F3725E5C455005AA1A3 /* Sources */,
 				4A025F3825E5C455005AA1A3 /* Frameworks */,
 				4A025F3925E5C455005AA1A3 /* Resources */,
+				0718621525F645FE00802276 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -485,7 +447,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				4A02600225E628FF005AA1A3 /* PBXTargetDependency */,
 			);
 			name = D2M;
 			productName = D2X;
@@ -532,12 +493,10 @@
 			buildPhases = (
 				4AAE866625C0C19600117D26 /* Sources */,
 				4AAE866725C0C19600117D26 /* Frameworks */,
-				4A44191425E866110091495B /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				4A02604225E6E0F1005AA1A3 /* PBXTargetDependency */,
 			);
 			name = J2D;
 			productName = B2M;
@@ -550,12 +509,10 @@
 			buildPhases = (
 				4ABF585E25DC043B00EB725E /* Sources */,
 				4ABF585F25DC043B00EB725E /* Frameworks */,
-				4A44191725E866180091495B /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				4A025FDC25E627E6005AA1A3 /* PBXTargetDependency */,
 			);
 			name = D2J;
 			productName = D2J;
@@ -631,6 +588,9 @@
 				4AE7CEB425E7CBE0004942E3 /* SCSRUSS.dcm in Resources */,
 				4AE7CEB525E7CBE0004942E3 /* SCSX1.dcm in Resources */,
 				4AE7CEB625E7CBE0004942E3 /* SCSX2.dcm in Resources */,
+				0718621925F6826800802276 /* FluroWithDisplayShutter.json in Resources */,
+				0718621A25F6826B00802276 /* SCSARAB.json in Resources */,
+				0718621C25F684AC00802276 /* SCSFREN.json in Resources */,
 				4AE7CEB725E7CBE0004942E3 /* M.xsd in Resources */,
 				4AE7CEB825E7CBE0004942E3 /* M1N.xsl in Resources */,
 				4AE7CEB925E7CBE0004942E3 /* N1M.xsl in Resources */,
@@ -640,6 +600,22 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		0718621525F645FE00802276 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = "/bin/sh ";
+			shellScript = "rm -rf /Users/pcs/Library/Frameworks/DCKV.framework\ncp -R $BUILD_ROOT/Debug/DCKV.framework ~/Library/Frameworks/DCKV.framework\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4A025F3725E5C455005AA1A3 /* Sources */ = {
@@ -698,24 +674,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		4A025FDC25E627E6005AA1A3 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
-			targetProxy = 4A025FDB25E627E6005AA1A3 /* PBXContainerItemProxy */;
-		};
-		4A02600225E628FF005AA1A3 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
-			targetProxy = 4A02600125E628FF005AA1A3 /* PBXContainerItemProxy */;
-		};
-		4A02604225E6E0F1005AA1A3 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
-			targetProxy = 4A02604125E6E0F1005AA1A3 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		4A025F4125E5C455005AA1A3 /* Debug */ = {

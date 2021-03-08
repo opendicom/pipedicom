@@ -11,6 +11,7 @@
 int main(int argc, const char * argv[]) {
    @autoreleasepool {
 
+      NSFileManager *fileManager=[NSFileManager defaultManager];
       NSProcessInfo *processInfo=[NSProcessInfo processInfo];
 
 #pragma mark - args
@@ -34,6 +35,19 @@ int main(int argc, const char * argv[]) {
                inputData=[NSData dataWithContentsOfFile:args[1]];
                break;
             }
+              
+          case 3://test name
+          {
+              if ([args[1] isEqualToString:@"test"])
+              {
+                  NSString *testPath;
+                  if ([fileManager fileExistsAtPath:[@"~/Library/Frameworks/DCKV.framework"stringByExpandingTildeInPath]]) testPath=[[@"~/Library/Frameworks/DCKV.framework/Resources/"stringByExpandingTildeInPath]stringByAppendingPathComponent:args[2]];
+                  else testPath=[@"/Library/Frameworks/DCKV.framework/Resources/"stringByAppendingPathComponent:args[2]];
+                  if ([fileManager fileExistsAtPath:testPath]) inputData=[NSData dataWithContentsOfFile:testPath];
+                  originalPath=[@"J2Dtest" stringByAppendingPathComponent:args[2]];
+              }
+              break;
+          }
 
          default:
             NSLog(@"syntaxis: J2D [originalPath]");

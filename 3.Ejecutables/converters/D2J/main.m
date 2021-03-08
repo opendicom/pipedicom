@@ -11,6 +11,7 @@
 int main(int argc, const char * argv[]) {
    @autoreleasepool {
 
+      NSFileManager *fileManager=[NSFileManager defaultManager];
       NSProcessInfo *processInfo=[NSProcessInfo processInfo];
       
 #pragma mark - args
@@ -18,7 +19,7 @@ int main(int argc, const char * argv[]) {
       NSData *inputData;
       NSArray *args=[processInfo arguments];
       switch (args.count) {
-         case 1:
+         case 1://stdin
          {
             NSMutableData *concatenateData=[NSMutableData data];
             NSFileHandle *readingFileHandle=[NSFileHandle fileHandleWithStandardInput];
@@ -27,16 +28,30 @@ int main(int argc, const char * argv[]) {
             inputData=[NSData dataWithData:concatenateData];
             break;
          }
-
-         case 2:
-            {
-               originalPath=[[args[1] stringByResolvingSymlinksInPath]stringByExpandingTildeInPath];
-               inputData=[NSData dataWithContentsOfFile:args[1]];
-            }
+              
+          case 2://file path
+          {
+            originalPath=[[args[1] stringByResolvingSymlinksInPath]stringByExpandingTildeInPath];
+            inputData=[NSData dataWithContentsOfFile:args[1]];
             break;
-            
+          }
+              
+          case 3://test name
+          {
+              if ([args[1] isEqualToString:@"test"])
+              {
+                  NSString *testPath;
+                  if ([fileManager fileExistsAtPath:[@"~/Library/Frameworks/DCKV.framework"stringByExpandingTildeInPath]]) testPath=[[@"~/Library/Frameworks/DCKV.framework/Resources/"stringByExpandingTildeInPath]stringByAppendingPathComponent:args[2]];
+                  else testPath=[@"/Library/Frameworks/DCKV.framework/Resources/"stringByAppendingPathComponent:args[2]];
+                  if ([fileManager fileExistsAtPath:testPath]) inputData=[NSData dataWithContentsOfFile:testPath];
+                  originalPath=[@"D2Jtest" stringByAppendingPathComponent:args[2]];
+              }
+              break;
+          }
+
+
          default:
-            NSLog(@"syntaxis: D2J [originalPath]");
+            NSLog(@"syntaxis: D2J [originalPath | test testName]");
             return 1;
       }
 
@@ -63,7 +78,7 @@ int main(int argc, const char * argv[]) {
             freopen([logPath cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
          else freopen([[logPath stringByAppendingPathExtension:@".log"] cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
       }
-      else if ([[NSFileManager defaultManager]fileExistsAtPath:@"/Volumes/LOG"]) freopen([@"/Volumes/LOG/D2J.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
+      else if ([fileManager fileExistsAtPath:@"/Volumes/LOG"]) freopen([@"/Volumes/LOG/D2J.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
       else freopen([@"/Users/Shared/D2J.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
 
 
@@ -309,7 +324,7 @@ int main(int argc, const char * argv[]) {
             NSString *outputPath=[[[D2JoutputDir stringByAppendingPathComponent:[originalPathComponents componentsJoinedByString:@"/"]]stringByDeletingPathExtension]stringByAppendingPathExtension:@"json"];
 
             NSString *subFolder=[outputPath stringByDeletingLastPathComponent];
-            if (![[NSFileManager defaultManager]fileExistsAtPath:subFolder] && ![[NSFileManager defaultManager] createDirectoryAtPath:subFolder withIntermediateDirectories:YES attributes:0 error:&error] )
+            if (![fileManager fileExistsAtPath:subFolder] && ![fileManager createDirectoryAtPath:subFolder withIntermediateDirectories:YES attributes:0 error:&error] )
             {
                LOG_ERROR(@"could not create directory %@",subFolder);
                return 1;
