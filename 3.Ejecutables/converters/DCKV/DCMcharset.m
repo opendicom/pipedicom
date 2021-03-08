@@ -39,7 +39,7 @@ const NSUInteger GBK=0;
 
 const NSUInteger encodingTotal=31;
 
-NSString *encodingPrefixString[]={
+NSString *evr[]={
    @"0000",
    @"1100",
    @"1101",
@@ -331,7 +331,7 @@ NSString *pushSpecificCharacterSet(struct uint64stack *pt, NSString *scs)
          pt->items[++pt->top] = 0x1100;
          return @"1100";
       }
-      [scsPrefixString appendString:encodingPrefixString[index]];
+      [scsPrefixString appendString:evr[index]];
       scsPrefixUint64=(scsPrefixUint64 < 16) + encodingPrefixuint64[index];
    }
 

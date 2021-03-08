@@ -10,8 +10,8 @@
 		4A025E6825E43D0D005AA1A3 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A025E6725E43D0D005AA1A3 /* main.m */; };
 		4A025F3F25E5C455005AA1A3 /* DCKV.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A025F3D25E5C455005AA1A3 /* DCKV.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A025F5C25E60BBA005AA1A3 /* DCMcharset.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A025E5E25E418E5005AA1A3 /* DCMcharset.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A025F6325E60BE0005AA1A3 /* ODLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A7B85A125824EAE00E62971 /* ODLog.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A025F6425E60BE0005AA1A3 /* utils.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A7B85A225824EAE00E62971 /* utils.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4A025F6325E60BE0005AA1A3 /* ODLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A7B85A125824EAE00E62971 /* ODLog.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		4A025F6425E60BE0005AA1A3 /* utils.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A7B85A225824EAE00E62971 /* utils.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		4A025F6525E60BE0005AA1A3 /* D2xml.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A025EBC25E5A1DE005AA1A3 /* D2xml.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A025F6625E60BE0005AA1A3 /* D2dict.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A025EAF25E5944E005AA1A3 /* D2dict.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A025F6725E60BE0005AA1A3 /* dict2D.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABE45AB25C87F610072B84E /* dict2D.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -30,7 +30,7 @@
 		4A44191525E866180091495B /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
 		4A44191625E866180091495B /* DCKV.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4A44192A25EC4A490091495B /* B64.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A44192825EC4A490091495B /* B64.m */; };
-		4A44192B25EC4A490091495B /* B64.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A44192925EC4A490091495B /* B64.h */; };
+		4A44192B25EC4A490091495B /* B64.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A44192925EC4A490091495B /* B64.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		4A7B85DB258BC12800E62971 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7B85DA258BC12800E62971 /* main.m */; };
 		4AAE862D25C0253500117D26 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AAE862C25C0253500117D26 /* main.m */; };
 		4AE7CEAA25E7CBE0004942E3 /* dicomattrs.hex in Resources */ = {isa = PBXBuildFile; fileRef = 4A7B85AC2582A4C300E62971 /* dicomattrs.hex */; };
@@ -443,13 +443,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				4A025F3F25E5C455005AA1A3 /* DCKV.h in Headers */,
-				4A025F6325E60BE0005AA1A3 /* ODLog.h in Headers */,
-				4A025F6425E60BE0005AA1A3 /* utils.h in Headers */,
 				4A025F6525E60BE0005AA1A3 /* D2xml.h in Headers */,
 				4A025F6625E60BE0005AA1A3 /* D2dict.h in Headers */,
 				4A025F6725E60BE0005AA1A3 /* dict2D.h in Headers */,
 				4A025F5C25E60BBA005AA1A3 /* DCMcharset.h in Headers */,
 				4A44192B25EC4A490091495B /* B64.h in Headers */,
+				4A025F6325E60BE0005AA1A3 /* ODLog.h in Headers */,
+				4A025F6425E60BE0005AA1A3 /* utils.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

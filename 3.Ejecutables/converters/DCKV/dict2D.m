@@ -139,7 +139,7 @@ int dict2D(NSDictionary *attrs, NSMutableData *data)
                 {
                    NSString *ep=[key substringWithRange:NSMakeRange(key.length-6,4)];//encoding prefix
                    int i=0;
-                   while (![encodingPrefixString[i] isEqualToString:ep] && (i < encodingTotal)) i++;
+                   while (![evr[i] isEqualToString:ep] && (i < encodingTotal)) i++;
                    if (i== encodingTotal)
                    {
                       LOG_ERROR(@"bad key encoding prefix '%@' in  %@",ep,key);
@@ -171,7 +171,7 @@ int dict2D(NSDictionary *attrs, NSMutableData *data)
                {
                   NSString *ep=[key substringWithRange:NSMakeRange(key.length-6,4)];//encoding prefix
                   int i=0;
-                  while (![encodingPrefixString[i] isEqualToString:ep] && (i < encodingTotal)) i++;
+                  while (![evr[i] isEqualToString:ep] && (i < encodingTotal)) i++;
                   if (i== encodingTotal)
                   {
                      LOG_ERROR(@"bad key encoding prefix '%@' in  %@",ep,key);
@@ -207,7 +207,7 @@ int dict2D(NSDictionary *attrs, NSMutableData *data)
               {
                  NSString *ep=[key substringWithRange:NSMakeRange(key.length-6,4)];//encoding prefix
                  int i=0;
-                 while (![encodingPrefixString[i] isEqualToString:ep] && (i < encodingTotal)) i++;
+                 while (![evr[i] isEqualToString:ep] && (i < encodingTotal)) i++;
                  if (i== encodingTotal)
                  {
                     LOG_ERROR(@"bad key encoding prefix '%@' in  %@",ep,key);
@@ -246,7 +246,7 @@ int dict2D(NSDictionary *attrs, NSMutableData *data)
                {
                   NSString *ep=[key substringWithRange:NSMakeRange(key.length-6,4)];//encoding prefix
                   int i=0;
-                  while (![encodingPrefixString[i] isEqualToString:ep] && (i < encodingTotal)) i++;
+                  while (![evr[i] isEqualToString:ep] && (i < encodingTotal)) i++;
                   if (i== encodingTotal)
                   {
                      LOG_ERROR(@"bad key encoding prefix '%@' in  %@",ep,key);
@@ -288,7 +288,7 @@ int dict2D(NSDictionary *attrs, NSMutableData *data)
                {
                   NSString *ep=[key substringWithRange:NSMakeRange(key.length-6,4)];//encoding prefix
                   int i=0;
-                  while (![encodingPrefixString[i] isEqualToString:ep] && (i < encodingTotal)) i++;
+                  while (![evr[i] isEqualToString:ep] && (i < encodingTotal)) i++;
                   if (i== encodingTotal)
                   {
                      LOG_ERROR(@"bad key encoding prefix '%@' in  %@",ep,key);
@@ -332,7 +332,7 @@ int dict2D(NSDictionary *attrs, NSMutableData *data)
                   for (int j=0; j < eps.length / 4; j++)
                   {
                      NSString *ep=[eps substringWithRange:NSMakeRange(j*4,4)];
-                     while (![encodingPrefixString[encodingIndexes[j]] isEqualToString:ep] && (encodingIndexes[j] < encodingTotal)) encodingIndexes[j]++;
+                     while (![evr[encodingIndexes[j]] isEqualToString:ep] && (encodingIndexes[j] < encodingTotal)) encodingIndexes[j]++;
                      if (encodingIndexes[j] == encodingTotal)
                      {
                         LOG_ERROR(@"bad key encoding prefix '%@' in  %@",ep,key);

@@ -3,9 +3,9 @@
 
 #pragma mark - terminal execution
 
-//void logger(NSString *format, ... );
-int execTask(NSDictionary *environment, NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutableData *readData);
+void DCKVkeysindexing(uint32 **bufTag, uint32 **bufIdx, NSRange **datasetRanges, NSArray *DCKVkeys, BOOL alreadySorted);
 
+void DCKVkeyindex(uint32 **bufTag, uint32 **bufIdx, uint32 **datasetOffsets, NSString *DICOMwebKey);
 
 #pragma mark - string functions
 

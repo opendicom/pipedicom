@@ -22,42 +22,143 @@ void logger(NSString *format, ... )
 }
 */
 
-int execTask(NSDictionary *environment, NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutableData *readData)
+NSString *tagChainFromDCKVkey(NSString *DCKVkey)
 {
-   NSTask *task=[[NSTask alloc]init];
-   
-   task.environment=environment;
-   
-   [task setLaunchPath:launchPath];
-   [task setArguments:launchArgs];
-   NSPipe *writePipe = [NSPipe pipe];
-   NSFileHandle *writeHandle = [writePipe fileHandleForWriting];
-   [task setStandardInput:writePipe];
-   
-   NSPipe* readPipe = [NSPipe pipe];
-   NSFileHandle *readingFileHandle=[readPipe fileHandleForReading];
-   [task setStandardOutput:readPipe];
-   [task setStandardError:readPipe];
-   
-   [task launch];
-   [writeHandle writeData:writeData];
-   [writeHandle closeFile];
-   
-   NSData *dataPiped = nil;
-   while((dataPiped = [readingFileHandle availableData]) && [dataPiped length])
-   {
-      [readData appendData:dataPiped];
-   }
-   //while( [task isRunning]) [NSThread sleepForTimeInterval: 0.1];
-   //[task waitUntilExit];      // <- This is VERY DANGEROUS : the main runloop is continuing...
-   //[aTask interrupt];
-   
-   [task waitUntilExit];
-   int terminationStatus = [task terminationStatus];
-   return terminationStatus;
+   if (DCKVkey.length < 21) return [DCKVkey substringWithRange:NSMakeRange(9,8)];
+   if (DCKVkey.length < 41) return
+      [
+       [DCKVkey substringWithRange:NSMakeRange(9,8)]
+       stringByAppendingString:
+       [DCKVkey substringWithRange:NSMakeRange(29,8)]
+       ];
+   if (DCKVkey.length < 61) return
+      [
+        [DCKVkey substringWithRange:NSMakeRange(9,8)]
+        stringByAppendingString:
+        [
+         [DCKVkey substringWithRange:NSMakeRange(29,8)]
+          stringByAppendingString:
+           [DCKVkey substringWithRange:NSMakeRange(49,8)]
+        ]
+      ];
+   if (DCKVkey.length < 81) return
+      [
+        [DCKVkey substringWithRange:NSMakeRange(9,8)]
+        stringByAppendingString:
+        [
+         [DCKVkey substringWithRange:NSMakeRange(29,8)]
+          stringByAppendingString:
+         [
+           [DCKVkey substringWithRange:NSMakeRange(49,8)]
+           stringByAppendingString:
+            [DCKVkey substringWithRange:NSMakeRange(69,8)]
+         ]
+      ]
+   ];
+
+   return @"deeperThanFour";
 }
 
+/*
+NSMutableData* decodedData = [NSMutableData dataWithLength:10];
+uint32 *decodedChars = (uint32*)decodedData.mutableBytes;
 
+uint32 bufLength=sopDict.count * 4;
+NSMutableData *bufTagData=[NSMutableData dataWithLength:bufLength];
+uint32 *bufTag=(uint32*)bufTagData.mutableBytes;
+
+NSMutableData *bufIdxData=[NSMutableData dataWithLength:bufLength];
+uint32 *bufIdx=(uint32*)bufIdxData.mutableBytes;
+
+NSRange *datasetRanges[sopDict.count / 10];
+
+
+void nextKey(
+             uint32 **bufTag,
+             uint32 **bufIdx,
+             NSRange **datasetRanges,
+             uint32 datasetIdx,
+             NSString *previousTagChain,
+             NSArray *DCKVkeys,
+             uint32 keyIdx
+             )
+{
+   if (keyIdx < DCKVkeys.count)
+   {
+      //get TagChain
+      NSString *newTagChain=tagChainFromDCKVkey(DCKVkeys[keyIdx]);
+      
+      if (previousTagChain.length == newTagChain.length)
+      {
+         //same level
+         if ([DCKVkeys[keyIdx] hasSuffix:@"SQ"])
+         {
+            
+         }
+         else if ([DCKVkeys[keyIdx] hasSuffix:@"IZ"])
+         {
+            //end of an item
+         }
+         else
+         {
+            //just another attribute of the item
+            
+            // datasetIdx does not change (we are in the same item)
+            NSRange thisDatasetRange=*datasetRanges[datasetIdx];
+            // -> bufTag and bufIdx
+            *bufTag[thisDatasetRange.length]=(uint32)[[newTagChain substringWithRange:NSMakeRange(newTagChain.length - 8,8)] longLongValue];
+            *bufIdx[thisDatasetRange.length]=keyIdx;
+            
+            thisDatasetRange.length++;
+            keyIdx++;
+         }
+      }
+      else //always higher level (see algorithm below for lower level)
+      {
+         
+      }
+   }
+}
+
+void DCKVkeysindexing(
+   uint32 **bufTag,
+   uint32 **bufIdx,
+   NSRange **datasetRanges,
+   NSArray *DCKVkeys,
+   BOOL alreadySorted
+)
+{
+   NSLog(@"DCKVkeysindexing");
+   //fills up buf and datasetOffsets
+   
+   //buf size is DCKVkeys.count
+   //contains lists of
+   //datasetOffsets is larger than necesary (for istancde DCKVkeys.count / 10)
+   
+   NSArray *array;
+   if (alreadySorted) array=DCKVkeys;
+   else array=[DCKVkeys sortedArrayUsingSelector:@selector(compare:)];
+   
+   *datasetRanges[0]=NSMakeRange(0,0);
+   nextKey(
+           bufTag,
+           bufIdx,
+           datasetRanges,
+           0,
+           @"00000000-00",
+           DCKVkeys,
+           0
+           );
+
+
+}
+
+void DCKVkeyindex(uint32 **bufTag, uint32 **bufIdx, uint32 **datasetOffsets, NSString *DICOMwebKey)
+{
+   NSLog(@"DCKVkeyindex");
+}
+
+*/
 
 #pragma mark - string functions
 

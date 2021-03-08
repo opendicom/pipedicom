@@ -166,7 +166,7 @@ NSUInteger D2J(
                         i=0;
                      }
                      vrCharsetUint16New += i * nextFiveBits;
-                     [vrCharsetPrefixNew appendString:encodingPrefixString[i]];
+                     [vrCharsetPrefixNew appendString:evr[i]];
                      nextFiveBits*=32;
                   }
                }

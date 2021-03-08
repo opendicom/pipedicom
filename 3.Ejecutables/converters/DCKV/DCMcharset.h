@@ -108,7 +108,7 @@ TIS 620-2533 (1990) Thai Characters Code for Information Interchange
 
 
 extern const NSUInteger encodingTotal;
-extern NSString *encodingPrefixString[];
+extern NSString *evr[];
 extern NSString *encodingCS[];
 extern uint64 encodingPrefixuint64[];
 extern NSUInteger encodingNS[];
