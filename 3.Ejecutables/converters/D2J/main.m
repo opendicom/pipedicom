@@ -2,9 +2,9 @@
 #import "ODLog.h"
 #import "D2dict.h"
 
-//D2J [originalPath]
+//D2J [$originalPath | test $testName]
 //stdin binary dicom
-//stdout mapxmldicom JSON (DICOM_contextualizedKey-values)
+//stdout DCKV JSON (DICOM_contextualizedKey-values)
 //https://raw.githubusercontent.com/jacquesfauquex/DICOM_contextualizedKey-values/master/mapxmldicom/mapxmldicom.xsd
 
 
@@ -51,7 +51,7 @@ int main(int argc, const char * argv[]) {
 
 
          default:
-            NSLog(@"syntaxis: D2J [originalPath | test testName]");
+            NSLog(@"syntaxis: D2J [$originalPath | test $testName]");
             return 1;
       }
 
@@ -71,24 +71,33 @@ int main(int argc, const char * argv[]) {
       
 #pragma mark D2JlogPath (only in /Volumes/LOG)
       NSString *logPath=environment[@"D2JlogPath"];
+       
       if (logPath && [logPath hasPrefix:@"/Volumes/LOG"])
       {
-         //TODO eventually create subfolder containing log file
-         if ([logPath hasSuffix:@".log"])
-            freopen([logPath cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
-         else freopen([[logPath stringByAppendingPathExtension:@".log"] cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
+          BOOL isDirectory=false;
+          if ([fileManager fileExistsAtPath:[logPath stringByDeletingLastPathComponent] isDirectory:&isDirectory] && isDirectory)
+          {
+              if ([logPath hasSuffix:@".log"])
+                  freopen([logPath cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
+              else freopen([[logPath stringByAppendingPathExtension:@".log"] cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
+          }
+          else
+          {
+              LOG_ERROR(@"bad log path (dir does not exist): %@",logPath);
+              exit(1);
+          }
       }
       else if ([fileManager fileExistsAtPath:@"/Volumes/LOG"]) freopen([@"/Volumes/LOG/D2J.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
       else freopen([@"/Users/Shared/D2J.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
 
 
 #pragma mark D2JrelativePathComponents
-      NSUInteger relativePathComponents=0;//new UUID name
+      NSUInteger relativePathComponents=0;// -> new UUID name
       NSString *relativePathComponentsString=environment[@"D2JrelativePathComponents"];
       if (relativePathComponentsString)
       {
          relativePathComponents=relativePathComponentsString.intValue;
-         if ((relativePathComponents==INT_MIN) || (relativePathComponents==INT_MAX)) relativePathComponents=0;
+         if ((relativePathComponents==INT_MIN) || (relativePathComponents==INT_MAX)) relativePathComponents=0; //not found
       }
 
 #pragma mark D2JbyRefToOriginalMinSize

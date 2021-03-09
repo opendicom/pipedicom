@@ -4,19 +4,41 @@
 
 //D2M
 //stdin binary dicom
-//stdout mapxmldicom xml (DICOM_contextualizedKey-values)
+//stdout DCKV xml (DICOM_contextualizedKey-values)
 //https://raw.githubusercontent.com/jacquesfauquex/DICOM_contextualizedKey-values/master/mapxmldicom/mapxmldicom.xsd
 
 
 int main(int argc, const char * argv[]) {
    @autoreleasepool {
 
+      NSFileManager *fileManager=[NSFileManager defaultManager];
       NSProcessInfo *processInfo=[NSProcessInfo processInfo];
-      
-#pragma marks environment
-
       NSDictionary *environment=processInfo.environment;
+       
+      NSString *originalPath;
+      NSData *inputData;
       
+      NSString *D2MtestName=environment[@"D2Mtest"];
+       
+      if (D2MtestName)
+      {
+         NSString *testPath;
+         if ([fileManager fileExistsAtPath:[@"~/Library/Frameworks/DCKV.framework"stringByExpandingTildeInPath]]) testPath=[[@"~/Library/Frameworks/DCKV.framework/Resources/"stringByExpandingTildeInPath]stringByAppendingPathComponent:D2MtestName];
+         else testPath=[@"/Library/Frameworks/DCKV.framework/Resources/"stringByAppendingPathComponent:D2MtestName];
+         if ([fileManager fileExistsAtPath:testPath]) inputData=[NSData dataWithContentsOfFile:testPath];
+         originalPath=[@"D2Mtest" stringByAppendingPathComponent:D2MtestName];
+      }
+      else
+      {
+         NSMutableData *concatenateData=[NSMutableData data];
+         NSFileHandle *readingFileHandle=[NSFileHandle fileHandleWithStandardInput];
+         NSData *moreData;
+         while ((moreData=[readingFileHandle availableData]) && moreData.length) [concatenateData appendData:moreData];
+         inputData=[NSData dataWithData:concatenateData];
+       }
+
+    
+#pragma mark D2MlogLevel
       if (environment[@"D2MlogLevel"])
       {
          NSUInteger logLevel=[@[@"DEBUG",@"VERBOSE",@"INFO",@"WARNING",@"ERROR",@"EXCEPTION"] indexOfObject:environment[@"D2MlogLevel"]];
@@ -26,43 +48,65 @@ int main(int argc, const char * argv[]) {
       else ODLogLevel=4;//ERROR (default)
       
       
-      //H2XlogPath
+#pragma mark D2MlogPath (only in /Volumes/LOG)
       NSString *logPath=environment[@"D2MlogPath"];
-      if (logPath && ([logPath hasPrefix:@"/Users/Shared"] || [logPath hasPrefix:@"/Volumes/LOG"]))
-      {
-         if ([logPath hasSuffix:@".log"])
-            freopen([logPath cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
-         else freopen([[logPath stringByAppendingPathExtension:@".log"] cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
-      }
-      else freopen([@"/Users/Shared/D2M.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
-      
-      //D2Moutput
-      NSString *D2Moutput=environment[@"D2Moutput"];
-      if (!D2Moutput) D2Moutput=@"/dev/stdout";
+       
+       if (logPath && [logPath hasPrefix:@"/Volumes/LOG"])
+       {
+           BOOL isDirectory=false;
+           if ([fileManager fileExistsAtPath:[logPath stringByDeletingLastPathComponent] isDirectory:&isDirectory] && isDirectory)
+           {
+               if ([logPath hasSuffix:@".log"])
+                   freopen([logPath cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
+               else freopen([[logPath stringByAppendingPathExtension:@".log"] cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
+           }
+           else
+           {
+               LOG_ERROR(@"bad log path (dir does not exist): %@",logPath);
+               exit(1);
+           }
+       }
+       else if ([fileManager fileExistsAtPath:@"/Volumes/LOG"]) freopen([@"/Volumes/LOG/D2M.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
+       else freopen([@"/Users/Shared/D2M.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
 
-      //D2MtestPath
-      NSData *data=nil;
-      NSString *testPath=environment[@"D2MtestPath"];
-      if (testPath) data=[NSData dataWithContentsOfFile:testPath];
-      else data = [[NSFileHandle fileHandleWithStandardInput] availableData];
+       
+#pragma mark D2MrelativePathComponents
+       NSUInteger relativePathComponents=0;// -> new UUID name
+       NSString *relativePathComponentsString=environment[@"D2MrelativePathComponents"];
+       if (relativePathComponentsString)
+       {
+           relativePathComponents=relativePathComponentsString.intValue;
+           if ((relativePathComponents==INT_MIN) || (relativePathComponents==INT_MAX)) relativePathComponents=0;//not found
+       }
+       
+#pragma mark D2MbyRefToOriginalMinSize
+       long long minSize=LONG_LONG_MAX;
+       NSString *minSizeString=environment[@"D2MbyRefToOriginalMinSize"];
+       if (minSizeString)
+       {
+           minSize=minSizeString.longLongValue;
+           if ((minSize==0) || (minSize==LONG_LONG_MIN)) minSize=LONG_LONG_MAX;
+       }
+       
+       LOG_DEBUG(@"environment:\r%@",[environment description]);
       
-      LOG_DEBUG(@"environment:\r%@",[environment description]);
-      
-#pragma mark in out
-      NSXMLElement *root=[NSXMLElement elementWithName:@"map"];
-      [root addNamespace:[NSXMLNode namespaceWithName:@"" stringValue:@"http://www.w3.org/2005/xpath-functions"]];
+#pragma mark - xml map, root, document
       NSXMLElement *map=[NSXMLElement elementWithName:@"map"];
-      [root addChild:map];
       [map addAttribute:[NSXMLNode attributeWithName:@"key"stringValue:@"dataset"]];
 
-      if (D2xml(data,map))
+      if (D2xml(inputData,map))
       {
+          //root node
+          NSXMLElement *root=[NSXMLElement elementWithName:@"map"];
+          [root addNamespace:[NSXMLNode namespaceWithName:@"" stringValue:@"http://www.w3.org/2005/xpath-functions"]];
+          [root addChild:map];
 
-         NSXMLDocument *xmlDocument=[[NSXMLDocument alloc] initWithRootElement:root];
-         [xmlDocument setCharacterEncoding:@"UTF-8"];
-         [xmlDocument setVersion:@"1.0"];
+          //document
+          NSXMLDocument *xmlDocument=[[NSXMLDocument alloc] initWithRootElement:root];
+          [xmlDocument setCharacterEncoding:@"UTF-8"];
+          [xmlDocument setVersion:@"1.0"];
 
-#pragma marks args
+#pragma mark args xslt
          
          NSArray *args=processInfo.arguments;
          NSUInteger argscount=args.count;
@@ -95,8 +139,8 @@ int main(int argc, const char * argv[]) {
             [xmlDocument setRootElement:[result rootElement]];
          }
          if ([result isMemberOfClass:[NSXMLDocument class]])
-            [[result XMLData] writeToFile:D2Moutput atomically:NO];
-         else [result writeToFile:D2Moutput atomically:NO];
+            [[result XMLData] writeToFile:@"/dev/stdout" atomically:NO];
+         else [result writeToFile:@"/dev/stdout" atomically:NO];
       }
    }//end autorelease pool
    return 0;

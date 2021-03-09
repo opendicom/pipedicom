@@ -224,6 +224,8 @@
 				4ABE45AC25C87F610072B84E /* dict2D.m */,
 				4A025EA625E593E0005AA1A3 /* D2dict.m */,
 				4A025EAF25E5944E005AA1A3 /* D2dict.h */,
+				4A025EBC25E5A1DE005AA1A3 /* D2xml.h */,
+				4A025EBD25E5A21B005AA1A3 /* D2xml.m */,
 			);
 			path = DCKV;
 			sourceTree = "<group>";
@@ -289,8 +291,6 @@
 			children = (
 				4AAE863B25C029BA00117D26 /* README.md */,
 				4A42610525A73C6B001E0B52 /* main.m */,
-				4A025EBC25E5A1DE005AA1A3 /* D2xml.h */,
-				4A025EBD25E5A21B005AA1A3 /* D2xml.m */,
 			);
 			path = D2M;
 			sourceTree = "<group>";
@@ -406,9 +406,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				4A025F3F25E5C455005AA1A3 /* DCKV.h in Headers */,
-				4A025F6525E60BE0005AA1A3 /* D2xml.h in Headers */,
 				4A025F6625E60BE0005AA1A3 /* D2dict.h in Headers */,
 				4A025F6725E60BE0005AA1A3 /* dict2D.h in Headers */,
+				4A025F6525E60BE0005AA1A3 /* D2xml.h in Headers */,
 				4A025F5C25E60BBA005AA1A3 /* DCMcharset.h in Headers */,
 				4A44192B25EC4A490091495B /* B64.h in Headers */,
 				4A025F6325E60BE0005AA1A3 /* ODLog.h in Headers */,
@@ -629,9 +629,9 @@
 				4A025F8725E60CCA005AA1A3 /* ODLog.m in Sources */,
 				4A025F8825E60CCA005AA1A3 /* utils.m in Sources */,
 				4A44192A25EC4A490091495B /* B64.m in Sources */,
-				4A025F8925E60CCA005AA1A3 /* D2xml.m in Sources */,
 				4A025F8A25E60CCA005AA1A3 /* D2dict.m in Sources */,
 				4A025F8B25E60CCA005AA1A3 /* dict2D.m in Sources */,
+				4A025F8925E60CCA005AA1A3 /* D2xml.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
