@@ -12,9 +12,6 @@
 #import "ODLog.h"
 #import "B64.h"
 
-const int success=1;
-const int failure=0;
-
 NSString *key(
    NSString *branch,
    uint32 tag,

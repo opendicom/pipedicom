@@ -8,5 +8,10 @@
 #ifndef D2xml_h
 #define D2xml_h
 
-int D2xml(NSData *data, NSXMLElement *xml);
+int D2xml(
+          NSData *data,
+          NSXMLElement *xml,
+          NSString *originalPath,
+          long long minSize
+          );
 #endif /* D2xml_h */

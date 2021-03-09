@@ -763,7 +763,12 @@ NSUInteger D2M(
 }
 
 
-int D2xml(NSData *data, NSXMLElement *xml)
+int D2xml(
+          NSData *data,
+          NSXMLElement *xml,
+          NSString *originalPath,
+          long long minSize
+          )
 {
    if (data.length <10)
    {

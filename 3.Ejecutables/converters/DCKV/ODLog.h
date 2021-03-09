@@ -1,5 +1,10 @@
 #import <Foundation/Foundation.h>
 
+typedef NS_ENUM(int, result) {
+   failure=0,
+   success
+};
+
 //DEBUG          sql query + sql answer + client ip:port
 //VERBOSE        sql query
 //INFO           service invocación

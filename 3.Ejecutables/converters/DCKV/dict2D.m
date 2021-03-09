@@ -19,8 +19,6 @@
 #import "DCMcharset.h"
 #import "NSData+DCMmarkers.h"
 
-const int success=1;
-const int failure=0;
 
 static uint8 paddingspace=' ';
 static uint8 paddingzero=0;

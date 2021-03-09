@@ -94,7 +94,7 @@ int main(int argc, const char * argv[]) {
       NSXMLElement *map=[NSXMLElement elementWithName:@"map"];
       [map addAttribute:[NSXMLNode attributeWithName:@"key"stringValue:@"dataset"]];
 
-      if (D2xml(inputData,map))
+      if (D2xml(inputData,map,@"originalPath",minSize))
       {
           //root node
           NSXMLElement *root=[NSXMLElement elementWithName:@"map"];
