@@ -1,41 +1,43 @@
 # Converters
 
-Using DCKV (Dicom Contextualized-Key Values) , each parsing results in a map of keyed arrays in memory. The  map corresponds to the dataset. Each key is made of the tags of the attribute and its context. Each array correponding to a key contains zero or more values of the attribute.
+DCKV (Dicom Contextualized-Key Values) may be used  for parsing. This results to a map of keyed arrays in memory. The  map corresponds to the dataset. On the one hand, each key is concatenation of the tag of the attribute and the tags of its context. On the other hand, each array contains zero or more values for the attribute.
 
-This simple object is fastly serialized into JSON files where map and array are the two structuring artefacts. JSON (and better for binary contents BSON) are our preferred file formats for DICOM.
+This simple object in memory may be fastly serialized into JSON file where map and array are the two structuring artefacts. JSON - and BSON, similar but better for binary contents - are our preferred file formats for DICOM.
 
-From JSON map of array, there is a standard translation to a corresponding construct in XML thanks to the XPath3.1 json2xml() function.
+From JSON map of array, there exists a standard translation into a corresponding construct in XML thanks to the XPath3.1 json2xml() function.
 
-## Parsing from DICOM to map of array
-The corresponding function "D2dict" is found in the framework DCKV. Can be used by other programs by linking to the framework.
+## "D2dict": parsing from DICOM to map of array
+The function "D2dict" is found in the framework DCKV. It can be used by other programs by linking to the framework.
 
-### Serializing into JSON of the parsing
-"D2J" is a terminal utility using the framework DCKV. D2J supports input streaming of DICOM and output streaming of JSON.
+### "D2J": serializing into JSON of the parsing
+"D2J" is a terminal utility using the framework DCKV to convert a dataset from the DICOM binary into the JSON representations. "D2J" supports DICOM input streaming and JSON output streaming.
 
-## Serializing from map of array to DICOM
-"dict2D" is found in the framework DCKV. Can be used by other programs by linking to the framework.
+## "dict2D": serializing from map of array to DICOM
+The function "dict2D" is found in the framework DCKV. It can be used by other programs by linking to the framework.
 
-### Serializing from JSON to DICOM
-When the serialization starts with a JSON file or stream, J2D is the terminal utility using the framework DCKV and doing this job.
+### "J2D": serializing from JSON to DICOM
+"J2D" is a terminal utility using the framework DCKV to convert a  dataset from the JSON into the DICOM binary representations. "J2D" supports JSON input streaming and DICOM output streaming.
 
 ## Round trip
-Applying succesively D2J and J2D, we obtain a round trip which is equivalent to identity.
+Applying succesively "D2J" and "J2D", we obtain a round trip which is equivalent to identity.
 
-The same round trip can be performed with the tools dcm2json and json2dcm of dcm4che toolkit. 
+The same round trip can be performed with the tools dcm2json and json2dcm of the dcm4che toolkit. 
 
-Both our and dcm4chee toolkits offer the pointers to binary data by uri alternative (in replacement of the inefficiant inline base64 data). This means a fair comparison of the performance is posible.
+Both our and dcm4chee toolkits offer the option of pointing to binary data by uri  (in replacement of the inefficiant inline base64 data). We use this option on both sides for a fair comparison of the performance of dataset processing.
 
 ```
-jf-6:bin jacquesfauquex$ export start=$(gdate +%s.%N);./dcm2json /Volumes/GITHUB/pipedicom/3.Ejecutables/converters/Formats/D/FluroWithDisplayShutter.dcm | ./json2dcm -j - -o /Users/Shared/dcm4che.dcm; export stop=$(gdate +%s.%N); echo "$stop - $start" | bc
-.425010000
+export start=$(gdate +%s.%N); \
+dcm2json dataset.dcm | json2dcm -j - -o dcm4che_dataset.dcm; \
+export stop=$(gdate +%s.%N); \
+echo "$stop - $start" | bc
 
-jf-6:Debug jacquesfauquex$ export start=$(gdate +%s.%N);./D2J /Volumes/GITHUB/pipedicom/3.Ejecutables/converters/Formats/D/FluroWithDisplayShutter.dcm | ./J2D > /Users/Shared/a.dcm; export stop=$(gdate +%s.%N); echo "$stop - $start" | bc
-.041595000
+->   .425010000
+
+export start=$(gdate +%s.%N); \
+D2J dataset.dcm | J2D > DCKV_dataset.dcm; \
+export stop=$(gdate +%s.%N); \
+echo "$stop - $start" | bc
+
+->   .041595000
 ```
-In our tests, our toolkit for the round trip to and from JSON is near ten times faster.
-
-
-## Parsing from DICOM to NSXML
-Alternatively, the framework DCKV also provides a parser directly to NSXMLElement of the objective-C lenguage including the aplication of n XSLT stylesheets. The final results of these transformations can be any media type of an XSLT output, including our "J" JSON output, and an opcional additional step converting JSON 2 a final DICOM result
-
-
+The test shows that our toolkit for the round trip is near ten times faster.

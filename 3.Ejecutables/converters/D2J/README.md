@@ -1,6 +1,6 @@
 # D2J
 
-Dicom binary to JSON mapxmldicom
+DICOM binary to DCKV JSON
 
 ## Environment
 Apart from eventual parameters for the application of xslt transformations, the executable also looks for:
