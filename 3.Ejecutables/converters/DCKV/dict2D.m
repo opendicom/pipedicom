@@ -19,6 +19,9 @@
 #import "DCMcharset.h"
 #import "NSData+DCMmarkers.h"
 
+const int success=1;
+const int failure=0;
+
 static uint8 paddingspace=' ';
 static uint8 paddingzero=0;
 static uint16 vl0=0;
@@ -143,7 +146,7 @@ int dict2D(NSDictionary *attrs, NSMutableData *data)
                    if (i== encodingTotal)
                    {
                       LOG_ERROR(@"bad key encoding prefix '%@' in  %@",ep,key);
-                      return 0;//bad
+                      return failure;
                    }
                    else
                    {
@@ -175,7 +178,7 @@ int dict2D(NSDictionary *attrs, NSMutableData *data)
                   if (i== encodingTotal)
                   {
                      LOG_ERROR(@"bad key encoding prefix '%@' in  %@",ep,key);
-                     return 0;//bad
+                     return failure;
                   }
                   else
                   {
@@ -211,7 +214,7 @@ int dict2D(NSDictionary *attrs, NSMutableData *data)
                  if (i== encodingTotal)
                  {
                     LOG_ERROR(@"bad key encoding prefix '%@' in  %@",ep,key);
-                    return 0;//bad
+                    return failure;
                  }
                  else
                  {
@@ -250,7 +253,7 @@ int dict2D(NSDictionary *attrs, NSMutableData *data)
                   if (i== encodingTotal)
                   {
                      LOG_ERROR(@"bad key encoding prefix '%@' in  %@",ep,key);
-                     return 0;//bad
+                     return failure;
                   }
                   else
                   {
@@ -292,7 +295,7 @@ int dict2D(NSDictionary *attrs, NSMutableData *data)
                   if (i== encodingTotal)
                   {
                      LOG_ERROR(@"bad key encoding prefix '%@' in  %@",ep,key);
-                     return 0;//bad
+                     return failure;
                   }
                   else
                   {
@@ -336,7 +339,7 @@ int dict2D(NSDictionary *attrs, NSMutableData *data)
                      if (encodingIndexes[j] == encodingTotal)
                      {
                         LOG_ERROR(@"bad key encoding prefix '%@' in  %@",ep,key);
-                        return 0;//bad
+                        return failure;
                      }
                   }
                   
@@ -671,10 +674,10 @@ int dict2D(NSDictionary *attrs, NSMutableData *data)
                    LOG_ERROR(@"vr: %d", vr);
                    LOG_ERROR(@"ERROR4: unknown VR");
                    [data setLength:0];
-                   return 0;//bad
+                   return failure;
                }
             }
         }
     }
-    return 1;//completed
+   return success;
 }

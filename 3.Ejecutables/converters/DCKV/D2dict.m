@@ -12,6 +12,8 @@
 #import "ODLog.h"
 #import "B64.h"
 
+const int success=1;
+const int failure=0;
 
 NSString *key(
    NSString *branch,
@@ -832,7 +834,7 @@ int D2dict(
    if (data.length <10)
    {
       LOG_WARNING(@"dicom binary data too small");
-      return 0;//error
+      return failure;
    }
 
    unsigned short *shorts=(unsigned short*)[data bytes];
@@ -868,7 +870,7 @@ int D2dict(
    if (index < (data.length -1) / 2)
    {
       LOG_ERROR(@"parsing until index %lu",index * 2);
-      return 0;//error
+      return failure;
    }
-   return 1;//completed
+   return success;
 }
