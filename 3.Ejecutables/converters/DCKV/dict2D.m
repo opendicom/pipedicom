@@ -668,8 +668,8 @@ int dict2D(NSDictionary *attrs, NSMutableData *data)
                default://ERROR unknow VR
                {
 #pragma mark ERROR4: unknown VR
-                   NSLog(@"vr: %d", vr);
-                   NSLog(@"ERROR4: unknown VR");
+                   LOG_ERROR(@"vr: %d", vr);
+                   LOG_ERROR(@"ERROR4: unknown VR");
                    [data setLength:0];
                    return 0;//bad
                }

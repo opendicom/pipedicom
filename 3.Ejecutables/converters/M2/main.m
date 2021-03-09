@@ -68,7 +68,7 @@ int main(int argc, const char * argv[]) {
             xmlDocument=[[NSXMLDocument alloc] initWithData:data options:0 error:&error];
             if (error)
             {
-               NSLog(@"Error 1 reading M xml document");
+               LOG_ERROR(@"Error 1 reading M xml document");
                exit(1);
             }
             xslt1Paths =[args subarrayWithRange:NSMakeRange(1, argscount-1)];

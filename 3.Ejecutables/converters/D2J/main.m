@@ -119,7 +119,7 @@ int main(int argc, const char * argv[]) {
 #pragma mark loop on ordered keys
          for (NSString *key in keys)
          {
-            NSLog(@"%@",key);
+            LOG_DEBUG(@"%@",key);
             [JSONstring appendFormat:@"\"%@\": ",key];
             
             switch ([key characterAtIndex:key.length-2]+([key characterAtIndex:key.length-1]*0x100))

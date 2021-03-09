@@ -388,7 +388,7 @@ NSUInteger D2J(
             else if (nexttag!=0xffffffff) //SQ with defined length
             {
 #pragma mark SQ defined length
-               NSLog(@"ERROR1: SQ with defined length. NOT IMPLEMENTED YET");
+               LOG_ERROR(@"ERROR1: SQ with defined length. NOT IMPLEMENTED YET");
                exit(1);
             }
             else //SQ with feff0dde end tag
@@ -414,7 +414,7 @@ NSUInteger D2J(
                      else if (itemlength!=0xffffffff)
                      {
 #pragma mark IT defined length
-                        NSLog(@"ERROR3: item with defined length. NOT IMPLEMENTED");
+                        LOG_ERROR(@"ERROR3: item with defined length. NOT IMPLEMENTED");
                         exit(3);
                      }
                      else
@@ -807,8 +807,8 @@ NSUInteger D2J(
          default://ERROR unknow VR
          {
 #pragma mark ERROR4: unknown VR
-            NSLog(@"vr: %d", vr);
-            NSLog(@"ERROR4: unknown VR");
+            LOG_ERROR(@"vr: %d", vr);
+            LOG_ERROR(@"ERROR4: unknown VR");
             exit(4);
             break;
          }

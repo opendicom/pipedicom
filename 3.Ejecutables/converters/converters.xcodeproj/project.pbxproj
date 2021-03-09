@@ -613,7 +613,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = "/bin/sh ";
-			shellScript = "rm -rf /Users/pcs/Library/Frameworks/DCKV.framework\ncp -R $BUILD_ROOT/Debug/DCKV.framework ~/Library/Frameworks/DCKV.framework\n";
+			shellScript = "if [ ! -d ~/Library/Frameworks ]; then\n   mkdir ~/Library/Frameworks;\nfi\nrm -rf ~/Library/Frameworks/DCKV.framework\ncp -R $BUILD_ROOT/Debug/DCKV.framework ~/Library/Frameworks/DCKV.framework\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

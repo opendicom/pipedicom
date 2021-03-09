@@ -224,7 +224,7 @@ NSUInteger parseAttrList(
                      else if (itemlength!=0xffffffff) //item with defined length
                      {
 #pragma mark ERROR3: item defined length
-                        NSLog(@"ERROR3: item with defined length. NOT IMPLEMENTED YET");
+                        LOG_ERROR(@"ERROR3: item with defined length. NOT IMPLEMENTED YET");
                         exit(3);
                      }
                      else //undefined length item
