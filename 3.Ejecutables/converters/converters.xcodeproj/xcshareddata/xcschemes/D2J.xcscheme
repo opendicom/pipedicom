@@ -53,6 +53,10 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "test SCSFREN.dcm"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "test FluroWithDisplayShutter.dcm"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
@@ -64,6 +68,11 @@
          <EnvironmentVariable
             key = "D2JoutputDir"
             value = "/Users/Shared/"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "D2JlogLevel"
+            value = "DEBUG"
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable

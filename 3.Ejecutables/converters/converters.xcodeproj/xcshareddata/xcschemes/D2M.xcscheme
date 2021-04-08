@@ -50,16 +50,31 @@
             ReferencedContainer = "container:converters.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <CommandLineArguments>
+         <CommandLineArgument
+            argument = "test"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "FluroWithDisplayShutter.dcm"
+            isEnabled = "YES">
+         </CommandLineArgument>
+      </CommandLineArguments>
       <EnvironmentVariables>
+         <EnvironmentVariable
+            key = "D2MBulkdataMinSize"
+            value = "100"
+            isEnabled = "YES">
+         </EnvironmentVariable>
          <EnvironmentVariable
             key = "D2MtestPath"
             value = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/testing/D/FluroWithDisplayShutter.dcm"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "D2Moutput"
             value = "/Users/Shared/D2M.xml"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </EnvironmentVariable>
       </EnvironmentVariables>
    </LaunchAction>

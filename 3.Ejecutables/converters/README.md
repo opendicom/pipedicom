@@ -1,8 +1,8 @@
 # Converters
 
-DCKV (Dicom Contextualized-Key Values) may be used  for parsing. This results to a map of keyed arrays in memory. The  map corresponds to the dataset. On the one hand, each key is concatenation of the tag of the attribute and the tags of its context. On the other hand, each array contains zero or more values for the attribute.
+DCKV (Dicom Contextualized-Key Values) may be used  for parsing. This results to a map of keyed arrays in memory. The  map corresponds to the dataset. On the one hand, each key is a concatenation of the tag of the attribute and the tags of its context sequences. On the other hand, each array contains zero or more values for the attribute.
 
-This simple object in memory may be fastly serialized into JSON file where map and array are the two structuring artefacts. JSON - and BSON, similar but better for binary contents - are our preferred file formats for DICOM.
+This fairly simple construct in memory may be fastly serialized into JSON file where map and array are the two structuring artefacts. JSON - and BSON, similar but better for binary contents - are our preferred file formats for DICOM.
 
 From JSON map of array, there exists a standard translation into a corresponding construct in XML thanks to the XPath3.1 json2xml() function.
 

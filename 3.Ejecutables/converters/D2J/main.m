@@ -43,8 +43,11 @@ int main(int argc, const char * argv[]) {
                   NSString *testPath;
                   if ([fileManager fileExistsAtPath:[@"~/Library/Frameworks/DCKV.framework"stringByExpandingTildeInPath]]) testPath=[[@"~/Library/Frameworks/DCKV.framework/Resources/"stringByExpandingTildeInPath]stringByAppendingPathComponent:args[2]];
                   else testPath=[@"/Library/Frameworks/DCKV.framework/Resources/"stringByAppendingPathComponent:args[2]];
-                  if ([fileManager fileExistsAtPath:testPath]) inputData=[NSData dataWithContentsOfFile:testPath];
-                  originalPath=[@"D2Jtest" stringByAppendingPathComponent:args[2]];
+                  if ([fileManager fileExistsAtPath:testPath])
+                  {
+                     inputData=[NSData dataWithContentsOfFile:testPath];
+                     originalPath=testPath;
+                  }
               }
               break;
           }

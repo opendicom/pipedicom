@@ -6,6 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "D2xml.h"
 #import "DCMcharset.h"
 #import "NSData+DCMmarkers.h"
 #import "utils.h"
@@ -87,15 +88,18 @@ NSXMLElement *xmlNull(
 #pragma mark -
 
 NSUInteger D2M(
-                         NSData *data,
-                         unsigned short *shortsBuffer,
-                         NSUInteger shortsIndex,
-                         NSUInteger postShortsIndex,
-                         NSString *branch,
-                         NSXMLElement *xml,
-                         NSString *vrCharsetPrefix,
-                         uint16 vrCharsetUint16
-                         )
+               NSData *data,
+               unsigned short *shortsBuffer,
+               NSUInteger shortsIndex,
+               NSUInteger postShortsIndex,
+               NSString *branch,
+               NSXMLElement *xml,
+               NSString *vrCharsetPrefix,
+               uint16 vrCharsetUint16,
+               long long bulkdataMinSize,
+               NSString *bulkdataUrlTemplate,
+               struct dckRangeVecs bulkdataVecs
+               )
 {
    UInt16 vr;//value representation
    UInt32 tag =   shortsBuffer[shortsIndex  ]
@@ -440,8 +444,11 @@ NSUInteger D2M(
    [branchTag stringByAppendingFormat:@".%08X",itemcounter],
    xml,
    vrCharsetPrefixNew,
-   vrCharsetUint16New
-                                                  );
+   vrCharsetUint16New,
+   bulkdataMinSize,
+   bulkdataUrlTemplate,
+   bulkdataVecs
+   );
 
                         [xml addChild:xmlNull([branchTag stringByAppendingFormat:@".%08X",itemcounter],0xe00dfffe,0x5A49)];//IZ
                      }
@@ -711,9 +718,47 @@ NSUInteger D2M(
             NSXMLElement *xmlElement=xmlArray(branch,tag,vr);
             if (vll)
             {
-               NSString *base64string= [[NSString alloc] initWithData:[[data subdataWithRange:NSMakeRange((shortsIndex+6)*2,vll)]base64EncodedDataWithOptions:0] encoding:NSASCIIStringEncoding];
+               if (vll >= bulkdataMinSize)
+               {
+                  if (bulkdataUrlTemplate)
+                  {
+                     NSString *urlString=[NSString stringWithFormat:bulkdataUrlTemplate,(shortsIndex+6)*2,vll];//@"file:%@?offset=%lu&amp;length=%d",originalPath,(shortsIndex+6)*2,vll];
+                     
+                     NSXMLElement *string=[NSXMLElement elementWithName:@"string" stringValue:urlString];
+                     [string addAttribute:[NSXMLNode attributeWithName:@"key"stringValue:@"BulkData"]];
+                     
+                     NSXMLElement *map=[NSXMLElement elementWithName:@"map"];
+                     [map addChild:string];
+                      
+                     [xmlElement addChild:map];
+                  }
+                  else
+                  {
+                     //create a dckRange in the Vecs
+                     NSString *dck=[[xmlElement attributeForName:@"key"]stringValue];
+                     pushDckRange(bulkdataVecs, dck, (shortsIndex+6)*2, vll);
+                     
+                     
+                     //reference it
+                     NSString *urlString=[NSString stringWithFormat:bulkdataUrlTemplate,dck,(shortsIndex+6)*2,vll];//@"file:%@?offset=%lu&amp;length=%d",originalPath,(shortsIndex+6)*2,vll];
+                     
+                     
+                     //add the corresponding elements in the xml
+                     NSXMLElement *string=[NSXMLElement elementWithName:@"string" stringValue:urlString];
+                     [string addAttribute:[NSXMLNode attributeWithName:@"key"stringValue:@"BulkData"]];
+                     
+                     NSXMLElement *map=[NSXMLElement elementWithName:@"map"];
+                     [map addChild:string];
+                      
+                     [xmlElement addChild:map];
+                  }
+               }
+               else
+               {
+                  NSString *base64string= [[NSString alloc] initWithData:[[data subdataWithRange:NSMakeRange((shortsIndex+6)*2,vll)]base64EncodedDataWithOptions:0] encoding:NSASCIIStringEncoding];
 
-               [xmlElement addChild:[NSXMLElement elementWithName:@"string" stringValue:base64string]];
+                  [xmlElement addChild:[NSXMLElement elementWithName:@"string" stringValue:base64string]];
+               }
             }
             [xml addChild:xmlElement];
 
@@ -766,16 +811,11 @@ NSUInteger D2M(
 int D2xml(
           NSData *data,
           NSXMLElement *xml,
-          NSString *originalPath,
-          long long minSize
+          long long bulkdataMinSize,
+          NSString *bulkdataUrlTemplate,
+          struct dckRangeVecs bulkdataVecs
           )
 {
-   if (data.length <10)
-   {
-      LOG_WARNING(@"dicom binary data too small");
-      return 0;//failed
-   }
-
    unsigned short *shorts=(unsigned short*)[data bytes];
    NSUInteger datasetShortOffset=0;
    NSString *vrCharsetPrefix=nil;
@@ -793,7 +833,9 @@ int D2xml(
       vrCharsetUint16=1;
    }
 
-   NSUInteger index=(D2M(
+   struct dckRangeVecs vecs=newDckRangeVecs(10);
+   
+   NSUInteger index=D2M(
            data,
            shorts,
            datasetShortOffset,
@@ -801,13 +843,16 @@ int D2xml(
            @"00000001",
            xml,
            vrCharsetPrefix,
-           vrCharsetUint16
-           ));
+           vrCharsetUint16,
+           bulkdataMinSize,
+           bulkdataUrlTemplate,
+           vecs
+           );
    if (index < (data.length -1) / 2)
    {
-      LOG_ERROR(@"parsing until index %lu",index * 2);
-      return 0;//error
+      LOG_ERROR(@"parsed until index %lu",index * 2);
+      return failure;
    }
 
-   return 1;//completed
+   return success;
 }
