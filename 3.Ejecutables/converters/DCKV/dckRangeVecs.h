@@ -5,7 +5,7 @@
 
 struct dckRange
 {
-   NSString *dck;
+   __unsafe_unretained NSString *dck;
    NSUInteger loc;
    NSUInteger len;
 };
@@ -14,9 +14,9 @@ struct dckRangeVecs
 {
    NSUInteger vecsSize;
    NSInteger curTop;
-   NSMutableArray *dcks;
-   NSMutableArray *locs;
-   NSMutableArray *lens;
+   __unsafe_unretained NSMutableArray *dcks;
+   __unsafe_unretained NSMutableArray *locs;
+   __unsafe_unretained NSMutableArray *lens;
 };
 struct dckRangeVecs newDckRangeVecs(NSUInteger size);
 
