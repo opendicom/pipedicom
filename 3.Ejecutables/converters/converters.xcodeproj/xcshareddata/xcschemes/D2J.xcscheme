@@ -56,8 +56,12 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "test FluroWithDisplayShutter.dcm"
+            argument = "test FluroWithDisplayShutterj2k.dcm"
             isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "test FluroWithDisplayShutter.dcm"
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "test SCSARAB.dcm"
@@ -76,13 +80,38 @@
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "D2JbyRefToOriginalMinSize"
+            key = "D2JrelativePathComponents"
+            value = "2"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "D2JblobMinSize"
             value = "1000"
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "D2JrelativePathComponents"
-            value = "2"
+            key = "D2JblobMode"
+            value = "blob_inline"
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "D2JblobMode"
+            value = "blob_sourcePointer"
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "D2JblobMode"
+            value = "blob_dict"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "D2JblobRefPrefix"
+            value = ""
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "D2JblobRefSuffix"
+            value = ""
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>

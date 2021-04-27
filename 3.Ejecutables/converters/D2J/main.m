@@ -1,6 +1,5 @@
 #import <Foundation/Foundation.h>
-#import "ODLog.h"
-#import "D2dict.h"
+#import <DCKV/DCKV.h>
 
 //D2J [$originalPath | test $testName]
 //stdin binary dicom
@@ -103,29 +102,70 @@ int main(int argc, const char * argv[]) {
          if ((relativePathComponents==INT_MIN) || (relativePathComponents==INT_MAX)) relativePathComponents=0; //not found
       }
 
-#pragma mark D2JbyRefToOriginalMinSize
-      long long minSize=LONG_LONG_MAX;
-      NSString *minSizeString=environment[@"D2JbyRefToOriginalMinSize"];
-      if (minSizeString)
+#pragma mark D2JblobMinSize
+      long long blobMinSize=LONG_LONG_MAX;
+      NSString *blobMinSizeString=environment[@"D2JblobMinSize"];
+      if (blobMinSizeString)
       {
-         minSize=minSizeString.longLongValue;
-         if ((minSize==0) || (minSize==LONG_LONG_MIN)) minSize=LONG_LONG_MAX;
+         blobMinSize=blobMinSizeString.longLongValue;
+         if ((blobMinSize==0) || (blobMinSize==LONG_LONG_MIN)) blobMinSize=LONG_LONG_MAX;
       }
+      
+#pragma mark D2JblobMode
+      int blobMode=0;//defaults to blob_inline
+      NSString *blobModeString=environment[@"D2JblobMode"];
+      NSMutableDictionary *blobDict=nil;
+
+      if (blobModeString)
+      {
+         if ([blobModeString isEqualToString:@"blob_sourcePointer"]) blobMode=1;
+         else if ([blobModeString isEqualToString:@"blob_dict"])
+         {
+            blobMode=2;
+            blobDict=[NSMutableDictionary dictionary];
+         }
+      }
+
+#pragma mark D2JblobRefPrefix
+      NSString *blobRefPrefix;
+      switch (blobMode) {
+         case blob_inline:
+            blobRefPrefix=environment[@"D2JblobRefPrefix"];
+            break;
+         case blob_sourcePointer:
+            blobRefPrefix=originalPath;
+            break;
+         case blob_dict:
+            if (originalPath) blobRefPrefix=@"";
+            break;
+      }
+
+#pragma mark D2JblobRefSuffix
+      NSString *blobRefSuffix=environment[@"D2JblobRefSuffix"];
+
 
       LOG_DEBUG(@"environment:\r%@",[environment description]);
 
 
 #pragma mark - processing
-      NSMutableDictionary *dict=[NSMutableDictionary dictionary];
-      if (D2dict(inputData, dict, originalPath ,minSize))
+      NSMutableDictionary *attrDict=[NSMutableDictionary dictionary];
+      if (D2dict(
+                 inputData,
+                 attrDict,
+                 blobMinSize,
+                 blobMode,
+                 blobRefPrefix,
+                 blobRefSuffix,
+                 blobDict
+                 )
+          )
       {
          NSError *error;
-
-#pragma mark - serializing
+#pragma mark - JSON serializing
          //NSData *JSONdata=[NSJSONSerialization dataWithJSONObject:@{@"dataset":dict} options:NSJSONWritingSortedKeys error:&error];//10.15 || NSJSONWritingWithoutEscapingSlashes
 
          NSMutableString *JSONstring=[NSMutableString stringWithString:@"{ \"dataset\": { "];
-         NSArray *keys=[[dict allKeys] sortedArrayUsingSelector:@selector(compare:)];
+         NSArray *keys=[[attrDict allKeys] sortedArrayUsingSelector:@selector(compare:)];
          
          
 #pragma mark loop on ordered keys
@@ -156,7 +196,7 @@ int main(int argc, const char * argv[]) {
                case 0x4955://UI
                case 0x5441://AT
                {
-                  switch ([dict[key] count]) {
+                  switch ([attrDict[key] count]) {
                      case 0:
                      {
                         [JSONstring appendString:@"[], "];
@@ -166,14 +206,14 @@ int main(int argc, const char * argv[]) {
                      case 1:
                      {
                         [JSONstring appendFormat:@"[ \"%@\" ], ",
-                         (dict[key])[0]];
+                         (attrDict[key])[0]];
                         break;
                      }
 
                      default:
                      {
                         [JSONstring appendString:@"[ "];
-                        for (NSString *string in dict[key])
+                        for (NSString *string in attrDict[key])
                         {
                            [JSONstring appendFormat:@"\"%@\", ",
                             string];
@@ -198,7 +238,7 @@ int main(int argc, const char * argv[]) {
                case 0x574F://OW
                case 0x4E55://UN
                {
-                  switch ([dict[key] count]) {
+                  switch ([attrDict[key] count]) {
                      case 0:
                      {
                         [JSONstring appendString:@"[], "];
@@ -207,7 +247,7 @@ int main(int argc, const char * argv[]) {
 
                      case 1:
                      {
-                        id obj=(dict[key])[0];
+                        id obj=(attrDict[key])[0];
                         if ([obj isKindOfClass:[NSString class]])
                         {
                            [JSONstring appendFormat:@"[ \"%@\" ], ",
@@ -224,10 +264,10 @@ int main(int argc, const char * argv[]) {
                      default://more than one value
                      {
                         [JSONstring appendString:@"[ "];
-                        id obj=(dict[key])[0];
+                        id obj=(attrDict[key])[0];
                         if ([obj isKindOfClass:[NSString class]])
                         {
-                           for (NSString *string in dict[key])
+                           for (NSString *string in attrDict[key])
                            {
                               [JSONstring appendFormat:@"\"%@\", ",
                                string];
@@ -236,10 +276,8 @@ int main(int argc, const char * argv[]) {
                            [JSONstring appendString:@" ], "];
                         }
                         else //@[@{ @"BulkData":urlString}]
-                        {
-                           [JSONstring appendString:@"[ "];
-                           
-                           for (NSDictionary *d in dict[key])
+                        {                           
+                           for (NSDictionary *d in attrDict[key])
                            {
                               NSString *subKey=([d allKeys])[0];
                               [JSONstring appendFormat:@"{ \"%@\": \"%@\" }, ",subKey, d[subKey]];
@@ -279,7 +317,7 @@ int main(int argc, const char * argv[]) {
                case 0x4C46://FL
                case 0x4446://FD
                {
-                  switch ([dict[key] count]) {
+                  switch ([attrDict[key] count]) {
                      case 0:
                      {
                         [JSONstring appendString:@"[], "];
@@ -289,14 +327,14 @@ int main(int argc, const char * argv[]) {
                      case 1:
                      {
                         [JSONstring appendFormat:@"[ %@ ], ",
-                         (dict[key])[0]];
+                         (attrDict[key])[0]];
                         break;
                      }
 
                      default:
                      {
                         [JSONstring appendString:@"[ "];
-                        for (NSString *string in dict[key])
+                        for (NSString *string in attrDict[key])
                         {
                            [JSONstring appendFormat:@"%@, ",
                             string];
@@ -320,10 +358,27 @@ int main(int argc, const char * argv[]) {
          NSString *D2JoutputDir=environment[@"D2JoutputDir"];
          if (!JSONdata)
          {
-            LOG_ERROR(@"could not transform to JSON: %@",[dict description]);
+            LOG_ERROR(@"could not transform to JSON: %@",[attrDict description]);
          }
-         else if (!D2JoutputDir) [JSONdata writeToFile:@"/dev/stdout" atomically:NO];
-         else if (!originalPath || !relativePathComponents) [JSONdata writeToFile:[[D2JoutputDir stringByAppendingPathComponent:[[NSUUID UUID]UUIDString]]stringByAppendingPathExtension:@"json"] atomically:NO];
+         else if (!D2JoutputDir)
+         {
+            [JSONdata writeToFile:@"/dev/stdout" atomically:NO];
+#pragma mark TODO transformar json y blob dict a zip
+         }
+         else if (!originalPath || !relativePathComponents)
+         {
+            NSString *UUIDString=[[NSUUID UUID]UUIDString];
+            [JSONdata writeToFile:[[D2JoutputDir stringByAppendingPathComponent:UUIDString]stringByAppendingPathExtension:@"json"] atomically:NO];
+            if (blobDict.count)
+            {
+               NSString *bulkdataDir=[[D2JoutputDir stringByAppendingPathComponent:UUIDString]stringByAppendingPathExtension:@"bulkdata"];
+               [fileManager createDirectoryAtPath:bulkdataDir withIntermediateDirectories:YES attributes:nil error:&error];
+               for (NSString *bulkdataKey in blobDict)
+               {
+                  [blobDict[bulkdataKey] writeToFile:[bulkdataDir stringByAppendingPathComponent:bulkdataKey] atomically:NO];
+               }
+            }
+         }
          else
          {
             NSMutableArray *originalPathComponents=[NSMutableArray arrayWithArray:[originalPath pathComponents]];
@@ -334,14 +389,23 @@ int main(int argc, const char * argv[]) {
                [originalPathComponents removeObjectAtIndex:0];
             }
             NSString *outputPath=[[[D2JoutputDir stringByAppendingPathComponent:[originalPathComponents componentsJoinedByString:@"/"]]stringByDeletingPathExtension]stringByAppendingPathExtension:@"json"];
-
-            NSString *subFolder=[outputPath stringByDeletingLastPathComponent];
-            if (![fileManager fileExistsAtPath:subFolder] && ![fileManager createDirectoryAtPath:subFolder withIntermediateDirectories:YES attributes:0 error:&error] )
+            NSString *outputDir=[outputPath stringByDeletingLastPathComponent];
+            if (![fileManager fileExistsAtPath:outputDir] && ![fileManager createDirectoryAtPath:outputDir withIntermediateDirectories:YES attributes:0 error:&error] )
             {
-               LOG_ERROR(@"could not create directory %@",subFolder);
+               LOG_ERROR(@"could not create directory %@",outputDir);
                return 1;
             }
             [JSONdata writeToFile:outputPath atomically:NO];
+            if (blobDict.count)
+            {
+               NSString *bulkdataDir=[[outputPath stringByDeletingPathExtension] stringByAppendingPathExtension:@"bulkdata"];
+               [fileManager createDirectoryAtPath:bulkdataDir withIntermediateDirectories:YES attributes:nil error:&error];
+               for (NSString *bulkdataKey in blobDict)
+               {
+                  [blobDict[bulkdataKey] writeToFile:[bulkdataDir stringByAppendingPathComponent:bulkdataKey] atomically:NO];
+               }
+            }
+
          }
          
          

@@ -32,6 +32,7 @@
 		4A44191225E866110091495B /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
 		4A44192A25EC4A490091495B /* B64.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A44192825EC4A490091495B /* B64.m */; };
 		4A44192B25EC4A490091495B /* B64.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A44192925EC4A490091495B /* B64.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4A5CC02C26304E15003070E7 /* FluroWithDisplayShutterj2k.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4A5CC02B26304E15003070E7 /* FluroWithDisplayShutterj2k.dcm */; };
 		4A7B85DB258BC12800E62971 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7B85DA258BC12800E62971 /* main.m */; };
 		4A95E3CE26063E9800224363 /* dckRangeVecs.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A95E3CC26063E9800224363 /* dckRangeVecs.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A95E3CF26063E9800224363 /* dckRangeVecs.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A95E3CD26063E9800224363 /* dckRangeVecs.m */; };
@@ -55,6 +56,16 @@
 		4AE7CEBA25E7CBE0004942E3 /* M3J.xsl in Resources */ = {isa = PBXBuildFile; fileRef = 4AAE863E25C029DC00117D26 /* M3J.xsl */; };
 		4AE7CEBB25E7CBE0004942E3 /* N.xsd in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE91B25B1A8FE00C8D33F /* N.xsd */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		4A5CC01B262B03F0003070E7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4A7B856A258002A100E62971 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4A025F3A25E5C455005AA1A3;
+			remoteInfo = DCKV;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		4A42610125A73C6B001E0B52 /* CopyFiles */ = {
@@ -121,6 +132,7 @@
 		4A44192925EC4A490091495B /* B64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = B64.h; sourceTree = "<group>"; };
 		4A44193425EE53CE0091495B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4A44197B25F764150091495B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		4A5CC02B26304E15003070E7 /* FluroWithDisplayShutterj2k.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = FluroWithDisplayShutterj2k.dcm; sourceTree = "<group>"; };
 		4A7B859F25824EAE00E62971 /* utils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = utils.m; sourceTree = "<group>"; };
 		4A7B85A025824EAE00E62971 /* ODLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ODLog.m; sourceTree = "<group>"; };
 		4A7B85A125824EAE00E62971 /* ODLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ODLog.h; sourceTree = "<group>"; };
@@ -236,14 +248,6 @@
 			path = DCKV;
 			sourceTree = "<group>";
 		};
-		4A025FD925E627CC005AA1A3 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				4A025F3C25E5C455005AA1A3 /* DCKV */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		4A02600A25E62D25005AA1A3 /* xslt3 */ = {
 			isa = PBXGroup;
 			children = (
@@ -304,6 +308,7 @@
 		4A434CB825B996A200065B64 /* D */ = {
 			isa = PBXGroup;
 			children = (
+				4A5CC02B26304E15003070E7 /* FluroWithDisplayShutterj2k.dcm */,
 				4A434CCC25BB445100065B64 /* FluroWithDisplayShutter.dcm */,
 				4A434CC225B9980400065B64 /* SCSARAB.dcm */,
 				4A434CBB25B9980400065B64 /* SCSFREN.dcm */,
@@ -325,7 +330,7 @@
 			children = (
 				4A44193425EE53CE0091495B /* README.md */,
 				4A02600C25E62E1F005AA1A3 /* Samples */,
-				4A025FD925E627CC005AA1A3 /* Frameworks */,
+				4A025F3C25E5C455005AA1A3 /* DCKV */,
 				4A025E6525E43D0D005AA1A3 /* D2J */,
 				4ABF583625CEC1EB00EB725E /* J2D */,
 				4A7B85D9258BC12800E62971 /* H2D */,
@@ -522,6 +527,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				4A5CC01C262B03F0003070E7 /* PBXTargetDependency */,
 			);
 			name = D2J;
 			productName = D2J;
@@ -602,6 +608,7 @@
 				0718621C25F684AC00802276 /* SCSFREN.json in Resources */,
 				4AE7CEB725E7CBE0004942E3 /* M.xsd in Resources */,
 				4AE7CEB825E7CBE0004942E3 /* M1N.xsl in Resources */,
+				4A5CC02C26304E15003070E7 /* FluroWithDisplayShutterj2k.dcm in Resources */,
 				4AE7CEB925E7CBE0004942E3 /* N1M.xsl in Resources */,
 				4AE7CEBA25E7CBE0004942E3 /* M3J.xsl in Resources */,
 				4AE7CEBB25E7CBE0004942E3 /* N.xsd in Resources */,
@@ -684,6 +691,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		4A5CC01C262B03F0003070E7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
+			targetProxy = 4A5CC01B262B03F0003070E7 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		4A025F4125E5C455005AA1A3 /* Debug */ = {

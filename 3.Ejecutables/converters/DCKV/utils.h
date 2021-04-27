@@ -1,5 +1,5 @@
 #import <Foundation/Foundation.h>
-#import "DCKV.h"
+#import <DCKV/DCKV.h>
 
 #pragma mark - terminal execution
 
