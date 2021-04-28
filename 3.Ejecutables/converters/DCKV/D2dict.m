@@ -761,124 +761,90 @@ NSUInteger D2J(
             if (!vll)//empty
             {
                [attrDict setObject:@[] forKey:blobKey];
+               shortsIndex+= 6 + (vll/2);
+               break;
             }
-            else //fragment with undefined length
-            {
-               if ([blobKey hasPrefix:@"00000001_7FE00010"] &&(vll==0xFFFFFFFF))
+
+            if ([blobKey hasPrefix:@"00000001_7FE00010"] &&(vll==0xFFFFFFFF))
 #pragma mark · fragments
+            {
+               /*
+               int bitsAllocated=[(attrDict[@"00000001_00280100-US"])[0] intValue];
+               if (
+                     ([blobKey hasSuffix:@"-OB"] && (bitsAllocated > 8))
+                   ||([blobKey hasSuffix:@"-OW"] && (bitsAllocated < 9))
+                   )
                {
-                  /*
-                  int bitsAllocated=[(attrDict[@"00000001_00280100-US"])[0] intValue];
-                  if (
-                        ([blobKey hasSuffix:@"-OB"] && (bitsAllocated > 8))
-                      ||([blobKey hasSuffix:@"-OW"] && (bitsAllocated < 9))
-                      )
-                  {
-                     LOG_WARNING(@"%@ mismatch OB/OW in relation to (0028,0100)",blobKey);
-                     return shortsIndex;
-                  }
-                   */
+                  LOG_WARNING(@"%@ mismatch OB/OW in relation to (0028,0100)",blobKey);
+                  return shortsIndex;
+               }
+                */
+               
+               //offset of first fragment
+               shortsIndex+=6;
+               if (shortsIndex + 4 >= postShortsIndex)
+               {
+                  LOG_WARNING(@"%@ truncated",blobKey);
+                  return failure;
+               }
+               tag = shortsBuffer[shortsIndex]
+                   + ( shortsBuffer[shortsIndex+1] << 16 );
+               if (tag == 0xe0ddfffe)
+               {
+                  LOG_WARNING(@"%@ no fragment item",blobKey);
+                  return shortsIndex;
+               }
+               if (tag!=0xe000fffe)
+               {
+                  LOG_WARNING(@"%@ encapsulated does not start with a fragment item",blobKey);
+                  return failure;
+               }
+               vll = ( shortsBuffer[shortsIndex+2]       )
+                   + ( shortsBuffer[shortsIndex+3] << 16 );
                   
-                  //offset of first fragment
-                  shortsIndex+=6;
-                  if (shortsIndex + 4 >= postShortsIndex)
-                  {
-                     LOG_WARNING(@"%@ truncated",blobKey);
-                     return failure;
-                  }
-                  tag = shortsBuffer[shortsIndex]
-                      + ( shortsBuffer[shortsIndex+1] << 16 );
-                  if (tag == 0xe0ddfffe)
-                  {
-                     LOG_WARNING(@"%@ no fragment item",blobKey);
-                     return shortsIndex;
-                  }
-                  if (tag!=0xe000fffe)
-                  {
-                     LOG_WARNING(@"%@ encapsulated does not start with a fragment item",blobKey);
-                     return failure;
-                  }
-                  vll = ( shortsBuffer[shortsIndex+2]       )
-                      + ( shortsBuffer[shortsIndex+3] << 16 );
-                     
-                  
-                  NSMutableData *frameData=[NSMutableData data];
-                  //frames used for blob_dict and blob_inline
-                  NSMutableArray *frames=[NSMutableArray array];
-                  NSMutableArray *fragmentRefs=[NSMutableArray array];
-                  NSMutableData *offsetData=[NSMutableData data];
-                  uint32 *offsets;
-                  int currentFrameOffset=0;
-                  int offsetCount=0;//by default, no table
-                  int offsetAfter=0xFFFFFFFF;
-                  
-                  
-                  if (vll != 0)
+               
+               NSMutableData *frameData=[NSMutableData data];
+               //frames used for blob_dict and blob_inline
+               NSMutableArray *frames=[NSMutableArray array];
+               NSMutableArray *fragmentRefs=[NSMutableArray array];
+               NSMutableData *offsetData=[NSMutableData data];
+               uint32 *offsets;
+               int currentFrameOffset=0;
+               int offsetCount=0;//by default, no table
+               int offsetAfter=0xFFFFFFFF;
+               
+               
+               if (vll != 0)
 #pragma mark ·· first fragment is an offset table ?
+               {
+                  //is this an offset table?
+                  //is there at least a 00000000 offset (which is the first value of the table) ?
+                  
+                  uint32 tableFirst = shortsBuffer[shortsIndex + 4]
+                      + ( shortsBuffer[shortsIndex + 5] << 16 );
+                  
+                  if (tableFirst != 0xe000fffe)
                   {
-                     //is this an offset table?
-                     //is there at least a 00000000 offset (which is the first value of the table) ?
                      
-                     uint32 tableFirst = shortsBuffer[shortsIndex + 4]
-                         + ( shortsBuffer[shortsIndex + 5] << 16 );
-                     
-                     if (tableFirst != 0xe000fffe)
-                     {
-                        
-                        [offsetData appendData:[data subdataWithRange:NSMakeRange(((shortsIndex+4)*2)+4,vll)]];
-                        [offsetData appendBytes:&offsetAfter length:4];
-                        offsets=(uint32 *)[offsetData bytes];
-                        offsetCount= sizeof(offsets) / 4;//or offsetTable.length / 4
-                        
-                        //for blob_sourcePointer
-                        NSString *urlString=[NSString stringWithFormat:@"file:%@?offset=%lu&amp;length=%d",blobRefPrefix,(shortsIndex+2)*2, vll];
-                        [fragmentRefs addObject:@{ @"0":urlString}];
-
-                        
-                        
-                        //first fragment
-                        shortsIndex+=4 + (vll/2);
-                        tag = shortsBuffer[shortsIndex]
-                            + ( shortsBuffer[shortsIndex+1] << 16 );
-                        
-                        if (tag == 0xe0ddfffe)
-                        {
-                           LOG_WARNING(@"%@ no fragment after offsetTable",blobKey);
-                           return shortsIndex;
-                        }
-
-                        if (tag!=0xe000fffe)
-                        {
-                           LOG_WARNING(@"%@ encapsulated item markup problem",blobKey);
-                           return failure;
-                        }
-                        vll = ( shortsBuffer[shortsIndex+2]       )
-                            + ( shortsBuffer[shortsIndex+3] << 16 );
-                     }
-
-                  }
-                  else //(vll == 0)
-#pragma mark ·· first fragment is NOT an offset table
-                  {
-                     //case blob_sourcePointer:
-                     NSString *urlString=[NSString stringWithFormat:@"file:%@?offset=%lu&amp;length=%d",blobRefPrefix,(shortsIndex+2)*2, vll];
-                     if (vll==0) [fragmentRefs addObject:@{ @"0":urlString}];
-                     else [fragmentRefs addObject:@{ @"1":urlString}];
-
-
-                     
-                     
+                     [offsetData appendData:[data subdataWithRange:NSMakeRange(((shortsIndex+4)*2)+4,vll)]];
                      [offsetData appendBytes:&offsetAfter length:4];
                      offsets=(uint32 *)[offsetData bytes];
-                     offsetCount=1;
-                     //next fragment
-                     shortsIndex+=4;
+                     offsetCount= sizeof(offsets) / 4;//or offsetTable.length / 4
+                     
+                     //for blob_sourcePointer
+                     NSString *urlString=[NSString stringWithFormat:@"file:%@?offset=%lu&amp;length=%d",blobRefPrefix,(shortsIndex+2)*2, vll];
+                     [fragmentRefs addObject:@{ @"00000000":urlString}];
+
+                     
+                     
+                     //first fragment
+                     shortsIndex+=4 + (vll/2);
                      tag = shortsBuffer[shortsIndex]
                          + ( shortsBuffer[shortsIndex+1] << 16 );
                      
                      if (tag == 0xe0ddfffe)
                      {
-                        LOG_WARNING(@"%@ empty offsetTable",blobKey);
+                        LOG_WARNING(@"%@ no fragment after offsetTable",blobKey);
                         return shortsIndex;
                      }
 
@@ -890,143 +856,178 @@ NSUInteger D2J(
                      vll = ( shortsBuffer[shortsIndex+2]       )
                          + ( shortsBuffer[shortsIndex+3] << 16 );
                   }
-                  
-                  
-                  
-                  while (shortsIndex < postShortsIndex) //(end of sequence)
-                  {
-                     
-                     if (
-                            (tag==0xe0ddfffe)
-                         || (shortsIndex > offsets[currentFrameOffset])
-                         )
-                        //break on end of pixel attribute
-                     {
-                        //add a frame?
-                        if (frameData.length)
-                        {
-                           [frames addObject:[NSData dataWithData:frameData]];
-                           [frameData setData:[NSData data]];
-                        }
-                        //exit loop
-                        break;
-                     }
-                     
-                     
-                     if (tag!=0xe000fffe)
-                        //exit with error on syntaxis error
-                     {
-                        LOG_WARNING(@"%@ encapsulated item markup problem",blobKey);
-                        return failure;
-                     }
-                     
-                     //for blob_sourcePointer
-                     NSString *urlString=[NSString stringWithFormat:@"file:%@?offset=%lu&amp;length=%d",blobRefPrefix,(shortsIndex+2)*2, vll];
-                     NSString *itemString=[NSString stringWithFormat:@"%d",currentFrameOffset+1];
-                     [fragmentRefs addObject:@{ itemString :urlString}];
-                     [frameData setData:[data subdataWithRange:NSMakeRange(shortsIndex+shortsIndex+8,vll)]];
 
-                     
-                     //new tag and length
-                     shortsIndex += ((vll / 2) + 4);
-                     tag = shortsBuffer[shortsIndex]
-                         + ( shortsBuffer[shortsIndex+1] << 16 );
-                     vll = ( shortsBuffer[shortsIndex+2]       )
-                         + ( shortsBuffer[shortsIndex+3] << 16 );
-                     
-                  }//end loop fragments
-                  
-
-                  switch (blobMode) {
-                     case blob_sourcePointer:
-                        [attrDict setObject:fragmentRefs forKey:blobKey];
-                        break;
-
-                     case blob_dict:
-                     {
-                        NSString *extension;
-                        NSArray *tsArray=(attrDict[@"00000001_00020010-UI"]);
-                        if (tsArray && tsArray.count && [tsArray[0] hasPrefix:@"1.2.840.10008.1.2.4.90"]) extension=@".j2k";
-                        else extension=@"";
-                        
-                        //for each of the frames
-                        //write an entry in blobDict
-                        //with suffix frame number
-                        //and create a bulkdataRef
-                        NSMutableArray *bulkdatas=[NSMutableArray array];
-                        for (int i=0; i<frames.count; i++)
-                        {
-                           NSString *baseString=[NSString stringWithFormat:@"%@%@.bulkdata", blobRefPrefix?blobRefPrefix:@"",blobKey];
-                           NSString *relativeString=[NSString stringWithFormat:@"%d%@",i+1,extension?extension:@""];
-                           [blobDict setObject:frames[i] forKey:relativeString];
-                           [bulkdatas addObject:@{ [NSString stringWithFormat:@"%d",i+1] :  [baseString stringByAppendingPathComponent:relativeString] }];
-                        }
-                        [attrDict setObject:bulkdatas forKey:blobKey];
-                     }
-                        break;
-
-                     default://blob_inline || vll < blobMinSize
-                     {
-                        NSMutableArray *b64s=[NSMutableArray array];
-                        for (NSData *frame in frames)
-                        {
-                        //convert to JSON base64 (solidus written \/)
-                           [b64s addObject:B64JSONstringWithData(frame)];
-                        }
-                        [attrDict setObject:b64s forKey:blobKey];
-                     }
-                        break;
-                  }
                }
-               else
-#pragma mark · native
+               else //(vll == 0)
+#pragma mark ·· first fragment is NOT an offset table
                {
-                  switch (blobMode * (vll >= blobMinSize))
+                  //case blob_sourcePointer:
+                  NSString *urlString=[NSString stringWithFormat:@"file:%@?offset=%lu&amp;length=%d",blobRefPrefix,(shortsIndex+2)*2, vll];
+                  if (vll==0) [fragmentRefs addObject:@{ @"00000000":urlString}];
+                  else [fragmentRefs addObject:@{ @"00000001":urlString}];
+
+
+                  
+                  
+                  [offsetData appendBytes:&offsetAfter length:4];
+                  offsets=(uint32 *)[offsetData bytes];
+                  offsetCount=1;
+                  //next fragment
+                  shortsIndex+=4;
+                  tag = shortsBuffer[shortsIndex]
+                      + ( shortsBuffer[shortsIndex+1] << 16 );
+                  
+                  if (tag == 0xe0ddfffe)
                   {
-                     case blob_sourcePointer:
-                     {
-                        NSString *urlString=[NSString stringWithFormat:@"file:%@?offset=%lu&amp;length=%d",blobRefPrefix,(shortsIndex+6)*2,vll];
-                        [attrDict setObject:@[@{ @"BulkData":urlString}] forKey:blobKey];
-                     }
-                        break;
-
-                     case blob_dict:
-                     {
-                        NSString *extension;
-                        NSString *sopClass=(attrDict[@"00000001_00080016-UI"])[0];
-
-                        if ([blobKey isEqualToString:@"00000001_00420011-OB"] && [sopClass hasPrefix:@"1.2.840.10008.​5.​1.​4.​1.​1.​104.​"]) //encapsulated
-                        {
-                           if  ([sopClass isEqualToString:@"1.2.840.10008.​5.​1.​4.​1.​1.​104.​1"]) extension=@".pdf";
-                           else if  ([sopClass isEqualToString:@"1.2.840.10008.​5.​1.​4.​1.​1.​104.​2"]) extension=@".xml";
-                           else if  ([sopClass isEqualToString:@"1.2.840.10008.​5.​1.​4.​1.​1.​104.​3"]) extension=@".stl";
-                           else if  ([sopClass isEqualToString:@"1.2.840.10008.​5.​1.​4.​1.​1.​104.​4"]) extension=@".obj";
-                           else if  ([sopClass isEqualToString:@"1.2.840.10008.​5.​1.​4.​1.​1.​104.​5"]) extension=@".mtl";
-                        }
-                           
-                        NSString *urlString=[NSString stringWithFormat:@"%@%@%@%@",
-                                                blobRefPrefix?blobRefPrefix:@"",
-                                               blobKey,
-                                                blobRefSuffix?blobRefSuffix:@"",
-                                             extension?extension:@""
-                                                ];
-                        [attrDict setObject:@[@{ @"BulkData":urlString}] forKey:blobKey];
-                        [blobDict setObject:[data subdataWithRange:NSMakeRange((shortsIndex+6)*2,vll)] forKey:urlString];
-                     }
-                        break;
-
-                     default://blob_inline || vll < blobMinSize
-                     {
-                        NSData *contents=[data subdataWithRange:NSMakeRange((shortsIndex+6)*2,vll)];
-                        
-                        //convert to JSON base64 (solidus written \/)
-                        [attrDict setObject:@[B64JSONstringWithData(contents)] forKey:blobKey];
-                     }
-                        break;
+                     LOG_WARNING(@"%@ empty offsetTable",blobKey);
+                     return shortsIndex;
                   }
 
+                  if (tag!=0xe000fffe)
+                  {
+                     LOG_WARNING(@"%@ encapsulated item markup problem",blobKey);
+                     return failure;
+                  }
+                  vll = ( shortsBuffer[shortsIndex+2]       )
+                      + ( shortsBuffer[shortsIndex+3] << 16 );
+               }
+               
+               
+#pragma mark .. loop fragments
+               while (shortsIndex < postShortsIndex) //(end of sequence)
+               {
+                  
+                  if (
+                         (tag==0xe0ddfffe)
+                      || (shortsIndex > offsets[currentFrameOffset])
+                      )
+                     //break on end of pixel attribute
+                  {
+                     //add a frame?
+                     if (frameData.length)
+                     {
+                        [frames addObject:[NSData dataWithData:frameData]];
+                        [frameData setData:[NSData data]];
+                     }
+                     //exit loop
+                     break;
+                  }
+                  
+                  
+                  if (tag!=0xe000fffe)
+                     //exit with error on syntaxis error
+                  {
+                     LOG_WARNING(@"%@ encapsulated item markup problem",blobKey);
+                     return failure;
+                  }
+                  
+                  //for blob_sourcePointer
+                  NSString *urlString=[NSString stringWithFormat:@"file:%@?offset=%lu&amp;length=%d",blobRefPrefix,(shortsIndex+2)*2, vll];
+                  NSString *itemString=[NSString stringWithFormat:@"%08d",currentFrameOffset+1];
+                  [fragmentRefs addObject:@{ itemString :urlString}];
+                  [frameData setData:[data subdataWithRange:NSMakeRange(shortsIndex+shortsIndex+8,vll)]];
+
+                  
+                  //new tag and length
+                  shortsIndex += ((vll / 2) + 4);
+                  tag = shortsBuffer[shortsIndex]
+                      + ( shortsBuffer[shortsIndex+1] << 16 );
+                  vll = ( shortsBuffer[shortsIndex+2]       )
+                      + ( shortsBuffer[shortsIndex+3] << 16 );
+                  
+               }//end loop fragments
+               
+#pragma mark .. finalize
+               switch (blobMode) {
+                     
+#pragma mark ···blob_sourcePointer
+                  case blob_sourcePointer:
+                     [attrDict setObject:fragmentRefs forKey:blobKey];
+                     break;
+                     
+#pragma mark ···blob_dict
+                  case blob_dict:
+                  {
+                     NSString *extension;
+                     NSArray *tsArray=(attrDict[@"00000001_00020010-UI"]);
+                     if (tsArray && tsArray.count && [tsArray[0] hasPrefix:@"1.2.840.10008.1.2.4.90"]) extension=@".j2k";
+                     else extension=@"";
+                     
+                     //for each of the frames
+                     //write an entry in blobDict
+                     //with suffix frame number
+                     //and create a bulkdataRef
+                     NSMutableArray *bulkdatas=[NSMutableArray array];
+                     for (int i=0; i<frames.count; i++)
+                     {
+                        NSString *relativeString=[NSString stringWithFormat:@"%@#%08d%@",blobKey,i+1,extension?extension:@""];
+                        [blobDict setObject:frames[i] forKey:relativeString];
+                        
+                        [bulkdatas addObject:@{ [NSString stringWithFormat:@"%08d",i+1] :  [blobRefPrefix stringByAppendingPathComponent:relativeString] }];
+                     }
+                     [attrDict setObject:bulkdatas forKey:blobKey];
+                  }
+                     break;
+
+#pragma mark ···blob_inline
+                  default://blob_inline || vll < blobMinSize
+                  {
+                     NSMutableArray *b64s=[NSMutableArray array];
+                     for (NSData *frame in frames)
+                     {
+                     //convert to JSON base64 (solidus written \/)
+                        [b64s addObject:B64JSONstringWithData(frame)];
+                     }
+                     [attrDict setObject:b64s forKey:blobKey];
+                  }
+                     break;
                }
             }
+            else
+#pragma mark · native
+            {
+               switch (blobMode * (vll >= blobMinSize))
+               {
+                  case blob_sourcePointer:
+                  {
+                     NSString *urlString=[NSString stringWithFormat:@"file:%@?offset=%lu&amp;length=%d",blobRefPrefix,(shortsIndex+6)*2,vll];
+                     [attrDict setObject:@[@{ @"BulkData":urlString}] forKey:blobKey];
+                  }
+                     break;
+
+                  case blob_dict:
+                  {
+                     NSString *extension;
+                     NSString *sopClass=(attrDict[@"00000001_00080016-UI"])[0];
+
+                     if ([blobKey isEqualToString:@"00000001_00420011-OB"] && [sopClass hasPrefix:@"1.2.840.10008.​5.​1.​4.​1.​1.​104.​"]) //encapsulated
+                     {
+                        if  ([sopClass isEqualToString:@"1.2.840.10008.​5.​1.​4.​1.​1.​104.​1"]) extension=@".pdf";
+                        else if  ([sopClass isEqualToString:@"1.2.840.10008.​5.​1.​4.​1.​1.​104.​2"]) extension=@".xml";
+                        else if  ([sopClass isEqualToString:@"1.2.840.10008.​5.​1.​4.​1.​1.​104.​3"]) extension=@".stl";
+                        else if  ([sopClass isEqualToString:@"1.2.840.10008.​5.​1.​4.​1.​1.​104.​4"]) extension=@".obj";
+                        else if  ([sopClass isEqualToString:@"1.2.840.10008.​5.​1.​4.​1.​1.​104.​5"]) extension=@".mtl";
+                     }
+ 
+                     NSString *relativeString=[NSString stringWithFormat:@"%@%@",blobKey,extension?extension:@""];
+                     [blobDict setObject:[data subdataWithRange:NSMakeRange((shortsIndex+6)*2,vll)] forKey:relativeString];
+                     
+                     [attrDict setObject:@[@{ @"BulkData":[blobRefPrefix stringByAppendingPathComponent:relativeString]}] forKey:blobKey];
+                  }
+                     break;
+
+                  default://blob_inline || vll < blobMinSize
+                  {
+                     NSData *contents=[data subdataWithRange:NSMakeRange((shortsIndex+6)*2,vll)];
+                     
+                     //convert to JSON base64 (solidus written \/)
+                     [attrDict setObject:@[B64JSONstringWithData(contents)] forKey:blobKey];
+                  }
+                     break;
+               }
+
+            }
+            
             shortsIndex+= 6 + (vll/2);
 
             break;

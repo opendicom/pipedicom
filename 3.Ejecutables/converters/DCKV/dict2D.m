@@ -594,7 +594,7 @@ int dict2D(NSDictionary *attrs, NSMutableData *data)
                }
                
    #pragma mark OB OD OF OL OV OW UN
-               case 0x424F:
+               case 0x424F://OB
                /*
                 An octet-stream where the encoding of the contents is specified by the negotiated Transfer Syntax. OB is a VR that is insensitive to byte ordering (see Section 7.3). The octet-stream shall be padded with a single trailing NULL byte value (00H) when necessary to achieve even length.
                 */
@@ -620,6 +620,18 @@ int dict2D(NSDictionary *attrs, NSMutableData *data)
                 */
                case 0x4E55://UN
                {
+                  if (tag==0xe07f1000)
+                  {
+                     
+                     //if ([[NSDictionary class])
+#pragma mark .fragments
+                     {
+                     //   break;
+                     }
+                  }
+                  
+#pragma mark .native
+                  
                   [data appendBytes:&tag length:4];
                   [data appendBytes:&vr length:2];
                   [data appendBytes:&vl0 length:2];

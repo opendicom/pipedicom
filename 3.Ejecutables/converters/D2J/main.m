@@ -136,7 +136,7 @@ int main(int argc, const char * argv[]) {
             blobRefPrefix=originalPath;
             break;
          case blob_dict:
-            if (originalPath) blobRefPrefix=@"";
+            if (originalPath) blobRefPrefix=[[originalPath lastPathComponent]stringByAppendingPathExtension:@"bulkdata"];
             break;
       }
 
@@ -276,7 +276,7 @@ int main(int argc, const char * argv[]) {
                            [JSONstring appendString:@" ], "];
                         }
                         else //@[@{ @"BulkData":urlString}]
-                        {                           
+                        {
                            for (NSDictionary *d in attrDict[key])
                            {
                               NSString *subKey=([d allKeys])[0];
