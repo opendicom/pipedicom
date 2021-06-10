@@ -8,9 +8,33 @@
 #import <Foundation/Foundation.h>
 #import "DCMcharset.h"
 #import "NSData+DCMmarkers.h"
-#import "utils.h"
 #import "ODLog.h"
 #import "B64.h"
+
+#import "D2dict.h"
+
+void trimLeadingSpaces(NSMutableString *mutableString)
+{
+   while ([mutableString hasPrefix:@" "])
+   {
+      [mutableString deleteCharactersInRange:NSMakeRange(0,1)];
+   }
+}
+
+void trimTrailingSpaces(NSMutableString *mutableString)
+{
+   while ([mutableString hasSuffix:@" "])
+   {
+      [mutableString deleteCharactersInRange:NSMakeRange(mutableString.length-1,1)];
+   }
+}
+
+void trimLeadingAndTrailingSpaces(NSMutableString *mutableString)
+{
+   trimLeadingSpaces(mutableString);
+   trimTrailingSpaces(mutableString);
+}
+
 
 NSString *key(
    NSString *branch,
@@ -796,7 +820,7 @@ NSUInteger D2J(
                NSMutableArray *frames=[NSMutableArray array];
                NSMutableArray *fragmentRefs=[NSMutableArray array];
                NSMutableData *offsetData=[NSMutableData data];
-               uint32 *offsets;//tabla de offsets de fragmentos
+               uint32 *offsets=nil;//tabla de offsets de fragmentos
                int currentFrameOffset=0;//primer fragment de un frame en la tabla
                int offsetCount=0;//by default, no table
                int offsetAfter=0xFFFFFFFF;
@@ -894,7 +918,7 @@ NSUInteger D2J(
                   
                   //for blobModeSource
                   NSString *urlString=[NSString stringWithFormat:@"file:%@?offset=%lu&amp;length=%d",blobRefPrefix,(shortsIndex+2)*2, vll];
-                  NSString *itemString=[NSString stringWithFormat:@"Fragment#%08d",fragmentRefs.count+1];
+                  NSString *itemString=[NSString stringWithFormat:@"Fragment#%08lu",fragmentRefs.count+1];
                   [fragmentRefs addObject:
                    @{
                       itemString : @[ urlString ]

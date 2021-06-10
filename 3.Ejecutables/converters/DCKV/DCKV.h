@@ -20,5 +20,5 @@ FOUNDATION_EXPORT const unsigned char DCKVVersionString[];
 #import <DCKV/dict2D.h>
 #import <DCKV/dckRangeVecs.h>
 #import <DCKV/ODLog.h>
-#import <DCKV/utils.h>
 #import <DCKV/B64.h>
+#import <DCKV/NSData+MD5.h>

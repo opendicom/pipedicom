@@ -1,49 +1,12 @@
+//
+//  main.m
+//  DinlineJ
+//
+//  Created by jacquesfauquex on 2021-06-10.
+//
+
 #import <Foundation/Foundation.h>
 #import <DCKV/DCKV.h>
-#import "NSData+MD5.h"
-
-//D2J [$inputPath | test $testName]
-//stdin binary dicom
-//stdout DCKV JSON (DICOM_contextualizedKey-values)
-//https://raw.githubusercontent.com/jacquesfauquex/DICOM_contextualizedKey-values/master/mapxmldicom/mapxmldicom.xsd
-
-int visibleFiles(NSFileManager *fileManager, NSArray *mountPoints, NSMutableArray *paths)
-{
-   BOOL isDirectory=false;
-   for (NSString *mountPoint in mountPoints)
-   {
-      if ([mountPoint hasPrefix:@"."]) continue;
-      
-      NSString *noSymlink=[[mountPoint stringByExpandingTildeInPath] stringByResolvingSymlinksInPath];
-
-      if ([fileManager fileExistsAtPath:noSymlink isDirectory:&isDirectory])
-      {
-         if (isDirectory)
-         {
-            NSError *error;
-            NSArray *contents=[fileManager contentsOfDirectoryAtPath:noSymlink error:&error];
-            
-#pragma mark TODO agregar base URL prefix to each of the file names.
-            
-            if (error)
-            {
-               LOG_WARNING(@"bad directory path %@",noSymlink);
-               return failure;
-            }
-            
-            NSMutableArray *contentsPaths=[NSMutableArray array];
-            for (NSString *name in contents)
-            {
-               [contentsPaths addObject:[mountPoint stringByAppendingPathComponent:name]];
-            }
-            
-            if (visibleFiles(fileManager,contentsPaths, paths) != success) return failure;
-         }
-         else [paths addObject:noSymlink];
-      }
-   }
-   return success;
-}
 
 
 int execTask(NSDictionary *environment, NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutableData *readData)

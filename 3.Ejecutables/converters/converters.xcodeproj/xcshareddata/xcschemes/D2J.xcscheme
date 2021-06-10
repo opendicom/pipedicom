@@ -93,12 +93,12 @@
          <EnvironmentVariable
             key = "D2JblobMode"
             value = "blobModeSource"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "D2JblobMode"
             value = "blobModeResources"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "D2JblobRefPrefix"
