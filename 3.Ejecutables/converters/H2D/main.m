@@ -1,5 +1,4 @@
 #import <Foundation/Foundation.h>
-#import "ODLog.h"
 
 //H2D
 //stdin string based dicom mysql hexa representation
@@ -102,7 +101,7 @@ NSUInteger parseAttrList(
    UInt32 vll;// 4 bytes value length
    NSMutableData *md = [NSMutableData data];//mutable data value itself
 
-   while (tag!=0xe00dfffe &&  index < postBuffer) //fffee00d=itemEnd
+   while (index < postBuffer)
    {
       [D appendBytes:&tag length:4];
       vr = uint16FromCuartetBuffer(buffer,index+8);
@@ -224,7 +223,7 @@ NSUInteger parseAttrList(
                      else if (itemlength!=0xffffffff) //item with defined length
                      {
 #pragma mark ERROR3: item defined length
-                        LOG_ERROR(@"ERROR3: item with defined length. NOT IMPLEMENTED YET");
+                        NSLog(@"ERROR3: item with defined length. NOT IMPLEMENTED YET");
                         exit(3);
                      }
                      else //undefined length item
@@ -253,10 +252,10 @@ NSUInteger parseAttrList(
          default://ERROR unknow VR
          {
 #pragma mark ERROR4: unknown VR
-            //logger(@"vr: %d", vr);
-            //logger(@"ERROR4: unknown VR");
+            NSLog(@"vr: %d", vr);
+            NSLog(@"ERROR4: unknown VR");
             setMutabledataFromCuartetBuffer(buffer,index,postBuffer,md);
-            //logger(@"%@",md.description);
+            NSLog(@"%@",md.description);
             exit(4);
             
             break;
@@ -271,65 +270,23 @@ NSUInteger parseAttrList(
 int main(int argc, const char * argv[]) {
    @autoreleasepool {
 
-      
-      NSProcessInfo *processInfo=[NSProcessInfo processInfo];
-      
-#pragma marks environment
-
-      NSDictionary *environment=processInfo.environment;
-      
-      //H2DlogLevel
-      if (environment[@"H2DlogLevel"])
-      {
-         NSUInteger logLevel=[@[@"DEBUG",@"VERBOSE",@"INFO",@"WARNING",@"ERROR",@"EXCEPTION"] indexOfObject:environment[@"H2DlogLevel"]];
-         if (logLevel!=NSNotFound) ODLogLevel=(ODLogLevelEnum)logLevel;
-         else ODLogLevel=4;//ERROR (default)
-      }
-      else ODLogLevel=4;//ERROR (default)
-      
-      
-      //H2DlogPath
-      NSString *logPath=environment[@"H2DlogPath"];
-      if (logPath && ([logPath hasPrefix:@"/Users/Shared"] || [logPath hasPrefix:@"/Volumes/LOG"]))
-      {
-         if ([logPath hasSuffix:@".log"])
-            freopen([logPath cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
-         else freopen([[logPath stringByAppendingPathExtension:@".log"] cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
-      }
-      else freopen([@"/Users/Shared/H2D.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
-      
-
-      //H2Doutput
-      NSString *H2Doutput=environment[@"H2Doutput"];
-      if (!H2Doutput) H2Doutput=@"/dev/stdout";
-
-      //H2DtestPath
-      NSData *dataset=nil;//dataset is NOT part 10 file with preamble
-      NSString *testPath=environment[@"H2DtestPath"];
-      if (testPath) dataset=[NSData dataWithContentsOfFile:testPath];
-      else dataset = [[NSFileHandle fileHandleWithStandardInput] availableData];
-      
-      LOG_DEBUG(@"environment:\r%@",[environment description]);
-      
-      
-      
-#pragma mark in out
+      NSData *dataset = [[NSFileHandle fileHandleWithStandardInput] availableData];
       if (dataset.length < 12)
       {
-         LOG_WARNING(@"error 1: dicom binary data too small");
-         [[NSData data] writeToFile:@"/dev/stdout" atomically:NO];
+         NSLog(@"error 1: dicom binary data too small");
+         exit(1);
       }
       else
       {
          unsigned char* cuartets=(unsigned char*)[dataset bytes];
          NSMutableData *D=[NSMutableData data];
-         NSUInteger index=parseAttrList(
-                                        cuartets,
-                                        0,
-                                        dataset.length -1,
-                                        D
-                                        );
-         [D writeToFile:H2Doutput atomically:NO];
+         parseAttrList(
+                       cuartets,
+                       0,
+                       dataset.length -1,
+                       D
+                       );
+         [D writeToFile:@"/dev/stdout" atomically:NO];
       }
    }//end autorelease pool
    return 0;
