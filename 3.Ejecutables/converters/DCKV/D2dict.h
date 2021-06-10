@@ -8,10 +8,10 @@
 #ifndef D2dict_h
 #define D2dict_h
 
-enum blob_mode {
-   blob_inline = 0,
-   blob_sourcePointer,
-   blob_dict
+enum blobModeOptions {
+   blobModeInline,
+   blobModeSource,
+   blobModeResources
 } ;
 
 int D2dict(
@@ -23,5 +23,7 @@ int D2dict(
            NSString* blobRefSuffix,
            NSMutableDictionary *blobDict
            );
+
+NSMutableString* json4attrDict(NSMutableDictionary *attrDict);
 
 #endif /* D2dict_h */

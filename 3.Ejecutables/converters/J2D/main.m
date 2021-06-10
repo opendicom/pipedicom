@@ -15,7 +15,8 @@ int main(int argc, const char * argv[]) {
       NSProcessInfo *processInfo=[NSProcessInfo processInfo];
 
 #pragma mark - args
-      NSString *originalPath;
+      NSString *originalPath=nil;
+      NSString *bulkdataPath=nil;
       NSData *inputData=nil;
       NSArray *args=[processInfo arguments];
       switch (args.count) {
@@ -26,6 +27,7 @@ int main(int argc, const char * argv[]) {
                NSData *moreData;
                while ((moreData=[readingFileHandle availableData]) && moreData.length) [concatenateData appendData:moreData];
                inputData=[NSData dataWithData:concatenateData];
+               bulkdataPath=[fileManager currentDirectoryPath];
                break;
             }
             
@@ -33,6 +35,7 @@ int main(int argc, const char * argv[]) {
             {
                originalPath=[[args[1] stringByResolvingSymlinksInPath]stringByExpandingTildeInPath];
                inputData=[NSData dataWithContentsOfFile:args[1]];
+               bulkdataPath=[[originalPath stringByDeletingPathExtension]stringByAppendingPathExtension:@"bulkdata"];
                break;
             }
               
@@ -40,17 +43,15 @@ int main(int argc, const char * argv[]) {
           {
               if ([args[1] isEqualToString:@"test"])
               {
-                  NSString *testPath;
-                  if ([fileManager fileExistsAtPath:[@"~/Library/Frameworks/DCKV.framework"stringByExpandingTildeInPath]]) testPath=[[@"~/Library/Frameworks/DCKV.framework/Resources/"stringByExpandingTildeInPath]stringByAppendingPathComponent:args[2]];
-                  else testPath=[@"/Library/Frameworks/DCKV.framework/Resources/"stringByAppendingPathComponent:args[2]];
-                  if ([fileManager fileExistsAtPath:testPath]) inputData=[NSData dataWithContentsOfFile:testPath];
-                  originalPath=[@"J2Dtest" stringByAppendingPathComponent:args[2]];
+                 originalPath=[[@"~/Library/Frameworks/DCKV.framework/Resources/"stringByExpandingTildeInPath]stringByAppendingPathComponent:args[2]];
+                  if ([fileManager fileExistsAtPath:originalPath]) inputData=[NSData dataWithContentsOfFile:originalPath];
+                 bulkdataPath=[[originalPath stringByDeletingPathExtension]stringByAppendingPathExtension:@"bulkdata"];
               }
               break;
           }
 
          default:
-            NSLog(@"syntaxis: J2D [originalPath]");
+            NSLog(@"bad syntaxis. Look at README.md");
             return 1;
       }
 
@@ -80,17 +81,6 @@ int main(int argc, const char * argv[]) {
       else freopen([@"/Users/Shared/J2D.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
 
       
-#pragma mark J2DrelativePathComponents
-      NSUInteger relativePathComponents=0;//new UUID name
-      NSString *relativePathComponentsString=environment[@"J2DrelativePathComponents"];
-      if (relativePathComponentsString)
-      {
-         relativePathComponents=relativePathComponentsString.intValue;
-         if ((relativePathComponents==INT_MIN) || (relativePathComponents==INT_MAX)) relativePathComponents=0;
-      }
-      LOG_DEBUG(@"environment:\r%@",[environment description]);
-
-      
 #pragma mark - processing
       NSError *error=nil;
       NSDictionary *inputDict=[NSJSONSerialization JSONObjectWithData:inputData options:0 error:&error];
@@ -112,6 +102,8 @@ int main(int argc, const char * argv[]) {
 #pragma mark initiate outputDdata (with or without group 2)
       NSMutableData *outputData;
       
+      NSArray *tsArray=datasets[@"00000001_00020010-UI"];
+      BOOL native=(!tsArray || [tsArray[0] isEqualToString:@"1.2.840.10008.1.2.1"]);
       //group 2 ?
       if (datasets[@"00000001_00020003-UI"])
       {
@@ -129,7 +121,7 @@ int main(int argc, const char * argv[]) {
          }
          
          NSMutableData *filemetainfoData=[NSMutableData data];
-         if (!dict2D(filemetainfoDict,filemetainfoData))
+         if (!dict2D(filemetainfoDict,filemetainfoData,true,bulkdataPath))
          {
             LOG_ERROR(@"could not serialize group 0002. %@",filemetainfoDict);
             return 0;//failed
@@ -139,7 +131,7 @@ int main(int argc, const char * argv[]) {
          outputData=[NSMutableData dataWithLength:128];
          UInt32 DICM='MCID';
          [outputData appendBytes:&DICM length:4];
-         UInt64 group2LengthAttr=0x00044C5500000002;
+         UInt64 group2LengthAttr=0x44C5500000002;
          [outputData appendBytes:&group2LengthAttr length:8];
          UInt32 group2Length=(UInt32)filemetainfoData.length;
          [outputData appendBytes:&group2Length length:4];
@@ -151,31 +143,7 @@ int main(int argc, const char * argv[]) {
 
       
       //serialize and append datasets
-      if (dict2D(datasets,outputData))
-      {
-         NSString *J2DoutputDir=environment[@"J2DoutputDir"];
-         if (!J2DoutputDir) [outputData writeToFile:@"/dev/stdout" atomically:NO];
-         else if (!originalPath || !relativePathComponents) [outputData writeToFile:[[J2DoutputDir stringByAppendingPathComponent:[[NSUUID UUID]UUIDString]]stringByAppendingPathExtension:@"dcm"] atomically:NO];
-         else
-         {
-            NSMutableArray *originalPathComponents=[NSMutableArray arrayWithArray:[originalPath pathComponents]];
-
-            if (![originalPathComponents[0] length])[originalPathComponents removeObjectAtIndex:0];//case of absolute paths
-            while (relativePathComponents < originalPathComponents.count)
-            {
-               [originalPathComponents removeObjectAtIndex:0];
-            }
-            NSString *outputPath=[[[J2DoutputDir stringByAppendingPathComponent:[originalPathComponents componentsJoinedByString:@"/"]]stringByDeletingPathExtension]stringByAppendingPathExtension:@"dcm"];
-
-            NSString *subFolder=[outputPath stringByDeletingLastPathComponent];
-            if (![[NSFileManager defaultManager]fileExistsAtPath:subFolder] && ![[NSFileManager defaultManager] createDirectoryAtPath:subFolder withIntermediateDirectories:YES attributes:0 error:&error] )
-            {
-               LOG_ERROR(@"could not create directory %@",subFolder);
-               return 1;
-            }
-            [outputData writeToFile:outputPath atomically:NO];
-         }
-      }
+      if (dict2D(datasets,outputData,native,bulkdataPath)) [outputData writeToFile:@"/dev/stdout" atomically:NO];
    }//end autorelease pool
    return 0;
 }

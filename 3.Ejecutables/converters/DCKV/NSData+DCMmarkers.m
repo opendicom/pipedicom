@@ -33,4 +33,8 @@ static NSData *equalData=nil;
    return equalData;
 }
 
+//start fragment E07F1000 4F420000 FFFFFFFF FEFF00E0 00000000 FEFF00E0 18D8
+
+
+// end fragment FEFFDDE0 00000000
 @end

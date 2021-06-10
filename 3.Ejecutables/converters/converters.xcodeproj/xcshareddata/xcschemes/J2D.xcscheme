@@ -53,7 +53,19 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "test FluroWithDisplayShutter.json"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "test FluroWithDisplayShutterj2ksource.json"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "test FluroWithDisplayShutterj2kinline.json"
             isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "test FluroWithDisplayShutterj2k.json"
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "test SCSARAB.json"

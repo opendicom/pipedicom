@@ -765,21 +765,9 @@ NSUInteger D2J(
                break;
             }
 
-            if ([blobKey hasPrefix:@"00000001_7FE00010"] &&(vll==0xFFFFFFFF))
+            if ([blobKey hasPrefix:@"00000001_7FE00010"] && (vll==0xFFFFFFFF))
 #pragma mark · fragments
             {
-               /*
-               int bitsAllocated=[(attrDict[@"00000001_00280100-US"])[0] intValue];
-               if (
-                     ([blobKey hasSuffix:@"-OB"] && (bitsAllocated > 8))
-                   ||([blobKey hasSuffix:@"-OW"] && (bitsAllocated < 9))
-                   )
-               {
-                  LOG_WARNING(@"%@ mismatch OB/OW in relation to (0028,0100)",blobKey);
-                  return shortsIndex;
-               }
-                */
-               
                //offset of first fragment
                shortsIndex+=6;
                if (shortsIndex + 4 >= postShortsIndex)
@@ -804,15 +792,14 @@ NSUInteger D2J(
                   
                
                NSMutableData *frameData=[NSMutableData data];
-               //frames used for blob_dict and blob_inline
+               //frames used for blobModeResources and blobModeInline
                NSMutableArray *frames=[NSMutableArray array];
                NSMutableArray *fragmentRefs=[NSMutableArray array];
                NSMutableData *offsetData=[NSMutableData data];
-               uint32 *offsets;
-               int currentFrameOffset=0;
+               uint32 *offsets;//tabla de offsets de fragmentos
+               int currentFrameOffset=0;//primer fragment de un frame en la tabla
                int offsetCount=0;//by default, no table
                int offsetAfter=0xFFFFFFFF;
-               
                
                if (vll != 0)
 #pragma mark ·· first fragment is an offset table ?
@@ -831,9 +818,9 @@ NSUInteger D2J(
                      offsets=(uint32 *)[offsetData bytes];
                      offsetCount= sizeof(offsets) / 4;//or offsetTable.length / 4
                      
-                     //for blob_sourcePointer
+                     //for blobModeSource
                      NSString *urlString=[NSString stringWithFormat:@"file:%@?offset=%lu&amp;length=%d",blobRefPrefix,(shortsIndex+2)*2, vll];
-                     [fragmentRefs addObject:@{ @"00000000":urlString}];
+                     [fragmentRefs addObject:@{ @"Fragment#00000000":@[urlString]}];
 
                      
                      
@@ -861,14 +848,6 @@ NSUInteger D2J(
                else //(vll == 0)
 #pragma mark ·· first fragment is NOT an offset table
                {
-                  //case blob_sourcePointer:
-                  NSString *urlString=[NSString stringWithFormat:@"file:%@?offset=%lu&amp;length=%d",blobRefPrefix,(shortsIndex+2)*2, vll];
-                  if (vll==0) [fragmentRefs addObject:@{ @"00000000":urlString}];
-                  else [fragmentRefs addObject:@{ @"00000001":urlString}];
-
-
-                  
-                  
                   [offsetData appendBytes:&offsetAfter length:4];
                   offsets=(uint32 *)[offsetData bytes];
                   offsetCount=1;
@@ -877,12 +856,6 @@ NSUInteger D2J(
                   tag = shortsBuffer[shortsIndex]
                       + ( shortsBuffer[shortsIndex+1] << 16 );
                   
-                  if (tag == 0xe0ddfffe)
-                  {
-                     LOG_WARNING(@"%@ empty offsetTable",blobKey);
-                     return shortsIndex;
-                  }
-
                   if (tag!=0xe000fffe)
                   {
                      LOG_WARNING(@"%@ encapsulated item markup problem",blobKey);
@@ -896,12 +869,10 @@ NSUInteger D2J(
 #pragma mark .. loop fragments
                while (shortsIndex < postShortsIndex) //(end of sequence)
                {
-                  
                   if (
                          (tag==0xe0ddfffe)
                       || (shortsIndex > offsets[currentFrameOffset])
-                      )
-                     //break on end of pixel attribute
+                      ) //sequence end
                   {
                      //add a frame?
                      if (frameData.length)
@@ -921,11 +892,15 @@ NSUInteger D2J(
                      return failure;
                   }
                   
-                  //for blob_sourcePointer
+                  //for blobModeSource
                   NSString *urlString=[NSString stringWithFormat:@"file:%@?offset=%lu&amp;length=%d",blobRefPrefix,(shortsIndex+2)*2, vll];
-                  NSString *itemString=[NSString stringWithFormat:@"%08d",currentFrameOffset+1];
-                  [fragmentRefs addObject:@{ itemString :urlString}];
-                  [frameData setData:[data subdataWithRange:NSMakeRange(shortsIndex+shortsIndex+8,vll)]];
+                  NSString *itemString=[NSString stringWithFormat:@"Fragment#%08d",fragmentRefs.count+1];
+                  [fragmentRefs addObject:
+                   @{
+                      itemString : @[ urlString ]
+                   }
+                   ];
+                  [frameData appendData:[data subdataWithRange:NSMakeRange(shortsIndex+shortsIndex+8,vll)]];
 
                   
                   //new tag and length
@@ -934,19 +909,18 @@ NSUInteger D2J(
                       + ( shortsBuffer[shortsIndex+1] << 16 );
                   vll = ( shortsBuffer[shortsIndex+2]       )
                       + ( shortsBuffer[shortsIndex+3] << 16 );
-                  
                }//end loop fragments
                
 #pragma mark .. finalize
                switch (blobMode) {
                      
-#pragma mark ···blob_sourcePointer
-                  case blob_sourcePointer:
+#pragma mark ···blobModeSource
+                  case blobModeSource:
                      [attrDict setObject:fragmentRefs forKey:blobKey];
                      break;
                      
-#pragma mark ···blob_dict
-                  case blob_dict:
+#pragma mark ···blobModeResources
+                  case blobModeResources:
                   {
                      NSString *extension;
                      NSArray *tsArray=(attrDict[@"00000001_00020010-UI"]);
@@ -963,14 +937,14 @@ NSUInteger D2J(
                         NSString *relativeString=[NSString stringWithFormat:@"%@#%08d%@",blobKey,i+1,extension?extension:@""];
                         [blobDict setObject:frames[i] forKey:relativeString];
                         
-                        [bulkdatas addObject:@{ [NSString stringWithFormat:@"%08d",i+1] :  [blobRefPrefix stringByAppendingPathComponent:relativeString] }];
+                        [bulkdatas addObject:@{[NSString stringWithFormat:@"Frame#%08d",i+1] : @[[blobRefPrefix stringByAppendingPathComponent:relativeString]]}];
                      }
                      [attrDict setObject:bulkdatas forKey:blobKey];
                   }
                      break;
 
-#pragma mark ···blob_inline
-                  default://blob_inline || vll < blobMinSize
+#pragma mark ···blobModeInline
+                  default://blobModeInline || vll < blobMinSize
                   {
                      NSMutableArray *b64s=[NSMutableArray array];
                      for (NSData *frame in frames)
@@ -984,18 +958,18 @@ NSUInteger D2J(
                }
             }
             else
-#pragma mark · native
+#pragma mark · native (any binary or document)
             {
                switch (blobMode * (vll >= blobMinSize))
                {
-                  case blob_sourcePointer:
+                  case blobModeSource:
                   {
                      NSString *urlString=[NSString stringWithFormat:@"file:%@?offset=%lu&amp;length=%d",blobRefPrefix,(shortsIndex+6)*2,vll];
-                     [attrDict setObject:@[@{ @"BulkData":urlString}] forKey:blobKey];
+                     [attrDict setObject:@[@{ @"Native":@[urlString]}] forKey:blobKey];
                   }
                      break;
 
-                  case blob_dict:
+                  case blobModeResources:
                   {
                      NSString *extension;
                      NSString *sopClass=(attrDict[@"00000001_00080016-UI"])[0];
@@ -1008,20 +982,35 @@ NSUInteger D2J(
                         else if  ([sopClass isEqualToString:@"1.2.840.10008.​5.​1.​4.​1.​1.​104.​4"]) extension=@".obj";
                         else if  ([sopClass isEqualToString:@"1.2.840.10008.​5.​1.​4.​1.​1.​104.​5"]) extension=@".mtl";
                      }
- 
-                     NSString *relativeString=[NSString stringWithFormat:@"%@%@",blobKey,extension?extension:@""];
-                     [blobDict setObject:[data subdataWithRange:NSMakeRange((shortsIndex+6)*2,vll)] forKey:relativeString];
-                     
-                     [attrDict setObject:@[@{ @"BulkData":[blobRefPrefix stringByAppendingPathComponent:relativeString]}] forKey:blobKey];
+
+                     NSString *urlString=[NSString stringWithFormat:@"%@%@%@%@",
+                                             blobRefPrefix?blobRefPrefix:@"",
+                                            blobKey,
+                                             blobRefSuffix?blobRefSuffix:@"",
+                                          extension?extension:@""
+                                             ];
+                     [attrDict setObject:@[@{ @"Native":@[urlString]}] forKey:blobKey];
+                     [blobDict setObject:[data subdataWithRange:NSMakeRange((shortsIndex+6)*2,vll)] forKey:urlString];
                   }
                      break;
 
-                  default://blob_inline || vll < blobMinSize
+                  default://blobModeInline || vll < blobMinSize
                   {
                      NSData *contents=[data subdataWithRange:NSMakeRange((shortsIndex+6)*2,vll)];
                      
                      //convert to JSON base64 (solidus written \/)
                      [attrDict setObject:@[B64JSONstringWithData(contents)] forKey:blobKey];
+                     //for eventual j2k compression
+                     
+                     if ([blobKey hasPrefix:@"00000001_7FE00010"])
+                     {
+                        NSString *urlString=[NSString stringWithFormat:@"%@%@%@",
+                                                blobRefPrefix?blobRefPrefix:@"",
+                                               blobKey,
+                                                blobRefSuffix?blobRefSuffix:@""
+                                                ];
+                        [blobDict setObject:contents forKey:urlString];
+                     }
                   }
                      break;
                }
@@ -1135,4 +1124,198 @@ int D2dict(
       return failure;
    }
    return success;
+}
+
+NSMutableString* json4attrDict(NSMutableDictionary *attrDict)
+{
+   //NSData *JSONdata=[NSJSONSerialization dataWithJSONObject:@{@"dataset":dict} options:NSJSONWritingSortedKeys error:&error];//10.15 || NSJSONWritingWithoutEscapingSlashes
+
+   NSMutableString *JSONstring=[NSMutableString stringWithString:@"{ \"dataset\": { "];
+   NSArray *keys=[[attrDict allKeys] sortedArrayUsingSelector:@selector(compare:)];
+   
+   
+#pragma mark loop on ordered keys
+   for (NSString *key in keys)
+   {
+      LOG_DEBUG(@"%@",key);
+      [JSONstring appendFormat:@"\"%@\": ",key];
+      
+      switch ([key characterAtIndex:key.length-2]+([key characterAtIndex:key.length-1]*0x100))
+      {
+         
+#pragma mark · string based attributes
+//AS DA AE DT TM CS LO LT PN SH ST PN UC UT UR UI OB OD OF OL OV OW UN AT
+         case 0x5341://AS
+         case 0x4144://DA
+         case 0x4541://AE
+         case 0x5444://DT
+         case 0x4d54://TM
+         case 0x5343://CS
+         case 0x4f4c://LO
+         case 0x544c://LT
+         case 0x4853://SH
+         case 0x5453://ST
+         case 0x4e50://PN
+         case 0x4355://UC
+         case 0x5455://UT
+         case 0x5255://UR
+         case 0x4955://UI
+         case 0x5441://AT
+         {
+            switch ([attrDict[key] count]) {
+               case 0:
+               {
+                  [JSONstring appendString:@"[], "];
+                  break;
+               }
+
+               case 1:
+               {
+                  [JSONstring appendFormat:@"[ \"%@\" ], ",
+                   (attrDict[key])[0]];
+                  break;
+               }
+
+               default:
+               {
+                  [JSONstring appendString:@"[ "];
+                  for (NSString *string in attrDict[key])
+                  {
+                     [JSONstring appendFormat:@"\"%@\", ",
+                      string];
+                  }
+                  [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-2,2)];
+                  [JSONstring appendString:@"], "];
+
+                  break;
+               }
+            }
+            
+            break;
+         }
+            
+            
+#pragma mark · string or map based
+         case 0x424F://OB
+         case 0x444F://OD
+         case 0x464F://OF
+         case 0x4C4F://OL
+         case 0x564F://OV
+         case 0x574F://OW
+         case 0x4E55://UN
+         {
+            switch ([attrDict[key] count]) {
+               case 0:
+               {
+                  [JSONstring appendString:@"[], "];
+                  break;
+               }
+
+               case 1:
+               {
+                  id obj=(attrDict[key])[0];
+                  if ([obj isKindOfClass:[NSString class]])
+                  {
+                     [JSONstring appendFormat:@"[ \"%@\" ], ",
+                   obj];
+                  }
+                  else //@[@{ @"Frame#00000001":[urlString]}]
+                  {
+                     NSString *subKey=([obj allKeys])[0];
+                     [JSONstring appendFormat:@"[ { \"%@\": [ \"%@\" ] } ], ",subKey, obj[subKey][0]];
+                  }
+                  break;
+               }
+
+               default://more than one value
+               {
+                  [JSONstring appendString:@"[ "];
+                  id obj=(attrDict[key])[0];
+                  if ([obj isKindOfClass:[NSString class]])
+                  {
+                     for (NSString *string in attrDict[key])
+                     {
+                        [JSONstring appendFormat:@"\"%@\", ",
+                         string];
+                     }
+                     [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-2,2)];
+                     [JSONstring appendString:@" ], "];
+                  }
+                  else //@[@{ @"BulkData":urlString}]
+                  {
+                     for (NSDictionary *d in attrDict[key])
+                     {
+                        NSString *subKey=([d allKeys])[0];
+                        [JSONstring appendFormat:@"{ \"%@\": [ \"%@\" ] }, ",subKey, d[subKey][0]];
+                     }
+                     [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-2,2)];
+                     [JSONstring appendString:@"], "];
+                  }
+                  break;
+               }
+            }
+            break;
+         }
+            
+            
+#pragma mark · null based
+//SQ IQ IZ SZ
+         case 0x5153://SQ
+         case 0x5149://IQ
+         case 0x5A49://IZ
+         case 0x5A53://SZ
+         {
+            [JSONstring appendString:@"null, "];
+            break;
+         }
+
+            
+#pragma mark · number based attributes
+//IS DS SL UL SS US SV UV FL FD
+         case 0x5349://IS
+         case 0x5344://DS
+         case 0x4C53://SL
+         case 0x4C55://UL
+         case 0x5353://SS
+         case 0x5355://US
+         case 0x5653://SV
+         case 0x5655://UV
+         case 0x4C46://FL
+         case 0x4446://FD
+         {
+            switch ([attrDict[key] count]) {
+               case 0:
+               {
+                  [JSONstring appendString:@"[], "];
+                  break;
+               }
+
+               case 1:
+               {
+                  [JSONstring appendFormat:@"[ %@ ], ",
+                   (attrDict[key])[0]];
+                  break;
+               }
+
+               default:
+               {
+                  [JSONstring appendString:@"[ "];
+                  for (NSString *string in attrDict[key])
+                  {
+                     [JSONstring appendFormat:@"%@, ",
+                      string];
+                  }
+                  [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-2,2)];
+                  [JSONstring appendString:@"], "];
+
+                  break;
+               }
+            }
+            break;
+         }
+      }
+   }
+   [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-2,2)];
+   [JSONstring appendString:@" } }"];
+   return JSONstring;
 }

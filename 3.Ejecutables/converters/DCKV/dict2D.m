@@ -18,7 +18,7 @@
 #import "ODLog.h"
 #import "DCMcharset.h"
 #import "NSData+DCMmarkers.h"
-
+#import "B64.h"
 
 static uint8 paddingspace=' ';
 static uint8 paddingzero=0;
@@ -28,6 +28,7 @@ static uint16 vl8=8;
 static uint32 vll0=0xFFFFFFFF;
 static uint32 undefinedlength=0xFFFFFFFF;
 static uint64 itemstart=0xffffffffe000fffe;
+static uint64 itemempty=0xe000fffe;
 static uint64 itemend=0xe00dfffe;
 static uint64 SQend=0xe0ddfffe;
 static uint8 hexa[]={
@@ -59,7 +60,7 @@ uint32 shortshortFromFourByteHexaString(NSString *string)
 #pragma mark TODO: encodings
 
 
-int dict2D(NSDictionary *attrs, NSMutableData *data)
+int dict2D(NSDictionary *attrs, NSMutableData *data, BOOL native, NSString *bulkdataURLstring)
 {
     if (attrs && attrs.count)
     {
@@ -620,21 +621,69 @@ int dict2D(NSDictionary *attrs, NSMutableData *data)
                 */
                case 0x4E55://UN
                {
-                  if (tag==0xe07f1000)
+                  [data appendBytes:&tag length:4];
+                  [data appendBytes:&vr length:2];
+                  [data appendBytes:&vl0 length:2];
+                  
+                  if ((tag==0x107fe0) && !native)
                   {
-                     
-                     //if ([[NSDictionary class])
 #pragma mark .fragments
-                     {
-                     //   break;
+                    [data appendBytes:&undefinedlength length:4];
+                     switch ([attrs[key] count]) {
+                           
+                        case 0://no fragments
+#pragma mark .. 0
+                           break;
+                           
+                        case 1://empty offset table
+#pragma mark .. 1
+                        {
+                           [data appendBytes:&itemempty length:8];
+                           
+                           id obj=(attrs[key])[0];
+                           if ([obj isKindOfClass:[NSDictionary class]])
+#pragma mark ... dict
+                           {
+                              [data appendBytes:&itemstart length:4];
+                              if(obj[@"BulkData"])
+#pragma mark .... BulkData => bulkdata dict
+                              {
+                                 
+                              }
+                              else
+#pragma mark .... XXXXXXXX => original dicom
+                              {
+
+                              }
+
+                           }
+                           else if ([obj isKindOfClass:[NSString class]])
+#pragma mark ... string=>inline
+                           {
+                              [data appendBytes:&itemstart length:4];
+                              NSData *firstValueData=dataWithB64String(obj);
+                              uint32 b64decodedLength=(uint32)firstValueData.length;
+                              [data appendBytes:&b64decodedLength length:4];
+                              [data appendData:firstValueData];
+                           }
+                           else return failure;
+                        }
+                           break;
+
+                        default:
+#pragma mark .. many
+                        {
+                           
+                        }
+                           break;
                      }
+                     
+                     [data appendBytes:&SQend length:8];
+                     break;
                   }
                   
 #pragma mark .native
                   
-                  [data appendBytes:&tag length:4];
-                  [data appendBytes:&vr length:2];
-                  [data appendBytes:&vl0 length:2];
                   if ([attrs[key] count])
                   {
                      id obj=(attrs[key])[0];

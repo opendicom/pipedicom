@@ -1,10 +1,40 @@
 # Converters
 
-DCKV (Dicom Contextualized-Key Values) may be used  for parsing. This results to a map of keyed arrays in memory. The  map corresponds to the dataset. On the one hand, each key is a concatenation of the tag of the attribute and the tags of its context sequences. On the other hand, each array contains zero or more values for the attribute.
+DCKV (Dicom Contextualized-Key Values) may be used  for parsing. The result is a map of keyed arrays in memory. The  map corresponds to the dataset. Each key is a concatenation of the tag of the attribute and the tags of its context sequences. Each array contains zero or more values for the attribute.
 
-This fairly simple construct in memory may be fastly serialized into JSON file where map and array are the two structuring artefacts. JSON - and BSON, similar but better for binary contents - are our preferred file formats for DICOM.
+This fairly simple construct in memory may be fastly serialized into JSON  where map and array are the two structuring artifacts. It allows granular access to any of the bits of information as XPath do for the XML based representation. 
 
-From JSON map of array, there exists a standard translation into a corresponding construct in XML thanks to the XPath3.1 json2xml() function.
+Moreover, from JSON map of array, there exists a standard translation into a corresponding construct in XML thanks to the XPath3.1 json2xml() function.
+
+
+## Converters stack
+
+xml -> xslt -> xml
+      \             /
+          json
+             |
+        dicom
+
+
+## dicom -> json converter blob modes
+
+Three alternative blob modes are implemented in the converter dicom -> json:
+- source: json attributes contain an url pointing at a subarray of bytes within the original dicom file
+- inline: the attributes contain the blob coded base64 within a string
+- resources: json attributes contain an url pointing to a distinct external file for each of the blobs
+
+inline is always used for blobs smaller than a minimal size.
+
+
+## optional conversion native explicit little endian to j2k enclosed
+
+When json converter blob mode is inline or resources, that is when the product does not refer to the original, we added an option to convert on the flight native explicit little endian to j2k enclosed.
+
+
+## JSON representation of blobs
+
+
+
 
 ## "D2dict": parsing from DICOM to map of array
 The function "D2dict" is found in the framework DCKV. It can be used by other programs by linking to the framework.

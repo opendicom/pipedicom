@@ -201,13 +201,22 @@ int visibleFiles(NSFileManager *fileManager, NSArray *mountPoints, NSMutableArra
          {
             NSError *error;
             NSArray *contents=[fileManager contentsOfDirectoryAtPath:noSymlink error:&error];
+            
+#pragma mark TODO agregar base URL prefix to each of the file names.
+            
             if (error)
             {
                LOG_WARNING(@"bad directory path %@",noSymlink);
                return failure;
             }
             
-            if (visibleFiles(fileManager,contents, paths) != success) return failure;
+            NSMutableArray *contentsPaths=[NSMutableArray array];
+            for (NSString *name in contents)
+            {
+               [contentsPaths addObject:[mountPoint stringByAppendingPathComponent:name]];
+            }
+            
+            if (visibleFiles(fileManager,contentsPaths, paths) != success) return failure;
          }
          else [paths addObject:noSymlink];
       }

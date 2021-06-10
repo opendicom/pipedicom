@@ -52,19 +52,15 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "test SCSFREN.dcm"
+            argument = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/Samples/D/SC1.ele.dcm"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "test FluroWithDisplayShutterj2k.dcm"
+            argument = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/Samples/D/SC1.j2kr.dcm"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "test FluroWithDisplayShutter.dcm"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "test SCSARAB.dcm"
+            argument = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/Samples/D/"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
@@ -76,7 +72,7 @@
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "D2JlogLevel"
-            value = "DEBUG"
+            value = "INFO"
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
@@ -91,27 +87,32 @@
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "D2JblobMode"
-            value = "blob_inline"
+            value = "blobModeInline"
             isEnabled = "NO">
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "D2JblobMode"
-            value = "blob_sourcePointer"
-            isEnabled = "NO">
-         </EnvironmentVariable>
-         <EnvironmentVariable
-            key = "D2JblobMode"
-            value = "blob_dict"
+            value = "blobModeSource"
             isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "D2JblobMode"
+            value = "blobModeResources"
+            isEnabled = "NO">
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "D2JblobRefPrefix"
             value = ""
-            isEnabled = "YES">
+            isEnabled = "NO">
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "D2JblobRefSuffix"
             value = ""
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "D2JcompressJ2K"
+            value = "true"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>

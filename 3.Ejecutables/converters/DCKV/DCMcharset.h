@@ -85,7 +85,7 @@ TIS 620-2533 (1990) Thai Characters Code for Information Interchange
  */
 
 /*
- For M representation, for SH,LO,UC,ST,LT,UT and PN we prefix the VR with the corresponding (0008,0005) encoding, optionally so if the encoding is latin 1.
+ For SH,LO,UC,ST,LT,UT and PN we prefix the VR with the corresponding (0008,0005) encoding, optionally so if the encoding is latin 1.
  
  For PN there may be up to three encodings, the first being null or not. There are appened from left to right after the hyphen.
  Example: -000020584000PN  (first person name with first encoding null, second simplified chinese and third GBK
