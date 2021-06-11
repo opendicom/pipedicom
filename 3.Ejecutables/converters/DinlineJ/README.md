@@ -1,4 +1,4 @@
-# D2J
+# DinlineJ
 
 DICOM binary to DCKV JSON
 
