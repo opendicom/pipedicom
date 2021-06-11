@@ -114,6 +114,7 @@
 		4ADA4EEA2672A7A3008F98DB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ADA4EE92672A7A3008F98DB /* main.m */; };
 		4ADA4EFC2672A7B5008F98DB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ADA4EFB2672A7B5008F98DB /* main.m */; };
 		4ADA4F732672F393008F98DB /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
+		4ADA4F7E26738D8E008F98DB /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
 		4AE7CEAA25E7CBE0004942E3 /* dicomattrs.hex in Resources */ = {isa = PBXBuildFile; fileRef = 4A7B85AC2582A4C300E62971 /* dicomattrs.hex */; };
 		4AE7CEB725E7CBE0004942E3 /* M.xsd in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE92125B1A8FE00C8D33F /* M.xsd */; };
 		4AE7CEB825E7CBE0004942E3 /* M1N.xsl in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE91E25B1A8FE00C8D33F /* M1N.xsl */; };
@@ -131,6 +132,13 @@
 			remoteInfo = DCKV;
 		};
 		4ADA4F712672F38C008F98DB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4A7B856A258002A100E62971 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4A025F3A25E5C455005AA1A3;
+			remoteInfo = DCKV;
+		};
+		4ADA4F7C26738D88008F98DB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4A7B856A258002A100E62971 /* Project object */;
 			proxyType = 1;
@@ -367,6 +375,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4ADA4F7E26738D8E008F98DB /* DCKV.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -807,6 +816,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				4ADA4F7D26738D88008F98DB /* PBXTargetDependency */,
 			);
 			name = DsourceJ;
 			productName = DsourceJ;
@@ -1104,6 +1114,11 @@
 			isa = PBXTargetDependency;
 			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
 			targetProxy = 4ADA4F712672F38C008F98DB /* PBXContainerItemProxy */;
+		};
+		4ADA4F7D26738D88008F98DB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
+			targetProxy = 4ADA4F7C26738D88008F98DB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

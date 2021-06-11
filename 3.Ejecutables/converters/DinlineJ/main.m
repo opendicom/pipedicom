@@ -20,7 +20,8 @@ int main(int argc, const char * argv[]) {
       while ((moreData=[readingFileHandle availableData]) && moreData.length) [inputData appendData:moreData];
       
       ODLogLevel=4;//ERROR (default)
-      freopen([@"/Users/Shared/DInlineJ.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
+      FILE *fp;
+      fp=freopen([@"/Users/Shared/DinlineJ.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
          
 #pragma mark · parse
       NSMutableDictionary *attrDict=[NSMutableDictionary dictionary];
@@ -34,7 +35,12 @@ int main(int argc, const char * argv[]) {
                  @"",
                  blobDict
                  )
-          ) return 1;
+          )
+      {
+         LOG_ERROR(@"could not parse DICOM");
+         fclose(fp);
+         return 1;
+      }
 
 #pragma mark · jsondata
       NSMutableString *JSONstring=json4attrDict(attrDict);
@@ -42,9 +48,12 @@ int main(int argc, const char * argv[]) {
       if (!JSONdata)
       {
          LOG_ERROR(@"could not transform to JSON: %@",[attrDict description]);
+         fclose(fp);
          return 1;
       }
       [JSONdata writeToFile:@"/dev/stdout" atomically:NO];
+      fclose(fp);
    }//end autorelease pool
+
    return 0;
 }

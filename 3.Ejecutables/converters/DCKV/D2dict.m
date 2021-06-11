@@ -996,7 +996,7 @@ NSUInteger D2J(
                   case blobModeResources:
                   {
                      NSString *extension;
-                     NSString *sopClass=(attrDict[@"00000001_00080016-UI"])[0];
+                     NSString *sopClass=attrDict[@"00000001_00080016-UI"][0];
 
                      if ([blobKey isEqualToString:@"00000001_00420011-OB"] && [sopClass hasPrefix:@"1.2.840.10008.​5.​1.​4.​1.​1.​104.​"]) //encapsulated
                      {
@@ -1024,17 +1024,6 @@ NSUInteger D2J(
                      
                      //convert to JSON base64 (solidus written \/)
                      [attrDict setObject:@[B64JSONstringWithData(contents)] forKey:blobKey];
-                     //for eventual j2k compression
-                     
-                     if ([blobKey hasPrefix:@"00000001_7FE00010"])
-                     {
-                        NSString *urlString=[NSString stringWithFormat:@"%@%@%@",
-                                                blobRefPrefix?blobRefPrefix:@"",
-                                               blobKey,
-                                                blobRefSuffix?blobRefSuffix:@""
-                                                ];
-                        [blobDict setObject:contents forKey:urlString];
-                     }
                   }
                      break;
                }
@@ -1196,7 +1185,7 @@ NSMutableString* json4attrDict(NSMutableDictionary *attrDict)
                case 1:
                {
                   [JSONstring appendFormat:@"[ \"%@\" ], ",
-                   (attrDict[key])[0]];
+                   attrDict[key][0]];
                   break;
                }
 
@@ -1237,7 +1226,7 @@ NSMutableString* json4attrDict(NSMutableDictionary *attrDict)
 
                case 1:
                {
-                  id obj=(attrDict[key])[0];
+                  id obj=attrDict[key][0];
                   if ([obj isKindOfClass:[NSString class]])
                   {
                      [JSONstring appendFormat:@"[ \"%@\" ], ",
@@ -1245,7 +1234,7 @@ NSMutableString* json4attrDict(NSMutableDictionary *attrDict)
                   }
                   else //@[@{ @"Frame#00000001":[urlString]}]
                   {
-                     NSString *subKey=([obj allKeys])[0];
+                     NSString *subKey=[obj allKeys][0];
                      [JSONstring appendFormat:@"[ { \"%@\": [ \"%@\" ] } ], ",subKey, obj[subKey][0]];
                   }
                   break;
@@ -1254,7 +1243,7 @@ NSMutableString* json4attrDict(NSMutableDictionary *attrDict)
                default://more than one value
                {
                   [JSONstring appendString:@"[ "];
-                  id obj=(attrDict[key])[0];
+                  id obj=attrDict[key][0];
                   if ([obj isKindOfClass:[NSString class]])
                   {
                      for (NSString *string in attrDict[key])
@@ -1269,7 +1258,7 @@ NSMutableString* json4attrDict(NSMutableDictionary *attrDict)
                   {
                      for (NSDictionary *d in attrDict[key])
                      {
-                        NSString *subKey=([d allKeys])[0];
+                        NSString *subKey=[d allKeys][0];
                         [JSONstring appendFormat:@"{ \"%@\": [ \"%@\" ] }, ",subKey, d[subKey][0]];
                      }
                      [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-2,2)];
@@ -1316,8 +1305,7 @@ NSMutableString* json4attrDict(NSMutableDictionary *attrDict)
 
                case 1:
                {
-                  [JSONstring appendFormat:@"[ %@ ], ",
-                   (attrDict[key])[0]];
+                  [JSONstring appendFormat:@"[ %@ ], ", attrDict[key][0]];
                   break;
                }
 

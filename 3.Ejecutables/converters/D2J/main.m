@@ -270,10 +270,10 @@ int main(int argc, const char * argv[]) {
                            @[
                               @"-F",
                               [NSString stringWithFormat:@"%u,%d,%d,%d,u",
-                               [(attrDict[@"00000001_00280011-US"])[0] unsignedShortValue],//columns
-                               [(attrDict[@"00000001_00280010-US"])[0] unsignedShortValue],//rows
-                               [(attrDict[@"00000001_00280002-US"])[0] unsignedShortValue],//samples
-                               [(attrDict[@"00000001_00280101-US"])[0] unsignedShortValue] //bits
+                               [attrDict[@"00000001_00280011-US"][0] unsignedShortValue],//columns
+                               [attrDict[@"00000001_00280010-US"][0] unsignedShortValue],//rows
+                               [attrDict[@"00000001_00280002-US"][0] unsignedShortValue],//samples
+                               [attrDict[@"00000001_00280101-US"][0] unsignedShortValue] //bits
                                ],
                               @"-InFor",
                               @"rawl",
@@ -362,7 +362,7 @@ int main(int argc, const char * argv[]) {
                {
                   NSMutableArray *inputPathComponents=[NSMutableArray arrayWithArray:[inputPath pathComponents]];
 
-                  if (![inputPathComponents[0] length])[inputPathComponents removeObjectAtIndex:0];//case of absolute paths
+                  if (![inputPathComponents[0] length]) [inputPathComponents removeObjectAtIndex:0];//case of absolute paths
                   while (relativePathComponents < inputPathComponents.count)
                   {
                      [inputPathComponents removeObjectAtIndex:0];
