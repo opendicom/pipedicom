@@ -219,114 +219,121 @@ int main(int argc, const char * argv[]) {
                 && [attrDict[@"00000001_00020010-UI"][0] isEqualToString:@"1.2.840.10008.1.2.1"]
                 )
             {
+               NSString *nativeUrlString=attrDict[pixelKey][0][@"Native"][0];
+
                NSData *pixelData=nil;
                if ([attrDict[pixelKey][0] isKindOfClass:[NSDictionary class]])  pixelData=blobDict[attrDict[pixelKey][0][@"Native"][0]];
-               else pixelData=blobDict[pixelKey];
-               NSMutableData *j2kData=[NSMutableData data];
-               int result=execTask(
-                        nil,
-                        @"opj_compress",
-                        @[
-                           @"-F",
-                           [NSString stringWithFormat:@"%u,%d,%d,%d,u",
-                            [attrDict[@"00000001_00280011-US"][0] unsignedShortValue],//columns
-                            [attrDict[@"00000001_00280010-US"][0] unsignedShortValue],//rows
-                            [attrDict[@"00000001_00280002-US"][0] unsignedShortValue],//samples
-                            [attrDict[@"00000001_00280101-US"][0] unsignedShortValue] //bits
-                            ],
-                           @"-i",
-                           @"stdin.rawl",
-                           @"-o",
-                           @"stdout.j2k",
-                           @"-n",
-                           @"6",
-                           @"-r",
-                           @"50,40,30,20,10,1", //6 quality layers
-                           @"-p",
-                           @"RLCP",//B.11.1.2 Resolution-layer-component-position
-                           @"-TP",
-                           @"R"//Tile-parts
-                        ],
-                        pixelData,
-                        j2kData
-                        );
+               else pixelData=dataWithB64String(blobDict[pixelKey]);
+               NSUInteger pixelTotalLength=pixelData.length;
                
-               if (result !=0)
+               NSUInteger frameTotal=1;
+               if (attrDict[@"00000001_00280008-IS"]) frameTotal=[attrDict[@"00000001_00280008-IS"][0] unsignedIntegerValue];
+               NSUInteger frameLength=pixelTotalLength / frameTotal;
+               
+               for (NSUInteger frameNumber=0; frameNumber<frameTotal; frameNumber++)
                {
-                  NSString *errorString=[[NSString alloc]initWithData:j2kData encoding:NSUTF8StringEncoding];
-                  LOG_ERROR(@"compression J2K: %@",errorString);
-               }
-               else
-               {
-#pragma mark ·· modify attrs
-                  [attrDict setObject:@[@"1.2.840.10008.1.2.4.90"] forKey:@"00000001_00020010-UI"];
-                  
+//modifyWithFrameNumber
+                  NSString *encapsulatedUrlBaseString=[nativeUrlString stringByReplacingOccurrencesOfString:pixelKey withString:@"00000001_7FE00010"];
 
+                  NSMutableData *j2kData=[NSMutableData data];
+                  int result=execTask(
+                           nil,
+                           @"opj_compress",
+                           @[
+                              @"-F",
+                              [NSString stringWithFormat:@"%u,%d,%d,%d,u",
+                               [attrDict[@"00000001_00280011-US"][0] unsignedShortValue],//columns
+                               [attrDict[@"00000001_00280010-US"][0] unsignedShortValue],//rows
+                               [attrDict[@"00000001_00280002-US"][0] unsignedShortValue],//samples
+                               [attrDict[@"00000001_00280101-US"][0] unsignedShortValue] //bits
+                               ],
+                              @"-i",
+                              @"stdin.rawl",
+                              @"-o",
+                              @"stdout.j2k",
+                              @"-n",
+                              @"6",
+                              @"-r",
+                              @"50,40,30,20,10,1", //3 quality layers
+                              @"-p",
+                              @"RLCP",//B.11.1.2 Resolution-layer-component-position
+                              @"-TP",
+                              @"R"//Tile-parts
+                           ],
+                           [pixelData subdataWithRange:NSMakeRange(frameNumber*frameLength,frameLength)],
+                           j2kData
+                           );
                   
-                  [attrDict setObject:@[[NSString stringWithFormat:@"Lossless compression J2K codec openjpeg 2.5, compression ratio %05f (pixel data size:%lu md5:%@)",1.0*pixelData.length/j2kData.length,(unsigned long)pixelData.length,[pixelData MD5String]]] forKey:@"00000001_00082111-ST"];
-
-                  [attrDict setObject:@[@"J2K sin pérdida. 1 tile. 6 tile-part quality layer (50,40,30,20,10,1)"] forKey:@"00000001_00204000-2006LT"];
-
-                  
-                 NSString *nativeUrlString=attrDict[pixelKey][0][@"Native"][0];
-                 NSString *encapsulatedUrlBaseString=[nativeUrlString stringByReplacingOccurrencesOfString:pixelKey withString:@"00000001_7FE00010"];
-                 [attrDict removeObjectForKey:pixelKey];
-           
-                  
-#pragma mark ·· subdivide j2kData
-                  
-                  NSUInteger fragmentOffset=0;
-                  int fragmentCounter=1;
-                  
-                  NSUInteger j2kLength=j2kData.length;
-                  NSRange j2kRange=NSMakeRange(fragmentOffset,j2kLength);
-                  
-                  //first SOC
-                  NSRange nextSOCRange=[j2kData rangeOfData:NSData.SOT
-                                                    options:0
-                                                      range:j2kRange];
-                  
-                  //second SOC
-                  j2kRange.location=nextSOCRange.location + nextSOCRange.length;
-                  j2kRange.length=j2kLength-j2kRange.location;
-                  nextSOCRange=[j2kData rangeOfData:NSData.SOT
-                                                    options:0
-                                                      range:j2kRange];
-                  
-                  NSMutableArray *pixelAttrArray=[NSMutableArray array];
-                  NSMutableString *fragmentCounterString=[NSMutableString string];
-                  while (nextSOCRange.location != NSNotFound)
+                  if (result !=0)
                   {
-                     NSString *fragmentName=[NSString stringWithFormat:@"%@#00000001:1.j2k%@",encapsulatedUrlBaseString,fragmentCounterString]
-                     ;
-                     [pixelAttrArray addObject:fragmentName];
-                     [blobDict setObject:[j2kData subdataWithRange:NSMakeRange(fragmentOffset, nextSOCRange.location - fragmentOffset)] forKey:fragmentName];
+                     NSString *errorString=[[NSString alloc]initWithData:j2kData encoding:NSUTF8StringEncoding];
+                     LOG_ERROR(@"compression J2K: %@",errorString);
+                  }
+                  else
+                  {
+      #pragma mark ·· subdivide j2kData
+                     NSMutableArray *pixelAttrArray=[NSMutableArray array];
 
-                     fragmentOffset=nextSOCRange.location;
-
-                     j2kRange.location=nextSOCRange.location + nextSOCRange.length;
-                     j2kRange.length=j2kLength-j2kRange.location;
-                     nextSOCRange=[j2kData rangeOfData:NSData.SOT
+                     NSUInteger fragmentOffset=0;
+                     int fragmentCounter=0;
+                     NSUInteger j2kLength=j2kData.length;
+                     NSRange j2kRange=NSMakeRange(fragmentOffset,j2kLength);
+                     NSRange nextSOCRange=[j2kData rangeOfData:NSData.SOT
                                                        options:0
                                                          range:j2kRange];
-                     [fragmentCounterString setString:[NSString stringWithFormat:@"%d",fragmentCounter]];
-                     fragmentCounter++;
-                  }
-                  //last tile-part (ended with EOC)
-                  //[j2kData writeToFile:@"/Users/Shared/6.j2k" atomically:NO];
-                  nextSOCRange=[j2kData rangeOfData:NSData.EOC
-                                                    options:0
-                                                      range:j2kRange];
-                  NSString *fragmentName=[NSString stringWithFormat:@"%@#00000001:1.j2kr",encapsulatedUrlBaseString]
-                  ;
-                  [pixelAttrArray addObject:fragmentName];
-                  [blobDict setObject:[j2kData subdataWithRange:NSMakeRange(fragmentOffset, nextSOCRange.location-fragmentOffset)] forKey:fragmentName];
+                     while (nextSOCRange.location != NSNotFound)
+                     {
+                        if (fragmentCounter==1 || fragmentCounter==4 || fragmentCounter==5)
+                        {
+                           NSString *fragmentName=[NSString stringWithFormat:@"%@#%08lu:1.j2k%@",encapsulatedUrlBaseString,frameNumber+1,@[@"",@"",@"",@"",@".fast",@".hres"][fragmentCounter]];
+                           [pixelAttrArray addObject:fragmentName];
+                           if (fragmentCounter==1)
+                           {
+                              NSMutableData *EOCdata=[NSMutableData dataWithData:[j2kData subdataWithRange:NSMakeRange(fragmentOffset, nextSOCRange.location - fragmentOffset)]];
+                              [EOCdata appendData:NSData.EOC];
+                              [blobDict setObject:EOCdata forKey:fragmentName];
+                           }
+                           else [blobDict setObject:[j2kData subdataWithRange:NSMakeRange(fragmentOffset, nextSOCRange.location - fragmentOffset)] forKey:fragmentName];
+                           fragmentOffset=nextSOCRange.location;
+                        }
 
-                  NSDictionary *frame1Dict=[NSDictionary dictionaryWithObject:pixelAttrArray forKey:@"Frame#00000001"];
-                  [attrDict setObject: [NSArray arrayWithObject:frame1Dict]
-                  forKey:@"00000001_7FE00010-OB"];
-                  [blobDict removeObjectForKey:nativeUrlString];
+                        j2kRange.location=nextSOCRange.location + nextSOCRange.length;
+                        j2kRange.length=j2kLength-j2kRange.location;
+                        nextSOCRange=[j2kData rangeOfData:NSData.SOT
+                                                          options:0
+                                                            range:j2kRange];
+                        fragmentCounter++;
+                     }
+                     //last tile-part (ended with EOC)
+                     //[j2kData writeToFile:@"/Users/Shared/6.j2k" atomically:NO];
+                     nextSOCRange=[j2kData rangeOfData:NSData.EOC
+                                                       options:0
+                                                         range:j2kRange];
+                     NSString *fragmentName=[NSString stringWithFormat:@"%@#00000001:1.j2k.max",encapsulatedUrlBaseString]
+                     ;
+                     [pixelAttrArray addObject:fragmentName];
+                     [blobDict setObject:[j2kData subdataWithRange:NSMakeRange(fragmentOffset, nextSOCRange.location-fragmentOffset)] forKey:fragmentName];
+
+                     NSDictionary *frame1Dict=[NSDictionary dictionaryWithObject:pixelAttrArray forKey:@"Frame#00000001"];
+                     [attrDict setObject: [NSArray arrayWithObject:frame1Dict]
+                     forKey:@"00000001_7FE00010-OB"];
+                     [blobDict removeObjectForKey:nativeUrlString];
+                  }
+           
+                  
+
                }
+#pragma mark ·· modify attrs
+               [attrDict setObject:@[@"1.2.840.10008.1.2.4.90"] forKey:@"00000001_00020010-UI"];
+               
+
+               
+               [attrDict setObject:@[[NSString stringWithFormat:@"Lossless compression J2K codec openjpeg 2.5. Original data size:%lu md5:%@)",(unsigned long)pixelData.length,[pixelData MD5String]]] forKey:@"00000001_00082111-ST"];
+
+               [attrDict setObject:@[@"J2K sin pérdida. 1 tile. 4 tile-part quality layer (50,20,10,1)"] forKey:@"00000001_00204000-2006LT"];
+
+               
+               [attrDict removeObjectForKey:pixelKey];
             }
          
 
