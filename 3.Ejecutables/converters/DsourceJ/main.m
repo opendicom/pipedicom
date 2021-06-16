@@ -16,7 +16,6 @@ int main(int argc, const char * argv[]) {
       NSString *path=[[NSProcessInfo processInfo] arguments][1];
       NSMutableData *inputData=[NSMutableData dataWithContentsOfFile:path];
 
-      
       ODLogLevel=4;//ERROR (default)
       FILE *fp;
       fp=freopen([@"/Users/Shared/DinlineJ.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);

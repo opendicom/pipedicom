@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "4ABF586125DC043B00EB725E"
-               BuildableName = "D2J"
-               BlueprintName = "D2J"
+               BlueprintIdentifier = "4ADA4EF82672A7B5008F98DB"
+               BuildableName = "D2"
+               BlueprintName = "D2"
                ReferencedContainer = "container:converters.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -44,9 +44,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4ABF586125DC043B00EB725E"
-            BuildableName = "D2J"
-            BlueprintName = "D2J"
+            BlueprintIdentifier = "4ADA4EF82672A7B5008F98DB"
+            BuildableName = "D2"
+            BlueprintName = "D2"
             ReferencedContainer = "container:converters.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -66,52 +66,37 @@
       </CommandLineArguments>
       <EnvironmentVariables>
          <EnvironmentVariable
-            key = "D2JoutputDir"
+            key = "D2outputDir"
             value = "/Users/Shared/"
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "D2JlogLevel"
+            key = "D2logLevel"
             value = "INFO"
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "D2JrelativePathComponents"
+            key = "D2relativePathComponents"
             value = "2"
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "D2JblobMinSize"
+            key = "D2blobMinSize"
             value = "1000"
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "D2JblobMode"
-            value = "blobModeInline"
-            isEnabled = "NO">
-         </EnvironmentVariable>
-         <EnvironmentVariable
-            key = "D2JblobMode"
-            value = "blobModeSource"
-            isEnabled = "NO">
-         </EnvironmentVariable>
-         <EnvironmentVariable
-            key = "D2JblobMode"
-            value = "blobModeResources"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-         <EnvironmentVariable
-            key = "D2JblobRefPrefix"
+            key = "D2blobRefPrefix"
             value = ""
             isEnabled = "NO">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "D2JblobRefSuffix"
+            key = "D2blobRefSuffix"
             value = ""
             isEnabled = "NO">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "D2JcompressJ2K"
+            key = "D2compressJ2K"
             value = "true"
             isEnabled = "YES">
          </EnvironmentVariable>
@@ -127,9 +112,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "4ABF586125DC043B00EB725E"
-            BuildableName = "D2J"
-            BlueprintName = "D2J"
+            BlueprintIdentifier = "4ADA4EF82672A7B5008F98DB"
+            BuildableName = "D2"
+            BlueprintName = "D2"
             ReferencedContainer = "container:converters.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

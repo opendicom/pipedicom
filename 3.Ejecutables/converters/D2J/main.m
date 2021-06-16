@@ -280,7 +280,14 @@ int main(int argc, const char * argv[]) {
                               @"-OutFor",
                               @"j2k",
                               @"-o",
-                              @"stdout.j2k"],
+                              @"stdout.j2k",
+                              @"-p",
+                              @"RLCP",//B.11.1.2 Resolution-layer-component-position
+                              @"-r",
+                              @"50,40,30,20,10,1"//, //6 quality layers
+                              //@"-p",
+                              //@"R"//Tile-parts
+                           ],
                            pixelData,
                            j2kData
                            );

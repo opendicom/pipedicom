@@ -37,4 +37,31 @@ static NSData *equalData=nil;
 
 
 // end fragment FEFFDDE0 00000000
+
+
+const unsigned short SOC=0x4FFF;
+static NSData *SOCData=nil;
++(NSData*)SOC
+{
+   if (!SOCData) SOCData=[NSData dataWithBytes:&SOC length:2];
+   return SOCData;
+}
+
+const unsigned short SOT=0x90FF;
+static NSData *SOTData=nil;
++(NSData*)SOT
+{
+   if (!SOTData) SOTData=[NSData dataWithBytes:&SOT length:2];
+   return SOTData;
+}
+
+const unsigned short EOC=0xD9FF;
+static NSData *EOCData=nil;
++(NSData*)EOC
+{
+   if (!EOCData) EOCData=[NSData dataWithBytes:&EOC length:2];
+   return EOCData;
+}
+
+
 @end

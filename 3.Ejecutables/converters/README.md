@@ -18,35 +18,20 @@ xml -> xslt -> xml
 
 ## dicom -> json converter blob modes
 
-Three alternative blob modes are implemented in the converter dicom -> json:
-- source: json attributes contain an url pointing at a subarray of bytes within the original dicom file
-- inline: the attributes contain the blob coded base64 within a string
-- resources: json attributes contain an url pointing to a distinct external file for each of the blobs
-
-inline is always used for blobs smaller than a minimal size.
+Three alternative blob modes are implemented:
+- DinlineJ: the attributes contain blobs coded base64 within a string. This executable is designed for pipeline use. It reads from stdin and writes to stdout.
+- DsourceJ: json attributes contain an url pointing at a subarray of bytes within the original dicom file. In this case the executable has one argument, the file path (which it uses as the base of the references). It does not read from stdin. It writes to stdout.
+- D2: full fledged executable which reads a batch of files referenced to in paths to files and folders passed as arguments. The result mimics the subpaths in an outputFolder where it writes for each file.dcm its file.json counterpart and a folder file.bulkdata/ containing files for each of the blobs larger than a predefined size. The JSON contains relative paths to these files within file.bulkdata/
 
 
 ## optional conversion native explicit little endian to j2k enclosed
 
-When json converter blob mode is inline or resources, that is when the product does not refer to the original, we added an option to convert on the flight native explicit little endian to j2k enclosed.
-
-
-## JSON representation of blobs
+D2 has an option for j2k conversion of native explicit little endian file.dcm applied before outputing the file.json and file.bulkdata
 
 
 
 
-## "D2dict": parsing from DICOM to map of array
-The function "D2dict" is found in the framework DCKV. It can be used by other programs by linking to the framework.
 
-### "D2J": serializing into JSON of the parsing
-"D2J" is a terminal utility using the framework DCKV to convert a dataset from the DICOM binary into the JSON representations. "D2J" supports DICOM input streaming and JSON output streaming.
-
-## "dict2D": serializing from map of array to DICOM
-The function "dict2D" is found in the framework DCKV. It can be used by other programs by linking to the framework.
-
-### "J2D": serializing from JSON to DICOM
-"J2D" is a terminal utility using the framework DCKV to convert a  dataset from the JSON into the DICOM binary representations. "J2D" supports JSON input streaming and DICOM output streaming.
 
 ## Round trip
 Applying succesively "D2J" and "J2D", we obtain a round trip which is equivalent to identity.

@@ -1235,7 +1235,12 @@ NSMutableString* json4attrDict(NSMutableDictionary *attrDict)
                   else //@[@{ @"Frame#00000001":[urlString]}]
                   {
                      NSString *subKey=[obj allKeys][0];
-                     [JSONstring appendFormat:@"[ { \"%@\": [ \"%@\" ] } ], ",subKey, obj[subKey][0]];
+                     [JSONstring appendFormat:@"[ { \"%@\": [ ",subKey];
+                     for (NSString *url in obj[subKey])
+                     {
+                        [JSONstring appendFormat:@"\"%@\", ",url];
+                     }
+                     [JSONstring replaceCharactersInRange:NSMakeRange(JSONstring.length-2,2) withString:@" ] } ], "];
                   }
                   break;
                }

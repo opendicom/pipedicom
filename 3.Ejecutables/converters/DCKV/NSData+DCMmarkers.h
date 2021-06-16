@@ -15,6 +15,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (class, nonatomic, assign, readonly) NSData* backslash;
 @property (class, nonatomic, assign, readonly) NSData* equal;
 
+//j2k
+@property (class, nonatomic, assign, readonly) NSData* SOC;
+@property (class, nonatomic, assign, readonly) NSData* SOT;
+@property (class, nonatomic, assign, readonly) NSData* EOC;
+
 @end
 
 NS_ASSUME_NONNULL_END

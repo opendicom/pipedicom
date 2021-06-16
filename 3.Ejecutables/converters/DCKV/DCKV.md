@@ -85,7 +85,7 @@ DCKV es un formato de dataset parte del formato EDCKV (Entry Dicom Contextualize
 | map1    | 1        | <map @key>    | dataset(s)                                          |
 +---------+----------+---------------+-----------------------------------------------------+
 | array2  | |0..n]   | <array @key>  | attributes                                          |
-| null2   | |0..n]   | <null @key>   | end SQ, start and end ite                           |
+| null2   | |0..n]   | <null @key>   | end SQ, start and end item                           |
 | string2 | [0..n]   | <string @key> | children id                                         |
 +---------+----------+---------------+-----------------------------------------------------+
 | map3    | [0..n]   | <map>         | named list of url references                        |
