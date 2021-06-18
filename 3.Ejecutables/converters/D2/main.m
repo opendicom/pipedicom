@@ -210,7 +210,7 @@ int main(int argc, const char * argv[]) {
          else
          {
 #pragma mark · compress ?
-            NSLog(@"%@: %@",attrDict[@"00000001_00020010-UI"][0],attrDict[@"00000001_00020003-UI"][0]);
+            //NSLog(@"%@: %@",attrDict[@"00000001_00020010-UI"][0],attrDict[@"00000001_00020003-UI"][0]);
             NSString *pixelKey=nil;
             if (attrDict[@"00000001_7FE00010-OB"])pixelKey=@"00000001_7FE00010-OB";
             else if (attrDict[@"00000001_7FE00010-OW"])pixelKey=@"00000001_7FE00010-OW";

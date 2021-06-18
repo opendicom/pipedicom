@@ -77,12 +77,12 @@ NSString *keyPrefixed(
 
 
 #pragma mark -
-
+//(bi=shortsBufferIndex, bip=pastShortBufferIndex)
 NSUInteger D2J(
                          NSData *data,
                          unsigned short *shortsBuffer,
-                         NSUInteger shortsIndex,
-                         NSUInteger postShortsIndex,
+                         unsigned long bi,
+                         unsigned long bip,
                          NSString *branch,
                          NSMutableDictionary *attrDict,
                          NSString *vrCharsetPrefix,
@@ -95,15 +95,16 @@ NSUInteger D2J(
                          )
 {
    UInt16 vr;//value representation
-   UInt32 tag =   shortsBuffer[shortsIndex  ]
-              + ( shortsBuffer[shortsIndex+1] << 16 );
+   UInt32 tag =   shortsBuffer[bi  ]
+              + ( shortsBuffer[bi+1] << 16 );
    NSMutableString *vrCharsetPrefixNew=[NSMutableString stringWithString:vrCharsetPrefix];
    uint16 vrCharsetUint16New=vrCharsetUint16;
-   while (tag!=0xe00dfffe &&  shortsIndex < postShortsIndex) //(end item)
+    while (tag!=0xe00dfffe &&  bi < bip) //(end item)
    {
-      UInt16 vl = shortsBuffer[shortsIndex+3];//for AE,AS,AT,CS,DA,DS,DT,FL,FD,IS,LO,LT,PN,SH,SL,SS,ST,TM,UI,UL,US
+      UInt16 vl = shortsBuffer[bi+3];//for AE,AS,AT,CS,DA,DS,DT,FL,FD,IS,LO,LT,PN,SH,SL,SS,ST,TM,UI,UL,US
       
-      vr = shortsBuffer[shortsIndex+2];
+      vr = shortsBuffer[bi+2];
+      LOG_DEBUG(@"%lu  %@.%04X%04X %c%c", bi+bi,[branch substringFromIndex:8],tag & 0xFFFF,tag >> 16,vr&0xFF,vr>>8);
       switch (vr) {
 
             
@@ -117,9 +118,9 @@ NSUInteger D2J(
             }
             else
             {
-               [attrDict setObject:@[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((shortsIndex+4)*2,vl)] encoding:NSISOLatin1StringEncoding]] forKey:key(branch,tag,vr)];
+               [attrDict setObject:@[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange(bi+bi+8,vl)] encoding:NSISOLatin1StringEncoding]] forKey:key(branch,tag,vr)];
             }
-            shortsIndex+=4+(vl/2);
+            bi+=4+(vl/2);
             break;
          }
 
@@ -137,7 +138,7 @@ NSUInteger D2J(
             }
             else
             {
-               NSArray *arrayContents=[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((shortsIndex+4)*2,vl)] encoding:NSISOLatin1StringEncoding]componentsSeparatedByString:@"\\"];
+               NSArray *arrayContents=[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange(bi+bi+8,vl)] encoding:NSISOLatin1StringEncoding]componentsSeparatedByString:@"\\"];
 
                NSMutableArray *values=[NSMutableArray array];
                for (NSString *value in arrayContents)
@@ -149,7 +150,7 @@ NSUInteger D2J(
                }
                [attrDict setObject:values forKey:key(branch,tag,vr)];
             }
-            shortsIndex+=4+(vl/2);
+            bi+=4+(vl/2);
             break;
          }
 
@@ -164,7 +165,7 @@ NSUInteger D2J(
             }
             else
             {
-               NSArray *arrayContents=[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((shortsIndex+4)*2,vl)] encoding:NSISOLatin1StringEncoding]componentsSeparatedByString:@"\\"];
+               NSArray *arrayContents=[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange(bi+bi+8,vl)] encoding:NSISOLatin1StringEncoding]componentsSeparatedByString:@"\\"];
 
                NSMutableArray *values=[NSMutableArray array];
                for (NSString *value in arrayContents)
@@ -197,7 +198,7 @@ NSUInteger D2J(
                   }
                }
             }
-            shortsIndex+=4+(vl/2);
+            bi+=4+(vl/2);
             break;
          }
 
@@ -216,7 +217,7 @@ NSUInteger D2J(
             }
             else
             {
-               NSArray *arrayContents=[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((shortsIndex+4)*2,vl)] encoding:encodingNS[vrCharsetUint16]]componentsSeparatedByString:@"\\"];
+               NSArray *arrayContents=[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange(bi+bi+8,vl)] encoding:encodingNS[vrCharsetUint16]]componentsSeparatedByString:@"\\"];
 
                NSMutableArray *values=[NSMutableArray array];
                for (NSString *value in arrayContents)
@@ -228,7 +229,7 @@ NSUInteger D2J(
                }
                [attrDict setObject:values forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
             }
-            shortsIndex+=4+(vl/2);
+            bi+=4+(vl/2);
             break;
          }
 
@@ -243,7 +244,7 @@ NSUInteger D2J(
             }
             else
             {
-               NSData *contentsData=[data subdataWithRange:NSMakeRange((shortsIndex+4)*2,vl)];
+               NSData *contentsData=[data subdataWithRange:NSMakeRange(bi+bi+8,vl)];
                
                NSMutableArray *values=[NSMutableArray array];
                if (contentsData.length)
@@ -312,7 +313,7 @@ NSUInteger D2J(
                   [attrDict setObject:values forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
                }
             }
-            shortsIndex+=4+(vl/2);
+            bi+=4+(vl/2);
             break;
          }
 
@@ -329,8 +330,8 @@ NSUInteger D2J(
           A character string that may contain one or more paragraphs. It may contain the Graphic Character set and the Control Characters, CR, LF, FF, and ESC. It may be padded with trailing spaces, which may be ignored, but leading spaces are considered to be significant. Data Elements with this VR shall not be multi-valued and therefore character code 5CH (the BACKSLASH "\" in ISO-IR 6) may be used.
          */
          {
-            uint32 vll = ( shortsBuffer[shortsIndex+4]       )
-                       + ( shortsBuffer[shortsIndex+5] << 16 )
+            uint32 vll = ( shortsBuffer[bi+4]       )
+                       + ( shortsBuffer[bi+5] << 16 )
             ;
             if (!vll)
             {
@@ -338,9 +339,9 @@ NSUInteger D2J(
             }
             else
             {
-               [attrDict setObject:@[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((shortsIndex+6)*2,vll)] encoding:encodingNS[vrCharsetUint16]]] forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
+               [attrDict setObject:@[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((bi+6)*2,vll)] encoding:encodingNS[vrCharsetUint16]]] forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
             }
-            shortsIndex+=6+(vll/2);
+            bi+=6+(vll/2);
             break;
          }
 
@@ -351,8 +352,8 @@ NSUInteger D2J(
           always UTF-8
          */
          {
-            uint32 vll = ( shortsBuffer[shortsIndex+4]       )
-                       + ( shortsBuffer[shortsIndex+5] << 16 )
+            uint32 vll = ( shortsBuffer[bi+4]       )
+                       + ( shortsBuffer[bi+5] << 16 )
             ;
             if (!vll)
             {
@@ -360,9 +361,9 @@ NSUInteger D2J(
             }
             else
             {
-               [attrDict setObject:@[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((shortsIndex+6)*2,vll)] encoding:NSUTF8StringEncoding]] forKey:key(branch,tag,vr)];
+               [attrDict setObject:@[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange(bi+bi+12,vll)] encoding:NSUTF8StringEncoding]] forKey:key(branch,tag,vr)];
             }
-            shortsIndex+=6+(vll/2);
+            bi+=6+(vll/2);
             break;
          }
 
@@ -370,7 +371,7 @@ NSUInteger D2J(
 #pragma mark UI
          case 0x4955://UI
          {
-            NSMutableData *md=[NSMutableData dataWithData:[data subdataWithRange:NSMakeRange((shortsIndex+4)*2,vl)]];
+            NSMutableData *md=[NSMutableData dataWithData:[data subdataWithRange:NSMakeRange(bi+bi+8,vl)]];
             NSRange zerorange=[md rangeOfData:NSData.zero options:NSDataSearchBackwards range:NSMakeRange(0,md.length)];
             //remove eventual padding 0x00
             while (zerorange.location != NSNotFound)
@@ -388,7 +389,7 @@ NSUInteger D2J(
                [attrDict setObject:arrayContents forKey:key(branch,tag,vr)];
             }
 
-            shortsIndex+=4+(vl/2);
+            bi+=4+(vl/2);
             break;
          }
             
@@ -403,13 +404,13 @@ NSUInteger D2J(
                                  +((tag & 0x000000ff)<<16)
                                  ];
 
-            uint32 nexttag=shortsBuffer[shortsIndex+4]+(shortsBuffer[shortsIndex+5]<<16);//SQ size
+            uint32 nexttag=shortsBuffer[bi+4]+(shortsBuffer[bi+5]<<16);//SQ size
             if (nexttag==0x0)
             {
 #pragma mark SQ empty
                [attrDict setObject:[NSNull null] forKey:key(branch,tag,vr)];
                [attrDict setObject:[NSNull null] forKey:key([branchTag stringByAppendingFormat:@".%08X",itemcounter],0xe0ddfffe,vr)];
-               shortsIndex+=6;
+               bi+=6;
             }
             else if (nexttag!=0xffffffff) //SQ with defined length
             {
@@ -421,13 +422,13 @@ NSUInteger D2J(
             {
 #pragma mark SQ with closing marker
                [attrDict setObject:[NSNull null] forKey:key(branch,tag,vr)];
-               shortsIndex+=6;//inside the SQ
-               nexttag=shortsBuffer[shortsIndex]+(shortsBuffer[shortsIndex+1]<<16);
+               bi+=6;//inside the SQ
+               nexttag=shortsBuffer[bi]+(shortsBuffer[bi+1]<<16);
                if (nexttag!=0xe0ddfffe)//SQ with contents
                {
                   while (nexttag==0xe000fffe)
                   {
-                     uint32 itemlength=shortsBuffer[shortsIndex+2]+(shortsBuffer[shortsIndex+3]<<16);;
+                     uint32 itemlength=shortsBuffer[bi+2]+(shortsBuffer[bi+3]<<16);;
                      if (itemlength==0)
                      {
 #pragma mark IT empty
@@ -435,7 +436,7 @@ NSUInteger D2J(
 
                         [attrDict setObject:[NSNull null] forKey:key([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5A49)];//IZ
 
-                        shortsIndex+=4;//out of empty item
+                        bi+=4;//out of empty item
                      }
                      else if (itemlength!=0xffffffff)
                      {
@@ -447,13 +448,13 @@ NSUInteger D2J(
                      {
 #pragma mark IT with closing marker
                         [attrDict setObject:[NSNull null] forKey:key([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5149)];//IQ
-                        shortsIndex+=4;//inside item
+                        bi+=4;//inside item
 #pragma mark recursion
-                        shortsIndex=D2J(
+                        bi=D2J(
    data,
    shortsBuffer,
-   shortsIndex,
-   postShortsIndex,
+   bi,
+   bip,
    [branchTag stringByAppendingFormat:@".%08X",itemcounter],
    attrDict,
    vrCharsetPrefixNew,
@@ -466,15 +467,16 @@ NSUInteger D2J(
    );
 
                         [attrDict setObject:[NSNull null] forKey:key([branchTag stringByAppendingFormat:@".%08X",itemcounter],0xe00dfffe,0x5A49)];//IZ
+                        bi+=4;//past end item
                      }
-                     nexttag=shortsBuffer[shortsIndex]+(shortsBuffer[shortsIndex+1]<<16);
+                     nexttag=shortsBuffer[bi]+(shortsBuffer[bi+1]<<16);
 
                      itemcounter++;
                   }
                }
 #pragma mark SQ closing marker
                [attrDict setObject:[NSNull null] forKey:key([branchTag stringByAppendingPathExtension:@"FFFFFFFF"],0xe0ddfffe,0x5A53)];
-               shortsIndex+=8;
+               bi+=4;
             }
             break;
          }
@@ -489,7 +491,7 @@ NSUInteger D2J(
             }
             else
             {
-               NSArray *arrayContents=[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((shortsIndex+4)*2,vl)] encoding:NSISOLatin1StringEncoding]componentsSeparatedByString:@"\\"];
+               NSArray *arrayContents=[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange(bi+bi+8,vl)] encoding:NSISOLatin1StringEncoding]componentsSeparatedByString:@"\\"];
 
                NSMutableArray *values=[NSMutableArray array];
                for (NSString *value in arrayContents)
@@ -498,7 +500,7 @@ NSUInteger D2J(
                }
                [attrDict setObject:values forKey:key(branch,tag,vr)];
             }
-            shortsIndex+=4+(vl/2);
+            bi+=4+(vl/2);
             break;
          }
 
@@ -513,7 +515,7 @@ NSUInteger D2J(
             }
             else
             {
-               NSArray *arrayContents=[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((shortsIndex+4)*2,vl)] encoding:NSISOLatin1StringEncoding]componentsSeparatedByString:@"\\"];
+               NSArray *arrayContents=[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange(bi+bi+8,vl)] encoding:NSISOLatin1StringEncoding]componentsSeparatedByString:@"\\"];
 
                NSMutableArray *values=[NSMutableArray array];
                for (NSString *value in arrayContents)
@@ -522,7 +524,7 @@ NSUInteger D2J(
                }
                [attrDict setObject:values forKey:key(branch,tag,vr)];
             }
-            shortsIndex+=4+(vl/2);
+            bi+=4+(vl/2);
             break;
          }
 
@@ -530,21 +532,21 @@ NSUInteger D2J(
          case 0x4C53:
          {
             //Signed Long
-            shortsIndex+=4;
+            bi+=4;
             if (!vl)
             {
                [attrDict setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
-               NSUInteger afterValues=shortsIndex + (vl/2);
+               NSUInteger afterValues=bi + (vl/2);
                long sl;
                NSMutableArray *values=[NSMutableArray array];
-               while (shortsIndex < afterValues)
+               while (bi < afterValues)
                {
-                  sl=shortsBuffer[shortsIndex] + (shortsBuffer[shortsIndex+1]<<16);
+                  sl=shortsBuffer[bi] + (shortsBuffer[bi+1]<<16);
                   [values addObject:[NSNumber numberWithLong:sl]];
-                  shortsIndex+=2;
+                  bi+=2;
                }
                [attrDict setObject:values forKey:key(branch,tag,vr)];
             }
@@ -555,21 +557,21 @@ NSUInteger D2J(
          case 0x4C55:
          {
             //Unsigned Long
-            shortsIndex+=4;
+            bi+=4;
             if (!vl)
             {
                [attrDict setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
-               NSUInteger afterValues=shortsIndex + (vl/2);
+               NSUInteger afterValues=bi + (vl/2);
                unsigned long ul;
                NSMutableArray *values=[NSMutableArray array];
-               while (shortsIndex < afterValues)
+               while (bi < afterValues)
                {
-                  ul=shortsBuffer[shortsIndex] + (shortsBuffer[shortsIndex+1]<<16);
+                  ul=shortsBuffer[bi] + (shortsBuffer[bi+1]<<16);
                   [values addObject:[NSNumber numberWithUnsignedLong:ul]];
-                  shortsIndex+=2;
+                  bi+=2;
                }
                [attrDict setObject:values forKey:key(branch,tag,vr)];
             }
@@ -581,21 +583,21 @@ NSUInteger D2J(
          case 0x5353:
          {
             //Signed Short
-            shortsIndex+=4;
+            bi+=4;
             if (!vl)
             {
                [attrDict setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
-               NSUInteger afterValues=shortsIndex + (vl/2);
+               NSUInteger afterValues=bi + (vl/2);
                short ss;
                NSMutableArray *values=[NSMutableArray array];
-               while (shortsIndex < afterValues)
+               while (bi < afterValues)
                {
-                  ss=shortsBuffer[shortsIndex];
+                  ss=shortsBuffer[bi];
                   [values addObject:[NSNumber numberWithShort:ss]];
-                  shortsIndex++;
+                  bi++;
                }
                [attrDict setObject:values forKey:key(branch,tag,vr)];
             }
@@ -606,21 +608,21 @@ NSUInteger D2J(
          case 0x5355:
          {
             //Unsigned Short
-            shortsIndex+=4;
+            bi+=4;
             if (!vl)
             {
                [attrDict setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
-               NSUInteger afterValues=shortsIndex + (vl/2);
+               NSUInteger afterValues=bi + (vl/2);
                unsigned short us;
                NSMutableArray *values=[NSMutableArray array];
-               while (shortsIndex < afterValues)
+               while (bi < afterValues)
                {
-                  us=shortsBuffer[shortsIndex];
+                  us=shortsBuffer[bi];
                   [values addObject:[NSNumber numberWithUnsignedShort:us]];
-                  shortsIndex++;
+                  bi++;
                }
                [attrDict setObject:values forKey:key(branch,tag,vr)];
             }
@@ -631,28 +633,28 @@ NSUInteger D2J(
          case 0x5653:
          {
             //Signed 64-bit Very Long
-            uint32 vll = ( shortsBuffer[shortsIndex+4]       )
-                       + ( shortsBuffer[shortsIndex+5] << 16 )
+            uint32 vll = ( shortsBuffer[bi+4]       )
+                       + ( shortsBuffer[bi+5] << 16 )
             ;
-            shortsIndex+=6;
+            bi+=6;
             if (!vll)
             {
                [attrDict setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
-               NSUInteger afterValues=shortsIndex + (vll/2);
+               NSUInteger afterValues=bi + (vll/2);
                long long sll;
                NSMutableArray *values=[NSMutableArray array];
-               while (shortsIndex < afterValues)
+               while (bi < afterValues)
                {
-                  sll=  shortsBuffer[shortsIndex]
-                     + (shortsBuffer[shortsIndex+1]*0x10000)
-                     + (shortsBuffer[shortsIndex+2]*0x100000000)
-                     + (shortsBuffer[shortsIndex+3]*0x1000000000000)
+                  sll=  shortsBuffer[bi]
+                     + (shortsBuffer[bi+1]*0x10000)
+                     + (shortsBuffer[bi+2]*0x100000000)
+                     + (shortsBuffer[bi+3]*0x1000000000000)
                   ;
                   [values addObject:[NSNumber numberWithLongLong:sll]];
-                  shortsIndex+=4;
+                  bi+=4;
                }
                [attrDict setObject:values forKey:key(branch,tag,vr)];
             }
@@ -663,28 +665,28 @@ NSUInteger D2J(
          case 0x5655:
          {
             //Unsigned 64-bit Very Long
-            uint32 vll = ( shortsBuffer[shortsIndex+4]       )
-                       + ( shortsBuffer[shortsIndex+5] << 16 )
+            uint32 vll = ( shortsBuffer[bi+4]       )
+                       + ( shortsBuffer[bi+5] << 16 )
             ;
-            shortsIndex+=6;
+            bi+=6;
             if (!vll)
             {
                [attrDict setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
-               NSUInteger afterValues=shortsIndex + (vll/2);
+               NSUInteger afterValues=bi + (vll/2);
                unsigned long long ull;
                NSMutableArray *values=[NSMutableArray array];
-               while (shortsIndex < afterValues)
+               while (bi < afterValues)
                {
-                  ull=  shortsBuffer[shortsIndex]
-                     + (shortsBuffer[shortsIndex+1]*0x10000)
-                     + (shortsBuffer[shortsIndex+2]*0x100000000)
-                     + (shortsBuffer[shortsIndex+3]*0x1000000000000)
+                  ull=  shortsBuffer[bi]
+                     + (shortsBuffer[bi+1]*0x10000)
+                     + (shortsBuffer[bi+2]*0x100000000)
+                     + (shortsBuffer[bi+3]*0x1000000000000)
                   ;
                   [values addObject:[NSNumber numberWithUnsignedLongLong:ull]];
-                  shortsIndex+=4;
+                  bi+=4;
                }
                [attrDict setObject:values forKey:key(branch,tag,vr)];
             }
@@ -695,24 +697,24 @@ NSUInteger D2J(
          case 0x4C46:
          {
             //Float
-            shortsIndex+=4;
+            bi+=4;
             if (!vl)
             {
                [attrDict setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
-               NSUInteger afterValues=shortsIndex + (vl/2);
+               NSUInteger afterValues=bi + (vl/2);
                unsigned long ul;
                const unsigned long *pul=&ul;
                const float *pf=NULL;
                pf=(float*)pul;
                NSMutableArray *values=[NSMutableArray array];
-               while (shortsIndex < afterValues)
+               while (bi < afterValues)
                {
-                  ul=shortsBuffer[shortsIndex] + (shortsBuffer[shortsIndex+1]<<16);
+                  ul=shortsBuffer[bi] + (shortsBuffer[bi+1]<<16);
                   [values addObject:[NSNumber numberWithFloat:*pf]];
-                  shortsIndex+=2;
+                  bi+=2;
                }
                [attrDict setObject:values forKey:key(branch,tag,vr)];
             }
@@ -723,28 +725,28 @@ NSUInteger D2J(
          case 0x4446:
          {
             //Double
-            shortsIndex+=4;
+            bi+=4;
             if (!vl)
             {
                [attrDict setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
-              NSUInteger afterValues=shortsIndex + (vl/2);
+              NSUInteger afterValues=bi + (vl/2);
                unsigned long long ull;
                const unsigned long long *pull=&ull;
                const double *pd=NULL;
                pd=(double*)pull;
                NSMutableArray *values=[NSMutableArray array];
-               while (shortsIndex < afterValues)
+               while (bi < afterValues)
                {
-                  ull=  shortsBuffer[shortsIndex]
-                     + (shortsBuffer[shortsIndex+1]*0x10000)
-                     + (shortsBuffer[shortsIndex+2]*0x100000000)
-                     + (shortsBuffer[shortsIndex+3]*0x1000000000000)
+                  ull=  shortsBuffer[bi]
+                     + (shortsBuffer[bi+1]*0x10000)
+                     + (shortsBuffer[bi+2]*0x100000000)
+                     + (shortsBuffer[bi+3]*0x1000000000000)
                   ;
                   [values addObject:[NSNumber numberWithDouble:*pd]];
-                  shortsIndex+=4;
+                  bi+=4;
                }
                [attrDict setObject:values forKey:key(branch,tag,vr)];
             }
@@ -778,41 +780,41 @@ NSUInteger D2J(
              */
          case 0x4E55://UN
          {
-            uint32 vll = ( shortsBuffer[shortsIndex+4]       )
-                       + ( shortsBuffer[shortsIndex+5] << 16 )
+            uint32 vll = ( shortsBuffer[bi+4]       )
+                       + ( shortsBuffer[bi+5] << 16 )
             ;
             NSString *blobKey=key(branch,tag,vr);
             if (!vll)//empty
             {
                [attrDict setObject:@[] forKey:blobKey];
-               shortsIndex+= 6 + (vll/2);
+               bi+= 6 + (vll/2);
                break;
             }
 
-            if ([blobKey hasPrefix:@"00000001_7FE00010"] && (vll==0xFFFFFFFF))
+            if ([blobKey containsString:@"7FE00010"] && (vll==0xFFFFFFFF))
 #pragma mark · fragments
             {
                //offset of first fragment
-               shortsIndex+=6;
-               if (shortsIndex + 4 >= postShortsIndex)
+               bi+=6;
+               if (bi + 4 >= bip)
                {
                   LOG_WARNING(@"%@ truncated",blobKey);
                   return failure;
                }
-               tag = shortsBuffer[shortsIndex]
-                   + ( shortsBuffer[shortsIndex+1] << 16 );
+               tag = shortsBuffer[bi]
+                   + ( shortsBuffer[bi+1] << 16 );
                if (tag == 0xe0ddfffe)
                {
                   LOG_WARNING(@"%@ no fragment item",blobKey);
-                  return shortsIndex;
+                  return bi;
                }
                if (tag!=0xe000fffe)
                {
                   LOG_WARNING(@"%@ encapsulated does not start with a fragment item",blobKey);
                   return failure;
                }
-               vll = ( shortsBuffer[shortsIndex+2]       )
-                   + ( shortsBuffer[shortsIndex+3] << 16 );
+               vll = ( shortsBuffer[bi+2]       )
+                   + ( shortsBuffer[bi+3] << 16 );
                   
                
                NSMutableData *frameData=[NSMutableData data];
@@ -831,32 +833,32 @@ NSUInteger D2J(
                   //is this an offset table?
                   //is there at least a 00000000 offset (which is the first value of the table) ?
                   
-                  uint32 tableFirst = shortsBuffer[shortsIndex + 4]
-                      + ( shortsBuffer[shortsIndex + 5] << 16 );
+                  uint32 tableFirst = shortsBuffer[bi + 4]
+                      + ( shortsBuffer[bi + 5] << 16 );
                   
                   if (tableFirst != 0xe000fffe)
                   {
                      
-                     [offsetData appendData:[data subdataWithRange:NSMakeRange(((shortsIndex+4)*2)+4,vll)]];
+                     [offsetData appendData:[data subdataWithRange:NSMakeRange(bi+bi+12,vll)]];
                      [offsetData appendBytes:&offsetAfter length:4];
                      offsets=(uint32 *)[offsetData bytes];
                      offsetCount= sizeof(offsets) / 4;//or offsetTable.length / 4
                      
                      //for blobModeSource
-                     NSString *urlString=[NSString stringWithFormat:@"file:%@?offset=%lu&amp;length=%d",blobRefPrefix,(shortsIndex+2)*2, vll];
+                     NSString *urlString=[NSString stringWithFormat:@"file:%@?offset=%lu&amp;length=%d",blobRefPrefix,bi+bi+4, vll];
                      [fragmentRefs addObject:@{ @"Fragment#00000000":@[urlString]}];
 
                      
                      
                      //first fragment
-                     shortsIndex+=4 + (vll/2);
-                     tag = shortsBuffer[shortsIndex]
-                         + ( shortsBuffer[shortsIndex+1] << 16 );
+                     bi+=4 + (vll/2);
+                     tag = shortsBuffer[bi]
+                         + ( shortsBuffer[bi+1] << 16 );
                      
                      if (tag == 0xe0ddfffe)
                      {
                         LOG_WARNING(@"%@ no fragment after offsetTable",blobKey);
-                        return shortsIndex;
+                        return bi;
                      }
 
                      if (tag!=0xe000fffe)
@@ -864,9 +866,53 @@ NSUInteger D2J(
                         LOG_WARNING(@"%@ encapsulated item markup problem",blobKey);
                         return failure;
                      }
-                     vll = ( shortsBuffer[shortsIndex+2]       )
-                         + ( shortsBuffer[shortsIndex+3] << 16 );
+                     vll = ( shortsBuffer[bi+2]       )
+                         + ( shortsBuffer[bi+3] << 16 );
                   }
+#pragma mark TODO revise parsing of fragments with table offset
+                  while (bi < bip) //(end of sequence)
+                  {
+                     if (
+                            (tag==0xe0ddfffe)
+                         || (bi > offsets[currentFrameOffset])
+                         ) //sequence end
+                     {
+                        //add a frame?
+                        if (frameData.length)
+                        {
+                           [frames addObject:[NSData dataWithData:frameData]];
+                           [frameData setData:[NSData data]];
+                        }
+                        //exit loop
+                        break;
+                     }
+                     
+                     
+                     if (tag!=0xe000fffe)
+                        //exit with error on syntaxis error
+                     {
+                        LOG_WARNING(@"%@ encapsulated item markup problem",blobKey);
+                        return failure;
+                     }
+                     
+                     //for blobModeSource
+                     NSString *urlString=[NSString stringWithFormat:@"file:%@?offset=%lu&amp;length=%d",blobRefPrefix,bi+bi+8, vll];
+                     NSString *itemString=[NSString stringWithFormat:@"Fragment#%08lu",fragmentRefs.count+1];
+                     [fragmentRefs addObject:
+                      @{
+                         itemString : @[ urlString ]
+                      }
+                      ];
+                     [frameData appendData:[data subdataWithRange:NSMakeRange(bi+bi+8,vll)]];
+
+                     
+                     //new tag and length
+                     bi += ((vll / 4) + 4);
+                     tag = shortsBuffer[bi]
+                         + ( shortsBuffer[bi+1] << 16 );
+                     vll = ( shortsBuffer[bi+2]       )
+                         + ( shortsBuffer[bi+3] << 16 );
+                  }//end loop fragments
 
                }
                else //(vll == 0)
@@ -876,64 +922,44 @@ NSUInteger D2J(
                   offsets=(uint32 *)[offsetData bytes];
                   offsetCount=1;
                   //next fragment
-                  shortsIndex+=4;
-                  tag = shortsBuffer[shortsIndex]
-                      + ( shortsBuffer[shortsIndex+1] << 16 );
+                  bi+=4;
+                  tag = shortsBuffer[bi]
+                      + ( shortsBuffer[bi+1] << 16 );
+                  vll = ( shortsBuffer[bi+2]       )
+                      + ( shortsBuffer[bi+3] << 16 );
                   
-                  if (tag!=0xe000fffe)
+#pragma mark ... loop fragments
+                  while (tag!=0xe0ddfffe) //(end of sequence)
                   {
-                     LOG_WARNING(@"%@ encapsulated item markup problem",blobKey);
-                     return failure;
-                  }
-                  vll = ( shortsBuffer[shortsIndex+2]       )
-                      + ( shortsBuffer[shortsIndex+3] << 16 );
+                     //for blobModeSource
+                     NSString *urlString=[NSString stringWithFormat:@"file:%@?offset=%lu&amp;length=%d",blobRefPrefix,bi+bi+8, vll];
+                     NSString *itemString=[NSString stringWithFormat:@"Fragment#%08lu",fragmentRefs.count+1];
+                     [fragmentRefs addObject:
+                      @{
+                         itemString : @[ urlString ]
+                      }
+                      ];
+                     [frameData appendData:[data subdataWithRange:NSMakeRange(bi+bi+8,vll)]];
+                     bi += (vll>>1);
+
+                     bi += 4;
+                     
+                     //new tag and length
+                     tag = shortsBuffer[bi]
+                         + ( shortsBuffer[bi+1] << 16 );
+                     vll = ( shortsBuffer[bi+2]       )
+                         + ( shortsBuffer[bi+3] << 16 );
+                  }//end loop fragments
+                  
+                  //jump over 0xe0ddfffe
+                  bi += 4;
+                  tag = shortsBuffer[bi]
+                      + ( shortsBuffer[bi+1] << 16 );
+                  vll = ( shortsBuffer[bi+2]       )
+                      + ( shortsBuffer[bi+3] << 16 );
                }
                
                
-#pragma mark .. loop fragments
-               while (shortsIndex < postShortsIndex) //(end of sequence)
-               {
-                  if (
-                         (tag==0xe0ddfffe)
-                      || (shortsIndex > offsets[currentFrameOffset])
-                      ) //sequence end
-                  {
-                     //add a frame?
-                     if (frameData.length)
-                     {
-                        [frames addObject:[NSData dataWithData:frameData]];
-                        [frameData setData:[NSData data]];
-                     }
-                     //exit loop
-                     break;
-                  }
-                  
-                  
-                  if (tag!=0xe000fffe)
-                     //exit with error on syntaxis error
-                  {
-                     LOG_WARNING(@"%@ encapsulated item markup problem",blobKey);
-                     return failure;
-                  }
-                  
-                  //for blobModeSource
-                  NSString *urlString=[NSString stringWithFormat:@"file:%@?offset=%lu&amp;length=%d",blobRefPrefix,(shortsIndex+2)*2, vll];
-                  NSString *itemString=[NSString stringWithFormat:@"Fragment#%08lu",fragmentRefs.count+1];
-                  [fragmentRefs addObject:
-                   @{
-                      itemString : @[ urlString ]
-                   }
-                   ];
-                  [frameData appendData:[data subdataWithRange:NSMakeRange(shortsIndex+shortsIndex+8,vll)]];
-
-                  
-                  //new tag and length
-                  shortsIndex += ((vll / 2) + 4);
-                  tag = shortsBuffer[shortsIndex]
-                      + ( shortsBuffer[shortsIndex+1] << 16 );
-                  vll = ( shortsBuffer[shortsIndex+2]       )
-                      + ( shortsBuffer[shortsIndex+3] << 16 );
-               }//end loop fragments
                
 #pragma mark .. finalize
                switch (blobMode) {
@@ -988,7 +1014,7 @@ NSUInteger D2J(
                {
                   case blobModeSource:
                   {
-                     NSString *urlString=[NSString stringWithFormat:@"file:%@?offset=%lu&amp;length=%d",blobRefPrefix,(shortsIndex+6)*2,vll];
+                     NSString *urlString=[NSString stringWithFormat:@"file:%@?offset=%lu&amp;length=%d",blobRefPrefix,bi+bi+12,vll];
                      [attrDict setObject:@[@{ @"Native":@[urlString]}] forKey:blobKey];
                   }
                      break;
@@ -1014,23 +1040,21 @@ NSUInteger D2J(
                                           extension?extension:@""
                                              ];
                      [attrDict setObject:@[@{ @"Native":@[urlString]}] forKey:blobKey];
-                     [blobDict setObject:[data subdataWithRange:NSMakeRange((shortsIndex+6)*2,vll)] forKey:urlString];
+                     [blobDict setObject:[data subdataWithRange:NSMakeRange(bi+bi+12,vll)] forKey:urlString];
                   }
                      break;
 
                   default://blobModeInline || vll < blobMinSize
                   {
-                     NSData *contents=[data subdataWithRange:NSMakeRange((shortsIndex+6)*2,vll)];
+                     NSData *contents=[data subdataWithRange:NSMakeRange(bi+bi+12,vll)];
                      
                      //convert to JSON base64 (solidus written \/)
                      [attrDict setObject:@[B64JSONstringWithData(contents)] forKey:blobKey];
                   }
                      break;
                }
-
+               bi+= 6 + (vll/2);
             }
-            
-            shortsIndex+= 6 + (vll/2);
 
             break;
          }
@@ -1041,23 +1065,24 @@ NSUInteger D2J(
          {
             //hexBinary 4 bytes
 
-            shortsIndex+=4;
+
+            bi+=4;
             if (!vl)
             {
                [attrDict setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
-               NSUInteger afterValues=shortsIndex + (vl/2);
+               NSUInteger afterValues=bi + (vl/2);
                uint16 group=0;
                uint16 element=0;
                NSMutableArray *values=[NSMutableArray array];
-               while (shortsIndex < afterValues)
+               while (bi < afterValues)
                {
-                  group=shortsBuffer[shortsIndex];
-                  element=shortsBuffer[shortsIndex+1];
+                  group=shortsBuffer[bi];
+                  element=shortsBuffer[bi+1];
                   [values addObject:[NSString stringWithFormat:@"%02X%02X%02X%02X",group / 0x100,group & 0xFF,element / 0x100,element & 0xFF]];
-                  shortsIndex+=4;
+                  bi+=2;
                }
                [attrDict setObject:values forKey:key(branch,tag,vr)];
             }
@@ -1074,9 +1099,9 @@ NSUInteger D2J(
             break;
          }
       }
-      tag=shortsBuffer[shortsIndex]+(shortsBuffer[shortsIndex+1]<<16);
+      tag=shortsBuffer[bi]+(shortsBuffer[bi+1]<<16);
    }
-   return shortsIndex;
+   return bi;
 }
 
 #pragma mark -
@@ -1150,7 +1175,7 @@ NSMutableString* json4attrDict(NSMutableDictionary *attrDict)
 #pragma mark loop on ordered keys
    for (NSString *key in keys)
    {
-      LOG_DEBUG(@"%@",key);
+      //LOG_DEBUG(@"%@",key);
       [JSONstring appendFormat:@"\"%@\": ",key];
       
       switch ([key characterAtIndex:key.length-2]+([key characterAtIndex:key.length-1]*0x100))

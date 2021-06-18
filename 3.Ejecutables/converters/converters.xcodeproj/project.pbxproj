@@ -8,9 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		0718621625F65AF000802276 /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
-		0718621925F6826800802276 /* FluroWithDisplayShutter.json in Resources */ = {isa = PBXBuildFile; fileRef = 0718621725F6825F00802276 /* FluroWithDisplayShutter.json */; };
-		0718621A25F6826B00802276 /* SCSARAB.json in Resources */ = {isa = PBXBuildFile; fileRef = 0718621825F6825F00802276 /* SCSARAB.json */; };
-		0718621C25F684AC00802276 /* SCSFREN.json in Resources */ = {isa = PBXBuildFile; fileRef = 0718621B25F6849900802276 /* SCSFREN.json */; };
 		4A025E6825E43D0D005AA1A3 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A025E6725E43D0D005AA1A3 /* main.m */; };
 		4A025F3F25E5C455005AA1A3 /* DCKV.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A025F3D25E5C455005AA1A3 /* DCKV.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A025F5C25E60BBA005AA1A3 /* DCMcharset.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A025E5E25E418E5005AA1A3 /* DCMcharset.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -26,10 +23,6 @@
 		4A44191225E866110091495B /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
 		4A44192A25EC4A490091495B /* B64.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A44192825EC4A490091495B /* B64.m */; };
 		4A44192B25EC4A490091495B /* B64.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A44192925EC4A490091495B /* B64.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A5CC0442639D341003070E7 /* FluroWithDisplayShutterj2k.json in Resources */ = {isa = PBXBuildFile; fileRef = 4A5CC03B2639D057003070E7 /* FluroWithDisplayShutterj2k.json */; };
-		4A5CC04B2639D349003070E7 /* FluroWithDisplayShutterj2kinline.json in Resources */ = {isa = PBXBuildFile; fileRef = 4A5CC03D2639D057003070E7 /* FluroWithDisplayShutterj2kinline.json */; };
-		4A5CC0522639D353003070E7 /* FluroWithDisplayShutterj2ksource.json in Resources */ = {isa = PBXBuildFile; fileRef = 4A5CC03C2639D057003070E7 /* FluroWithDisplayShutterj2ksource.json */; };
-		4A5CC0592639D3E7003070E7 /* 00000001_7FE00010-OB#00000001.j2k in Resources */ = {isa = PBXBuildFile; fileRef = 4A5CC03A2639D057003070E7 /* 00000001_7FE00010-OB#00000001.j2k */; };
 		4A7B85DB258BC12800E62971 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7B85DA258BC12800E62971 /* main.m */; };
 		4A95E3CE26063E9800224363 /* dckRangeVecs.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A95E3CC26063E9800224363 /* dckRangeVecs.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A95E3CF26063E9800224363 /* dckRangeVecs.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A95E3CD26063E9800224363 /* dckRangeVecs.m */; };
@@ -37,79 +30,6 @@
 		4AC7BE5A26694A2700C14265 /* NSData+MD5.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AC7BE5826694A2700C14265 /* NSData+MD5.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4AC7BE5B26694A2700C14265 /* NSData+MD5.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AC7BE5926694A2700C14265 /* NSData+MD5.m */; };
 		4AC7BE63266A724A00C14265 /* DCKV.md in Resources */ = {isa = PBXBuildFile; fileRef = 4AC7BE62266A724A00C14265 /* DCKV.md */; };
-		4AD8616C265EEECE002E4D3A /* MR1.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86123265EEECC002E4D3A /* MR1.ele.dcm */; };
-		4AD8616D265EEECE002E4D3A /* MG1.j2kr.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86124265EEECC002E4D3A /* MG1.j2kr.dcm */; };
-		4AD8616E265EEECE002E4D3A /* MR2.j2ki.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86125265EEECC002E4D3A /* MR2.j2ki.dcm */; };
-		4AD8616F265EEECE002E4D3A /* VL1.j2ki.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86126265EEECC002E4D3A /* VL1.j2ki.dcm */; };
-		4AD86170265EEECE002E4D3A /* SC2.x1.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86127265EEECC002E4D3A /* SC2.x1.ele.dcm */; };
-		4AD86171265EEECE002E4D3A /* SC2.l2.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86128265EEECC002E4D3A /* SC2.l2.ele.dcm */; };
-		4AD86172265EEECE002E4D3A /* VL6.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86129265EEECC002E4D3A /* VL6.ele.dcm */; };
-		4AD86173265EEECE002E4D3A /* MR3.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8612A265EEECC002E4D3A /* MR3.ele.dcm */; };
-		4AD86174265EEECE002E4D3A /* RG3.j2kr.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8612B265EEECC002E4D3A /* RG3.j2kr.dcm */; };
-		4AD86175265EEECE002E4D3A /* US1.j2kr.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8612C265EEECC002E4D3A /* US1.j2kr.dcm */; };
-		4AD86176265EEECE002E4D3A /* MR1.j2ki.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8612D265EEECC002E4D3A /* MR1.j2ki.dcm */; };
-		4AD86177265EEECE002E4D3A /* CT1.j2kr.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8612E265EEECC002E4D3A /* CT1.j2kr.dcm */; };
-		4AD86178265EEECE002E4D3A /* VL6.j2kr.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8612F265EEECC002E4D3A /* VL6.j2kr.dcm */; };
-		4AD86179265EEECE002E4D3A /* VL2.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86130265EEECC002E4D3A /* VL2.ele.dcm */; };
-		4AD8617A265EEECE002E4D3A /* RG1.j2ki.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86131265EEECC002E4D3A /* RG1.j2ki.dcm */; };
-		4AD8617B265EEECE002E4D3A /* CT2.j2ki.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86132265EEECC002E4D3A /* CT2.j2ki.dcm */; };
-		4AD8617C265EEECE002E4D3A /* MG1.j2ki.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86133265EEECC002E4D3A /* MG1.j2ki.dcm */; };
-		4AD8617D265EEECE002E4D3A /* SC2.hebrew.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86134265EEECC002E4D3A /* SC2.hebrew.ele.dcm */; };
-		4AD8617E265EEECE002E4D3A /* SC1.j2kr.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86135265EEECC002E4D3A /* SC1.j2kr.dcm */; };
-		4AD8617F265EEECE002E4D3A /* SC2.arabic.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86136265EEECC002E4D3A /* SC2.arabic.ele.dcm */; };
-		4AD86180265EEECE002E4D3A /* RG3.j2ki.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86137265EEECC002E4D3A /* RG3.j2ki.dcm */; };
-		4AD86181265EEECE002E4D3A /* RG1.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86138265EEECC002E4D3A /* RG1.ele.dcm */; };
-		4AD86182265EEECE002E4D3A /* CT1.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86139265EEECC002E4D3A /* CT1.ele.dcm */; };
-		4AD86183265EEECE002E4D3A /* MR4.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8613A265EEECC002E4D3A /* MR4.ele.dcm */; };
-		4AD86184265EEECE002E4D3A /* CT2.j2kr.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8613B265EEECC002E4D3A /* CT2.j2kr.dcm */; };
-		4AD86185265EEECE002E4D3A /* SC2.h32.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8613C265EEECC002E4D3A /* SC2.h32.ele.dcm */; };
-		4AD86186265EEECE002E4D3A /* CT1.j2ki.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8613D265EEECC002E4D3A /* CT1.j2ki.dcm */; };
-		4AD86187265EEECE002E4D3A /* RG1.j2kr.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8613E265EEECC002E4D3A /* RG1.j2kr.dcm */; };
-		4AD86188265EEECE002E4D3A /* VL4.j2ki.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8613F265EEECC002E4D3A /* VL4.j2ki.dcm */; };
-		4AD86189265EEECE002E4D3A /* VL5.j2kr.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86140265EEECC002E4D3A /* VL5.j2kr.dcm */; };
-		4AD8618A265EEECE002E4D3A /* RG2.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86141265EEECC002E4D3A /* RG2.ele.dcm */; };
-		4AD8618B265EEECE002E4D3A /* SC2.french.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86142265EEECC002E4D3A /* SC2.french.ele.dcm */; };
-		4AD8618C265EEECE002E4D3A /* MR2.j2kr.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86143265EEECC002E4D3A /* MR2.j2kr.dcm */; };
-		4AD8618D265EEECE002E4D3A /* SC2.greek.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86144265EEECD002E4D3A /* SC2.greek.ele.dcm */; };
-		4AD8618E265EEECE002E4D3A /* RF1.j2kr.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86145265EEECD002E4D3A /* RF1.j2kr.dcm */; };
-		4AD8618F265EEECE002E4D3A /* SC2.german.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86146265EEECD002E4D3A /* SC2.german.ele.dcm */; };
-		4AD86190265EEECE002E4D3A /* SC2.h31.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86147265EEECD002E4D3A /* SC2.h31.ele.dcm */; };
-		4AD86191265EEECE002E4D3A /* US1.j2ki.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86148265EEECD002E4D3A /* US1.j2ki.dcm */; };
-		4AD86192265EEECE002E4D3A /* VL2.j2kr.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86149265EEECD002E4D3A /* VL2.j2kr.dcm */; };
-		4AD86193265EEECE002E4D3A /* VL3.j2ki.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8614A265EEECD002E4D3A /* VL3.j2ki.dcm */; };
-		4AD86194265EEECE002E4D3A /* VL6.j2ki.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8614B265EEECD002E4D3A /* VL6.j2ki.dcm */; };
-		4AD86195265EEECE002E4D3A /* XA1.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8614C265EEECD002E4D3A /* XA1.ele.dcm */; };
-		4AD86196265EEECE002E4D3A /* XA1.j2kr.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8614D265EEECD002E4D3A /* XA1.j2kr.dcm */; };
-		4AD86197265EEECE002E4D3A /* NM1.j2ki.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8614E265EEECD002E4D3A /* NM1.j2ki.dcm */; };
-		4AD86198265EEECE002E4D3A /* MR4.j2ki.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8614F265EEECD002E4D3A /* MR4.j2ki.dcm */; };
-		4AD86199265EEECE002E4D3A /* RG2.j2ki.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86150265EEECD002E4D3A /* RG2.j2ki.dcm */; };
-		4AD8619A265EEECE002E4D3A /* VL3.j2kr.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86151265EEECD002E4D3A /* VL3.j2kr.dcm */; };
-		4AD8619B265EEECE002E4D3A /* MR3.j2ki.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86152265EEECD002E4D3A /* MR3.j2ki.dcm */; };
-		4AD8619C265EEECE002E4D3A /* VL5.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86153265EEECD002E4D3A /* VL5.ele.dcm */; };
-		4AD8619D265EEECE002E4D3A /* VL5.j2ki.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86154265EEECD002E4D3A /* VL5.j2ki.dcm */; };
-		4AD8619E265EEECE002E4D3A /* VL2.j2ki.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86155265EEECD002E4D3A /* VL2.j2ki.dcm */; };
-		4AD8619F265EEECE002E4D3A /* NM1.j2kr.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86156265EEECD002E4D3A /* NM1.j2kr.dcm */; };
-		4AD861A0265EEECE002E4D3A /* VL1.j2kr.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86157265EEECD002E4D3A /* VL1.j2kr.dcm */; };
-		4AD861A1265EEECE002E4D3A /* VL3.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86158265EEECD002E4D3A /* VL3.ele.dcm */; };
-		4AD861A2265EEECE002E4D3A /* CT2.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86159265EEECD002E4D3A /* CT2.ele.dcm */; };
-		4AD861A3265EEECE002E4D3A /* MR1.j2kr.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8615A265EEECD002E4D3A /* MR1.j2kr.dcm */; };
-		4AD861A4265EEECE002E4D3A /* MR2.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8615B265EEECD002E4D3A /* MR2.ele.dcm */; };
-		4AD861A5265EEECE002E4D3A /* SC2.russian.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8615C265EEECD002E4D3A /* SC2.russian.ele.dcm */; };
-		4AD861A6265EEECE002E4D3A /* XA1.j2ki.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8615D265EEECD002E4D3A /* XA1.j2ki.dcm */; };
-		4AD861A7265EEECE002E4D3A /* NM1.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8615E265EEECD002E4D3A /* NM1.ele.dcm */; };
-		4AD861A8265EEECE002E4D3A /* US1.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8615F265EEECD002E4D3A /* US1.ele.dcm */; };
-		4AD861A9265EEECE002E4D3A /* SC1.j2ki.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86160265EEECD002E4D3A /* SC1.j2ki.dcm */; };
-		4AD861AA265EEECE002E4D3A /* VL4.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86161265EEECD002E4D3A /* VL4.ele.dcm */; };
-		4AD861AB265EEECE002E4D3A /* SC2.x2.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86162265EEECD002E4D3A /* SC2.x2.ele.dcm */; };
-		4AD861AC265EEECE002E4D3A /* RF1.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86163265EEECD002E4D3A /* RF1.ele.dcm */; };
-		4AD861AD265EEECE002E4D3A /* MR3.j2kr.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86164265EEECD002E4D3A /* MR3.j2kr.dcm */; };
-		4AD861AE265EEECE002E4D3A /* MG1.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86165265EEECD002E4D3A /* MG1.ele.dcm */; };
-		4AD861AF265EEECE002E4D3A /* RG2.j2kr.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86166265EEECD002E4D3A /* RG2.j2kr.dcm */; };
-		4AD861B0265EEECE002E4D3A /* RG3.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86167265EEECD002E4D3A /* RG3.ele.dcm */; };
-		4AD861B1265EEECE002E4D3A /* VL1.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86168265EEECD002E4D3A /* VL1.ele.dcm */; };
-		4AD861B2265EEECE002E4D3A /* MR4.j2kr.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD86169265EEECD002E4D3A /* MR4.j2kr.dcm */; };
-		4AD861B3265EEECE002E4D3A /* SC1.ele.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8616A265EEECD002E4D3A /* SC1.ele.dcm */; };
-		4AD861B4265EEECE002E4D3A /* VL4.j2kr.dcm in Resources */ = {isa = PBXBuildFile; fileRef = 4AD8616B265EEECD002E4D3A /* VL4.j2kr.dcm */; };
 		4ADA4ED92672A778008F98DB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ADA4ED82672A778008F98DB /* main.m */; };
 		4ADA4EEA2672A7A3008F98DB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ADA4EE92672A7A3008F98DB /* main.m */; };
 		4ADA4EFC2672A7B5008F98DB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ADA4EFB2672A7B5008F98DB /* main.m */; };
@@ -122,7 +42,19 @@
 		4ADA50082678AA85008F98DB /* j2k.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ADA50062678AA85008F98DB /* j2k.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4ADA50092678AA85008F98DB /* j2k.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ADA50072678AA85008F98DB /* j2k.m */; };
 		4ADA50782678B096008F98DB /* NSData+DCMmarkers.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ADA50772678B096008F98DB /* NSData+DCMmarkers.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4AE7CEAA25E7CBE0004942E3 /* dicomattrs.hex in Resources */ = {isa = PBXBuildFile; fileRef = 4A7B85AC2582A4C300E62971 /* dicomattrs.hex */; };
+		4ADA50E1267A8A1C008F98DB /* libopenjp2.2.5.0.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA4FF426783D46008F98DB /* libopenjp2.2.5.0.dylib */; };
+		4ADA50E9267A8A57008F98DB /* libopenjp2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4ADA50E2267A8A57008F98DB /* libopenjp2.a */; };
+		4ADA50EA267A8A57008F98DB /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4ADA50E3267A8A57008F98DB /* libz.a */; };
+		4ADA50EB267A8A57008F98DB /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4ADA50E4267A8A57008F98DB /* libpng.a */; };
+		4ADA50EC267A8A57008F98DB /* libtiff.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4ADA50E5267A8A57008F98DB /* libtiff.a */; };
+		4ADA50ED267A8A57008F98DB /* opj_dump in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA50E6267A8A57008F98DB /* opj_dump */; };
+		4ADA50EE267A8A57008F98DB /* liblcms2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4ADA50E7267A8A57008F98DB /* liblcms2.a */; };
+		4ADA50EF267A8A57008F98DB /* opj_decompress in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA50E8267A8A57008F98DB /* opj_decompress */; };
+		4ADA50F8267A8A9B008F98DB /* liblcms2.a in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA50E7267A8A57008F98DB /* liblcms2.a */; };
+		4ADA50F9267A8A9B008F98DB /* libopenjp2.a in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA50E2267A8A57008F98DB /* libopenjp2.a */; };
+		4ADA50FA267A8A9B008F98DB /* libpng.a in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA50E4267A8A57008F98DB /* libpng.a */; };
+		4ADA50FB267A8A9B008F98DB /* libtiff.a in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA50E5267A8A57008F98DB /* libtiff.a */; };
+		4ADA50FC267A8A9B008F98DB /* libz.a in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA50E3267A8A57008F98DB /* libz.a */; };
 		4AE7CEB725E7CBE0004942E3 /* M.xsd in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE92125B1A8FE00C8D33F /* M.xsd */; };
 		4AE7CEB825E7CBE0004942E3 /* M1N.xsl in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE91E25B1A8FE00C8D33F /* M1N.xsl */; };
 		4AE7CEB925E7CBE0004942E3 /* N1M.xsl in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE92025B1A8FE00C8D33F /* N1M.xsl */; };
@@ -351,6 +283,15 @@
 		4ADA50062678AA85008F98DB /* j2k.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = j2k.h; sourceTree = "<group>"; };
 		4ADA50072678AA85008F98DB /* j2k.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = j2k.m; sourceTree = "<group>"; };
 		4ADA50772678B096008F98DB /* NSData+DCMmarkers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+DCMmarkers.h"; sourceTree = "<group>"; };
+		4ADA50E2267A8A57008F98DB /* libopenjp2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libopenjp2.a; sourceTree = "<group>"; };
+		4ADA50E3267A8A57008F98DB /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libz.a; sourceTree = "<group>"; };
+		4ADA50E4267A8A57008F98DB /* libpng.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libpng.a; sourceTree = "<group>"; };
+		4ADA50E5267A8A57008F98DB /* libtiff.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libtiff.a; sourceTree = "<group>"; };
+		4ADA50E6267A8A57008F98DB /* opj_dump */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = opj_dump; sourceTree = "<group>"; };
+		4ADA50E7267A8A57008F98DB /* liblcms2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = liblcms2.a; sourceTree = "<group>"; };
+		4ADA50E8267A8A57008F98DB /* opj_decompress */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = opj_decompress; sourceTree = "<group>"; };
+		4ADA50FD267B16FD008F98DB /* US-icon.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = "US-icon.j2kr.dcm"; sourceTree = "<group>"; };
+		4ADA50FE267B16FD008F98DB /* MG-large.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = "MG-large.ele.dcm"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -358,7 +299,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4ADA50EA267A8A57008F98DB /* libz.a in Frameworks */,
+				4ADA50EE267A8A57008F98DB /* liblcms2.a in Frameworks */,
+				4ADA50E9267A8A57008F98DB /* libopenjp2.a in Frameworks */,
 				4ADA4FF526783D46008F98DB /* libopenjp2.2.5.0.dylib in Frameworks */,
+				4ADA50EB267A8A57008F98DB /* libpng.a in Frameworks */,
+				4ADA50EC267A8A57008F98DB /* libtiff.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -431,6 +377,13 @@
 		4A025F3C25E5C455005AA1A3 /* DCKV */ = {
 			isa = PBXGroup;
 			children = (
+				4ADA50E7267A8A57008F98DB /* liblcms2.a */,
+				4ADA50E2267A8A57008F98DB /* libopenjp2.a */,
+				4ADA50E4267A8A57008F98DB /* libpng.a */,
+				4ADA50E5267A8A57008F98DB /* libtiff.a */,
+				4ADA50E3267A8A57008F98DB /* libz.a */,
+				4ADA50E8267A8A57008F98DB /* opj_decompress */,
+				4ADA50E6267A8A57008F98DB /* opj_dump */,
 				4ADA4FF426783D46008F98DB /* libopenjp2.2.5.0.dylib */,
 				4ADA4FBE2677FDBA008F98DB /* opj_compress */,
 				4ADA4FAF2677FD43008F98DB /* openjpeg.h */,
@@ -514,6 +467,8 @@
 		4A434CB825B996A200065B64 /* D */ = {
 			isa = PBXGroup;
 			children = (
+				4ADA50FE267B16FD008F98DB /* MG-large.ele.dcm */,
+				4ADA50FD267B16FD008F98DB /* US-icon.j2kr.dcm */,
 				4AD86139265EEECC002E4D3A /* CT1.ele.dcm */,
 				4AD8613D265EEECC002E4D3A /* CT1.j2ki.dcm */,
 				4AD8612E265EEECC002E4D3A /* CT1.j2kr.dcm */,
@@ -952,94 +907,21 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4AD861B2265EEECE002E4D3A /* MR4.j2kr.dcm in Resources */,
-				4AD8618B265EEECE002E4D3A /* SC2.french.ele.dcm in Resources */,
-				4AD8618F265EEECE002E4D3A /* SC2.german.ele.dcm in Resources */,
-				4AD86188265EEECE002E4D3A /* VL4.j2ki.dcm in Resources */,
-				4AD86193265EEECE002E4D3A /* VL3.j2ki.dcm in Resources */,
-				4AD86179265EEECE002E4D3A /* VL2.ele.dcm in Resources */,
-				4AD861A5265EEECE002E4D3A /* SC2.russian.ele.dcm in Resources */,
-				4AD86197265EEECE002E4D3A /* NM1.j2ki.dcm in Resources */,
-				4AD861AA265EEECE002E4D3A /* VL4.ele.dcm in Resources */,
-				4AD8618D265EEECE002E4D3A /* SC2.greek.ele.dcm in Resources */,
-				4AD86192265EEECE002E4D3A /* VL2.j2kr.dcm in Resources */,
-				4AD8617C265EEECE002E4D3A /* MG1.j2ki.dcm in Resources */,
-				4AD861A1265EEECE002E4D3A /* VL3.ele.dcm in Resources */,
-				4AD861B4265EEECE002E4D3A /* VL4.j2kr.dcm in Resources */,
-				4AD861A4265EEECE002E4D3A /* MR2.ele.dcm in Resources */,
-				4AD8616F265EEECE002E4D3A /* VL1.j2ki.dcm in Resources */,
+				4ADA50F8267A8A9B008F98DB /* liblcms2.a in Resources */,
+				4ADA50F9267A8A9B008F98DB /* libopenjp2.a in Resources */,
+				4ADA50FA267A8A9B008F98DB /* libpng.a in Resources */,
+				4ADA50FB267A8A9B008F98DB /* libtiff.a in Resources */,
+				4ADA50FC267A8A9B008F98DB /* libz.a in Resources */,
+				4ADA50E1267A8A1C008F98DB /* libopenjp2.2.5.0.dylib in Resources */,
 				4ADA4FBF2677FDBA008F98DB /* opj_compress in Resources */,
-				4AD8619D265EEECE002E4D3A /* VL5.j2ki.dcm in Resources */,
-				4AD861A8265EEECE002E4D3A /* US1.ele.dcm in Resources */,
-				4AD861A6265EEECE002E4D3A /* XA1.j2ki.dcm in Resources */,
-				4A5CC0592639D3E7003070E7 /* 00000001_7FE00010-OB#00000001.j2k in Resources */,
-				4AD86183265EEECE002E4D3A /* MR4.ele.dcm in Resources */,
-				4AD8616D265EEECE002E4D3A /* MG1.j2kr.dcm in Resources */,
-				4AD86170265EEECE002E4D3A /* SC2.x1.ele.dcm in Resources */,
-				4A5CC0442639D341003070E7 /* FluroWithDisplayShutterj2k.json in Resources */,
-				4AD8617B265EEECE002E4D3A /* CT2.j2ki.dcm in Resources */,
-				4AD861B3265EEECE002E4D3A /* SC1.ele.dcm in Resources */,
-				4AD861A9265EEECE002E4D3A /* SC1.j2ki.dcm in Resources */,
-				4AD8619B265EEECE002E4D3A /* MR3.j2ki.dcm in Resources */,
-				4AD86172265EEECE002E4D3A /* VL6.ele.dcm in Resources */,
-				4AD86184265EEECE002E4D3A /* CT2.j2kr.dcm in Resources */,
-				4A5CC04B2639D349003070E7 /* FluroWithDisplayShutterj2kinline.json in Resources */,
-				4AD86180265EEECE002E4D3A /* RG3.j2ki.dcm in Resources */,
-				4AD8616C265EEECE002E4D3A /* MR1.ele.dcm in Resources */,
-				4A5CC0522639D353003070E7 /* FluroWithDisplayShutterj2ksource.json in Resources */,
-				4AE7CEAA25E7CBE0004942E3 /* dicomattrs.hex in Resources */,
-				0718621925F6826800802276 /* FluroWithDisplayShutter.json in Resources */,
-				4AD86190265EEECE002E4D3A /* SC2.h31.ele.dcm in Resources */,
-				0718621A25F6826B00802276 /* SCSARAB.json in Resources */,
-				4AD86176265EEECE002E4D3A /* MR1.j2ki.dcm in Resources */,
 				4AC7BE63266A724A00C14265 /* DCKV.md in Resources */,
-				0718621C25F684AC00802276 /* SCSFREN.json in Resources */,
-				4AD8617F265EEECE002E4D3A /* SC2.arabic.ele.dcm in Resources */,
-				4AD861AE265EEECE002E4D3A /* MG1.ele.dcm in Resources */,
-				4AD8619C265EEECE002E4D3A /* VL5.ele.dcm in Resources */,
-				4AD861AF265EEECE002E4D3A /* RG2.j2kr.dcm in Resources */,
-				4AD8619E265EEECE002E4D3A /* VL2.j2ki.dcm in Resources */,
-				4AD8619F265EEECE002E4D3A /* NM1.j2kr.dcm in Resources */,
+				4ADA50EF267A8A57008F98DB /* opj_decompress in Resources */,
 				4AE7CEB725E7CBE0004942E3 /* M.xsd in Resources */,
-				4AD86195265EEECE002E4D3A /* XA1.ele.dcm in Resources */,
-				4AD86181265EEECE002E4D3A /* RG1.ele.dcm in Resources */,
-				4AD8617D265EEECE002E4D3A /* SC2.hebrew.ele.dcm in Resources */,
 				4AE7CEB825E7CBE0004942E3 /* M1N.xsl in Resources */,
-				4AD86189265EEECE002E4D3A /* VL5.j2kr.dcm in Resources */,
-				4AD86198265EEECE002E4D3A /* MR4.j2ki.dcm in Resources */,
-				4AD86175265EEECE002E4D3A /* US1.j2kr.dcm in Resources */,
-				4AD861A0265EEECE002E4D3A /* VL1.j2kr.dcm in Resources */,
-				4AD861A7265EEECE002E4D3A /* NM1.ele.dcm in Resources */,
-				4AD8618A265EEECE002E4D3A /* RG2.ele.dcm in Resources */,
-				4AD861AD265EEECE002E4D3A /* MR3.j2kr.dcm in Resources */,
-				4AD861AC265EEECE002E4D3A /* RF1.ele.dcm in Resources */,
-				4AD861A3265EEECE002E4D3A /* MR1.j2kr.dcm in Resources */,
-				4AD86174265EEECE002E4D3A /* RG3.j2kr.dcm in Resources */,
-				4AD86177265EEECE002E4D3A /* CT1.j2kr.dcm in Resources */,
-				4AD8618C265EEECE002E4D3A /* MR2.j2kr.dcm in Resources */,
-				4AD86196265EEECE002E4D3A /* XA1.j2kr.dcm in Resources */,
-				4AD86186265EEECE002E4D3A /* CT1.j2ki.dcm in Resources */,
-				4AD86173265EEECE002E4D3A /* MR3.ele.dcm in Resources */,
 				4AE7CEB925E7CBE0004942E3 /* N1M.xsl in Resources */,
-				4AD86171265EEECE002E4D3A /* SC2.l2.ele.dcm in Resources */,
-				4AD8616E265EEECE002E4D3A /* MR2.j2ki.dcm in Resources */,
-				4AD86187265EEECE002E4D3A /* RG1.j2kr.dcm in Resources */,
-				4AD86194265EEECE002E4D3A /* VL6.j2ki.dcm in Resources */,
 				4AE7CEBA25E7CBE0004942E3 /* M3J.xsl in Resources */,
-				4AD8619A265EEECE002E4D3A /* VL3.j2kr.dcm in Resources */,
-				4AD861AB265EEECE002E4D3A /* SC2.x2.ele.dcm in Resources */,
-				4AD861A2265EEECE002E4D3A /* CT2.ele.dcm in Resources */,
-				4AD86191265EEECE002E4D3A /* US1.j2ki.dcm in Resources */,
-				4AD861B1265EEECE002E4D3A /* VL1.ele.dcm in Resources */,
-				4AD861B0265EEECE002E4D3A /* RG3.ele.dcm in Resources */,
-				4AD8617E265EEECE002E4D3A /* SC1.j2kr.dcm in Resources */,
 				4AE7CEBB25E7CBE0004942E3 /* N.xsd in Resources */,
-				4AD86185265EEECE002E4D3A /* SC2.h32.ele.dcm in Resources */,
-				4AD86182265EEECE002E4D3A /* CT1.ele.dcm in Resources */,
-				4AD86199265EEECE002E4D3A /* RG2.j2ki.dcm in Resources */,
-				4AD8617A265EEECE002E4D3A /* RG1.j2ki.dcm in Resources */,
-				4AD8618E265EEECE002E4D3A /* RF1.j2kr.dcm in Resources */,
-				4AD86178265EEECE002E4D3A /* VL6.j2kr.dcm in Resources */,
+				4ADA50ED267A8A57008F98DB /* opj_dump in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
