@@ -234,11 +234,11 @@ int main(int argc, const char * argv[]) {
          if (!inputData.length) [inputData appendData:[NSData dataWithContentsOfFile:inputPath]];//stdin has data already
          
 #pragma mark · parse
-         NSMutableDictionary *attrDict=[NSMutableDictionary dictionary];
+         NSMutableDictionary *parsedAttrs=[NSMutableDictionary dictionary];
          NSMutableDictionary *blobDict=[NSMutableDictionary dictionary];
          if (!D2dict(
                     inputData,
-                    attrDict,
+                    parsedAttrs,
                     blobMinSize,
                     blobMode,
                     blobRefPrefix,
@@ -251,17 +251,17 @@ int main(int argc, const char * argv[]) {
 #pragma mark · compress
             if (blobMode!=blobModeSource)
             {
-               NSLog(@"%@: %@",attrDict[@"00000001_00020010-UI"][0],attrDict[@"00000001_00020003-UI"][0]);
+               NSLog(@"%@: %@",parsedAttrs[@"00000001_00020010-UI"][0],parsedAttrs[@"00000001_00020003-UI"][0]);
                NSString *pixelKey=nil;
-               if (attrDict[@"00000001_7FE00010-OB"])pixelKey=@"00000001_7FE00010-OB";
-               else if (attrDict[@"00000001_7FE00010-OW"])pixelKey=@"00000001_7FE00010-OW";
+               if (parsedAttrs[@"00000001_7FE00010-OB"])pixelKey=@"00000001_7FE00010-OB";
+               else if (parsedAttrs[@"00000001_7FE00010-OW"])pixelKey=@"00000001_7FE00010-OW";
                if (   pixelKey
                    && compressJ2K
-                   && [attrDict[@"00000001_00020010-UI"][0] isEqualToString:@"1.2.840.10008.1.2.1"]
+                   && [parsedAttrs[@"00000001_00020010-UI"][0] isEqualToString:@"1.2.840.10008.1.2.1"]
                    )
                {
                   NSData *pixelData=nil;
-                  if ([attrDict[pixelKey][0] isKindOfClass:[NSDictionary class]])  pixelData=blobDict[attrDict[pixelKey][0][@"Native"][0]];
+                  if ([parsedAttrs[pixelKey][0] isKindOfClass:[NSDictionary class]])  pixelData=blobDict[parsedAttrs[pixelKey][0][@"Native"][0]];
                   else pixelData=blobDict[pixelKey];
                   NSMutableData *j2kData=[NSMutableData data];
                   int result=execTask(
@@ -270,10 +270,10 @@ int main(int argc, const char * argv[]) {
                            @[
                               @"-F",
                               [NSString stringWithFormat:@"%u,%d,%d,%d,u",
-                               [attrDict[@"00000001_00280011-US"][0] unsignedShortValue],//columns
-                               [attrDict[@"00000001_00280010-US"][0] unsignedShortValue],//rows
-                               [attrDict[@"00000001_00280002-US"][0] unsignedShortValue],//samples
-                               [attrDict[@"00000001_00280101-US"][0] unsignedShortValue] //bits
+                               [parsedAttrs[@"00000001_00280011-US"][0] unsignedShortValue],//columns
+                               [parsedAttrs[@"00000001_00280010-US"][0] unsignedShortValue],//rows
+                               [parsedAttrs[@"00000001_00280002-US"][0] unsignedShortValue],//samples
+                               [parsedAttrs[@"00000001_00280101-US"][0] unsignedShortValue] //bits
                                ],
                               @"-InFor",
                               @"rawl",
@@ -300,21 +300,21 @@ int main(int argc, const char * argv[]) {
                      exit(0);
                   }
                   
-                  [attrDict setObject:@[@"1.2.840.10008.1.2.4.90"] forKey:@"00000001_00020010-UI"];
+                  [parsedAttrs setObject:@[@"1.2.840.10008.1.2.4.90"] forKey:@"00000001_00020010-UI"];
                   
 
                   
-                  [attrDict setObject:@[[NSString stringWithFormat:@"Lossless compression J2K codec https://github.com/GrokImageCompression/grok (v9.2,2021-05-22), compression ratio %05f (pixel data size:%lu md5:%@)",1.0*pixelData.length/j2kData.length,(unsigned long)pixelData.length,[pixelData MD5String]]] forKey:@"00000001_00082111-ST"];
+                  [parsedAttrs setObject:@[[NSString stringWithFormat:@"Lossless compression J2K codec https://github.com/GrokImageCompression/grok (v9.2,2021-05-22), compression ratio %05f (pixel data size:%lu md5:%@)",1.0*pixelData.length/j2kData.length,(unsigned long)pixelData.length,[pixelData MD5String]]] forKey:@"00000001_00082111-ST"];
 
-                  [attrDict setObject:@[@"J2K sin pérdida"] forKey:@"00000001_00204000-2006LT"];
+                  [parsedAttrs setObject:@[@"J2K sin pérdida"] forKey:@"00000001_00204000-2006LT"];
 
                   
-                  if (![attrDict[pixelKey][0] isKindOfClass:[NSString class]])//blobModeResources
+                  if (![parsedAttrs[pixelKey][0] isKindOfClass:[NSString class]])//blobModeResources
                   {
-                     NSString *oldEncapsulatedURLString=attrDict[pixelKey][0][@"Native"][0];
+                     NSString *oldEncapsulatedURLString=parsedAttrs[pixelKey][0][@"Native"][0];
                      NSString *newEncapsulatedURLString=[oldEncapsulatedURLString stringByReplacingOccurrencesOfString:pixelKey withString:@"00000001_7FE00010-OB"];
-                     [attrDict removeObjectForKey:pixelKey];
-                     [attrDict setObject:
+                     [parsedAttrs removeObjectForKey:pixelKey];
+                     [parsedAttrs setObject:
                       @[
                          @{
                             @"Frame#00000001" : @[ newEncapsulatedURLString ]
@@ -327,19 +327,19 @@ int main(int argc, const char * argv[]) {
                   }
                   else //blobModeInline
                   {
-                     [attrDict removeObjectForKey:pixelKey];
-                     [attrDict setObject:@[B64JSONstringWithData(j2kData)] forKey:@"00000001_7FE00010-OB"];
+                     [parsedAttrs removeObjectForKey:pixelKey];
+                     [parsedAttrs setObject:@[B64JSONstringWithData(j2kData)] forKey:@"00000001_7FE00010-OB"];
                   }
 
                }
             }
 
 #pragma mark · jsondata
-            NSMutableString *JSONstring=json4attrDict(attrDict);
+            NSMutableString *JSONstring=json4parsedAttrs(@"dataset",parsedAttrs);
             NSData *JSONdata=[JSONstring dataUsingEncoding:NSUTF8StringEncoding];
             if (!JSONdata)
             {
-               LOG_ERROR(@"could not transform to JSON: %@",[attrDict description]);
+               LOG_ERROR(@"could not transform to JSON: %@",[parsedAttrs description]);
             }
             else if (
                forceZip

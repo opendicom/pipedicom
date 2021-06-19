@@ -1,6 +1,6 @@
 #import <Foundation/Foundation.h>
 #import <DCKV/DCKV.h>
-//#import <DCKV/NSData+DCMmarkers.h>
+
 
 //https://raw.githubusercontent.com/jacquesfauquex/DICOM_contextualizedKey-values/master/mapxmldicom/mapxmldicom.xsd
 
@@ -40,43 +40,6 @@ int visibleFiles(NSFileManager *fileManager, NSArray *mountPoints, NSMutableArra
       }
    }
    return success;
-}
-
-
-int execTask(NSDictionary *environment, NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutableData *readData)
-{
-   NSTask *task=[[NSTask alloc]init];
-   
-   task.environment=environment;
-   
-   [task setLaunchPath:launchPath];
-   [task setArguments:launchArgs];
-   NSPipe *writePipe = [NSPipe pipe];
-   NSFileHandle *writeHandle = [writePipe fileHandleForWriting];
-   [task setStandardInput:writePipe];
-   
-   NSPipe* readPipe = [NSPipe pipe];
-   NSFileHandle *readingFileHandle=[readPipe fileHandleForReading];
-   [task setStandardOutput:readPipe];
-   //[task setStandardError:readPipe];
-   
-   [task launch];
-   [writeHandle writeData:writeData];
-   [writeHandle closeFile];
-   
-   NSData *dataPiped = nil;
-   while((dataPiped = [readingFileHandle availableData]) && [dataPiped length])
-   {
-      [readData appendData:dataPiped];
-   }
-   //while( [task isRunning]) [NSThread sleepForTimeInterval: 0.1];
-   //[task waitUntilExit];      // <- This is VERY DANGEROUS : the main runloop is continuing...
-   //[aTask interrupt];
-   
-   [task waitUntilExit];
-   int terminationStatus = [task terminationStatus];
-   if (terminationStatus!=0) NSLog(@"ERROR task terminationStatus: %d",terminationStatus);//warning
-   return terminationStatus;
 }
 
 
@@ -194,12 +157,17 @@ int main(int argc, const char * argv[]) {
       {
 #pragma mark · parse
          [blobRefPrefix setString:[ [inputPath lastPathComponent] stringByAppendingString:@".bulkdata/"]];
+         //inputData is empty
          [inputData appendData:[NSData dataWithContentsOfFile:inputPath]];
-         NSMutableDictionary *attrDict=[NSMutableDictionary dictionary];
+         
+         NSMutableDictionary *parsedAttrs=[NSMutableDictionary dictionary];//parsing
          NSMutableDictionary *blobDict=[NSMutableDictionary dictionary];
+         NSMutableDictionary *nativeAttrs=[NSMutableDictionary dictionary];//removed from parsing
+         NSMutableDictionary *j2kAttrs=[NSMutableDictionary dictionary];//added compressing
+         NSMutableDictionary *j2kBlobDict=[NSMutableDictionary dictionary];
          if (!D2dict(
                     inputData,
-                    attrDict,
+                    parsedAttrs,
                     blobMinSize,
                     blobMode,
                     blobRefPrefix,
@@ -210,139 +178,68 @@ int main(int argc, const char * argv[]) {
          else
          {
 #pragma mark · compress ?
-            //NSLog(@"%@: %@",attrDict[@"00000001_00020010-UI"][0],attrDict[@"00000001_00020003-UI"][0]);
+            //NSLog(@"%@: %@",parsedAttrs[@"00000001_00020010-UI"][0],parsedAttrs[@"00000001_00020003-UI"][0]);
             NSString *pixelKey=nil;
-            if (attrDict[@"00000001_7FE00010-OB"])pixelKey=@"00000001_7FE00010-OB";
-            else if (attrDict[@"00000001_7FE00010-OW"])pixelKey=@"00000001_7FE00010-OW";
+            if (parsedAttrs[@"00000001_7FE00010-OB"])pixelKey=@"00000001_7FE00010-OB";
+            else if (parsedAttrs[@"00000001_7FE00010-OW"])pixelKey=@"00000001_7FE00010-OW";
             if (   pixelKey
                 && compressJ2K
-                && [attrDict[@"00000001_00020010-UI"][0] isEqualToString:@"1.2.840.10008.1.2.1"]
+                && [parsedAttrs[@"00000001_00020010-UI"][0] isEqualToString:@"1.2.840.10008.1.2.1"]
                 )
             {
-               NSString *nativeUrlString=attrDict[pixelKey][0][@"Native"][0];
-
+               NSString *nativeUrlString=parsedAttrs[pixelKey][0][@"Native"][0];
                NSData *pixelData=nil;
-               if ([attrDict[pixelKey][0] isKindOfClass:[NSDictionary class]])  pixelData=blobDict[attrDict[pixelKey][0][@"Native"][0]];
+               if ([parsedAttrs[pixelKey][0] isKindOfClass:[NSDictionary class]])  pixelData=blobDict[parsedAttrs[pixelKey][0][@"Native"][0]];
                else pixelData=dataWithB64String(blobDict[pixelKey]);
-               NSUInteger pixelTotalLength=pixelData.length;
-               
-               NSUInteger frameTotal=1;
-               if (attrDict[@"00000001_00280008-IS"]) frameTotal=[attrDict[@"00000001_00280008-IS"][0] unsignedIntegerValue];
-               NSUInteger frameLength=pixelTotalLength / frameTotal;
-               
-               for (NSUInteger frameNumber=0; frameNumber<frameTotal; frameNumber++)
+               if (compress(
+                            [nativeUrlString substringToIndex:nativeUrlString.length-3],
+                            pixelData,
+                            parsedAttrs,
+                            j2kBlobDict,
+                            j2kAttrs
+                            )==success
+                   )
                {
-//modifyWithFrameNumber
-                  NSString *encapsulatedUrlBaseString=[nativeUrlString stringByReplacingOccurrencesOfString:pixelKey withString:@"00000001_7FE00010"];
-
-                  NSMutableData *j2kData=[NSMutableData data];
-                  int result=execTask(
-                           nil,
-                           @"opj_compress",
-                           @[
-                              @"-F",
-                              [NSString stringWithFormat:@"%u,%d,%d,%d,u",
-                               [attrDict[@"00000001_00280011-US"][0] unsignedShortValue],//columns
-                               [attrDict[@"00000001_00280010-US"][0] unsignedShortValue],//rows
-                               [attrDict[@"00000001_00280002-US"][0] unsignedShortValue],//samples
-                               [attrDict[@"00000001_00280101-US"][0] unsignedShortValue] //bits
-                               ],
-                              @"-i",
-                              @"stdin.rawl",
-                              @"-o",
-                              @"stdout.j2k",
-                              @"-n",
-                              @"6",
-                              @"-r",
-                              @"50,40,30,20,10,1", //3 quality layers
-                              @"-p",
-                              @"RLCP",//B.11.1.2 Resolution-layer-component-position
-                              @"-TP",
-                              @"R"//Tile-parts
-                           ],
-                           [pixelData subdataWithRange:NSMakeRange(frameNumber*frameLength,frameLength)],
-                           j2kData
-                           );
+                  //remove native pixel blob and corresponding attribute
+                  [parsedAttrs removeObjectForKey:pixelKey];
+                  [blobDict removeObjectForKey:nativeUrlString];
                   
-                  if (result !=0)
-                  {
-                     NSString *errorString=[[NSString alloc]initWithData:j2kData encoding:NSUTF8StringEncoding];
-                     LOG_ERROR(@"compression J2K: %@",errorString);
-                  }
-                  else
-                  {
-      #pragma mark ·· subdivide j2kData
-                     NSMutableArray *pixelAttrArray=[NSMutableArray array];
-
-                     NSUInteger fragmentOffset=0;
-                     int fragmentCounter=0;
-                     NSUInteger j2kLength=j2kData.length;
-                     NSRange j2kRange=NSMakeRange(fragmentOffset,j2kLength);
-                     NSRange nextSOCRange=[j2kData rangeOfData:NSData.SOT
-                                                       options:0
-                                                         range:j2kRange];
-                     while (nextSOCRange.location != NSNotFound)
-                     {
-                        if (fragmentCounter==1 || fragmentCounter==4 || fragmentCounter==5)
-                        {
-                           NSString *fragmentName=[NSString stringWithFormat:@"%@#%08lu:1.j2k%@",encapsulatedUrlBaseString,frameNumber+1,@[@"",@"",@"",@"",@".fast",@".hres"][fragmentCounter]];
-                           [pixelAttrArray addObject:fragmentName];
-                           if (fragmentCounter==1)
-                           {
-                              NSMutableData *EOCdata=[NSMutableData dataWithData:[j2kData subdataWithRange:NSMakeRange(fragmentOffset, nextSOCRange.location - fragmentOffset)]];
-                              [EOCdata appendData:NSData.EOC];
-                              [blobDict setObject:EOCdata forKey:fragmentName];
-                           }
-                           else [blobDict setObject:[j2kData subdataWithRange:NSMakeRange(fragmentOffset, nextSOCRange.location - fragmentOffset)] forKey:fragmentName];
-                           fragmentOffset=nextSOCRange.location;
-                        }
-
-                        j2kRange.location=nextSOCRange.location + nextSOCRange.length;
-                        j2kRange.length=j2kLength-j2kRange.location;
-                        nextSOCRange=[j2kData rangeOfData:NSData.SOT
-                                                          options:0
-                                                            range:j2kRange];
-                        fragmentCounter++;
-                     }
-                     //last tile-part (ended with EOC)
-                     //[j2kData writeToFile:@"/Users/Shared/6.j2k" atomically:NO];
-                     nextSOCRange=[j2kData rangeOfData:NSData.EOC
-                                                       options:0
-                                                         range:j2kRange];
-                     NSString *fragmentName=[NSString stringWithFormat:@"%@#00000001:1.j2k.max",encapsulatedUrlBaseString]
-                     ;
-                     [pixelAttrArray addObject:fragmentName];
-                     [blobDict setObject:[j2kData subdataWithRange:NSMakeRange(fragmentOffset, nextSOCRange.location-fragmentOffset)] forKey:fragmentName];
-
-                     NSDictionary *frame1Dict=[NSDictionary dictionaryWithObject:pixelAttrArray forKey:@"Frame#00000001"];
-                     [attrDict setObject: [NSArray arrayWithObject:frame1Dict]
-                     forKey:@"00000001_7FE00010-OB"];
-                     [blobDict removeObjectForKey:nativeUrlString];
-                  }
-           
+                  //include j2k blobs
+                  [blobDict addEntriesFromDictionary:j2kBlobDict];
+                  
+                  //displace native attributes
+                  [nativeAttrs setObject:parsedAttrs[@"00000001_00020010-UI"] forKey:@"00000001_00020010-UI"];
+                  [parsedAttrs removeObjectForKey:@"00000001_00020010-UI"];
+                  
                   
 
                }
-#pragma mark ·· modify attrs
-               [attrDict setObject:@[@"1.2.840.10008.1.2.4.90"] forKey:@"00000001_00020010-UI"];
-               
 
                
-               [attrDict setObject:@[[NSString stringWithFormat:@"Lossless compression J2K codec openjpeg 2.5. Original data size:%lu md5:%@)",(unsigned long)pixelData.length,[pixelData MD5String]]] forKey:@"00000001_00082111-ST"];
-
-               [attrDict setObject:@[@"J2K sin pérdida. 1 tile. 4 tile-part quality layer (50,20,10,1)"] forKey:@"00000001_00204000-2006LT"];
-
-               
-               [attrDict removeObjectForKey:pixelKey];
             }
          
 
 #pragma mark · jsondata
-            NSMutableString *JSONstring=json4attrDict(attrDict);
+            
+            //remove group2 length
+            [parsedAttrs removeObjectForKey:@"00000001_00020000-UL"];
+            // remove File Meta Information Version. (0002,0001) OB "AAE="
+            [parsedAttrs removeObjectForKey:@"00000001_00020001-OB"];
+
+            
+            NSMutableString *JSONstring=
+            [NSMutableString
+             stringWithFormat:
+             @"{ \"dataset\" :%@, \"+j2k\" :%@, \"-native\" :%@}",
+             jsonObject4attrs(parsedAttrs),
+             jsonObject4attrs(j2kAttrs),
+             jsonObject4attrs(nativeAttrs)
+             ];
+            
             NSData *JSONdata=[JSONstring dataUsingEncoding:NSUTF8StringEncoding];
             if (!JSONdata)
             {
-               LOG_ERROR(@"could not transform to JSON: %@",[attrDict description]);
+               LOG_ERROR(@"could not transform to JSON: %@",[parsedAttrs description]);
             }
             else
 #pragma mark · outputDir

@@ -7,6 +7,14 @@
 
 #import <Foundation/Foundation.h>
 
+int compress(
+             NSString *pixelKey,
+             NSData *pixelData,
+             NSMutableDictionary *parsedAttrs,
+             NSMutableDictionary *j2kBlobDict,
+             NSMutableDictionary *j2kAttrs
+             );
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface j2k : NSObject

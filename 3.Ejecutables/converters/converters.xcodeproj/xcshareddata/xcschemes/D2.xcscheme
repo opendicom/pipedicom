@@ -53,7 +53,7 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/Samples/D/SC1.ele.dcm"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/Samples/D/SC1.j2kr.dcm"
@@ -65,7 +65,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/Samples/D/US-icon.j2kr.dcm"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/Samples/D/MG-large.ele.dcm"

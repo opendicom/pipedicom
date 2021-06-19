@@ -16,7 +16,7 @@ enum blobModeOptions {
 
 int D2dict(
            NSData *data,
-           NSMutableDictionary *attrDict,
+           NSMutableDictionary *parsedAttrs,
            long long blobMinSize,
            int blobMode,
            NSString* blobRefPrefix,
@@ -24,6 +24,6 @@ int D2dict(
            NSMutableDictionary *blobDict
            );
 
-NSMutableString* json4attrDict(NSMutableDictionary *attrDict);
+NSString *jsonObject4attrs(NSDictionary *attrs);
 
 #endif /* D2dict_h */

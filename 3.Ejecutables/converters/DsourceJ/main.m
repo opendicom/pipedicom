@@ -21,11 +21,11 @@ int main(int argc, const char * argv[]) {
       fp=freopen([@"/Users/Shared/DinlineJ.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
          
 #pragma mark · parse
-      NSMutableDictionary *attrDict=[NSMutableDictionary dictionary];
+      NSMutableDictionary *parsedAttrs=[NSMutableDictionary dictionary];
       NSMutableDictionary *blobDict=[NSMutableDictionary dictionary];
       if (!D2dict(
                  inputData,
-                 attrDict,
+                 parsedAttrs,
                  LLONG_MAX,
                  blobModeSource,
                  path,
@@ -40,11 +40,11 @@ int main(int argc, const char * argv[]) {
       }
 
 #pragma mark · jsondata
-      NSMutableString *JSONstring=json4attrDict(attrDict);
+      NSMutableString *JSONstring=json4parsedAttrs(@"dataset",parsedAttrs);
       NSData *JSONdata=[JSONstring dataUsingEncoding:NSUTF8StringEncoding];
       if (!JSONdata)
       {
-         LOG_ERROR(@"could not transform to JSON: %@",[attrDict description]);
+         LOG_ERROR(@"could not transform to JSON: %@",[parsedAttrs description]);
          fclose(fp);
          return 1;
       }
