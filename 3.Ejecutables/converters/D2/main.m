@@ -201,13 +201,13 @@ int main(int argc, const char * argv[]) {
                    )
                {
                   //remove native pixel blob and corresponding attribute
-                  [parsedAttrs removeObjectForKey:pixelKey];
-                  [blobDict removeObjectForKey:nativeUrlString];
                   
                   //include j2k blobs
                   [blobDict addEntriesFromDictionary:j2kBlobDict];
                   
-                  //displace native attributes
+                  //relocate native attributes
+                  [nativeAttrs setObject:parsedAttrs[pixelKey] forKey:pixelKey];
+                  [parsedAttrs removeObjectForKey:pixelKey];
                   [nativeAttrs setObject:parsedAttrs[@"00000001_00020010-UI"] forKey:@"00000001_00020010-UI"];
                   [parsedAttrs removeObjectForKey:@"00000001_00020010-UI"];
                   

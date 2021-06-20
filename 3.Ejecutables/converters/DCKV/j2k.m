@@ -48,7 +48,7 @@ int execTask(NSDictionary *environment, NSString *launchPath, NSArray *launchArg
 
 
 int compress(
-             NSString *pixelKey,
+             NSString *pixelUrl,
              NSData *pixelData,
              NSMutableDictionary *parsedAttrs,
              NSMutableDictionary *j2kBlobDict,
@@ -85,11 +85,11 @@ int compress(
                   @"-n",
                   @"6",
                   @"-r",
-                  @"50,40,30,20,10,1", //3 quality layers
+                  @"50,40,30,20,10,1", //6 quality layers (50=base,20=fast,10=hres,1=idem)
                   @"-p",
                   @"RLCP",//B.11.1.2 Resolution-layer-component-position
                   @"-TP",
-                  @"R"//Tile-parts
+                  @"R"//Tile-parts based on quality
                ],
                [pixelData subdataWithRange:NSMakeRange(frameNumber*frameLength,frameLength)],
                j2kData
@@ -117,17 +117,20 @@ int compress(
          {
             if (fragmentCounter==1 || fragmentCounter==4 || fragmentCounter==5)
             {
-               NSString *fragmentName=[NSString stringWithFormat:@"%@#%08lu:1%@.j2k",pixelKey,frameNumber+1,@[@"",@".base",@"",@"",@".fast",@".hres"][fragmentCounter]];
+               NSString *fragmentName=[NSString stringWithFormat:@"%@#%08lu:1%@.j2k",pixelUrl,frameNumber+1,@[@"",@".base",@"",@"",@".fast",@".hres"][fragmentCounter]];
                [pixelAttrArray addObject:fragmentName];
                
                
+               /*
                if (fragmentCounter==1)//add EOC
                {
                   NSMutableData *EOCdata=[NSMutableData dataWithData:[j2kData subdataWithRange:NSMakeRange(fragmentOffset, nextSOCRange.location - fragmentOffset)]];
                   [EOCdata appendData:NSData.EOC];
                   [j2kBlobDict setObject:EOCdata forKey:fragmentName];
                }
-               else [j2kBlobDict setObject:[j2kData subdataWithRange:NSMakeRange(fragmentOffset, nextSOCRange.location - fragmentOffset)] forKey:fragmentName];
+               else
+                */
+               [j2kBlobDict setObject:[j2kData subdataWithRange:NSMakeRange(fragmentOffset, nextSOCRange.location - fragmentOffset)] forKey:fragmentName];
                
                
                fragmentOffset=nextSOCRange.location;
@@ -145,7 +148,7 @@ int compress(
          nextSOCRange=[j2kData rangeOfData:NSData.EOC
                                            options:0
                                              range:j2kRange];
-         NSString *fragmentName=[NSString stringWithFormat:@"%@#00000001:1.idem.j2k",pixelKey]
+         NSString *fragmentName=[NSString stringWithFormat:@"%@#00000001:1.idem.j2k",pixelUrl]
          ;
          [pixelAttrArray addObject:fragmentName];
          [j2kBlobDict setObject:[j2kData subdataWithRange:NSMakeRange(fragmentOffset, nextSOCRange.location-fragmentOffset)] forKey:fragmentName];

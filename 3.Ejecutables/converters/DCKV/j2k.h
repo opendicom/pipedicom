@@ -8,7 +8,7 @@
 #import <Foundation/Foundation.h>
 
 int compress(
-             NSString *pixelKey,
+             NSString *pixelUrl,
              NSData *pixelData,
              NSMutableDictionary *parsedAttrs,
              NSMutableDictionary *j2kBlobDict,

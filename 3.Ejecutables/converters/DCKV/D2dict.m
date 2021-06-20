@@ -1164,11 +1164,13 @@ int D2dict(
    return success;
 }
 
+
+
 NSString *jsonObject4attrs(NSDictionary *attrs)
 {
    //NSData *JSONdata=[NSJSONSerialization dataWithJSONObject:@{@"dataset":dict} options:NSJSONWritingSortedKeys error:&error];//10.15 || NSJSONWritingWithoutEscapingSlashes
 
-   NSMutableString *JSONstring=[NSMutableString stringWithFormat:@"{ "];
+   NSMutableString *JSONstring=[NSMutableString stringWithFormat:@"{"];
    NSArray *keys=[[attrs allKeys] sortedArrayUsingSelector:@selector(compare:)];
    
    
@@ -1176,13 +1178,13 @@ NSString *jsonObject4attrs(NSDictionary *attrs)
    for (NSString *key in keys)
    {
       //LOG_DEBUG(@"%@",key);
-      [JSONstring appendFormat:@"\"%@\": ",key];
+      [JSONstring appendFormat:@" \"%@\" :",key];
       
       switch ([key characterAtIndex:key.length-2]+([key characterAtIndex:key.length-1]*0x100))
       {
          
 #pragma mark · string based attributes
-//AS DA AE DT TM CS LO LT PN SH ST PN UC UT UR UI OB OD OF OL OV OW UN AT
+//AS DA AE DT TM CS LO LT SH ST PN UC UT UR UI AT
          case 0x5341://AS
          case 0x4144://DA
          case 0x4541://AE
@@ -1203,27 +1205,27 @@ NSString *jsonObject4attrs(NSDictionary *attrs)
             switch ([attrs[key] count]) {
                case 0:
                {
-                  [JSONstring appendString:@"[], "];
+                  [JSONstring appendString:@"[ ],"];
                   break;
                }
 
                case 1:
                {
-                  [JSONstring appendFormat:@"[ \"%@\" ], ",
+                  [JSONstring appendFormat:@"[\"%@\"],",
                    attrs[key][0]];
                   break;
                }
 
                default:
                {
-                  [JSONstring appendString:@"[ "];
+                  [JSONstring appendString:@"["];
                   for (NSString *string in attrs[key])
                   {
-                     [JSONstring appendFormat:@"\"%@\", ",
+                     [JSONstring appendFormat:@"\"%@\",",
                       string];
                   }
-                  [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-2,2)];
-                  [JSONstring appendString:@"], "];
+                  [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-1,1)];
+                  [JSONstring appendString:@"],"];
 
                   break;
                }
@@ -1245,7 +1247,7 @@ NSString *jsonObject4attrs(NSDictionary *attrs)
             switch ([attrs[key] count]) {
                case 0:
                {
-                  [JSONstring appendString:@"[], "];
+                  [JSONstring appendString:@"[ ],"];
                   break;
                }
 
@@ -1254,45 +1256,45 @@ NSString *jsonObject4attrs(NSDictionary *attrs)
                   id obj=attrs[key][0];
                   if ([obj isKindOfClass:[NSString class]])
                   {
-                     [JSONstring appendFormat:@"[ \"%@\" ], ",
+                     [JSONstring appendFormat:@"[\"%@\"],",
                    obj];
                   }
-                  else //@[@{ @"Frame#00000001":[urlString]}]
+                  else //@[@{ @"Frame#00000001" :[urlString]}]
                   {
                      NSString *subKey=[obj allKeys][0];
-                     [JSONstring appendFormat:@"[ { \"%@\": [ ",subKey];
+                     [JSONstring appendFormat:@"[{ \"%@\" :[",subKey];
                      for (NSString *url in obj[subKey])
                      {
-                        [JSONstring appendFormat:@"\"%@\", ",url];
+                        [JSONstring appendFormat:@"\"%@\",",url];
                      }
-                     [JSONstring replaceCharactersInRange:NSMakeRange(JSONstring.length-2,2) withString:@" ] } ], "];
+                     [JSONstring replaceCharactersInRange:NSMakeRange(JSONstring.length-1,1) withString:@"]}],"];
                   }
                   break;
                }
 
                default://more than one value
                {
-                  [JSONstring appendString:@"[ "];
+                  [JSONstring appendString:@"["];
                   id obj=attrs[key][0];
                   if ([obj isKindOfClass:[NSString class]])
                   {
                      for (NSString *string in attrs[key])
                      {
-                        [JSONstring appendFormat:@"\"%@\", ",
+                        [JSONstring appendFormat:@"\"%@\",",
                          string];
                      }
-                     [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-2,2)];
-                     [JSONstring appendString:@" ], "];
+                     [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-1,1)];
+                     [JSONstring appendString:@"],"];
                   }
                   else //@[@{ @"BulkData":urlString}]
                   {
                      for (NSDictionary *d in attrs[key])
                      {
                         NSString *subKey=[d allKeys][0];
-                        [JSONstring appendFormat:@"{ \"%@\": [ \"%@\" ] }, ",subKey, d[subKey][0]];
+                        [JSONstring appendFormat:@"{ \"%@\" :[\"%@\"]},",subKey, d[subKey][0]];
                      }
-                     [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-2,2)];
-                     [JSONstring appendString:@"], "];
+                     [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-1,1)];
+                     [JSONstring appendString:@"],"];
                   }
                   break;
                }
@@ -1308,7 +1310,7 @@ NSString *jsonObject4attrs(NSDictionary *attrs)
          case 0x5A49://IZ
          case 0x5A53://SZ
          {
-            [JSONstring appendString:@"null, "];
+            [JSONstring appendString:@"null,"];
             break;
          }
 
@@ -1329,26 +1331,26 @@ NSString *jsonObject4attrs(NSDictionary *attrs)
             switch ([attrs[key] count]) {
                case 0:
                {
-                  [JSONstring appendString:@"[], "];
+                  [JSONstring appendString:@"[ ],"];
                   break;
                }
 
                case 1:
                {
-                  [JSONstring appendFormat:@"[ %@ ], ", attrs[key][0]];
+                  [JSONstring appendFormat:@"[%@],", attrs[key][0]];
                   break;
                }
 
                default:
                {
-                  [JSONstring appendString:@"[ "];
+                  [JSONstring appendString:@"["];
                   for (NSString *string in attrs[key])
                   {
-                     [JSONstring appendFormat:@"%@, ",
+                     [JSONstring appendFormat:@"%@,",
                       string];
                   }
-                  [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-2,2)];
-                  [JSONstring appendString:@"], "];
+                  [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-1,1)];
+                  [JSONstring appendString:@"],"];
 
                   break;
                }
@@ -1357,7 +1359,7 @@ NSString *jsonObject4attrs(NSDictionary *attrs)
          }
       }
    }
-   [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-2,2)];
-   [JSONstring appendString:@" }"];
+   [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-1,1)];
+   [JSONstring appendString:@"}"];
    return [NSString stringWithString:JSONstring];
 }
