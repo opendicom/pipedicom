@@ -1,17 +1,17 @@
 # J2D
 
- Serialization of DCKV JSON to DICOM binary (one dataset only)
+DCKV JSON to DICOM binary
+Relative references are applied from current directory 
 
-In DCKV JSON, large binary objects of the dataset are represented inn one of the following ways :
+In DCKV JSON, large binary objects are represented as :
 1)  base64 inline
-2)  absolute URL referencinng the DICOM original
+2)  absolute URL referencing the original DICOM binary from which they were derived
 3)  relative URL referencing bulkdata files or aliases of them gathered in a DCKV.bulkdata directory next to the DCKV.json file
 
 ## stdin
 DCKV JSON (when no file is passed as argument)
 Accepts :
 - JSON contents (eventual relative url bulkdata files are looked for in DCKV.bulkdata of the current directory)
-- MIME dicom zip retrieve format ( the zip shall contain the eventual relative url bulkdata files)
 
 ## args
 syntax 1: inputURL

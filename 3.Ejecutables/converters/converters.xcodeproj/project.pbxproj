@@ -7,8 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0718621625F65AF000802276 /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
-		4A025E6825E43D0D005AA1A3 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A025E6725E43D0D005AA1A3 /* main.m */; };
 		4A025F3F25E5C455005AA1A3 /* DCKV.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A025F3D25E5C455005AA1A3 /* DCKV.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A025F5C25E60BBA005AA1A3 /* DCMcharset.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A025E5E25E418E5005AA1A3 /* DCMcharset.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A025F6325E60BE0005AA1A3 /* ODLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A7B85A125824EAE00E62971 /* ODLog.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -55,6 +53,7 @@
 		4ADA50FA267A8A9B008F98DB /* libpng.a in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA50E4267A8A57008F98DB /* libpng.a */; };
 		4ADA50FB267A8A9B008F98DB /* libtiff.a in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA50E5267A8A57008F98DB /* libtiff.a */; };
 		4ADA50FC267A8A9B008F98DB /* libz.a in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA50E3267A8A57008F98DB /* libz.a */; };
+		4ADA511E267EDAE1008F98DB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ADA511D267EDAE1008F98DB /* main.m */; };
 		4AE7CEB725E7CBE0004942E3 /* M.xsd in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE92125B1A8FE00C8D33F /* M.xsd */; };
 		4AE7CEB825E7CBE0004942E3 /* M1N.xsl in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE91E25B1A8FE00C8D33F /* M1N.xsl */; };
 		4AE7CEB925E7CBE0004942E3 /* N1M.xsl in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE92025B1A8FE00C8D33F /* N1M.xsl */; };
@@ -63,13 +62,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		4A5CC01B262B03F0003070E7 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4A7B856A258002A100E62971 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 4A025F3A25E5C455005AA1A3;
-			remoteInfo = DCKV;
-		};
 		4ADA4F712672F38C008F98DB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4A7B856A258002A100E62971 /* Project object */;
@@ -140,6 +132,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4ADA5119267EDAE0008F98DB /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -147,8 +148,6 @@
 		0718621825F6825F00802276 /* SCSARAB.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = SCSARAB.json; sourceTree = "<group>"; };
 		0718621B25F6849900802276 /* SCSFREN.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = SCSFREN.json; sourceTree = "<group>"; };
 		4A025E5E25E418E5005AA1A3 /* DCMcharset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCMcharset.h; sourceTree = "<group>"; };
-		4A025E6625E43D0D005AA1A3 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		4A025E6725E43D0D005AA1A3 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4A025EA625E593E0005AA1A3 /* D2dict.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = D2dict.m; sourceTree = "<group>"; };
 		4A025EAF25E5944E005AA1A3 /* D2dict.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = D2dict.h; sourceTree = "<group>"; };
 		4A025F3B25E5C455005AA1A3 /* DCKV.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DCKV.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -189,7 +188,6 @@
 		4ABE45AB25C87F610072B84E /* dict2D.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = dict2D.h; sourceTree = "<group>"; };
 		4ABE45AC25C87F610072B84E /* dict2D.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = dict2D.m; sourceTree = "<group>"; };
 		4ABF584125CECD4700EB725E /* DCMcharset.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DCMcharset.m; sourceTree = "<group>"; };
-		4ABF586225DC043B00EB725E /* D2J */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = D2J; sourceTree = BUILT_PRODUCTS_DIR; };
 		4AC7BE5826694A2700C14265 /* NSData+MD5.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+MD5.h"; sourceTree = "<group>"; };
 		4AC7BE5926694A2700C14265 /* NSData+MD5.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+MD5.m"; sourceTree = "<group>"; };
 		4AC7BE62266A724A00C14265 /* DCKV.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = DCKV.md; sourceTree = "<group>"; };
@@ -292,6 +290,9 @@
 		4ADA50E8267A8A57008F98DB /* opj_decompress */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = opj_decompress; sourceTree = "<group>"; };
 		4ADA50FD267B16FD008F98DB /* US-icon.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = "US-icon.j2kr.dcm"; sourceTree = "<group>"; };
 		4ADA50FE267B16FD008F98DB /* MG-large.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = "MG-large.ele.dcm"; sourceTree = "<group>"; };
+		4ADA511B267EDAE0008F98DB /* JinlineD */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = JinlineD; sourceTree = BUILT_PRODUCTS_DIR; };
+		4ADA511D267EDAE1008F98DB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		4ADA514A267F4AFA008F98DB /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -330,14 +331,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4ABF585F25DC043B00EB725E /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				0718621625F65AF000802276 /* DCKV.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		4ADA4ED32672A778008F98DB /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -362,18 +355,16 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4ADA5118267EDAE0008F98DB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		4A025E6525E43D0D005AA1A3 /* D2J */ = {
-			isa = PBXGroup;
-			children = (
-				4A025E6625E43D0D005AA1A3 /* README.md */,
-				4A025E6725E43D0D005AA1A3 /* main.m */,
-			);
-			path = D2J;
-			sourceTree = "<group>";
-		};
 		4A025F3C25E5C455005AA1A3 /* DCKV */ = {
 			isa = PBXGroup;
 			children = (
@@ -563,12 +554,12 @@
 				4A02600C25E62E1F005AA1A3 /* Samples */,
 				4A7B85D9258BC12800E62971 /* H2D */,
 				4A025F3C25E5C455005AA1A3 /* DCKV */,
-				4A025E6525E43D0D005AA1A3 /* D2J */,
 				4ADA4EE82672A7A3008F98DB /* DinlineJ */,
 				4ADA4ED72672A778008F98DB /* DsourceJ */,
 				4ADA4EFA2672A7B5008F98DB /* D2 */,
 				4ABF583625CEC1EB00EB725E /* J2D */,
 				4AAE862B25C0253500117D26 /* M2 */,
+				4ADA511C267EDAE1008F98DB /* JinlineD */,
 				4A7B8573258002A100E62971 /* Products */,
 				4ADA4EBE267291A4008F98DB /* Frameworks */,
 			);
@@ -580,11 +571,11 @@
 				4A7B85D8258BC12800E62971 /* H2D */,
 				4A7B85FA258CD7A700E62971 /* M2 */,
 				4AAE866A25C0C19600117D26 /* J2D */,
-				4ABF586225DC043B00EB725E /* D2J */,
 				4A025F3B25E5C455005AA1A3 /* DCKV.framework */,
 				4ADA4ED62672A778008F98DB /* DsourceJ */,
 				4ADA4EE72672A7A3008F98DB /* DinlineJ */,
 				4ADA4EF92672A7B5008F98DB /* D2 */,
+				4ADA511B267EDAE0008F98DB /* JinlineD */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -680,6 +671,15 @@
 			path = D2;
 			sourceTree = "<group>";
 		};
+		4ADA511C267EDAE1008F98DB /* JinlineD */ = {
+			isa = PBXGroup;
+			children = (
+				4ADA514A267F4AFA008F98DB /* README.md */,
+				4ADA511D267EDAE1008F98DB /* main.m */,
+			);
+			path = JinlineD;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -772,23 +772,6 @@
 			productReference = 4AAE866A25C0C19600117D26 /* J2D */;
 			productType = "com.apple.product-type.tool";
 		};
-		4ABF586125DC043B00EB725E /* D2J */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 4ABF586825DC043B00EB725E /* Build configuration list for PBXNativeTarget "D2J" */;
-			buildPhases = (
-				4ABF585E25DC043B00EB725E /* Sources */,
-				4ABF585F25DC043B00EB725E /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				4A5CC01C262B03F0003070E7 /* PBXTargetDependency */,
-			);
-			name = D2J;
-			productName = D2J;
-			productReference = 4ABF586225DC043B00EB725E /* D2J */;
-			productType = "com.apple.product-type.tool";
-		};
 		4ADA4ED52672A778008F98DB /* DsourceJ */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4ADA4EDA2672A778008F98DB /* Build configuration list for PBXNativeTarget "DsourceJ" */;
@@ -843,6 +826,23 @@
 			productReference = 4ADA4EF92672A7B5008F98DB /* D2 */;
 			productType = "com.apple.product-type.tool";
 		};
+		4ADA511A267EDAE0008F98DB /* JinlineD */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4ADA511F267EDAE1008F98DB /* Build configuration list for PBXNativeTarget "JinlineD" */;
+			buildPhases = (
+				4ADA5117267EDAE0008F98DB /* Sources */,
+				4ADA5118267EDAE0008F98DB /* Frameworks */,
+				4ADA5119267EDAE0008F98DB /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = JinlineD;
+			productName = JinlineD;
+			productReference = 4ADA511B267EDAE0008F98DB /* JinlineD */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -863,9 +863,6 @@
 					4AAE866925C0C19600117D26 = {
 						CreatedOnToolsVersion = 12.3;
 					};
-					4ABF586125DC043B00EB725E = {
-						CreatedOnToolsVersion = 12.3;
-					};
 					4ADA4ED52672A778008F98DB = {
 						CreatedOnToolsVersion = 12.3;
 					};
@@ -873,6 +870,9 @@
 						CreatedOnToolsVersion = 12.3;
 					};
 					4ADA4EF82672A7B5008F98DB = {
+						CreatedOnToolsVersion = 12.3;
+					};
+					4ADA511A267EDAE0008F98DB = {
 						CreatedOnToolsVersion = 12.3;
 					};
 				};
@@ -893,11 +893,11 @@
 				4A025F3A25E5C455005AA1A3 /* DCKV */,
 				4A7B85D7258BC12800E62971 /* H2D */,
 				4A7B85F9258CD7A700E62971 /* M2 */,
-				4ABF586125DC043B00EB725E /* D2J */,
 				4ADA4ED52672A778008F98DB /* DsourceJ */,
 				4ADA4EE62672A7A3008F98DB /* DinlineJ */,
 				4ADA4EF82672A7B5008F98DB /* D2 */,
 				4AAE866925C0C19600117D26 /* J2D */,
+				4ADA511A267EDAE0008F98DB /* JinlineD */,
 			);
 		};
 /* End PBXProject section */
@@ -984,14 +984,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4ABF585E25DC043B00EB725E /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4A025E6825E43D0D005AA1A3 /* main.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		4ADA4ED22672A778008F98DB /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1016,14 +1008,17 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4ADA5117267EDAE0008F98DB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4ADA511E267EDAE1008F98DB /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		4A5CC01C262B03F0003070E7 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
-			targetProxy = 4A5CC01B262B03F0003070E7 /* PBXContainerItemProxy */;
-		};
 		4ADA4F722672F38C008F98DB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
@@ -1279,30 +1274,6 @@
 			};
 			name = Release;
 		};
-		4ABF586625DC043B00EB725E /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-			};
-			name = Debug;
-		};
-		4ABF586725DC043B00EB725E /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_IDENTITY = "-";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
-			};
-			name = Release;
-		};
 		4ADA4EDB2672A778008F98DB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1357,6 +1328,24 @@
 			};
 			name = Release;
 		};
+		4ADA5120267EDAE1008F98DB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		4ADA5121267EDAE1008F98DB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1405,15 +1394,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		4ABF586825DC043B00EB725E /* Build configuration list for PBXNativeTarget "D2J" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				4ABF586625DC043B00EB725E /* Debug */,
-				4ABF586725DC043B00EB725E /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		4ADA4EDA2672A778008F98DB /* Build configuration list for PBXNativeTarget "DsourceJ" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1437,6 +1417,15 @@
 			buildConfigurations = (
 				4ADA4EFE2672A7B5008F98DB /* Debug */,
 				4ADA4EFF2672A7B5008F98DB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4ADA511F267EDAE1008F98DB /* Build configuration list for PBXNativeTarget "JinlineD" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4ADA5120267EDAE1008F98DB /* Debug */,
+				4ADA5121267EDAE1008F98DB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

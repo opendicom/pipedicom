@@ -84,7 +84,7 @@ NSUInteger D2J(
                          unsigned long bi,
                          unsigned long bip,
                          NSString *branch,
-                         NSMutableDictionary *parsedAttrs,
+                         NSMutableDictionary *attr,
                          NSString *vrCharsetPrefix,
                          uint16 vrCharsetUint16,
                          long long blobMinSize,
@@ -114,11 +114,11 @@ NSUInteger D2J(
          {
             if (!vl)
             {
-               [parsedAttrs setObject:@[] forKey:key(branch,tag,vr)];
+               [attr setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
-               [parsedAttrs setObject:@[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange(bi+bi+8,vl)] encoding:NSISOLatin1StringEncoding]] forKey:key(branch,tag,vr)];
+               [attr setObject:@[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange(bi+bi+8,vl)] encoding:NSISOLatin1StringEncoding]] forKey:key(branch,tag,vr)];
             }
             bi+=4+(vl/2);
             break;
@@ -134,7 +134,7 @@ NSUInteger D2J(
             
             if (!vl)
             {
-               [parsedAttrs setObject:@[] forKey:key(branch,tag,vr)];
+               [attr setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
@@ -148,7 +148,7 @@ NSUInteger D2J(
                   trimTrailingSpaces(mutableString);
                   [values addObject:mutableString];
                }
-               [parsedAttrs setObject:values forKey:key(branch,tag,vr)];
+               [attr setObject:values forKey:key(branch,tag,vr)];
             }
             bi+=4+(vl/2);
             break;
@@ -161,7 +161,7 @@ NSUInteger D2J(
             //variable length (eventually ended with 0x20
             if (!vl)
             {
-               [parsedAttrs setObject:@[] forKey:key(branch,tag,vr)];
+               [attr setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
@@ -175,7 +175,7 @@ NSUInteger D2J(
                   trimTrailingSpaces(mutableString);
                   [values addObject:mutableString];
                }
-               [parsedAttrs setObject:values forKey:key(branch,tag,vr)];
+               [attr setObject:values forKey:key(branch,tag,vr)];
     
                
                if (tag==0x050008)
@@ -213,7 +213,7 @@ NSUInteger D2J(
             //specific charset
             if (!vl)
             {
-               [parsedAttrs setObject:@[] forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
+               [attr setObject:@[] forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
             }
             else
             {
@@ -227,7 +227,7 @@ NSUInteger D2J(
                   trimTrailingSpaces(mutableString);
                   [values addObject:mutableString];
                }
-               [parsedAttrs setObject:values forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
+               [attr setObject:values forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
             }
             bi+=4+(vl/2);
             break;
@@ -240,7 +240,7 @@ NSUInteger D2J(
             //specific charset
             if (!vl)
             {
-               [parsedAttrs setObject:@[] forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
+               [attr setObject:@[] forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
             }
             else
             {
@@ -310,7 +310,7 @@ NSUInteger D2J(
                         compoundEncoding /= 32;
                     }
                   }
-                  [parsedAttrs setObject:values forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
+                  [attr setObject:values forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
                }
             }
             bi+=4+(vl/2);
@@ -335,11 +335,11 @@ NSUInteger D2J(
             ;
             if (!vll)
             {
-               [parsedAttrs setObject:@[] forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
+               [attr setObject:@[] forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
             }
             else
             {
-               [parsedAttrs setObject:@[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((bi+6)*2,vll)] encoding:encodingNS[vrCharsetUint16]]] forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
+               [attr setObject:@[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((bi+6)*2,vll)] encoding:encodingNS[vrCharsetUint16]]] forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
             }
             bi+=6+(vll/2);
             break;
@@ -357,11 +357,11 @@ NSUInteger D2J(
             ;
             if (!vll)
             {
-               [parsedAttrs setObject:@[] forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
+               [attr setObject:@[] forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
             }
             else
             {
-               [parsedAttrs setObject:@[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange(bi+bi+12,vll)] encoding:NSUTF8StringEncoding]] forKey:key(branch,tag,vr)];
+               [attr setObject:@[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange(bi+bi+12,vll)] encoding:NSUTF8StringEncoding]] forKey:key(branch,tag,vr)];
             }
             bi+=6+(vll/2);
             break;
@@ -381,12 +381,12 @@ NSUInteger D2J(
             }
             if (!md.length)
             {
-               [parsedAttrs setObject:@[] forKey:key(branch,tag,vr)];
+               [attr setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
                NSArray *arrayContents=[[[NSString alloc]initWithData:md encoding:NSUTF8StringEncoding]componentsSeparatedByString:@"\\"];
-               [parsedAttrs setObject:arrayContents forKey:key(branch,tag,vr)];
+               [attr setObject:arrayContents forKey:key(branch,tag,vr)];
             }
 
             bi+=4+(vl/2);
@@ -408,8 +408,8 @@ NSUInteger D2J(
             if (nexttag==0x0)
             {
 #pragma mark SQ empty
-               [parsedAttrs setObject:[NSNull null] forKey:key(branch,tag,vr)];
-               [parsedAttrs setObject:[NSNull null] forKey:key([branchTag stringByAppendingFormat:@".%08X",itemcounter],0xe0ddfffe,vr)];
+               [attr setObject:[NSNull null] forKey:key(branch,tag,vr)];
+               [attr setObject:[NSNull null] forKey:key([branchTag stringByAppendingFormat:@".%08X",itemcounter],0xe0ddfffe,vr)];
                bi+=6;
             }
             else if (nexttag!=0xffffffff) //SQ with defined length
@@ -421,7 +421,7 @@ NSUInteger D2J(
             else //SQ with feff0dde end tag
             {
 #pragma mark SQ with closing marker
-               [parsedAttrs setObject:[NSNull null] forKey:key(branch,tag,vr)];
+               [attr setObject:[NSNull null] forKey:key(branch,tag,vr)];
                bi+=6;//inside the SQ
                nexttag=shortsBuffer[bi]+(shortsBuffer[bi+1]<<16);
                if (nexttag!=0xe0ddfffe)//SQ with contents
@@ -432,9 +432,9 @@ NSUInteger D2J(
                      if (itemlength==0)
                      {
 #pragma mark IT empty
-                        [parsedAttrs setObject:[NSNull null] forKey:key([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5149)];//IQ
+                        [attr setObject:[NSNull null] forKey:key([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5149)];//IQ
 
-                        [parsedAttrs setObject:[NSNull null] forKey:key([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5A49)];//IZ
+                        [attr setObject:[NSNull null] forKey:key([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5A49)];//IZ
 
                         bi+=4;//out of empty item
                      }
@@ -447,7 +447,7 @@ NSUInteger D2J(
                      else
                      {
 #pragma mark IT with closing marker
-                        [parsedAttrs setObject:[NSNull null] forKey:key([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5149)];//IQ
+                        [attr setObject:[NSNull null] forKey:key([branchTag stringByAppendingFormat:@".%08X",itemcounter],0x0,0x5149)];//IQ
                         bi+=4;//inside item
 #pragma mark recursion
                         bi=D2J(
@@ -456,7 +456,7 @@ NSUInteger D2J(
    bi,
    bip,
    [branchTag stringByAppendingFormat:@".%08X",itemcounter],
-   parsedAttrs,
+   attr,
    vrCharsetPrefixNew,
    vrCharsetUint16New,
    blobMinSize,
@@ -466,7 +466,7 @@ NSUInteger D2J(
    blobDict
    );
 
-                        [parsedAttrs setObject:[NSNull null] forKey:key([branchTag stringByAppendingFormat:@".%08X",itemcounter],0xe00dfffe,0x5A49)];//IZ
+                        [attr setObject:[NSNull null] forKey:key([branchTag stringByAppendingFormat:@".%08X",itemcounter],0xe00dfffe,0x5A49)];//IZ
                         bi+=4;//past end item
                      }
                      nexttag=shortsBuffer[bi]+(shortsBuffer[bi+1]<<16);
@@ -475,7 +475,7 @@ NSUInteger D2J(
                   }
                }
 #pragma mark SQ closing marker
-               [parsedAttrs setObject:[NSNull null] forKey:key([branchTag stringByAppendingPathExtension:@"FFFFFFFF"],0xe0ddfffe,0x5A53)];
+               [attr setObject:[NSNull null] forKey:key([branchTag stringByAppendingPathExtension:@"FFFFFFFF"],0xe0ddfffe,0x5A53)];
                bi+=4;
             }
             break;
@@ -487,7 +487,7 @@ NSUInteger D2J(
             //variable length (eventually ended with 0x20
             if (!vl)
             {
-               [parsedAttrs setObject:@[] forKey:key(branch,tag,vr)];
+               [attr setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
@@ -498,7 +498,7 @@ NSUInteger D2J(
                {
                   [values addObject:[NSNumber numberWithLongLong:[value longLongValue]]];
                }
-               [parsedAttrs setObject:values forKey:key(branch,tag,vr)];
+               [attr setObject:values forKey:key(branch,tag,vr)];
             }
             bi+=4+(vl/2);
             break;
@@ -511,7 +511,7 @@ NSUInteger D2J(
             //variable length (eventually ended with 0x20
             if (!vl)
             {
-               [parsedAttrs setObject:@[] forKey:key(branch,tag,vr)];
+               [attr setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
@@ -522,7 +522,7 @@ NSUInteger D2J(
                {
                   [values addObject:[NSNumber numberWithDouble:[value doubleValue]]];
                }
-               [parsedAttrs setObject:values forKey:key(branch,tag,vr)];
+               [attr setObject:values forKey:key(branch,tag,vr)];
             }
             bi+=4+(vl/2);
             break;
@@ -535,7 +535,7 @@ NSUInteger D2J(
             bi+=4;
             if (!vl)
             {
-               [parsedAttrs setObject:@[] forKey:key(branch,tag,vr)];
+               [attr setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
@@ -548,7 +548,7 @@ NSUInteger D2J(
                   [values addObject:[NSNumber numberWithLong:sl]];
                   bi+=2;
                }
-               [parsedAttrs setObject:values forKey:key(branch,tag,vr)];
+               [attr setObject:values forKey:key(branch,tag,vr)];
             }
             break;
          }
@@ -560,7 +560,7 @@ NSUInteger D2J(
             bi+=4;
             if (!vl)
             {
-               [parsedAttrs setObject:@[] forKey:key(branch,tag,vr)];
+               [attr setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
@@ -573,7 +573,7 @@ NSUInteger D2J(
                   [values addObject:[NSNumber numberWithUnsignedLong:ul]];
                   bi+=2;
                }
-               [parsedAttrs setObject:values forKey:key(branch,tag,vr)];
+               [attr setObject:values forKey:key(branch,tag,vr)];
             }
             break;
          }
@@ -586,7 +586,7 @@ NSUInteger D2J(
             bi+=4;
             if (!vl)
             {
-               [parsedAttrs setObject:@[] forKey:key(branch,tag,vr)];
+               [attr setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
@@ -599,7 +599,7 @@ NSUInteger D2J(
                   [values addObject:[NSNumber numberWithShort:ss]];
                   bi++;
                }
-               [parsedAttrs setObject:values forKey:key(branch,tag,vr)];
+               [attr setObject:values forKey:key(branch,tag,vr)];
             }
             break;
          }
@@ -611,7 +611,7 @@ NSUInteger D2J(
             bi+=4;
             if (!vl)
             {
-               [parsedAttrs setObject:@[] forKey:key(branch,tag,vr)];
+               [attr setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
@@ -624,7 +624,7 @@ NSUInteger D2J(
                   [values addObject:[NSNumber numberWithUnsignedShort:us]];
                   bi++;
                }
-               [parsedAttrs setObject:values forKey:key(branch,tag,vr)];
+               [attr setObject:values forKey:key(branch,tag,vr)];
             }
             break;
          }
@@ -639,7 +639,7 @@ NSUInteger D2J(
             bi+=6;
             if (!vll)
             {
-               [parsedAttrs setObject:@[] forKey:key(branch,tag,vr)];
+               [attr setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
@@ -656,7 +656,7 @@ NSUInteger D2J(
                   [values addObject:[NSNumber numberWithLongLong:sll]];
                   bi+=4;
                }
-               [parsedAttrs setObject:values forKey:key(branch,tag,vr)];
+               [attr setObject:values forKey:key(branch,tag,vr)];
             }
             break;
          }
@@ -671,7 +671,7 @@ NSUInteger D2J(
             bi+=6;
             if (!vll)
             {
-               [parsedAttrs setObject:@[] forKey:key(branch,tag,vr)];
+               [attr setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
@@ -688,7 +688,7 @@ NSUInteger D2J(
                   [values addObject:[NSNumber numberWithUnsignedLongLong:ull]];
                   bi+=4;
                }
-               [parsedAttrs setObject:values forKey:key(branch,tag,vr)];
+               [attr setObject:values forKey:key(branch,tag,vr)];
             }
             break;
          }
@@ -700,7 +700,7 @@ NSUInteger D2J(
             bi+=4;
             if (!vl)
             {
-               [parsedAttrs setObject:@[] forKey:key(branch,tag,vr)];
+               [attr setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
@@ -716,7 +716,7 @@ NSUInteger D2J(
                   [values addObject:[NSNumber numberWithFloat:*pf]];
                   bi+=2;
                }
-               [parsedAttrs setObject:values forKey:key(branch,tag,vr)];
+               [attr setObject:values forKey:key(branch,tag,vr)];
             }
             break;
          }
@@ -728,7 +728,7 @@ NSUInteger D2J(
             bi+=4;
             if (!vl)
             {
-               [parsedAttrs setObject:@[] forKey:key(branch,tag,vr)];
+               [attr setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
@@ -748,7 +748,7 @@ NSUInteger D2J(
                   [values addObject:[NSNumber numberWithDouble:*pd]];
                   bi+=4;
                }
-               [parsedAttrs setObject:values forKey:key(branch,tag,vr)];
+               [attr setObject:values forKey:key(branch,tag,vr)];
             }
             break;
          }
@@ -786,7 +786,7 @@ NSUInteger D2J(
             NSString *blobKey=key(branch,tag,vr);
             if (!vll)//empty
             {
-               [parsedAttrs setObject:@[] forKey:blobKey];
+               [attr setObject:@[] forKey:blobKey];
                bi+= 6 + (vll/2);
                break;
             }
@@ -966,14 +966,14 @@ NSUInteger D2J(
                      
 #pragma mark ···blobModeSource
                   case blobModeSource:
-                     [parsedAttrs setObject:fragmentRefs forKey:blobKey];
+                     [attr setObject:fragmentRefs forKey:blobKey];
                      break;
                      
 #pragma mark ···blobModeResources
                   case blobModeResources:
                   {
                      NSString *extension;
-                     NSArray *tsArray=(parsedAttrs[@"00000001_00020010-UI"]);
+                     NSArray *tsArray=(attr[@"00000001_00020010-UI"]);
                      if (tsArray && tsArray.count && [tsArray[0] hasPrefix:@"1.2.840.10008.1.2.4.90"]) extension=@".j2k";
                      else extension=@"";
                      
@@ -989,7 +989,7 @@ NSUInteger D2J(
                         
                         [bulkdatas addObject:@{[NSString stringWithFormat:@"Frame#%08d",i+1] : @[[blobRefPrefix stringByAppendingPathComponent:relativeString]]}];
                      }
-                     [parsedAttrs setObject:bulkdatas forKey:blobKey];
+                     [attr setObject:bulkdatas forKey:blobKey];
                   }
                      break;
 
@@ -1002,7 +1002,7 @@ NSUInteger D2J(
                      //convert to JSON base64 (solidus written \/)
                         [b64s addObject:B64JSONstringWithData(frame)];
                      }
-                     [parsedAttrs setObject:b64s forKey:blobKey];
+                     [attr setObject:b64s forKey:blobKey];
                   }
                      break;
                }
@@ -1015,14 +1015,14 @@ NSUInteger D2J(
                   case blobModeSource:
                   {
                      NSString *urlString=[NSString stringWithFormat:@"file:%@?offset=%lu&amp;length=%d",blobRefPrefix,bi+bi+12,vll];
-                     [parsedAttrs setObject:@[@{ @"Native":@[urlString]}] forKey:blobKey];
+                     [attr setObject:@[@{ @"Native":@[urlString]}] forKey:blobKey];
                   }
                      break;
 
                   case blobModeResources:
                   {
                      NSString *extension;
-                     NSString *sopClass=parsedAttrs[@"00000001_00080016-UI"][0];
+                     NSString *sopClass=attr[@"00000001_00080016-UI"][0];
 
                      if ([blobKey isEqualToString:@"00000001_00420011-OB"] && [sopClass hasPrefix:@"1.2.840.10008.​5.​1.​4.​1.​1.​104.​"]) //encapsulated
                      {
@@ -1039,7 +1039,7 @@ NSUInteger D2J(
                                              blobRefSuffix?blobRefSuffix:@"",
                                           extension?extension:@""
                                              ];
-                     [parsedAttrs setObject:@[@{ @"Native":@[urlString]}] forKey:blobKey];
+                     [attr setObject:@[@{ @"Native":@[urlString]}] forKey:blobKey];
                      [blobDict setObject:[data subdataWithRange:NSMakeRange(bi+bi+12,vll)] forKey:urlString];
                   }
                      break;
@@ -1049,7 +1049,7 @@ NSUInteger D2J(
                      NSData *contents=[data subdataWithRange:NSMakeRange(bi+bi+12,vll)];
                      
                      //convert to JSON base64 (solidus written \/)
-                     [parsedAttrs setObject:@[B64JSONstringWithData(contents)] forKey:blobKey];
+                     [attr setObject:@[B64JSONstringWithData(contents)] forKey:blobKey];
                   }
                      break;
                }
@@ -1069,7 +1069,7 @@ NSUInteger D2J(
             bi+=4;
             if (!vl)
             {
-               [parsedAttrs setObject:@[] forKey:key(branch,tag,vr)];
+               [attr setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
@@ -1084,7 +1084,7 @@ NSUInteger D2J(
                   [values addObject:[NSString stringWithFormat:@"%02X%02X%02X%02X",group / 0x100,group & 0xFF,element / 0x100,element & 0xFF]];
                   bi+=2;
                }
-               [parsedAttrs setObject:values forKey:key(branch,tag,vr)];
+               [attr setObject:values forKey:key(branch,tag,vr)];
             }
             break;
          }
@@ -1110,7 +1110,7 @@ NSUInteger D2J(
 
 int D2dict(
            NSData *data,
-           NSMutableDictionary *parsedAttrs,
+           NSMutableDictionary *attr,
            long long blobMinSize,
            int blobMode,
            NSString* blobRefPrefix,
@@ -1147,7 +1147,7 @@ int D2dict(
                      datasetShortOffset,
                      (data.length -1) / 2,
                      @"00000001",
-                     parsedAttrs,
+                     attr,
                      vrCharsetPrefix,
                      vrCharsetUint16,
                      blobMinSize,
