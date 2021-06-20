@@ -117,7 +117,7 @@ int compress(
          {
             if (fragmentCounter==1 || fragmentCounter==4 || fragmentCounter==5)
             {
-               NSString *fragmentName=[NSString stringWithFormat:@"%@#%08lu:1%@.j2k",pixelUrl,frameNumber+1,@[@"",@".base",@"",@"",@".fast",@".hres"][fragmentCounter]];
+               NSString *fragmentName=[NSString stringWithFormat:@"%@-%08lu%@",pixelUrl,frameNumber+1,@[@"",@".j2kbase",@"",@"",@".j2kfast",@".j2khres"][fragmentCounter]];
                [pixelAttrArray addObject:fragmentName];
                
                
@@ -148,7 +148,7 @@ int compress(
          nextSOCRange=[j2kData rangeOfData:NSData.EOC
                                            options:0
                                              range:j2kRange];
-         NSString *fragmentName=[NSString stringWithFormat:@"%@#00000001:1.idem.j2k",pixelUrl]
+         NSString *fragmentName=[NSString stringWithFormat:@"%@-%08lu.j2kidem",pixelUrl,frameNumber+1]
          ;
          [pixelAttrArray addObject:fragmentName];
          [j2kBlobDict setObject:[j2kData subdataWithRange:NSMakeRange(fragmentOffset, nextSOCRange.location-fragmentOffset)] forKey:fragmentName];

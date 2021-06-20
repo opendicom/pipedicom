@@ -40,7 +40,13 @@ int main(int argc, const char * argv[]) {
       }
 
 #pragma mark · jsondata
-      NSMutableString *JSONstring=json4parsedAttrs(@"dataset",parsedAttrs);
+      NSString *JSONstring=
+      [NSString
+       stringWithFormat:
+       @"{ \"dataset\" :%@}",
+       jsonObject4attrs(parsedAttrs)
+       ];
+      
       NSData *JSONdata=[JSONstring dataUsingEncoding:NSUTF8StringEncoding];
       if (!JSONdata)
       {

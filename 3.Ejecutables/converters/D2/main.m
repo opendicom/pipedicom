@@ -227,8 +227,8 @@ int main(int argc, const char * argv[]) {
             [parsedAttrs removeObjectForKey:@"00000001_00020001-OB"];
 
             
-            NSMutableString *JSONstring=
-            [NSMutableString
+            NSString *JSONstring=
+            [NSString
              stringWithFormat:
              @"{ \"dataset\" :%@, \"+j2k\" :%@, \"-native\" :%@}",
              jsonObject4attrs(parsedAttrs),
