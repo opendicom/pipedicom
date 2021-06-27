@@ -55,14 +55,46 @@ int compress(
              NSMutableDictionary *j2kAttrs
              )
 {
-   NSUInteger pixelTotalLength=pixelData.length;
+   //16 or less bits...
+   uint16 columns=[parsedAttrs[@"00000001_00280011-US"][0] unsignedShortValue];
+   uint16 rows   =[parsedAttrs[@"00000001_00280010-US"][0] unsignedShortValue];
+   uint16 samples=[parsedAttrs[@"00000001_00280002-US"][0] unsignedShortValue];
+   uint16 bits=   [parsedAttrs[@"00000001_00280101-US"][0] unsignedShortValue];
+   uint16 sign=   [parsedAttrs[@"00000001_00280103-US"][0] unsignedShortValue];
+   
+   NSString *F=[NSString stringWithFormat:@"%u,%u,%d,%d,%@",
+               columns,
+               rows,
+               samples,
+               bits,
+               sign?@"s":@"u"
+               ];
+   
+   NSArray *params=@[
+      @"-F",
+      F,
+      @"-i",
+      @"stdin.rawl",
+      @"-o",
+      @"stdout.j2k",
+      @"-n",
+      @"6",
+      @"-r",
+      @"6,5,4,3,2,1", //6 quality layers (6,5 or 4=base,3=fast,2=hres,1=idem)
+      @"-p",
+      @"RLCP",//B.11.1.2 Resolution-layer-component-position
+      @"-TP",
+      @"R"//Tile-parts based on quality
+   ];
    
 #pragma mark loop frames
-   
+   NSUInteger pixelTotalLength=pixelData.length;
    NSMutableArray *frames=[NSMutableArray array];
    NSUInteger frameTotal=1;//default
    if (parsedAttrs[@"00000001_00280008-IS"]) frameTotal=[parsedAttrs[@"00000001_00280008-IS"][0] unsignedIntegerValue];
    NSUInteger frameLength=pixelTotalLength / frameTotal;
+
+   
    for (NSUInteger frameNumber=0; frameNumber<frameTotal; frameNumber++)
    {
       NSMutableData *j2kData=[NSMutableData data];
@@ -70,27 +102,7 @@ int compress(
       int result=execTask(
                nil,
                @"opj_compress",
-               @[
-                  @"-F",
-                  [NSString stringWithFormat:@"%u,%d,%d,%d,u",
-                   [parsedAttrs[@"00000001_00280011-US"][0] unsignedShortValue],//columns
-                   [parsedAttrs[@"00000001_00280010-US"][0] unsignedShortValue],//rows
-                   [parsedAttrs[@"00000001_00280002-US"][0] unsignedShortValue],//samples
-                   [parsedAttrs[@"00000001_00280101-US"][0] unsignedShortValue] //bits
-                   ],
-                  @"-i",
-                  @"stdin.rawl",
-                  @"-o",
-                  @"stdout.j2k",
-                  @"-n",
-                  @"6",
-                  @"-r",
-                  @"50,40,30,20,10,1", //6 quality layers (50=base,20=fast,10=hres,1=idem)
-                  @"-p",
-                  @"RLCP",//B.11.1.2 Resolution-layer-component-position
-                  @"-TP",
-                  @"R"//Tile-parts based on quality
-               ],
+               params,
                [pixelData subdataWithRange:NSMakeRange(frameNumber*frameLength,frameLength)],
                j2kData
                );
@@ -115,21 +127,11 @@ int compress(
                                              range:j2kRange];
          while (nextSOCRange.location != NSNotFound)
          {
-            if (fragmentCounter==1 || fragmentCounter==4 || fragmentCounter==5)
+            if (fragmentCounter > 2)
             {
-               NSString *fragmentName=[NSString stringWithFormat:@"%@-%08lu%@",pixelUrl,frameNumber+1,@[@"",@".j2kbase",@"",@"",@".j2kfast",@".j2khres"][fragmentCounter]];
+               NSString *fragmentName=[NSString stringWithFormat:@"%@-%08lu%@",pixelUrl,frameNumber+1,@[@"",@"",@"",@".dcmj2kbase",@".dcmj2kfast",@".dcmj2khres"][fragmentCounter]];
                [pixelAttrArray addObject:fragmentName];
-               
-               
-               /*
-               if (fragmentCounter==1)//add EOC
-               {
-                  NSMutableData *EOCdata=[NSMutableData dataWithData:[j2kData subdataWithRange:NSMakeRange(fragmentOffset, nextSOCRange.location - fragmentOffset)]];
-                  [EOCdata appendData:NSData.EOC];
-                  [j2kBlobDict setObject:EOCdata forKey:fragmentName];
-               }
-               else
-                */
+
                [j2kBlobDict setObject:[j2kData subdataWithRange:NSMakeRange(fragmentOffset, nextSOCRange.location - fragmentOffset)] forKey:fragmentName];
                
                
@@ -148,7 +150,7 @@ int compress(
          nextSOCRange=[j2kData rangeOfData:NSData.EOC
                                            options:0
                                              range:j2kRange];
-         NSString *fragmentName=[NSString stringWithFormat:@"%@-%08lu.j2kidem",pixelUrl,frameNumber+1]
+         NSString *fragmentName=[NSString stringWithFormat:@"%@-%08lu.dcmj2kidem",pixelUrl,frameNumber+1]
          ;
          [pixelAttrArray addObject:fragmentName];
          [j2kBlobDict setObject:[j2kData subdataWithRange:NSMakeRange(fragmentOffset, nextSOCRange.location-fragmentOffset)] forKey:fragmentName];
@@ -163,8 +165,8 @@ int compress(
 
    [j2kAttrs setObject:frames forKey:@"00000001_7FE00010-OB"];
    [j2kAttrs setObject:@[@"1.2.840.10008.1.2.4.90"] forKey:@"00000001_00020010-UI"];
-   [j2kAttrs setObject:@[[NSString stringWithFormat:@"Lossless compression J2K codec openjpeg 2.5. Original data size:%lu md5:%@)",(unsigned long)pixelData.length,[pixelData MD5String]]] forKey:@"00000001_00082111-ST"];
-   [j2kAttrs setObject:@[@"J2K sin pérdida. 4 tile-part quality layer (50,20,10,1)"] forKey:@"00000001_00204000-2006LT"];
+   [j2kAttrs setObject:@[[NSString stringWithFormat:@"lossless compression J2K codec openjpeg 2.5. Original data size:%lu md5:%@)",(unsigned long)pixelData.length,[pixelData MD5String]]] forKey:@"00000001_00082111-ST"];
+   [j2kAttrs setObject:@[@"dcmj2kidem; 4 tile-part quality layer (50,20,10,1)"] forKey:@"00000001_00204000-2006LT"];
 
    return success;
 }

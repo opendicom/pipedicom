@@ -53,7 +53,6 @@
 		4ADA50FA267A8A9B008F98DB /* libpng.a in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA50E4267A8A57008F98DB /* libpng.a */; };
 		4ADA50FB267A8A9B008F98DB /* libtiff.a in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA50E5267A8A57008F98DB /* libtiff.a */; };
 		4ADA50FC267A8A9B008F98DB /* libz.a in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA50E3267A8A57008F98DB /* libz.a */; };
-		4ADA511E267EDAE1008F98DB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ADA511D267EDAE1008F98DB /* main.m */; };
 		4AE7CEB725E7CBE0004942E3 /* M.xsd in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE92125B1A8FE00C8D33F /* M.xsd */; };
 		4AE7CEB825E7CBE0004942E3 /* M1N.xsl in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE91E25B1A8FE00C8D33F /* M1N.xsl */; };
 		4AE7CEB925E7CBE0004942E3 /* N1M.xsl in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE92025B1A8FE00C8D33F /* N1M.xsl */; };
@@ -131,15 +130,6 @@
 				4ADA4FD32678365D008F98DB /* opj_compress in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4ADA5119267EDAE0008F98DB /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -290,9 +280,6 @@
 		4ADA50E8267A8A57008F98DB /* opj_decompress */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = opj_decompress; sourceTree = "<group>"; };
 		4ADA50FD267B16FD008F98DB /* US-icon.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = "US-icon.j2kr.dcm"; sourceTree = "<group>"; };
 		4ADA50FE267B16FD008F98DB /* MG-large.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = "MG-large.ele.dcm"; sourceTree = "<group>"; };
-		4ADA511B267EDAE0008F98DB /* JinlineD */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = JinlineD; sourceTree = BUILT_PRODUCTS_DIR; };
-		4ADA511D267EDAE1008F98DB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		4ADA514A267F4AFA008F98DB /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -352,13 +339,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4ADA4FCA267835EE008F98DB /* DCKV.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4ADA5118267EDAE0008F98DB /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -559,7 +539,6 @@
 				4ADA4EFA2672A7B5008F98DB /* D2 */,
 				4ABF583625CEC1EB00EB725E /* J2D */,
 				4AAE862B25C0253500117D26 /* M2 */,
-				4ADA511C267EDAE1008F98DB /* JinlineD */,
 				4A7B8573258002A100E62971 /* Products */,
 				4ADA4EBE267291A4008F98DB /* Frameworks */,
 			);
@@ -575,7 +554,6 @@
 				4ADA4ED62672A778008F98DB /* DsourceJ */,
 				4ADA4EE72672A7A3008F98DB /* DinlineJ */,
 				4ADA4EF92672A7B5008F98DB /* D2 */,
-				4ADA511B267EDAE0008F98DB /* JinlineD */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -669,15 +647,6 @@
 				4ADA4EFB2672A7B5008F98DB /* main.m */,
 			);
 			path = D2;
-			sourceTree = "<group>";
-		};
-		4ADA511C267EDAE1008F98DB /* JinlineD */ = {
-			isa = PBXGroup;
-			children = (
-				4ADA514A267F4AFA008F98DB /* README.md */,
-				4ADA511D267EDAE1008F98DB /* main.m */,
-			);
-			path = JinlineD;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -826,23 +795,6 @@
 			productReference = 4ADA4EF92672A7B5008F98DB /* D2 */;
 			productType = "com.apple.product-type.tool";
 		};
-		4ADA511A267EDAE0008F98DB /* JinlineD */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 4ADA511F267EDAE1008F98DB /* Build configuration list for PBXNativeTarget "JinlineD" */;
-			buildPhases = (
-				4ADA5117267EDAE0008F98DB /* Sources */,
-				4ADA5118267EDAE0008F98DB /* Frameworks */,
-				4ADA5119267EDAE0008F98DB /* CopyFiles */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = JinlineD;
-			productName = JinlineD;
-			productReference = 4ADA511B267EDAE0008F98DB /* JinlineD */;
-			productType = "com.apple.product-type.tool";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -872,9 +824,6 @@
 					4ADA4EF82672A7B5008F98DB = {
 						CreatedOnToolsVersion = 12.3;
 					};
-					4ADA511A267EDAE0008F98DB = {
-						CreatedOnToolsVersion = 12.3;
-					};
 				};
 			};
 			buildConfigurationList = 4A7B856D258002A100E62971 /* Build configuration list for PBXProject "converters" */;
@@ -897,7 +846,6 @@
 				4ADA4EE62672A7A3008F98DB /* DinlineJ */,
 				4ADA4EF82672A7B5008F98DB /* D2 */,
 				4AAE866925C0C19600117D26 /* J2D */,
-				4ADA511A267EDAE0008F98DB /* JinlineD */,
 			);
 		};
 /* End PBXProject section */
@@ -1005,14 +953,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				4ADA4EFC2672A7B5008F98DB /* main.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4ADA5117267EDAE0008F98DB /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4ADA511E267EDAE1008F98DB /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1296,7 +1236,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -1305,7 +1245,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -1324,24 +1264,6 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				MACOSX_DEPLOYMENT_TARGET = 10.15;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
-		4ADA5120267EDAE1008F98DB /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		4ADA5121267EDAE1008F98DB /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -1417,15 +1339,6 @@
 			buildConfigurations = (
 				4ADA4EFE2672A7B5008F98DB /* Debug */,
 				4ADA4EFF2672A7B5008F98DB /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		4ADA511F267EDAE1008F98DB /* Build configuration list for PBXNativeTarget "JinlineD" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				4ADA5120267EDAE1008F98DB /* Debug */,
-				4ADA5121267EDAE1008F98DB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

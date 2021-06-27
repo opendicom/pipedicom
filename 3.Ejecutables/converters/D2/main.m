@@ -156,6 +156,9 @@ int main(int argc, const char * argv[]) {
       for (NSString *inputPath in inputPaths)
       {
 #pragma mark · parse
+         if ([inputPath hasSuffix:@".dcm"])
+            [blobRefPrefix setString:[ [[inputPath lastPathComponent] stringByDeletingPathExtension] stringByAppendingString:@".bulkdata/"]];
+         else
          [blobRefPrefix setString:[ [inputPath lastPathComponent] stringByAppendingString:@".bulkdata/"]];
          //inputData is empty
          [inputData appendData:[NSData dataWithContentsOfFile:inputPath]];
@@ -182,6 +185,7 @@ int main(int argc, const char * argv[]) {
             NSString *pixelKey=nil;
             if (parsedAttrs[@"00000001_7FE00010-OB"])pixelKey=@"00000001_7FE00010-OB";
             else if (parsedAttrs[@"00000001_7FE00010-OW"])pixelKey=@"00000001_7FE00010-OW";
+            
             if (   pixelKey
                 && compressJ2K
                 && [parsedAttrs[@"00000001_00020010-UI"][0] isEqualToString:@"1.2.840.10008.1.2.1"]
@@ -223,14 +227,12 @@ int main(int argc, const char * argv[]) {
             
             //remove group2 length
             [parsedAttrs removeObjectForKey:@"00000001_00020000-UL"];
-            // remove File Meta Information Version. (0002,0001) OB "AAE="
-            [parsedAttrs removeObjectForKey:@"00000001_00020001-OB"];
 
             
             NSString *JSONstring=
             [NSString
              stringWithFormat:
-             @"{ \"dataset\" :%@, \"+j2k\" :%@, \"-native\" :%@}",
+             @"{ \"dataset\" :%@, \"j2k\" :%@, \"native\" :%@}",
              jsonObject4attrs(parsedAttrs),
              jsonObject4attrs(j2kAttrs),
              jsonObject4attrs(nativeAttrs)
@@ -244,45 +246,28 @@ int main(int argc, const char * argv[]) {
             else
 #pragma mark · outputDir
             {
-               if (!inputPath || !relativePathComponents)
-               {
-                  NSString *UUIDString=[[NSUUID UUID]UUIDString];
-                  [JSONdata writeToFile:[[outputDir stringByAppendingPathComponent:UUIDString]stringByAppendingPathExtension:@"json"] atomically:NO];
-                  if (blobDict.count)
-                  {
-                     NSString *bulkdataDir=[[outputDir stringByAppendingPathComponent:UUIDString]stringByAppendingPathExtension:@"bulkdata"];
-                     [fileManager createDirectoryAtPath:bulkdataDir withIntermediateDirectories:YES attributes:nil error:&error];
-                     for (NSString *bulkdataKey in blobDict)
-                     {
-                        [blobDict[bulkdataKey] writeToFile:[bulkdataDir stringByAppendingPathComponent:bulkdataKey] atomically:NO];
-                     }
-                  }
-               }
-               else
-               {
-                  NSMutableArray *inputPathComponents=[NSMutableArray arrayWithArray:[inputPath pathComponents]];
+               NSMutableArray *inputPathComponents=[NSMutableArray arrayWithArray:[inputPath pathComponents]];
 
-                  if (![inputPathComponents[0] length]) [inputPathComponents removeObjectAtIndex:0];//case of absolute paths
-                  while (relativePathComponents < inputPathComponents.count)
+               if (![inputPathComponents[0] length]) [inputPathComponents removeObjectAtIndex:0];//case of absolute paths
+               while (relativePathComponents < inputPathComponents.count)
+               {
+                  [inputPathComponents removeObjectAtIndex:0];
+               }
+               NSString *outputPath=[[[outputDir stringByAppendingPathComponent:[inputPathComponents componentsJoinedByString:@"/"]]stringByDeletingPathExtension]stringByAppendingPathExtension:@"json"];
+               NSString *outputDir=[outputPath stringByDeletingLastPathComponent];
+               if (![fileManager fileExistsAtPath:outputDir] && ![fileManager createDirectoryAtPath:outputDir withIntermediateDirectories:YES attributes:0 error:&error] )
+               {
+                  LOG_ERROR(@"could not create directory %@",outputDir);
+                  return 1;
+               }
+               [JSONdata writeToFile:outputPath atomically:NO];
+               if (blobDict.count)
+               {
+                  NSString *bulkdataDir=[[outputPath stringByDeletingPathExtension] stringByAppendingPathExtension:@"bulkdata"];
+                  [fileManager createDirectoryAtPath:bulkdataDir withIntermediateDirectories:YES attributes:nil error:&error];
+                  for (NSString *bulkdataKey in blobDict)
                   {
-                     [inputPathComponents removeObjectAtIndex:0];
-                  }
-                  NSString *outputPath=[[[outputDir stringByAppendingPathComponent:[inputPathComponents componentsJoinedByString:@"/"]]stringByDeletingPathExtension]stringByAppendingPathExtension:@"json"];
-                  NSString *outputDir=[outputPath stringByDeletingLastPathComponent];
-                  if (![fileManager fileExistsAtPath:outputDir] && ![fileManager createDirectoryAtPath:outputDir withIntermediateDirectories:YES attributes:0 error:&error] )
-                  {
-                     LOG_ERROR(@"could not create directory %@",outputDir);
-                     return 1;
-                  }
-                  [JSONdata writeToFile:outputPath atomically:NO];
-                  if (blobDict.count)
-                  {
-                     NSString *bulkdataDir=[[outputPath stringByDeletingPathExtension] stringByAppendingPathExtension:@"bulkdata"];
-                     [fileManager createDirectoryAtPath:bulkdataDir withIntermediateDirectories:YES attributes:nil error:&error];
-                     for (NSString *bulkdataKey in blobDict)
-                     {
-                        [blobDict[bulkdataKey] writeToFile:[bulkdataDir stringByAppendingPathComponent:[bulkdataKey lastPathComponent]] atomically:NO];
-                     }
+                     [blobDict[bulkdataKey] writeToFile:[bulkdataDir stringByAppendingPathComponent:[bulkdataKey lastPathComponent]] atomically:NO];
                   }
                }
             }

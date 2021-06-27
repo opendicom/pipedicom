@@ -15,6 +15,7 @@
 
 
 #import <Foundation/Foundation.h>
+#import "dict2D.h"
 #import "ODLog.h"
 #import "DCMcharset.h"
 #import "NSData+DCMmarkers.h"
@@ -27,7 +28,8 @@ static uint16 vl4=4;
 static uint16 vl8=8;
 static uint32 vll0=0xFFFFFFFF;
 static uint32 undefinedlength=0xFFFFFFFF;
-static uint64 itemstart=0xffffffffe000fffe;
+static uint32 itemstart=0xe000fffe;
+static uint64 itemstartundefined=0xffffffffe000fffe;
 static uint64 itemempty=0xe000fffe;
 static uint64 itemend=0xe00dfffe;
 static uint64 SQend=0xe0ddfffe;
@@ -38,6 +40,45 @@ static uint8 hexa[]={
    0,1,2,3,4,5,6,7,8,9,0,0,0,0,0,0,
    0,0xA,0xB,0xC,0xD,0xE,0xF
 };
+
+void appendFrame(NSMutableData *data, NSString *baseURLString, NSString *urlString, BOOL lastFragment)
+{
+   NSString *fragmentPath;
+   if ([urlString hasPrefix:@"/"]) fragmentPath=urlString;
+   else fragmentPath=[baseURLString stringByAppendingPathComponent:urlString];
+   NSData *fragmentData=[NSData dataWithContentsOfFile:fragmentPath];
+   
+   [data appendBytes:&itemstart length:4];
+   uint32 l;
+   if (!lastFragment)
+   {
+      l=(uint32)fragmentData.length;
+      [data appendBytes:&l length:4];
+      [data appendData:fragmentData];
+   }
+   else
+   {
+      l=(uint32)fragmentData.length + 2;
+      [data appendBytes:&l length:4];
+      [data appendData:fragmentData];
+      [data appendData:NSData.EOC];
+   }
+}
+
+int charsetIndex4key(NSString *key)
+{
+   if (key.length % 9 < 3) return 1;
+   int i=0;//ascii
+   NSString *afterDash=[key componentsSeparatedByString:@"-"][1];
+   NSString *ep=[afterDash substringToIndex:afterDash.length-3];//encoding prefix
+   i=0;
+   while (![evr[i] isEqualToString:ep] && (i < encodingTotal)) i++;
+   if (i== encodingTotal)
+   {
+      LOG_ERROR(@"bad key encoding prefix '%@' in  %@",ep,key);
+   }
+   return i % encodingTotal;
+}
 
 uint32 shortshortFromFourByteHexaString(NSString *string)
 {
@@ -60,7 +101,7 @@ uint32 shortshortFromFourByteHexaString(NSString *string)
 #pragma mark TODO: encodings
 
 
-int dict2D(NSDictionary *attrs, NSMutableData *data, BOOL native, NSString *bulkdataURLstring)
+int dict2D(NSString *baseURLString, NSDictionary *attrs, NSMutableData *data, NSUInteger pixelMode)
 {
     if (attrs && attrs.count)
     {
@@ -135,30 +176,19 @@ int dict2D(NSDictionary *attrs, NSMutableData *data, BOOL native, NSString *bulk
             case 0x4f4c://LO
             case 0x4853://SH
             {
-                [data appendBytes:&tag length:4];
-                [data appendBytes:&vr length:2];
-                if ([attrs[key] count])
+               [data appendBytes:&tag length:4];
+               [data appendBytes:&vr length:2];
+               if (![attrs[key] count]) [data appendBytes:&vl0 length:2];
+               else
                 {
-                   NSString *ep=[key substringWithRange:NSMakeRange(key.length-6,4)];//encoding prefix
-                   int i=0;
-                   while (![evr[i] isEqualToString:ep] && (i < encodingTotal)) i++;
-                   if (i== encodingTotal)
-                   {
-                      LOG_ERROR(@"bad key encoding prefix '%@' in  %@",ep,key);
-                      return failure;
-                   }
-                   else
-                   {
-                      NSData *stringData=[[attrs[key] componentsJoinedByString:@"\\"] dataUsingEncoding:encodingNS[i]];
-                   
-                      BOOL odd=stringData.length % 2;
-                      vl=stringData.length + odd;
-                      [data appendBytes:&vl length:2];
-                      [data appendData:stringData];
-                      if (odd) [data appendBytes:&paddingspace length:1];
-                   }
+                   NSData *stringData=[[attrs[key] componentsJoinedByString:@"\\"] dataUsingEncoding:encodingNS[charsetIndex4key(key)]];
+                
+                   BOOL odd=stringData.length % 2;
+                   vl=stringData.length + odd;
+                   [data appendBytes:&vl length:2];
+                   [data appendData:stringData];
+                   if (odd) [data appendBytes:&paddingspace length:1];
                 }
-                else [data appendBytes:&vl0 length:2];
                 break;
             }
                
@@ -169,28 +199,16 @@ int dict2D(NSDictionary *attrs, NSMutableData *data, BOOL native, NSString *bulk
               //not multivalued
                [data appendBytes:&tag length:4];
                [data appendBytes:&vr length:2];
-               if ([attrs[key] count])
+               if (![attrs[key] count]) [data appendBytes:&vl0 length:2];
+               else
                {
-                  NSString *ep=[key substringWithRange:NSMakeRange(key.length-6,4)];//encoding prefix
-                  int i=0;
-                  while (![evr[i] isEqualToString:ep] && (i < encodingTotal)) i++;
-                  if (i== encodingTotal)
-                  {
-                     LOG_ERROR(@"bad key encoding prefix '%@' in  %@",ep,key);
-                     return failure;
-                  }
-                  else
-                  {
-                     NSData *stringData=[(attrs[key])[0]  dataUsingEncoding:encodingNS[i]];
-                  
-                     BOOL odd=stringData.length % 2;
-                     vl=stringData.length + odd;
-                     [data appendBytes:&vl length:2];
-                     [data appendData:stringData];
-                     if (odd) [data appendBytes:&paddingspace length:1];
-                  }
+                  NSData *stringData=[(attrs[key])[0]  dataUsingEncoding:encodingNS[charsetIndex4key(key)]];
+                  BOOL odd=stringData.length % 2;
+                  vl=stringData.length + odd;
+                  [data appendBytes:&vl length:2];
+                  [data appendData:stringData];
+                  if (odd) [data appendBytes:&paddingspace length:1];
                }
-               else [data appendBytes:&vl0 length:2];
                break;
            }
 
@@ -205,31 +223,20 @@ int dict2D(NSDictionary *attrs, NSMutableData *data, BOOL native, NSString *bulk
                [data appendBytes:&vr length:2];
                [data appendBytes:&vl0 length:2];//vll aligned on 4 bytes
               
-              if ([attrs[key] count])
+              if (![attrs[key] count])
               {
-                 NSString *ep=[key substringWithRange:NSMakeRange(key.length-6,4)];//encoding prefix
-                 int i=0;
-                 while (![evr[i] isEqualToString:ep] && (i < encodingTotal)) i++;
-                 if (i== encodingTotal)
-                 {
-                    LOG_ERROR(@"bad key encoding prefix '%@' in  %@",ep,key);
-                    return failure;
-                 }
-                 else
-                 {
-                    NSData *stringData=[[attrs[key] componentsJoinedByString:@"\\"] dataUsingEncoding:encodingNS[i]];
-                 
-                    BOOL odd=stringData.length % 2;
-                    vll=(uint32)(stringData.length + odd);
-                    [data appendBytes:&vll length:2];
-                    [data appendData:stringData];
-                    if (odd) [data appendBytes:&paddingspace length:1];
-                 }
+                 [data appendBytes:&vl0 length:2];
+                 [data appendBytes:&vl0 length:2];
               }
               else
               {
-                 [data appendBytes:&vl0 length:2];
-                 [data appendBytes:&vl0 length:2];
+                 NSData *stringData=[[attrs[key] componentsJoinedByString:@"\\"] dataUsingEncoding:encodingNS[charsetIndex4key(key)]];
+              
+                 BOOL odd=stringData.length % 2;
+                 vll=(uint32)(stringData.length + odd);
+                 [data appendBytes:&vll length:2];
+                 [data appendData:stringData];
+                 if (odd) [data appendBytes:&paddingspace length:1];
               }
               break;
            }
@@ -244,31 +251,20 @@ int dict2D(NSDictionary *attrs, NSMutableData *data, BOOL native, NSString *bulk
                 [data appendBytes:&vr length:2];
                 [data appendBytes:&vl0 length:2];//vll aligned on 4 bytes
                
-               if ([attrs[key] count])
+               if (![attrs[key] count])
                {
-                  NSString *ep=[key substringWithRange:NSMakeRange(key.length-6,4)];//encoding prefix
-                  int i=0;
-                  while (![evr[i] isEqualToString:ep] && (i < encodingTotal)) i++;
-                  if (i== encodingTotal)
-                  {
-                     LOG_ERROR(@"bad key encoding prefix '%@' in  %@",ep,key);
-                     return failure;
-                  }
-                  else
-                  {
-                     NSData *stringData=[(attrs[key])[0] dataUsingEncoding:encodingNS[i]];
-                  
-                     BOOL odd=stringData.length % 2;
-                     vll=(uint32)(stringData.length + odd);
-                     [data appendBytes:&vll length:2];
-                     [data appendData:stringData];
-                     if (odd) [data appendBytes:&paddingspace length:1];
-                  }
+                  [data appendBytes:&vl0 length:2];
+                  [data appendBytes:&vl0 length:2];
                }
                else
                {
-                  [data appendBytes:&vl0 length:2];
-                  [data appendBytes:&vl0 length:2];
+                  NSData *stringData=[(attrs[key])[0] dataUsingEncoding:encodingNS[charsetIndex4key(key)]];
+               
+                  BOOL odd=stringData.length % 2;
+                  vll=(uint32)(stringData.length + odd);
+                  [data appendBytes:&vll length:2];
+                  [data appendData:stringData];
+                  if (odd) [data appendBytes:&paddingspace length:1];
                }
                break;
             }
@@ -286,36 +282,25 @@ int dict2D(NSDictionary *attrs, NSMutableData *data, BOOL native, NSString *bulk
                 [data appendBytes:&vr length:2];
                 [data appendBytes:&vl0 length:2];//vll aligned on 4 bytes
                
-               if ([attrs[key] count])
+               if (![attrs[key] count])
                {
-                  NSString *ep=[key substringWithRange:NSMakeRange(key.length-6,4)];//encoding prefix
-                  int i=0;
-                  while (![evr[i] isEqualToString:ep] && (i < encodingTotal)) i++;
-                  if (i== encodingTotal)
-                  {
-                     LOG_ERROR(@"bad key encoding prefix '%@' in  %@",ep,key);
-                     return failure;
-                  }
-                  else
-                  {
-                     NSData *stringData=
-                     [
-                      [(attrs[key])[0]  stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]
-                      ]
-                      dataUsingEncoding:encodingNS[i]
-                      ];
-                  
-                     BOOL odd=stringData.length % 2;
-                     vll=(uint32)(stringData.length + odd);
-                     [data appendBytes:&vll length:2];
-                     [data appendData:stringData];
-                     if (odd) [data appendBytes:&paddingspace length:1];
-                  }
+                  [data appendBytes:&vl0 length:2];
+                  [data appendBytes:&vl0 length:2];
                }
                else
                {
-                  [data appendBytes:&vl0 length:2];
-                  [data appendBytes:&vl0 length:2];
+                  NSData *stringData=
+                  [
+                   [(attrs[key])[0]  stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]
+                   ]
+                   dataUsingEncoding:encodingNS[charsetIndex4key(key)]
+                   ];
+               
+                  BOOL odd=stringData.length % 2;
+                  vll=(uint32)(stringData.length + odd);
+                  [data appendBytes:&vll length:2];
+                  [data appendData:stringData];
+                  if (odd) [data appendBytes:&paddingspace length:1];
                }
                break;
             }
@@ -327,7 +312,8 @@ int dict2D(NSDictionary *attrs, NSMutableData *data, BOOL native, NSString *bulk
                NSArray *strings=attrs[key];
                [data appendBytes:&tag length:4];
                [data appendBytes:&vr length:2];
-               if (strings.count)
+               if (!strings.count)[data appendBytes:&vl0 length:2];
+               else
                {
                   NSUInteger encodingIndexes[]={0,0,0};
                   NSString *eps=[[key componentsSeparatedByString:@"-"] lastObject ];//encoding prefixes
@@ -361,7 +347,6 @@ int dict2D(NSDictionary *attrs, NSMutableData *data, BOOL native, NSString *bulk
                   if (odd) [data appendBytes:&paddingspace length:1];
 
                }
-               else [data appendBytes:&vl0 length:2];
                break;
             }
 
@@ -393,7 +378,7 @@ int dict2D(NSDictionary *attrs, NSMutableData *data, BOOL native, NSString *bulk
    #pragma mark IQ
                case 0x5149:
                {
-                  [data appendBytes:&itemstart length:8];
+                  [data appendBytes:&itemstartundefined length:8];
                    break;
                }
                
@@ -625,63 +610,54 @@ int dict2D(NSDictionary *attrs, NSMutableData *data, BOOL native, NSString *bulk
                   [data appendBytes:&vr length:2];
                   [data appendBytes:&vl0 length:2];
                   
-                  if ((tag==0x107fe0) && !native)
+                  if ((tag==0x107fe0) && (pixelMode != dicomExplicit))
                   {
 #pragma mark .fragments
-                    [data appendBytes:&undefinedlength length:4];
-                     switch ([attrs[key] count]) {
-                           
-                        case 0://no fragments
-#pragma mark .. 0
-                           break;
-                           
-                        case 1://empty offset table
-#pragma mark .. 1
-                        {
-                           [data appendBytes:&itemempty length:8];
-                           
-                           id obj=(attrs[key])[0];
-                           if ([obj isKindOfClass:[NSDictionary class]])
-#pragma mark ... dict
-                           {
-                              [data appendBytes:&itemstart length:4];
-                              if(obj[@"BulkData"])
-#pragma mark .... BulkData => bulkdata dict
-                              {
-                                 
-                              }
-                              else
-#pragma mark .... XXXXXXXX => original dicom
-                              {
-
-                              }
-
-                           }
-                           else if ([obj isKindOfClass:[NSString class]])
-#pragma mark ... string=>inline
-                           {
-                              [data appendBytes:&itemstart length:4];
-                              NSData *firstValueData=dataWithB64String(obj);
-                              uint32 b64decodedLength=(uint32)firstValueData.length;
-                              [data appendBytes:&b64decodedLength length:4];
-                              [data appendData:firstValueData];
-                           }
-                           else return failure;
-                        }
-                           break;
-
-                        default:
-#pragma mark .. many
-                        {
-                           
-                        }
-                           break;
-                     }
+                     [data appendBytes:&undefinedlength length:4];
+                     //first empty fragment
+                     [data appendBytes:&itemempty length:8];
                      
+                     for (NSDictionary *frameDict in attrs[key])
+                     {
+                        NSString *frameName=frameDict.allKeys[0];
+                        NSArray *urls=frameDict[frameName];
+                        switch (pixelMode) {
+                           case dicomExplicitJ2kBase:
+                           {
+                              appendFrame(data, baseURLString, urls[0], true);
+                           }
+                              break;
+
+                           case dicomExplicitJ2kFast:
+                           {
+                              appendFrame(data, baseURLString, urls[0], false);
+                              appendFrame(data, baseURLString, urls[1], true);
+                           }
+                              break;
+
+                           case dicomExplicitJ2kHres:
+                           {
+                              appendFrame(data, baseURLString, urls[0], false);
+                              appendFrame(data, baseURLString, urls[1], false);
+                              appendFrame(data, baseURLString, urls[2], true);
+                           }
+                              break;
+
+                           default://dicomExplicitJ2kIdem
+                           {
+                              appendFrame(data, baseURLString, urls[0], false);
+                              appendFrame(data, baseURLString, urls[1], false);
+                              appendFrame(data, baseURLString, urls[2], false);
+                              appendFrame(data, baseURLString, urls[3], true);
+                           }
+                              break;
+                        }
+                     }
                      [data appendBytes:&SQend length:8];
                      break;
                   }
                   
+                  //no break yet
 #pragma mark .native
                   
                   if ([attrs[key] count])

@@ -35,7 +35,8 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
-      useCustomWorkingDirectory = "NO"
+      useCustomWorkingDirectory = "YES"
+      customWorkingDirectory = "/Users/Shared/D/"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
@@ -52,42 +53,26 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "test FluroWithDisplayShutter.json"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "test FluroWithDisplayShutterj2ksource.json"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "test FluroWithDisplayShutterj2kinline.json"
+            argument = "dcmj2kidem"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "test FluroWithDisplayShutterj2k.json"
+            argument = "dcmj2khres"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "test SCSARAB.json"
+            argument = "dcmj2kfast"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "test SCSFREN.json"
+            argument = "dcmj2kbase"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "dcmexplicit"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
-      <EnvironmentVariables>
-         <EnvironmentVariable
-            key = "J2DrelativePathComponents"
-            value = "2"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-         <EnvironmentVariable
-            key = "J2DoutputDir"
-            value = "/Users/Shared/"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-      </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
