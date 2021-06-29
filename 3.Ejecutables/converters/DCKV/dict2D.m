@@ -41,27 +41,35 @@ static uint8 hexa[]={
    0,0xA,0xB,0xC,0xD,0xE,0xF
 };
 
-void appendFrame(NSMutableData *data, NSString *baseURLString, NSString *urlString, BOOL lastFragment)
+void appendFrame(NSMutableData *data, NSString *baseURLString, NSString *urlString, BOOL appendEOC, NSDictionary *blobDict)
 {
-   NSString *fragmentPath;
-   if ([urlString hasPrefix:@"/"]) fragmentPath=urlString;
-   else fragmentPath=[baseURLString stringByAppendingPathComponent:urlString];
-   NSData *fragmentData=[NSData dataWithContentsOfFile:fragmentPath];
+   NSData *fragmentData;
+   if (blobDict)
+   {
+      fragmentData=blobDict[urlString];
+   }
+   else
+   {
+      NSString *fragmentPath;
+      if ([urlString hasPrefix:@"/"]) fragmentPath=urlString;
+      else fragmentPath=[baseURLString stringByAppendingPathComponent:urlString];
+      fragmentData=[NSData dataWithContentsOfFile:fragmentPath];
+   }
    
    [data appendBytes:&itemstart length:4];
    uint32 l;
-   if (!lastFragment)
-   {
-      l=(uint32)fragmentData.length;
-      [data appendBytes:&l length:4];
-      [data appendData:fragmentData];
-   }
-   else
+   if (appendEOC)
    {
       l=(uint32)fragmentData.length + 2;
       [data appendBytes:&l length:4];
       [data appendData:fragmentData];
       [data appendData:NSData.EOC];
+   }
+   else
+   {
+      l=(uint32)fragmentData.length;
+      [data appendBytes:&l length:4];
+      [data appendData:fragmentData];
    }
 }
 
@@ -101,7 +109,7 @@ uint32 shortshortFromFourByteHexaString(NSString *string)
 #pragma mark TODO: encodings
 
 
-int dict2D(NSString *baseURLString, NSDictionary *attrs, NSMutableData *data, NSUInteger pixelMode)
+int dict2D(NSString *baseURLString, NSDictionary *attrs, NSMutableData *data, NSUInteger pixelMode, NSDictionary *blobDict)
 {
     if (attrs && attrs.count)
     {
@@ -624,31 +632,31 @@ int dict2D(NSString *baseURLString, NSDictionary *attrs, NSMutableData *data, NS
                         switch (pixelMode) {
                            case dicomExplicitJ2kBase:
                            {
-                              appendFrame(data, baseURLString, urls[0], true);
+                              appendFrame(data, baseURLString, urls[0], true, blobDict);
                            }
                               break;
 
                            case dicomExplicitJ2kFast:
                            {
-                              appendFrame(data, baseURLString, urls[0], false);
-                              appendFrame(data, baseURLString, urls[1], true);
+                              appendFrame(data, baseURLString, urls[0], false,blobDict);
+                              appendFrame(data, baseURLString, urls[1], true,blobDict);
                            }
                               break;
 
                            case dicomExplicitJ2kHres:
                            {
-                              appendFrame(data, baseURLString, urls[0], false);
-                              appendFrame(data, baseURLString, urls[1], false);
-                              appendFrame(data, baseURLString, urls[2], true);
+                              appendFrame(data, baseURLString, urls[0], false,blobDict);
+                              appendFrame(data, baseURLString, urls[1], false,blobDict);
+                              appendFrame(data, baseURLString, urls[2], true,blobDict);
                            }
                               break;
 
                            default://dicomExplicitJ2kIdem
                            {
-                              appendFrame(data, baseURLString, urls[0], false);
-                              appendFrame(data, baseURLString, urls[1], false);
-                              appendFrame(data, baseURLString, urls[2], false);
-                              appendFrame(data, baseURLString, urls[3], true);
+                              appendFrame(data, baseURLString, urls[0], false,blobDict);
+                              appendFrame(data, baseURLString, urls[1], false,blobDict);
+                              appendFrame(data, baseURLString, urls[2], false,blobDict);
+                              appendFrame(data, baseURLString, urls[3], true,blobDict);
                            }
                               break;
                         }
@@ -666,7 +674,8 @@ int dict2D(NSString *baseURLString, NSDictionary *attrs, NSMutableData *data, NS
                      NSData *firstValueData;
                      if ([obj isKindOfClass:[NSDictionary class]])
                      {
-                        firstValueData=[NSData dataWithContentsOfURL:[NSURL URLWithString:obj[@"BulkData"]]];
+                        if (blobDict) firstValueData=blobDict[obj[@"BulkData"]];
+                        else firstValueData=[NSData dataWithContentsOfURL:[NSURL URLWithString:obj[@"BulkData"]]];
                      }
                      else
                      {

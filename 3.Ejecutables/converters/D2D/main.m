@@ -11,7 +11,11 @@ int visibleRelativeFiles(NSFileManager *fileManager, NSString *base, NSArray *mo
    BOOL isDirectory=false;
    for (NSString *relativeMountPoint in mountPoints)
    {
-      if ([relativeMountPoint hasPrefix:@"."]) continue;
+      NSString *lastPathComponent=[relativeMountPoint lastPathComponent];
+      if ([lastPathComponent hasPrefix:@"."]) continue;
+      if ([lastPathComponent hasPrefix:@"DISCARDED"]) continue;
+      if ([lastPathComponent hasPrefix:@"ORIGINALS"]) continue;
+      if ([lastPathComponent hasPrefix:@"COERCED"]) continue;
       NSString *absoluteMountPoint=[[[base stringByAppendingPathComponent:relativeMountPoint] stringByExpandingTildeInPath] stringByResolvingSymlinksInPath];
 
       if ([fileManager fileExistsAtPath:absoluteMountPoint isDirectory:&isDirectory])
@@ -33,7 +37,7 @@ int visibleRelativeFiles(NSFileManager *fileManager, NSString *base, NSArray *mo
                [contentsPaths addObject:[relativeMountPoint stringByAppendingPathComponent:name]];
             }
             
-            if (visibleFiles(fileManager,base,contentsPaths, paths) != success) return failure;
+            if (visibleRelativeFiles(fileManager,base,contentsPaths, paths) != success) return failure;
          }
          else [paths addObject:relativeMountPoint];
       }
@@ -42,37 +46,36 @@ int visibleRelativeFiles(NSFileManager *fileManager, NSString *base, NSArray *mo
 }
 
 
-int enclosingDirectoryWritable(NSFileManager *fileManager, NSMutableSet *dirsWritable, NSString *filePath)
+int enclosingDirectoryWritable(NSFileManager *fileManager, NSMutableSet *writableDirSet, NSString *filePath)
 {
    NSString *dirPath=[filePath stringByDeletingLastPathComponent];
-   if ([dirsWritable containsObject:dirPath]) return success;
+   if ([writableDirSet containsObject:dirPath]) return success;
    BOOL isDirectory;
-   if ([fileManager fileExistsAtPath:dirPath isDirectory:isDirectory])
+   NSError *error;
+   if ([fileManager fileExistsAtPath:dirPath isDirectory:&isDirectory])
    {
       if (isDirectory)
       {
-         [coercedDirs addObject:coercedDirPath];
+         [writableDirSet addObject:dirPath];
          return success;
       }
-      LOG_ERROR(@"should be directory:%@",coercedDirPath);
+      LOG_ERROR(@"should be directory:%@",dirPath);
       return failure;
    }
-   if([fileManager createDirectoryAtPath:coercedDirPath withIntermediateDirectories:YES attributes:nil error:&error])
+   if([fileManager createDirectoryAtPath:dirPath withIntermediateDirectories:YES attributes:nil error:&error])
    {
-      [coercedDirs addObject:coercedDirPath];
+      [writableDirSet addObject:dirPath];
       return success;
    }
-   LOG_ERROR(@"can not create dir: %@",coercedDirPath);
+   LOG_ERROR(@"can not create dir: %@",dirPath);
    return failure;
 }
 
 
-enum NSUInteger {
+enum {
    D2Dcommand=0,
    D2DreceiverDirPath,
-   D2DcoercedDirPath,
-   D2DdiscartedDirPath,
-   D2DoriginalsDirPath
+   D2DcoercedDirPath
 } D2DcommandArgs;
 
 int main(int argc, const char * argv[]) {
@@ -80,7 +83,7 @@ int main(int argc, const char * argv[]) {
 
       NSProcessInfo *processInfo=[NSProcessInfo processInfo];
       NSArray *args=[processInfo arguments];
-      if (args.count!=5)//stdin
+      if (args.count!=3)//stdin
       {
          NSLog(@"Should be: D2D sourceDirPath coercedDirPath discardedDirPath originalsDirPath. Was: %@",args.description);
          exit(failure);
@@ -100,7 +103,11 @@ int main(int argc, const char * argv[]) {
 #pragma mark  input
       NSString *receivedDirPath=[args[D2DreceiverDirPath] stringByAppendingPathComponent:@"RECEIVED"];
       NSMutableArray *inputPaths=[NSMutableArray array];
-      if (!visibleFiles(fileManager,receivedDirPath , inputPaths)) exit(failure);
+      if (!visibleRelativeFiles(fileManager, receivedDirPath, [fileManager contentsOfDirectoryAtPath:receivedDirPath error:&error] , inputPaths))
+      {
+         LOG_ERROR(@"error reading directory %@",receivedDirPath);
+         exit(failure);
+      }
 
       
 #pragma mark environment
@@ -112,7 +119,7 @@ int main(int argc, const char * argv[]) {
 #pragma mark D2DlogLevel
       if (environment[@"D2DlogLevel"])
       {
-         NSUInteger logLevel=[@[@"DEBUG",@"VERBOSE",@"INFO",@"WARNING",@"ERROR",@"EXCEPTION"] indexOfObject:environment[@"D2logLevel"]];
+         NSUInteger logLevel=[@[@"DEBUG",@"VERBOSE",@"INFO",@"WARNING",@"ERROR",@"EXCEPTION"] indexOfObject:environment[@"D2DlogLevel"]];
          if (logLevel!=NSNotFound) ODLogLevel=(ODLogLevelEnum)logLevel;
          else ODLogLevel=4;//ERROR (default)
       }
@@ -159,7 +166,7 @@ int main(int argc, const char * argv[]) {
 
 #pragma mark - processing
       NSMutableSet *receiverDirSet=[NSMutableSet set];
-      NSMutableSet *coercedDirSet=[NSMutableArray set];
+      NSMutableSet *coercedDirSet=[NSMutableSet set];
 #pragma mark loop
 
       NSMutableData *inputData=[NSMutableData data];
@@ -177,13 +184,13 @@ int main(int argc, const char * argv[]) {
          if (!D2dict(
                     inputData,
                     parsedAttrs,
-                    blobMinSize,
+                    0,//blob min size
                     blobModeResources,
-                    blobRefPrefix,
-                    blobRefSuffix,
+                    @"",//prefix
+                    @"",//suffix
                     blobDict
                     )
-             ) LOG_ERROR(@"could not parse %@",inputPath);
+             ) LOG_ERROR(@"could not parse %@",receivedFilePath);
          else
          {
 #pragma mark · compress ?
@@ -233,7 +240,7 @@ int main(int argc, const char * argv[]) {
             NSMutableData *outputData;
             
 //group 2 ?
-            if (datasets[@"00000001_00020003-UI"])
+            if (parsedAttrs[@"00000001_00020003-UI"])
             {
                NSMutableDictionary *filemetainfoDict=[NSMutableDictionary dictionary];
                NSArray *keys=[parsedAttrs allKeys];
@@ -251,7 +258,8 @@ int main(int argc, const char * argv[]) {
                           environment[@"PWD"],
                           filemetainfoDict,
                           filemetainfoData,
-                          compressJ2K?dicomExplicitJ2kIdem:dicomExplicit
+                          compressJ2K?dicomExplicitJ2kIdem:dicomExplicit,
+                          blobDict
                           ) == failure
                    )
                {
@@ -277,11 +285,12 @@ int main(int argc, const char * argv[]) {
                         environment[@"PWD"],
                         parsedAttrs,
                         outputData,
-                        compressJ2K?dicomExplicitJ2kIdem:dicomExplicit
+                        compressJ2K?dicomExplicitJ2kIdem:dicomExplicit,
+                        blobDict
                         )==failure
                 )
             {
-               LOG_ERROR(@"could not serialize dataset. %@",filemetainfoDict);
+               LOG_ERROR(@"could not serialize dataset. %@",parsedAttrs);
                exit(failure);
 
             }
@@ -298,7 +307,7 @@ int main(int argc, const char * argv[]) {
                //not possible to write coerced into coercedDir
                //write it into receiver
                NSString *coercedIntoReceiverFilePath=[[receivedDirPath stringByAppendingPathComponent:@"COERCED"]stringByAppendingPathComponent:relativeInputPath];
-               LOG_ERROR(@"coerced can not be written into %@. Try into %",coercedFilePath,coercedIntoReceiverFilePath);
+               LOG_ERROR(@"coerced can not be written into %@. Try into %@",coercedFilePath,coercedIntoReceiverFilePath);
                if (enclosingDirectoryWritable(fileManager, receiverDirSet, coercedIntoReceiverFilePath)==false)
                {
                   //not possible to write it into receiver either
@@ -309,7 +318,7 @@ int main(int argc, const char * argv[]) {
             }
             
             //move receiver
-            NSString originalsFilePath=[[receivedDirPath stringByAppendingPathComponent:@"ORIGINALS"]stringByAppendingPathComponent:relativeInputPath];
+            NSString *originalsFilePath=[[args[D2DreceiverDirPath] stringByAppendingPathComponent:@"ORIGINALS"]stringByAppendingPathComponent:relativeInputPath];
             if (   (enclosingDirectoryWritable(fileManager, receiverDirSet, originalsFilePath)==false)
                 || ![fileManager moveItemAtPath:receivedFilePath toPath:originalsFilePath error:&error]
                 )

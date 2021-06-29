@@ -11,4 +11,4 @@ enum NSUInteger {
 } dicomExplicitPixelMode;
 
 
-int dict2D(NSString *baseURLString, NSDictionary *dict, NSMutableData *data, NSUInteger pixelMode);
+int dict2D(NSString *baseURLString, NSDictionary *dict, NSMutableData *data, NSUInteger pixelMode, NSDictionary *blobDict);

@@ -161,7 +161,7 @@ int main(int argc, const char * argv[]) {
          }
          
          NSMutableData *filemetainfoData=[NSMutableData data];
-         if (dict2D(environment[@"PWD"],filemetainfoDict,filemetainfoData,pixelMode) == failure)
+         if (dict2D(environment[@"PWD"],filemetainfoDict,filemetainfoData,pixelMode,nil) == failure)
          {
             LOG_ERROR(@"could not serialize group 0002. %@",filemetainfoDict);
             return 0;//failed
@@ -183,7 +183,7 @@ int main(int argc, const char * argv[]) {
 
       
       //serialize and append datasets
-      if (dict2D(environment[@"PWD"],datasets,outputData,pixelMode)==success)
+      if (dict2D(environment[@"PWD"],datasets,outputData,pixelMode,nil)==success)
          [outputData writeToFile:@"/Users/Shared/j2k.dcm" atomically:NO];
 //         [outputData writeToFile:@"/dev/stdout" atomically:NO];
    }//end autorelease pool

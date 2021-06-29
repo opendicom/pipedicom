@@ -54,6 +54,9 @@
 		4ADA50FB267A8A9B008F98DB /* libtiff.a in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA50E5267A8A57008F98DB /* libtiff.a */; };
 		4ADA50FC267A8A9B008F98DB /* libz.a in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA50E3267A8A57008F98DB /* libz.a */; };
 		4ADA518F2688125F008F98DB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ADA518E2688125F008F98DB /* main.m */; };
+		4ADA51AC268B5752008F98DB /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
+		4ADA51AD268B5752008F98DB /* DCKV.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		4ADA51B8268B57A8008F98DB /* opj_compress in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4ADA4FBE2677FDBA008F98DB /* opj_compress */; };
 		4AE7CEB725E7CBE0004942E3 /* M.xsd in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE92125B1A8FE00C8D33F /* M.xsd */; };
 		4AE7CEB825E7CBE0004942E3 /* M1N.xsl in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE91E25B1A8FE00C8D33F /* M1N.xsl */; };
 		4AE7CEB925E7CBE0004942E3 /* N1M.xsl in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE92025B1A8FE00C8D33F /* N1M.xsl */; };
@@ -77,6 +80,13 @@
 			remoteInfo = DCKV;
 		};
 		4ADA4FC8267835E5008F98DB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4A7B856A258002A100E62971 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4A025F3A25E5C455005AA1A3;
+			remoteInfo = DCKV;
+		};
+		4ADA51AE268B5752008F98DB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4A7B856A258002A100E62971 /* Project object */;
 			proxyType = 1;
@@ -135,11 +145,23 @@
 		4ADA518A2688125F008F98DB /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
+			dstPath = usr/share/man/man1;
+			dstSubfolderSpec = 16;
 			files = (
+				4ADA51B8268B57A8008F98DB /* opj_compress in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 1;
+		};
+		4ADA51B0268B5752008F98DB /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				4ADA51AD268B5752008F98DB /* DCKV.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -359,6 +381,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4ADA51AC268B5752008F98DB /* DCKV.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -833,10 +856,12 @@
 				4ADA51882688125F008F98DB /* Sources */,
 				4ADA51892688125F008F98DB /* Frameworks */,
 				4ADA518A2688125F008F98DB /* CopyFiles */,
+				4ADA51B0268B5752008F98DB /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				4ADA51AF268B5752008F98DB /* PBXTargetDependency */,
 			);
 			name = D2D;
 			productName = D2D;
@@ -1033,6 +1058,11 @@
 			isa = PBXTargetDependency;
 			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
 			targetProxy = 4ADA4FC8267835E5008F98DB /* PBXContainerItemProxy */;
+		};
+		4ADA51AF268B5752008F98DB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
+			targetProxy = 4ADA51AE268B5752008F98DB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1332,7 +1362,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -1341,7 +1371,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
