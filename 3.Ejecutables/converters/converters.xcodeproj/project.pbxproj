@@ -33,30 +33,24 @@
 		4ADA4EFC2672A7B5008F98DB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ADA4EFB2672A7B5008F98DB /* main.m */; };
 		4ADA4F732672F393008F98DB /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
 		4ADA4F7E26738D8E008F98DB /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
-		4ADA4FBF2677FDBA008F98DB /* opj_compress in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA4FBE2677FDBA008F98DB /* opj_compress */; };
 		4ADA4FCA267835EE008F98DB /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
 		4ADA4FD32678365D008F98DB /* opj_compress in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4ADA4FBE2677FDBA008F98DB /* opj_compress */; };
 		4ADA4FF526783D46008F98DB /* libopenjp2.2.5.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4ADA4FF426783D46008F98DB /* libopenjp2.2.5.0.dylib */; };
 		4ADA50082678AA85008F98DB /* j2k.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ADA50062678AA85008F98DB /* j2k.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4ADA50092678AA85008F98DB /* j2k.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ADA50072678AA85008F98DB /* j2k.m */; };
 		4ADA50782678B096008F98DB /* NSData+DCMmarkers.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ADA50772678B096008F98DB /* NSData+DCMmarkers.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4ADA50E1267A8A1C008F98DB /* libopenjp2.2.5.0.dylib in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA4FF426783D46008F98DB /* libopenjp2.2.5.0.dylib */; };
 		4ADA50E9267A8A57008F98DB /* libopenjp2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4ADA50E2267A8A57008F98DB /* libopenjp2.a */; };
 		4ADA50EA267A8A57008F98DB /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4ADA50E3267A8A57008F98DB /* libz.a */; };
 		4ADA50EB267A8A57008F98DB /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4ADA50E4267A8A57008F98DB /* libpng.a */; };
 		4ADA50EC267A8A57008F98DB /* libtiff.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4ADA50E5267A8A57008F98DB /* libtiff.a */; };
-		4ADA50ED267A8A57008F98DB /* opj_dump in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA50E6267A8A57008F98DB /* opj_dump */; };
 		4ADA50EE267A8A57008F98DB /* liblcms2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4ADA50E7267A8A57008F98DB /* liblcms2.a */; };
-		4ADA50EF267A8A57008F98DB /* opj_decompress in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA50E8267A8A57008F98DB /* opj_decompress */; };
-		4ADA50F8267A8A9B008F98DB /* liblcms2.a in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA50E7267A8A57008F98DB /* liblcms2.a */; };
-		4ADA50F9267A8A9B008F98DB /* libopenjp2.a in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA50E2267A8A57008F98DB /* libopenjp2.a */; };
-		4ADA50FA267A8A9B008F98DB /* libpng.a in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA50E4267A8A57008F98DB /* libpng.a */; };
-		4ADA50FB267A8A9B008F98DB /* libtiff.a in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA50E5267A8A57008F98DB /* libtiff.a */; };
-		4ADA50FC267A8A9B008F98DB /* libz.a in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA50E3267A8A57008F98DB /* libz.a */; };
 		4ADA518F2688125F008F98DB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ADA518E2688125F008F98DB /* main.m */; };
 		4ADA51AC268B5752008F98DB /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
 		4ADA51AD268B5752008F98DB /* DCKV.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4ADA51B8268B57A8008F98DB /* opj_compress in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4ADA4FBE2677FDBA008F98DB /* opj_compress */; };
+		4ADA51E4268BAE59008F98DB /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA51E3268BAE59008F98DB /* README.md */; };
+		4ADA5201268BB4CA008F98DB /* schema-for-json.xsd in Resources */ = {isa = PBXBuildFile; fileRef = 4AAE865C25C0AABB00117D26 /* schema-for-json.xsd */; };
+		4ADA5209268BB4E4008F98DB /* N.rng in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE91C25B1A8FE00C8D33F /* N.rng */; };
 		4AE7CEB725E7CBE0004942E3 /* M.xsd in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE92125B1A8FE00C8D33F /* M.xsd */; };
 		4AE7CEB825E7CBE0004942E3 /* M1N.xsl in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE91E25B1A8FE00C8D33F /* M1N.xsl */; };
 		4AE7CEB925E7CBE0004942E3 /* N1M.xsl in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE92025B1A8FE00C8D33F /* N1M.xsl */; };
@@ -315,6 +309,7 @@
 		4ADA518C2688125F008F98DB /* D2D */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = D2D; sourceTree = BUILT_PRODUCTS_DIR; };
 		4ADA518E2688125F008F98DB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4ADA519B26881312008F98DB /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		4ADA51E3268BAE59008F98DB /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -391,6 +386,7 @@
 		4A025F3C25E5C455005AA1A3 /* DCKV */ = {
 			isa = PBXGroup;
 			children = (
+				4ADA51E3268BAE59008F98DB /* README.md */,
 				4ADA50E7267A8A57008F98DB /* liblcms2.a */,
 				4ADA50E2267A8A57008F98DB /* libopenjp2.a */,
 				4ADA50E4267A8A57008F98DB /* libpng.a */,
@@ -437,6 +433,8 @@
 		4A02600B25E62D4F005AA1A3 /* xsd */ = {
 			isa = PBXGroup;
 			children = (
+				4ABDE91B25B1A8FE00C8D33F /* N.xsd */,
+				4ABDE91C25B1A8FE00C8D33F /* N.rng */,
 				4ABDE92125B1A8FE00C8D33F /* M.xsd */,
 				4AAE865C25C0AABB00117D26 /* schema-for-json.xsd */,
 			);
@@ -449,8 +447,6 @@
 				4A02605025E6ECA7005AA1A3 /* J */,
 				4A02600D25E62E4B005AA1A3 /* H */,
 				4A434CB825B996A200065B64 /* D */,
-				4ABDE91725B1A8FE00C8D33F /* M */,
-				4AAE868A25C1905E00117D26 /* N */,
 				4A44197B25F764150091495B /* README.md */,
 			);
 			path = Samples;
@@ -574,6 +570,7 @@
 				4ADA4F5F2672B81B008F98DB /* unused.h */,
 				4ADA4F602672B81B008F98DB /* unused.m */,
 				4A44193425EE53CE0091495B /* README.md */,
+				4ABDE91725B1A8FE00C8D33F /* XML */,
 				4A02600C25E62E1F005AA1A3 /* Samples */,
 				4A7B85D9258BC12800E62971 /* H2D */,
 				4AAE862B25C0253500117D26 /* M2 */,
@@ -621,16 +618,7 @@
 			path = M2;
 			sourceTree = "<group>";
 		};
-		4AAE868A25C1905E00117D26 /* N */ = {
-			isa = PBXGroup;
-			children = (
-				4ABDE91B25B1A8FE00C8D33F /* N.xsd */,
-				4ABDE91C25B1A8FE00C8D33F /* N.rng */,
-			);
-			path = N;
-			sourceTree = "<group>";
-		};
-		4ABDE91725B1A8FE00C8D33F /* M */ = {
+		4ABDE91725B1A8FE00C8D33F /* XML */ = {
 			isa = PBXGroup;
 			children = (
 				4A02600B25E62D4F005AA1A3 /* xsd */,
@@ -639,7 +627,7 @@
 				4ABDE91825B1A8FE00C8D33F /* M.xml */,
 				4AAE863D25C029DC00117D26 /* README.md */,
 			);
-			path = M;
+			path = XML;
 			sourceTree = "<group>";
 		};
 		4ABE45B925C886C10072B84E /* xslt1 */ = {
@@ -734,7 +722,7 @@
 				4A025F3725E5C455005AA1A3 /* Sources */,
 				4A025F3825E5C455005AA1A3 /* Frameworks */,
 				4A025F3925E5C455005AA1A3 /* Resources */,
-				0718621525F645FE00802276 /* ShellScript */,
+				0718621525F645FE00802276 /* Run Script */,
 			);
 			buildRules = (
 			);
@@ -932,39 +920,34 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4ADA50F8267A8A9B008F98DB /* liblcms2.a in Resources */,
-				4ADA50F9267A8A9B008F98DB /* libopenjp2.a in Resources */,
-				4ADA50FA267A8A9B008F98DB /* libpng.a in Resources */,
-				4ADA50FB267A8A9B008F98DB /* libtiff.a in Resources */,
-				4ADA50FC267A8A9B008F98DB /* libz.a in Resources */,
-				4ADA50E1267A8A1C008F98DB /* libopenjp2.2.5.0.dylib in Resources */,
-				4ADA4FBF2677FDBA008F98DB /* opj_compress in Resources */,
+				4ADA51E4268BAE59008F98DB /* README.md in Resources */,
 				4AC7BE63266A724A00C14265 /* DCKV.md in Resources */,
-				4ADA50EF267A8A57008F98DB /* opj_decompress in Resources */,
 				4AE7CEB725E7CBE0004942E3 /* M.xsd in Resources */,
 				4AE7CEB825E7CBE0004942E3 /* M1N.xsl in Resources */,
-				4AE7CEB925E7CBE0004942E3 /* N1M.xsl in Resources */,
-				4AE7CEBA25E7CBE0004942E3 /* M3J.xsl in Resources */,
 				4AE7CEBB25E7CBE0004942E3 /* N.xsd in Resources */,
-				4ADA50ED267A8A57008F98DB /* opj_dump in Resources */,
+				4ADA5209268BB4E4008F98DB /* N.rng in Resources */,
+				4AE7CEB925E7CBE0004942E3 /* N1M.xsl in Resources */,
+				4ADA5201268BB4CA008F98DB /* schema-for-json.xsd in Resources */,
+				4AE7CEBA25E7CBE0004942E3 /* M3J.xsl in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		0718621525F645FE00802276 /* ShellScript */ = {
+		0718621525F645FE00802276 /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = "Run Script";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = "/bin/sh ";
-			shellScript = "if [ ! -d ~/Library/Frameworks ]; then\n   mkdir ~/Library/Frameworks;\nfi\nrm -rf ~/Library/Frameworks/DCKV.framework\ncp -R $BUILD_ROOT/Debug/DCKV.framework ~/Library/Frameworks/DCKV.framework\n";
+			shellScript = "if [ ! -d /usr/local/lib ]; then\n   mkdir ~/usr/local/lib;\nfi\nrm -rf /usr/local/lib/DCKV.framework\ncp -R $BUILD_ROOT/Debug/DCKV.framework /usr/local/lib/DCKV.framework\nif [ ! -f /usr/local/lib/libopenjp2.2.5.0.dylib ]; then\n   cp -R $PROJECT_DIR/DCKV/libopenjp2.2.5.0.dylib /usr/local/lib/libopenjp2.2.5.0.dylib\n   cd /usr/local/lib\n   ln -s libopenjp2.2.5.0.dylib libopenjp2.7.dylib   \nfi\n\n\n   \n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1344,7 +1327,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -1353,7 +1336,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
