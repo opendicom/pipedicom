@@ -125,11 +125,13 @@ int compress(
          NSRange nextSOCRange=[j2kData rangeOfData:NSData.SOT
                                            options:0
                                              range:j2kRange];
+         NSArray *SOCs=@[@"",@"",@"",@".dcmj2kbase",@".dcmj2kfast",@".dcmj2khres"];
          while (nextSOCRange.location != NSNotFound)
          {
             if (fragmentCounter > 2)
             {
-               NSString *fragmentName=[NSString stringWithFormat:@"%@-%08lu%@",pixelUrl,frameNumber+1,@[@"",@"",@"",@".dcmj2kbase",@".dcmj2kfast",@".dcmj2khres"][fragmentCounter]];
+               //register fragment
+               NSString *fragmentName=[NSString stringWithFormat:@"%@-%08lu%@",pixelUrl,frameNumber+1,SOCs[fragmentCounter]];
                [pixelAttrArray addObject:fragmentName];
 
                [j2kBlobDict setObject:[j2kData subdataWithRange:NSMakeRange(fragmentOffset, nextSOCRange.location - fragmentOffset)] forKey:fragmentName];
