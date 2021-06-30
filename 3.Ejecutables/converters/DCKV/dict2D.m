@@ -674,8 +674,9 @@ int dict2D(NSString *baseURLString, NSDictionary *attrs, NSMutableData *data, NS
                      NSData *firstValueData;
                      if ([obj isKindOfClass:[NSDictionary class]])
                      {
-                        if (blobDict) firstValueData=blobDict[obj[@"BulkData"]];
-                        else firstValueData=[NSData dataWithContentsOfURL:[NSURL URLWithString:obj[@"BulkData"]]];
+                        NSString *obj0StringValue=[obj allValues][0][0];
+                        if (blobDict) firstValueData=blobDict[obj0StringValue];
+                        else firstValueData=[NSData dataWithContentsOfURL:[NSURL URLWithString:obj0StringValue]];
                      }
                      else
                      {

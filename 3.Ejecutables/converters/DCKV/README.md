@@ -3,27 +3,20 @@
 Library used by DinlineJ, DsourceJ, D2, D2D and J2D
 Includes openjpeg library and dependencies.
 
-## instalation
-/usr/local/lib/DCKV.framework
-/usr/local/lib/libopenjp2.2.5.0.dylib
-/usr/local/lib/libopenjp2.7.dylib -> libopenjp2.2.5.0.dylib
-
-## not installed yet
-
-third party libs for libopenjpg2:
+## /usr/local/lib
+- DCKV.framework
+- libopenjp2.2.5.0.dylib
+- libopenjp2.7.dylib -> libopenjp2.2.5.0.dylib
 - liblcms2.a
 - libopenjp2.a
 - libpng.a
 - libtiff.a
 - libz.a
 
-executable:
+## /usr/local/bin
 - opj_compress
 - opj_dump
 - opj_decompress
-
-Nota:
-opj_compress should be copied in the executable folder where D2 or D2D are installed
 
 
 ## <DCKV/DCKV.h>

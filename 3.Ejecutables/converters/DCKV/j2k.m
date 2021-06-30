@@ -101,7 +101,7 @@ int compress(
       NSMutableArray *pixelAttrArray=[NSMutableArray array];
       int result=execTask(
                nil,
-               @"opj_compress",
+               @"/usr/local/bin/opj_compress",
                params,
                [pixelData subdataWithRange:NSMakeRange(frameNumber*frameLength,frameLength)],
                j2kData

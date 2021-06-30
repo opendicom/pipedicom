@@ -35,15 +35,9 @@
 		4ADA4F7E26738D8E008F98DB /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
 		4ADA4FCA267835EE008F98DB /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
 		4ADA4FD32678365D008F98DB /* opj_compress in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4ADA4FBE2677FDBA008F98DB /* opj_compress */; };
-		4ADA4FF526783D46008F98DB /* libopenjp2.2.5.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 4ADA4FF426783D46008F98DB /* libopenjp2.2.5.0.dylib */; };
 		4ADA50082678AA85008F98DB /* j2k.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ADA50062678AA85008F98DB /* j2k.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4ADA50092678AA85008F98DB /* j2k.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ADA50072678AA85008F98DB /* j2k.m */; };
 		4ADA50782678B096008F98DB /* NSData+DCMmarkers.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ADA50772678B096008F98DB /* NSData+DCMmarkers.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4ADA50E9267A8A57008F98DB /* libopenjp2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4ADA50E2267A8A57008F98DB /* libopenjp2.a */; };
-		4ADA50EA267A8A57008F98DB /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4ADA50E3267A8A57008F98DB /* libz.a */; };
-		4ADA50EB267A8A57008F98DB /* libpng.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4ADA50E4267A8A57008F98DB /* libpng.a */; };
-		4ADA50EC267A8A57008F98DB /* libtiff.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4ADA50E5267A8A57008F98DB /* libtiff.a */; };
-		4ADA50EE267A8A57008F98DB /* liblcms2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4ADA50E7267A8A57008F98DB /* liblcms2.a */; };
 		4ADA518F2688125F008F98DB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ADA518E2688125F008F98DB /* main.m */; };
 		4ADA51AC268B5752008F98DB /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
 		4ADA51AD268B5752008F98DB /* DCKV.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -317,12 +311,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4ADA50EA267A8A57008F98DB /* libz.a in Frameworks */,
-				4ADA50EE267A8A57008F98DB /* liblcms2.a in Frameworks */,
-				4ADA50E9267A8A57008F98DB /* libopenjp2.a in Frameworks */,
-				4ADA4FF526783D46008F98DB /* libopenjp2.2.5.0.dylib in Frameworks */,
-				4ADA50EB267A8A57008F98DB /* libpng.a in Frameworks */,
-				4ADA50EC267A8A57008F98DB /* libtiff.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -387,16 +375,6 @@
 			isa = PBXGroup;
 			children = (
 				4ADA51E3268BAE59008F98DB /* README.md */,
-				4ADA50E7267A8A57008F98DB /* liblcms2.a */,
-				4ADA50E2267A8A57008F98DB /* libopenjp2.a */,
-				4ADA50E4267A8A57008F98DB /* libpng.a */,
-				4ADA50E5267A8A57008F98DB /* libtiff.a */,
-				4ADA50E3267A8A57008F98DB /* libz.a */,
-				4ADA50E8267A8A57008F98DB /* opj_decompress */,
-				4ADA50E6267A8A57008F98DB /* opj_dump */,
-				4ADA4FF426783D46008F98DB /* libopenjp2.2.5.0.dylib */,
-				4ADA4FBE2677FDBA008F98DB /* opj_compress */,
-				4ADA4FAF2677FD43008F98DB /* openjpeg.h */,
 				4A025F3E25E5C455005AA1A3 /* Info.plist */,
 				4A025F3D25E5C455005AA1A3 /* DCKV.h */,
 				4AC7BE5826694A2700C14265 /* NSData+MD5.h */,
@@ -574,6 +552,7 @@
 				4A02600C25E62E1F005AA1A3 /* Samples */,
 				4A7B85D9258BC12800E62971 /* H2D */,
 				4AAE862B25C0253500117D26 /* M2 */,
+				4ADA5218268C9607008F98DB /* OPENJPEG */,
 				4A025F3C25E5C455005AA1A3 /* DCKV */,
 				4ADA4EE82672A7A3008F98DB /* DinlineJ */,
 				4ADA4ED72672A778008F98DB /* DsourceJ */,
@@ -689,6 +668,23 @@
 				4ADA518E2688125F008F98DB /* main.m */,
 			);
 			path = D2D;
+			sourceTree = "<group>";
+		};
+		4ADA5218268C9607008F98DB /* OPENJPEG */ = {
+			isa = PBXGroup;
+			children = (
+				4ADA50E7267A8A57008F98DB /* liblcms2.a */,
+				4ADA50E2267A8A57008F98DB /* libopenjp2.a */,
+				4ADA50E4267A8A57008F98DB /* libpng.a */,
+				4ADA50E5267A8A57008F98DB /* libtiff.a */,
+				4ADA50E3267A8A57008F98DB /* libz.a */,
+				4ADA50E8267A8A57008F98DB /* opj_decompress */,
+				4ADA50E6267A8A57008F98DB /* opj_dump */,
+				4ADA4FF426783D46008F98DB /* libopenjp2.2.5.0.dylib */,
+				4ADA4FBE2677FDBA008F98DB /* opj_compress */,
+				4ADA4FAF2677FD43008F98DB /* openjpeg.h */,
+			);
+			path = OPENJPEG;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -947,7 +943,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = "/bin/sh ";
-			shellScript = "if [ ! -d /usr/local/lib ]; then\n   mkdir ~/usr/local/lib;\nfi\nrm -rf /usr/local/lib/DCKV.framework\ncp -R $BUILD_ROOT/Debug/DCKV.framework /usr/local/lib/DCKV.framework\nif [ ! -f /usr/local/lib/libopenjp2.2.5.0.dylib ]; then\n   cp -R $PROJECT_DIR/DCKV/libopenjp2.2.5.0.dylib /usr/local/lib/libopenjp2.2.5.0.dylib\n   cd /usr/local/lib\n   ln -s libopenjp2.2.5.0.dylib libopenjp2.7.dylib   \nfi\n\n\n   \n";
+			shellScript = "if [ ! -d /usr/local/lib ]; then\n   mkdir ~/usr/local/lib;\nfi\ncd /usr/local/lib\n\nrm -rf DCKV.framework\ncp -R $BUILD_ROOT/Debug/DCKV.framework DCKV.framework\nif [ ! -f libopenjp2.2.5.0.dylib ]; then\n   cp -R $PROJECT_DIR/OPENJPEG/libopenjp2.2.5.0.dylib libopenjp2.2.5.0.dylib\n   ln -s libopenjp2.2.5.0.dylib libopenjp2.7.dylib\n   cp $PROJECT_DIR/OPENJPEG/liblcms2.a liblcms2.a\n   cp $PROJECT_DIR/OPENJPEG/libopenjp2.a libopenjp2.a\n   cp $PROJECT_DIR/OPENJPEG/libpng.a libpng.a\n   cp $PROJECT_DIR/OPENJPEG/libtiff.a libtiff.a\n   cp $PROJECT_DIR/OPENJPEG/libz.a libz.a\n   \n   if [ ! -d /usr/local/bin ]; then\n      mkdir ~/usr/local/bin;\n   fi\n   cd /usr/local/bin\n   cp $PROJECT_DIR/OPENJPEG/opj_decompress opj_decompress\n   cp $PROJECT_DIR/OPENJPEG/opj_compress opj_compress\n   cp $PROJECT_DIR/OPENJPEG/opj_dump opj_dump\nfi\n\n\n   \n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
