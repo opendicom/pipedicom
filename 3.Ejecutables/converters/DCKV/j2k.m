@@ -14,7 +14,7 @@ int execTask(NSDictionary *environment, NSString *launchPath, NSArray *launchArg
 {
    NSTask *task=[[NSTask alloc]init];
    
-   task.environment=environment;
+   if (environment) task.environment=environment;
    
    [task setLaunchPath:launchPath];
    [task setArguments:launchArgs];

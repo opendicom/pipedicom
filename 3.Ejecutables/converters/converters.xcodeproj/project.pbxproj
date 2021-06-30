@@ -304,6 +304,7 @@
 		4ADA518E2688125F008F98DB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4ADA519B26881312008F98DB /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4ADA51E3268BAE59008F98DB /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		4ADA522E268CBA1F008F98DB /* installerPassword.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = installerPassword.sh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -545,6 +546,7 @@
 		4A7B8569258002A100E62971 = {
 			isa = PBXGroup;
 			children = (
+				4ADA522E268CBA1F008F98DB /* installerPassword.sh */,
 				4ADA4F5F2672B81B008F98DB /* unused.h */,
 				4ADA4F602672B81B008F98DB /* unused.m */,
 				4A44193425EE53CE0091495B /* README.md */,
@@ -943,7 +945,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = "/bin/sh ";
-			shellScript = "if [ ! -d /usr/local/lib ]; then\n   mkdir ~/usr/local/lib;\nfi\ncd /usr/local/lib\n\nrm -rf DCKV.framework\ncp -R $BUILD_ROOT/Debug/DCKV.framework DCKV.framework\nif [ ! -f libopenjp2.2.5.0.dylib ]; then\n   cp -R $PROJECT_DIR/OPENJPEG/libopenjp2.2.5.0.dylib libopenjp2.2.5.0.dylib\n   ln -s libopenjp2.2.5.0.dylib libopenjp2.7.dylib\n   cp $PROJECT_DIR/OPENJPEG/liblcms2.a liblcms2.a\n   cp $PROJECT_DIR/OPENJPEG/libopenjp2.a libopenjp2.a\n   cp $PROJECT_DIR/OPENJPEG/libpng.a libpng.a\n   cp $PROJECT_DIR/OPENJPEG/libtiff.a libtiff.a\n   cp $PROJECT_DIR/OPENJPEG/libz.a libz.a\n   \n   if [ ! -d /usr/local/bin ]; then\n      mkdir ~/usr/local/bin;\n   fi\n   cd /usr/local/bin\n   cp $PROJECT_DIR/OPENJPEG/opj_decompress opj_decompress\n   cp $PROJECT_DIR/OPENJPEG/opj_compress opj_compress\n   cp $PROJECT_DIR/OPENJPEG/opj_dump opj_dump\nfi\n\n\n   \n";
+			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\n\nif [ ! -d /usr/local/lib ]; then\n   sudo -A mkdir ~/usr/local/lib;\nfi\ncd /usr/local/lib\n\nsudo -A rm -rf DCKV.framework\nsudo -A cp -R $BUILD_ROOT/Debug/DCKV.framework DCKV.framework\nif [ ! -f libopenjp2.2.5.0.dylib ]; then\n   sudo -A cp -R $PROJECT_DIR/OPENJPEG/libopenjp2.2.5.0.dylib libopenjp2.2.5.0.dylib\n   sudo -A ln -s libopenjp2.2.5.0.dylib libopenjp2.7.dylib\n   sudo -A cp $PROJECT_DIR/OPENJPEG/liblcms2.a liblcms2.a\n   sudo -A cp $PROJECT_DIR/OPENJPEG/libopenjp2.a libopenjp2.a\n   sudo -A cp $PROJECT_DIR/OPENJPEG/libpng.a libpng.a\n   sudo -A cp $PROJECT_DIR/OPENJPEG/libtiff.a libtiff.a\n   sudo -A cp $PROJECT_DIR/OPENJPEG/libz.a libz.a\n   \n   if [ ! -d /usr/local/bin ]; then\n      sudo -A mkdir ~/usr/local/bin;\n   fi\n   cd /usr/local/bin\n   sudo -A cp $PROJECT_DIR/OPENJPEG/opj_decompress opj_decompress\n   sudo -A cp $PROJECT_DIR/OPENJPEG/opj_compress opj_compress\n   sudo -A cp $PROJECT_DIR/OPENJPEG/opj_dump opj_dump\nfi\n\n\n   \n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

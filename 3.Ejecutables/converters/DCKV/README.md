@@ -3,6 +3,11 @@
 Library used by DinlineJ, DsourceJ, D2, D2D and J2D
 Includes openjpeg library and dependencies.
 
+## install
+
+Write the current admin user password in the echo line of installerPassword.sh
+This allows to sudo the instalation of openjpeg and dckv in /usr/local
+
 ## /usr/local/lib
 - DCKV.framework
 - libopenjp2.2.5.0.dylib
