@@ -3,16 +3,7 @@
 DICOM binary to DICOM binary with compresión and coerción inbetween
 
 ## args
-D2D receiverDirPath coercedDirPath
-
-- receiverDirPath. Spool directory which contains: 
-   - RECEIVED, 
-   - ORIGINALS, 
-   - DISCARDED, 
-   - COERCED(alternative)
-
-- coercedDirPath (normal dest directory for coerced files)
-
+D2D D2DspoolDirPath D2DsuccessDirPath D2DfailureDirPath D2DdoneDirPath
 
 ## Environment
 - "D2DlogLevel" (authorized values: "DEBUG","VERBOSE","INFO","WARNING","ERROR","EXCEPTION"). If the variable is not set, the default log level is "ERROR"

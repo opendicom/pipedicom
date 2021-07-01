@@ -52,11 +52,19 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Users/Shared/RECEIVER"
+            argument = "/Users/Shared/SPOOL"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/Shared/COERCED"
+            argument = "/Users/Shared/SUCCESS"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/Shared/FAILURE"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/Shared/DONE"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

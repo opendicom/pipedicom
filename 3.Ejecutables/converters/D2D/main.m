@@ -16,6 +16,7 @@ int visibleRelativeFiles(NSFileManager *fileManager, NSString *base, NSArray *mo
       if ([lastPathComponent hasPrefix:@"DISCARDED"]) continue;
       if ([lastPathComponent hasPrefix:@"ORIGINALS"]) continue;
       if ([lastPathComponent hasPrefix:@"COERCED"]) continue;
+      if ([lastPathComponent hasPrefix:@"UNKNOWNSOURCE"]) continue;
       NSString *absoluteMountPoint=[[[base stringByAppendingPathComponent:relativeMountPoint] stringByExpandingTildeInPath] stringByResolvingSymlinksInPath];
 
       if ([fileManager fileExistsAtPath:absoluteMountPoint isDirectory:&isDirectory])
@@ -74,8 +75,10 @@ int enclosingDirectoryWritable(NSFileManager *fileManager, NSMutableSet *writabl
 
 enum {
    D2Dcommand=0,
-   D2DreceiverDirPath,
-   D2DcoercedDirPath
+   D2DspoolDirPath,
+   D2DsuccessDirPath,
+   D2DfailureDirPath,
+   D2DdoneDirPath
 } D2DcommandArgs;
 
 int main(int argc, const char * argv[]) {
@@ -83,9 +86,9 @@ int main(int argc, const char * argv[]) {
 
       NSProcessInfo *processInfo=[NSProcessInfo processInfo];
       NSArray *args=[processInfo arguments];
-      if (args.count!=3)//stdin
+      if (args.count!=5)//stdin
       {
-         NSLog(@"Should be: D2D sourceDirPath coercedDirPath discardedDirPath originalsDirPath. Was: %@",args.description);
+         NSLog(@"Should be: D2D spoolDirPath successDirPath failureDirPath doneDirPath. Was: %@",args.description);
          exit(failure);
       }
 
@@ -101,11 +104,10 @@ int main(int argc, const char * argv[]) {
 
       
 #pragma mark  input
-      NSString *receivedDirPath=[args[D2DreceiverDirPath] stringByAppendingPathComponent:@"RECEIVED"];
       NSMutableArray *inputPaths=[NSMutableArray array];
-      if (!visibleRelativeFiles(fileManager, receivedDirPath, [fileManager contentsOfDirectoryAtPath:receivedDirPath error:&error] , inputPaths))
+      if (!visibleRelativeFiles(fileManager, args[D2DspoolDirPath], [fileManager contentsOfDirectoryAtPath:args[D2DspoolDirPath] error:&error] , inputPaths))
       {
-         LOG_ERROR(@"error reading directory %@",receivedDirPath);
+         LOG_ERROR(@"error reading directory %@",args[D2DspoolDirPath]);
          exit(failure);
       }
 
@@ -165,16 +167,18 @@ int main(int argc, const char * argv[]) {
       
 
 #pragma mark - processing
-      NSMutableSet *receiverDirSet=[NSMutableSet set];
-      NSMutableSet *coercedDirSet=[NSMutableSet set];
+      NSMutableSet *spoolDirSet=[NSMutableSet set];
+      NSMutableSet *successDirSet=[NSMutableSet set];
+      NSMutableSet *failureDirSet=[NSMutableSet set];
+      NSMutableSet *doneDirSet=[NSMutableSet set];
 #pragma mark loop
 
       NSMutableData *inputData=[NSMutableData data];
       for (NSString *relativeInputPath in inputPaths)
       {
-         NSString *receivedFilePath=[receivedDirPath stringByAppendingPathComponent:relativeInputPath];
+         NSString *spoolFilePath=[args[D2DspoolDirPath] stringByAppendingPathComponent:relativeInputPath];
 #pragma mark · parse
-         [inputData appendData:[NSData dataWithContentsOfFile:receivedFilePath]];
+         [inputData appendData:[NSData dataWithContentsOfFile:spoolFilePath]];
          
          NSMutableDictionary *parsedAttrs=[NSMutableDictionary dictionary];//parsing
          NSMutableDictionary *blobDict=[NSMutableDictionary dictionary];
@@ -190,7 +194,7 @@ int main(int argc, const char * argv[]) {
                     @"",//suffix
                     blobDict
                     )
-             ) LOG_ERROR(@"could not parse %@",receivedFilePath);
+             ) LOG_ERROR(@"could not parse %@",spoolFilePath);
          else
          {
 #pragma mark · compress ?
@@ -291,39 +295,33 @@ int main(int argc, const char * argv[]) {
                 )
             {
                LOG_ERROR(@"could not serialize dataset. %@",parsedAttrs);
-               exit(failure);
-
+               NSString *failureFilePath=[args[D2DfailureDirPath] stringByAppendingPathComponent:relativeInputPath];
+               if (enclosingDirectoryWritable(fileManager, failureDirSet, failureFilePath)==true)
+                  [outputData writeToFile:failureFilePath atomically:NO ];
+               else
+               {
+                  LOG_ERROR(@"can not write %@. Aborting...",failureFilePath);
+                  exit(failure);
+               }
             }
 
 #pragma mark · write result
-            //receiverDirSet
-            //coercedDirSet
-            
-            NSString *coercedFilePath=[args[D2DcoercedDirPath] stringByAppendingPathComponent:relativeInputPath];
-            if (enclosingDirectoryWritable(fileManager, coercedDirSet, coercedFilePath)==true)
-               [outputData writeToFile:coercedFilePath atomically:NO ];
+            NSString *successFilePath=[args[D2DsuccessDirPath] stringByAppendingPathComponent:relativeInputPath];
+            if (enclosingDirectoryWritable(fileManager, successDirSet, successFilePath)==true)
+               [outputData writeToFile:successFilePath atomically:NO ];
             else
             {
-               //not possible to write coerced into coercedDir
-               //write it into receiver
-               NSString *coercedIntoReceiverFilePath=[[receivedDirPath stringByAppendingPathComponent:@"COERCED"]stringByAppendingPathComponent:relativeInputPath];
-               LOG_ERROR(@"coerced can not be written into %@. Try into %@",coercedFilePath,coercedIntoReceiverFilePath);
-               if (enclosingDirectoryWritable(fileManager, receiverDirSet, coercedIntoReceiverFilePath)==false)
-               {
-                  //not possible to write it into receiver either
-                  LOG_ERROR(@"can not write %@. Aborting...",coercedIntoReceiverFilePath);
-                  exit(failure);
-               }
-               [outputData writeToFile:coercedIntoReceiverFilePath atomically:NO ];
+               LOG_ERROR(@"can not write %@. Aborting...",successFilePath);
+               exit(failure);
             }
             
             //move receiver
-            NSString *originalsFilePath=[[args[D2DreceiverDirPath] stringByAppendingPathComponent:@"ORIGINALS"]stringByAppendingPathComponent:relativeInputPath];
-            if (   (enclosingDirectoryWritable(fileManager, receiverDirSet, originalsFilePath)==false)
-                || ![fileManager moveItemAtPath:receivedFilePath toPath:originalsFilePath error:&error]
+            NSString *doneFilePath=[args[D2DdoneDirPath]stringByAppendingPathComponent:relativeInputPath];
+            if (   (enclosingDirectoryWritable(fileManager, doneDirSet, doneFilePath)==false)
+                || ![fileManager moveItemAtPath:spoolFilePath toPath:doneFilePath error:&error]
                 )
             {
-               LOG_ERROR(@"aborting... can not move %@ to %@: %@",receivedFilePath,originalsFilePath,error.description);
+               LOG_ERROR(@"aborting... can not move %@ to %@: %@",spoolFilePath,doneFilePath,error.description);
                exit(failure);
             }
          }//end parsed
