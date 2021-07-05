@@ -39,9 +39,6 @@
 		4ADA50092678AA85008F98DB /* j2k.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ADA50072678AA85008F98DB /* j2k.m */; };
 		4ADA50782678B096008F98DB /* NSData+DCMmarkers.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ADA50772678B096008F98DB /* NSData+DCMmarkers.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4ADA518F2688125F008F98DB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ADA518E2688125F008F98DB /* main.m */; };
-		4ADA51AC268B5752008F98DB /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
-		4ADA51AD268B5752008F98DB /* DCKV.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		4ADA51B8268B57A8008F98DB /* opj_compress in CopyFiles */ = {isa = PBXBuildFile; fileRef = 4ADA4FBE2677FDBA008F98DB /* opj_compress */; };
 		4ADA51E4268BAE59008F98DB /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA51E3268BAE59008F98DB /* README.md */; };
 		4ADA5201268BB4CA008F98DB /* schema-for-json.xsd in Resources */ = {isa = PBXBuildFile; fileRef = 4AAE865C25C0AABB00117D26 /* schema-for-json.xsd */; };
 		4ADA5209268BB4E4008F98DB /* N.rng in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE91C25B1A8FE00C8D33F /* N.rng */; };
@@ -53,6 +50,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		4ACCF06A268FBE2C006E12C2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4A7B856A258002A100E62971 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4A025F3A25E5C455005AA1A3;
+			remoteInfo = DCKV;
+		};
 		4ADA4F712672F38C008F98DB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4A7B856A258002A100E62971 /* Project object */;
@@ -68,13 +72,6 @@
 			remoteInfo = DCKV;
 		};
 		4ADA4FC8267835E5008F98DB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4A7B856A258002A100E62971 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 4A025F3A25E5C455005AA1A3;
-			remoteInfo = DCKV;
-		};
-		4ADA51AE268B5752008F98DB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4A7B856A258002A100E62971 /* Project object */;
 			proxyType = 1;
@@ -130,27 +127,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4ADA518A2688125F008F98DB /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = usr/share/man/man1;
-			dstSubfolderSpec = 16;
-			files = (
-				4ADA51B8268B57A8008F98DB /* opj_compress in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
-		4ADA51B0268B5752008F98DB /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				4ADA51AD268B5752008F98DB /* DCKV.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -201,6 +177,7 @@
 		4AC7BE5826694A2700C14265 /* NSData+MD5.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+MD5.h"; sourceTree = "<group>"; };
 		4AC7BE5926694A2700C14265 /* NSData+MD5.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+MD5.m"; sourceTree = "<group>"; };
 		4AC7BE62266A724A00C14265 /* DCKV.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = DCKV.md; sourceTree = "<group>"; };
+		4ACCF084268FBFA0006E12C2 /* DCKV.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DCKV.framework; path = ../../../../../usr/local/lib/DCKV.framework; sourceTree = "<group>"; };
 		4AD86123265EEECC002E4D3A /* MR1.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = MR1.ele.dcm; sourceTree = "<group>"; };
 		4AD86124265EEECC002E4D3A /* MG1.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = MG1.j2kr.dcm; sourceTree = "<group>"; };
 		4AD86125265EEECC002E4D3A /* MR2.j2ki.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = MR2.j2ki.dcm; sourceTree = "<group>"; };
@@ -365,7 +342,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4ADA51AC268B5752008F98DB /* DCKV.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -632,6 +608,7 @@
 		4ADA4EBE267291A4008F98DB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4ACCF084268FBFA0006E12C2 /* DCKV.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -771,6 +748,7 @@
 			buildPhases = (
 				4AAE866625C0C19600117D26 /* Sources */,
 				4AAE866725C0C19600117D26 /* Frameworks */,
+				4ACCF0B626933445006E12C2 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -788,6 +766,7 @@
 				4ADA4ED22672A778008F98DB /* Sources */,
 				4ADA4ED32672A778008F98DB /* Frameworks */,
 				4ADA4ED42672A778008F98DB /* CopyFiles */,
+				4ACCF0B9269334CE006E12C2 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -806,6 +785,7 @@
 				4ADA4EE32672A7A3008F98DB /* Sources */,
 				4ADA4EE42672A7A3008F98DB /* Frameworks */,
 				4ADA4EE52672A7A3008F98DB /* CopyFiles */,
+				4ACCF0B8269334AA006E12C2 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -824,6 +804,7 @@
 				4ADA4EF52672A7B5008F98DB /* Sources */,
 				4ADA4EF62672A7B5008F98DB /* Frameworks */,
 				4ADA4EF72672A7B5008F98DB /* CopyFiles */,
+				4ACCF0B726933472006E12C2 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -841,13 +822,12 @@
 			buildPhases = (
 				4ADA51882688125F008F98DB /* Sources */,
 				4ADA51892688125F008F98DB /* Frameworks */,
-				4ADA518A2688125F008F98DB /* CopyFiles */,
-				4ADA51B0268B5752008F98DB /* Embed Frameworks */,
+				4ACCF052268FBA6C006E12C2 /* ShellScript */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				4ADA51AF268B5752008F98DB /* PBXTargetDependency */,
+				4ACCF06B268FBE2C006E12C2 /* PBXTargetDependency */,
 			);
 			name = D2D;
 			productName = D2D;
@@ -945,7 +925,92 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = "/bin/sh ";
-			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\n\nif [ ! -d /usr/local/lib ]; then\n   sudo -A mkdir ~/usr/local/lib;\nfi\ncd /usr/local/lib\n\nsudo -A rm -rf DCKV.framework\nsudo -A cp -R $BUILD_ROOT/Debug/DCKV.framework DCKV.framework\nif [ ! -f libopenjp2.2.5.0.dylib ]; then\n   sudo -A cp -R $PROJECT_DIR/OPENJPEG/libopenjp2.2.5.0.dylib libopenjp2.2.5.0.dylib\n   sudo -A ln -s libopenjp2.2.5.0.dylib libopenjp2.7.dylib\n   sudo -A cp $PROJECT_DIR/OPENJPEG/liblcms2.a liblcms2.a\n   sudo -A cp $PROJECT_DIR/OPENJPEG/libopenjp2.a libopenjp2.a\n   sudo -A cp $PROJECT_DIR/OPENJPEG/libpng.a libpng.a\n   sudo -A cp $PROJECT_DIR/OPENJPEG/libtiff.a libtiff.a\n   sudo -A cp $PROJECT_DIR/OPENJPEG/libz.a libz.a\n   \n   if [ ! -d /usr/local/bin ]; then\n      sudo -A mkdir ~/usr/local/bin;\n   fi\n   cd /usr/local/bin\n   sudo -A cp $PROJECT_DIR/OPENJPEG/opj_decompress opj_decompress\n   sudo -A cp $PROJECT_DIR/OPENJPEG/opj_compress opj_compress\n   sudo -A cp $PROJECT_DIR/OPENJPEG/opj_dump opj_dump\nfi\n\n\n   \n";
+			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\n\nif [ ! -d /usr/local/lib ]; then\n   sudo -A mkdir ~/usr/local/lib;\nfi\ncd /usr/local/lib\nif [ ! -f libopenjp2.2.5.0.dylib ]; then\n   sudo -A cp -R $PROJECT_DIR/OPENJPEG/libopenjp2.2.5.0.dylib libopenjp2.2.5.0.dylib\n   sudo -A ln -s libopenjp2.2.5.0.dylib libopenjp2.7.dylib\n   sudo -A cp $PROJECT_DIR/OPENJPEG/liblcms2.a liblcms2.a\n   sudo -A cp $PROJECT_DIR/OPENJPEG/libopenjp2.a libopenjp2.a\n   sudo -A cp $PROJECT_DIR/OPENJPEG/libpng.a libpng.a\n   sudo -A cp $PROJECT_DIR/OPENJPEG/libtiff.a libtiff.a\n   sudo -A cp $PROJECT_DIR/OPENJPEG/libz.a libz.a\n   \n   if [ ! -d /usr/local/bin ]; then\n      sudo -A mkdir ~/usr/local/bin;\n   fi\n   cd /usr/local/bin\n   sudo -A cp $PROJECT_DIR/OPENJPEG/opj_decompress opj_decompress\n   sudo -A cp $PROJECT_DIR/OPENJPEG/opj_compress opj_compress\n   sudo -A cp $PROJECT_DIR/OPENJPEG/opj_dump opj_dum\nfi\n\ncd /usr/local/bin\nif [ ! -f stdin.rawl ]; then\n    sudo -A ln -s /dev/stdin stdin.rawl\nfi\nif [ ! -f stdout.j2k ]; then\n    sudo -A ln -s /dev/stdout stdout.j2k\nfi\n\nsudo -A rm -Rf /Library/Frameworks/DCKV.framework\nsudo -A cp -R $BUILD_ROOT/Debug/DCKV.framework /Library/Frameworks/DCKV.framework\n\n   \n";
+		};
+		4ACCF052268FBA6C006E12C2 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\nsudo -A cp $BUILD_ROOT/Debug/D2D /usr/local/bin/D2D\n";
+		};
+		4ACCF0B626933445006E12C2 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\nsudo -A cp $BUILD_ROOT/Debug/J2D /usr/local/bin/J2D\n";
+		};
+		4ACCF0B726933472006E12C2 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\nsudo -A cp $BUILD_ROOT/Debug/D2 /usr/local/bin/D2\n";
+		};
+		4ACCF0B8269334AA006E12C2 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\nsudo -A cp $BUILD_ROOT/Debug/DinlineJ /usr/local/bin/DinlineJ\n";
+		};
+		4ACCF0B9269334CE006E12C2 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\nsudo -A cp $BUILD_ROOT/Debug/DsourceJ /usr/local/bin/DsourceJ\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1025,6 +1090,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		4ACCF06B268FBE2C006E12C2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
+			targetProxy = 4ACCF06A268FBE2C006E12C2 /* PBXContainerItemProxy */;
+		};
 		4ADA4F722672F38C008F98DB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
@@ -1040,11 +1110,6 @@
 			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
 			targetProxy = 4ADA4FC8267835E5008F98DB /* PBXContainerItemProxy */;
 		};
-		4ADA51AF268B5752008F98DB /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
-			targetProxy = 4ADA51AE268B5752008F98DB /* PBXContainerItemProxy */;
-		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -1055,6 +1120,8 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
+				DEPLOYMENT_LOCATION = NO;
+				DEPLOYMENT_POSTPROCESSING = NO;
 				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -1087,6 +1154,8 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
+				DEPLOYMENT_LOCATION = NO;
+				DEPLOYMENT_POSTPROCESSING = NO;
 				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
@@ -1147,6 +1216,8 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEPLOYMENT_LOCATION = YES;
+				DEPLOYMENT_POSTPROCESSING = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1163,6 +1234,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				INSTALL_PATH = /usr/local;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -1206,6 +1278,8 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEPLOYMENT_LOCATION = YES;
+				DEPLOYMENT_POSTPROCESSING = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1216,6 +1290,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				INSTALL_PATH = /usr/local;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -1343,8 +1418,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEPLOYMENT_LOCATION = NO;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/lib,
+				);
+				INSTALL_PATH = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
 			};
 			name = Debug;
 		};
@@ -1352,8 +1435,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEPLOYMENT_LOCATION = NO;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					/usr/local/lib,
+				);
+				INSTALL_PATH = "";
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
 			};
 			name = Release;
 		};

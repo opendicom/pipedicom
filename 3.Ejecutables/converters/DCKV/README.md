@@ -8,8 +8,10 @@ Includes openjpeg library and dependencies.
 Write the current admin user password in the echo line of installerPassword.sh
 This allows to sudo the instalation of openjpeg and dckv in /usr/local
 
-## /usr/local/lib
+## /Library/Frameworks
 - DCKV.framework
+
+## /usr/local/lib
 - libopenjp2.2.5.0.dylib
 - libopenjp2.7.dylib -> libopenjp2.2.5.0.dylib
 - liblcms2.a
@@ -22,6 +24,10 @@ This allows to sudo the instalation of openjpeg and dckv in /usr/local
 - opj_compress
 - opj_dump
 - opj_decompress
+
+we add these symlink fo facilitate stdin and stdout instead of filenames when using opj_compress
+ln -s /dev/stdin stdin.rawl
+ln -s /dev/stdout stdout.j2k
 
 
 ## <DCKV/DCKV.h>
