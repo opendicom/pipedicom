@@ -78,7 +78,7 @@ int charsetIndex4key(NSString *key)
    if (key.length % 9 < 3) return 1;
    int i=0;//ascii
    NSString *afterDash=[key componentsSeparatedByString:@"-"][1];
-   NSString *ep=[afterDash substringToIndex:afterDash.length-3];//encoding prefix
+   NSString *ep=[afterDash substringToIndex:afterDash.length-2];//encoding prefix
    i=0;
    while (![evr[i] isEqualToString:ep] && (i < encodingTotal)) i++;
    if (i== encodingTotal)

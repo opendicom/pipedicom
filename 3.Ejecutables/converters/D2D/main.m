@@ -28,7 +28,7 @@ int visibleRelativeFiles(NSFileManager *fileManager, NSString *base, NSArray *mo
             
             if (error)
             {
-               LOG_WARNING(@"bad directory path %@",absoluteMountPoint);
+               NSLog(@"bad directory path %@",absoluteMountPoint);
                return failure;
             }
             
@@ -60,7 +60,7 @@ int enclosingDirectoryWritable(NSFileManager *fileManager, NSMutableSet *writabl
          [writableDirSet addObject:dirPath];
          return success;
       }
-      LOG_ERROR(@"should be directory:%@",dirPath);
+      NSLog(@"should be directory:%@",dirPath);
       return failure;
    }
    if([fileManager createDirectoryAtPath:dirPath withIntermediateDirectories:YES attributes:nil error:&error])
@@ -68,7 +68,7 @@ int enclosingDirectoryWritable(NSFileManager *fileManager, NSMutableSet *writabl
       [writableDirSet addObject:dirPath];
       return success;
    }
-   LOG_ERROR(@"can not create dir: %@",dirPath);
+   NSLog(@"can not create dir: %@",dirPath);
    return failure;
 }
 
@@ -94,20 +94,13 @@ int main(int argc, const char * argv[]) {
 
       NSError *error=nil;
       NSFileManager *fileManager=[NSFileManager defaultManager];
-      //used to stream openjpeg ins and outs
-      if (  ![fileManager fileExistsAtPath:@"stdout.j2k"]
-          &&![fileManager createSymbolicLinkAtPath:@"stdout.j2k" withDestinationPath:@"/dev/stdout" error:&error]
-          ) NSLog(@"could not create symlink stdout.j2k: %@",[error description]);
-      if (  ![fileManager fileExistsAtPath:@"stdin.rawl"]
-          &&![fileManager createSymbolicLinkAtPath:@"stdin.rawl" withDestinationPath:@"/dev/stdin" error:&error]
-          ) NSLog(@"could not create symlink stdin.rawl: %@",[error description]);
 
       
 #pragma mark  input
       NSMutableArray *inputPaths=[NSMutableArray array];
       if (!visibleRelativeFiles(fileManager, args[D2DspoolDirPath], [fileManager contentsOfDirectoryAtPath:args[D2DspoolDirPath] error:&error] , inputPaths))
       {
-         LOG_ERROR(@"error reading directory %@",args[D2DspoolDirPath]);
+         NSLog(@"error reading directory %@",args[D2DspoolDirPath]);
          exit(failure);
       }
 
@@ -115,39 +108,6 @@ int main(int argc, const char * argv[]) {
 #pragma mark environment
 
       NSDictionary *environment=processInfo.environment;
-      LOG_DEBUG(@"environment:\r%@",[environment description]);
-
-      
-#pragma mark D2DlogLevel
-      if (environment[@"D2DlogLevel"])
-      {
-         NSUInteger logLevel=[@[@"DEBUG",@"VERBOSE",@"INFO",@"WARNING",@"ERROR",@"EXCEPTION"] indexOfObject:environment[@"D2DlogLevel"]];
-         if (logLevel!=NSNotFound) ODLogLevel=(ODLogLevelEnum)logLevel;
-         else ODLogLevel=4;//ERROR (default)
-      }
-      else ODLogLevel=4;//ERROR (default)
-      
-      
-#pragma mark D2DlogPath
-      NSString *logPath=environment[@"D2DlogPath"];
-       
-      if (logPath)
-      {
-          BOOL isDirectory=false;
-          if ([fileManager fileExistsAtPath:[logPath stringByDeletingLastPathComponent] isDirectory:&isDirectory] && isDirectory)
-          {
-              if ([logPath hasSuffix:@".log"])
-                  freopen([logPath cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
-              else freopen([[logPath stringByAppendingPathExtension:@".log"] cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
-          }
-          else
-          {
-              LOG_ERROR(@"bad log path (dir does not exist): %@",logPath);
-              exit(1);
-          }
-      }
-      else if ([fileManager fileExistsAtPath:@"/Volumes/LOG"]) freopen([@"/Volumes/LOG/D2D.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
-      else freopen([@"/Users/Shared/D2D.log" cStringUsingEncoding:NSASCIIStringEncoding], "a+", stderr);
 
 
 #pragma mark D2DcompressJ2K
@@ -194,7 +154,7 @@ int main(int argc, const char * argv[]) {
                     @"",//suffix
                     blobDict
                     )
-             ) LOG_ERROR(@"could not parse %@",spoolFilePath);
+             ) NSLog(@"could not parse %@",spoolFilePath);
          else
          {
 #pragma mark · compress ?
@@ -267,7 +227,7 @@ int main(int argc, const char * argv[]) {
                           ) == failure
                    )
                {
-                  LOG_ERROR(@"could not serialize group 0002. %@",filemetainfoDict.description);
+                  NSLog(@"could not serialize group 0002. %@",filemetainfoDict.description);
                   exit(failure);
                }
                
@@ -294,13 +254,13 @@ int main(int argc, const char * argv[]) {
                         )==failure
                 )
             {
-               LOG_ERROR(@"could not serialize dataset. %@",parsedAttrs);
+               NSLog(@"could not serialize dataset. %@",parsedAttrs);
                NSString *failureFilePath=[args[D2DfailureDirPath] stringByAppendingPathComponent:relativeInputPath];
                if (enclosingDirectoryWritable(fileManager, failureDirSet, failureFilePath)==true)
                   [outputData writeToFile:failureFilePath atomically:NO ];
                else
                {
-                  LOG_ERROR(@"can not write %@. Aborting...",failureFilePath);
+                  NSLog(@"can not write %@. Aborting...",failureFilePath);
                   exit(failure);
                }
             }
@@ -308,10 +268,13 @@ int main(int argc, const char * argv[]) {
 #pragma mark · write result
             NSString *successFilePath=[args[D2DsuccessDirPath] stringByAppendingPathComponent:relativeInputPath];
             if (enclosingDirectoryWritable(fileManager, successDirSet, successFilePath)==true)
+            {
                [outputData writeToFile:successFilePath atomically:NO ];
+               //NSLog(@"OK %@",successFilePath);
+            }
             else
             {
-               LOG_ERROR(@"can not write %@. Aborting...",successFilePath);
+               NSLog(@"can not write %@. Aborting...",successFilePath);
                exit(failure);
             }
             
@@ -321,7 +284,7 @@ int main(int argc, const char * argv[]) {
                 || ![fileManager moveItemAtPath:spoolFilePath toPath:doneFilePath error:&error]
                 )
             {
-               LOG_ERROR(@"aborting... can not move %@ to %@: %@",spoolFilePath,doneFilePath,error.description);
+               NSLog(@"aborting... can not move %@ to %@: %@",spoolFilePath,doneFilePath,error.description);
                exit(failure);
             }
          }//end parsed

@@ -71,7 +71,7 @@
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "D2DlogLevel"
-            value = "DEBUG"
+            value = "VERBOSE"
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
