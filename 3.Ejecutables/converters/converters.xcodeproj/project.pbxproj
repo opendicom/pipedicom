@@ -28,6 +28,10 @@
 		4AC7BE5A26694A2700C14265 /* NSData+MD5.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AC7BE5826694A2700C14265 /* NSData+MD5.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4AC7BE5B26694A2700C14265 /* NSData+MD5.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AC7BE5926694A2700C14265 /* NSData+MD5.m */; };
 		4AC7BE63266A724A00C14265 /* DCKV.md in Resources */ = {isa = PBXBuildFile; fileRef = 4AC7BE62266A724A00C14265 /* DCKV.md */; };
+		4AD03BA02696430400855F3F /* fileManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AD03B9E2696430400855F3F /* fileManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4AD03BA12696430400855F3F /* fileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AD03B9F2696430400855F3F /* fileManager.m */; };
+		4AD03BE326973FEE00855F3F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AD03BE226973FEE00855F3F /* main.m */; };
+		4AD03BF32697402B00855F3F /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4AD03BF22697402B00855F3F /* DCKV.framework */; };
 		4ADA4ED92672A778008F98DB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ADA4ED82672A778008F98DB /* main.m */; };
 		4ADA4EEA2672A7A3008F98DB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ADA4EE92672A7A3008F98DB /* main.m */; };
 		4ADA4EFC2672A7B5008F98DB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ADA4EFB2672A7B5008F98DB /* main.m */; };
@@ -51,6 +55,13 @@
 
 /* Begin PBXContainerItemProxy section */
 		4ACCF06A268FBE2C006E12C2 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4A7B856A258002A100E62971 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4A025F3A25E5C455005AA1A3;
+			remoteInfo = DCKV;
+		};
+		4AD03BF02697400000855F3F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4A7B856A258002A100E62971 /* Project object */;
 			proxyType = 1;
@@ -91,6 +102,15 @@
 			runOnlyForDeploymentPostprocessing = 1;
 		};
 		4A7B85F8258CD7A700E62971 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+		4AD03BDE26973FEE00855F3F /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -178,6 +198,13 @@
 		4AC7BE5926694A2700C14265 /* NSData+MD5.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+MD5.m"; sourceTree = "<group>"; };
 		4AC7BE62266A724A00C14265 /* DCKV.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = DCKV.md; sourceTree = "<group>"; };
 		4ACCF084268FBFA0006E12C2 /* DCKV.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DCKV.framework; path = ../../../../../usr/local/lib/DCKV.framework; sourceTree = "<group>"; };
+		4AD03B9E2696430400855F3F /* fileManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fileManager.h; sourceTree = "<group>"; };
+		4AD03B9F2696430400855F3F /* fileManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = fileManager.m; sourceTree = "<group>"; };
+		4AD03BE026973FEE00855F3F /* coercedicom */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = coercedicom; sourceTree = BUILT_PRODUCTS_DIR; };
+		4AD03BE226973FEE00855F3F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		4AD03BF22697402B00855F3F /* DCKV.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DCKV.framework; path = ../../../../../Library/Frameworks/DCKV.framework; sourceTree = "<group>"; };
+		4AD03C46269782CB00855F3F /* institutionMapping.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = institutionMapping.json; sourceTree = "<group>"; };
+		4AD03C47269782CB00855F3F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4AD86123265EEECC002E4D3A /* MR1.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = MR1.ele.dcm; sourceTree = "<group>"; };
 		4AD86124265EEECC002E4D3A /* MG1.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = MG1.j2kr.dcm; sourceTree = "<group>"; };
 		4AD86125265EEECC002E4D3A /* MR2.j2ki.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = MR2.j2ki.dcm; sourceTree = "<group>"; };
@@ -314,6 +341,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4AD03BDD26973FEE00855F3F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4AD03BF32697402B00855F3F /* DCKV.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4ADA4ED32672A778008F98DB /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -373,6 +408,8 @@
 				4AC7BE62266A724A00C14265 /* DCKV.md */,
 				4ADA50062678AA85008F98DB /* j2k.h */,
 				4ADA50072678AA85008F98DB /* j2k.m */,
+				4AD03B9E2696430400855F3F /* fileManager.h */,
+				4AD03B9F2696430400855F3F /* fileManager.m */,
 			);
 			path = DCKV;
 			sourceTree = "<group>";
@@ -537,6 +574,7 @@
 				4ADA4EFA2672A7B5008F98DB /* D2 */,
 				4ABF583625CEC1EB00EB725E /* J2D */,
 				4ADA518D2688125F008F98DB /* D2D */,
+				4AD03BE126973FEE00855F3F /* coercedicom */,
 				4A7B8573258002A100E62971 /* Products */,
 				4ADA4EBE267291A4008F98DB /* Frameworks */,
 			);
@@ -553,6 +591,7 @@
 				4ADA4EE72672A7A3008F98DB /* DinlineJ */,
 				4ADA4EF92672A7B5008F98DB /* D2 */,
 				4ADA518C2688125F008F98DB /* D2D */,
+				4AD03BE026973FEE00855F3F /* coercedicom */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -605,9 +644,20 @@
 			path = J2D;
 			sourceTree = "<group>";
 		};
+		4AD03BE126973FEE00855F3F /* coercedicom */ = {
+			isa = PBXGroup;
+			children = (
+				4AD03C46269782CB00855F3F /* institutionMapping.json */,
+				4AD03C47269782CB00855F3F /* README.md */,
+				4AD03BE226973FEE00855F3F /* main.m */,
+			);
+			path = coercedicom;
+			sourceTree = "<group>";
+		};
 		4ADA4EBE267291A4008F98DB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4AD03BF22697402B00855F3F /* DCKV.framework */,
 				4ACCF084268FBFA0006E12C2 /* DCKV.framework */,
 			);
 			name = Frameworks;
@@ -682,6 +732,7 @@
 				4A95E3CE26063E9800224363 /* dckRangeVecs.h in Headers */,
 				4ADA50082678AA85008F98DB /* j2k.h in Headers */,
 				4A025F6325E60BE0005AA1A3 /* ODLog.h in Headers */,
+				4AD03BA02696430400855F3F /* fileManager.h in Headers */,
 				4A44192B25EC4A490091495B /* B64.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -757,6 +808,25 @@
 			name = J2D;
 			productName = B2M;
 			productReference = 4AAE866A25C0C19600117D26 /* J2D */;
+			productType = "com.apple.product-type.tool";
+		};
+		4AD03BDF26973FEE00855F3F /* coercedicom */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4AD03BE626973FEE00855F3F /* Build configuration list for PBXNativeTarget "coercedicom" */;
+			buildPhases = (
+				4AD03BDC26973FEE00855F3F /* Sources */,
+				4AD03BDD26973FEE00855F3F /* Frameworks */,
+				4AD03BDE26973FEE00855F3F /* CopyFiles */,
+				4AD03BF42697405200855F3F /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4AD03BF12697400000855F3F /* PBXTargetDependency */,
+			);
+			name = coercedicom;
+			productName = coercedicom;
+			productReference = 4AD03BE026973FEE00855F3F /* coercedicom */;
 			productType = "com.apple.product-type.tool";
 		};
 		4ADA4ED52672A778008F98DB /* DsourceJ */ = {
@@ -854,6 +924,9 @@
 					4AAE866925C0C19600117D26 = {
 						CreatedOnToolsVersion = 12.3;
 					};
+					4AD03BDF26973FEE00855F3F = {
+						CreatedOnToolsVersion = 12.3;
+					};
 					4ADA4ED52672A778008F98DB = {
 						CreatedOnToolsVersion = 12.3;
 					};
@@ -889,6 +962,7 @@
 				4ADA4EF82672A7B5008F98DB /* D2 */,
 				4AAE866925C0C19600117D26 /* J2D */,
 				4ADA518B2688125F008F98DB /* D2D */,
+				4AD03BDF26973FEE00855F3F /* coercedicom */,
 			);
 		};
 /* End PBXProject section */
@@ -1012,6 +1086,23 @@
 			shellPath = /bin/sh;
 			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\nsudo -A cp $BUILD_ROOT/Debug/DsourceJ /usr/local/bin/DsourceJ\n";
 		};
+		4AD03BF42697405200855F3F /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\nsudo -A cp $BUILD_ROOT/Debug/D2D /usr/local/bin/coercedicom\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -1028,6 +1119,7 @@
 				4ADA50092678AA85008F98DB /* j2k.m in Sources */,
 				4A025F8A25E60CCA005AA1A3 /* D2dict.m in Sources */,
 				4A025F8B25E60CCA005AA1A3 /* dict2D.m in Sources */,
+				4AD03BA12696430400855F3F /* fileManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1052,6 +1144,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				4A02602725E6778F005AA1A3 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4AD03BDC26973FEE00855F3F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4AD03BE326973FEE00855F3F /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1094,6 +1194,11 @@
 			isa = PBXTargetDependency;
 			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
 			targetProxy = 4ACCF06A268FBE2C006E12C2 /* PBXContainerItemProxy */;
+		};
+		4AD03BF12697400000855F3F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
+			targetProxy = 4AD03BF02697400000855F3F /* PBXContainerItemProxy */;
 		};
 		4ADA4F722672F38C008F98DB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1360,6 +1465,54 @@
 			};
 			name = Release;
 		};
+		4AD03BE426973FEE00855F3F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				INSTALL_PATH = /usr/local/bin;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SYMROOT = /Users/Shared/BUILD/coercedicom;
+			};
+			name = Debug;
+		};
+		4AD03BE526973FEE00855F3F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = NO;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(LOCAL_LIBRARY_DIR)/Frameworks",
+				);
+				GCC_C_LANGUAGE_STANDARD = "compiler-default";
+				INSTALL_PATH = /usr/local/bin;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SYMROOT = /Users/Shared/BUILD/coercedicom;
+			};
+			name = Release;
+		};
 		4ADA4EDB2672A778008F98DB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1492,6 +1645,15 @@
 			buildConfigurations = (
 				4AAE866F25C0C19600117D26 /* Debug */,
 				4AAE867025C0C19600117D26 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4AD03BE626973FEE00855F3F /* Build configuration list for PBXNativeTarget "coercedicom" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4AD03BE426973FEE00855F3F /* Debug */,
+				4AD03BE526973FEE00855F3F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

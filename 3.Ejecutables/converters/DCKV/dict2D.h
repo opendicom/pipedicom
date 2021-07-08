@@ -2,7 +2,7 @@
 //  Copyright © 2021 opendicom.com. All rights reserved.
 //
 
-enum NSUInteger {
+enum {
    dicomExplicit=NSNotFound,
    dicomExplicitJ2kBase=1,
    dicomExplicitJ2kFast,
