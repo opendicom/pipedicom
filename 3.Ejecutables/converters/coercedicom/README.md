@@ -1,11 +1,25 @@
 coercedicom
 ===========
 
-Procesa los directorios y archivos DICOM encontrados en subdirectorios de un directorio RECEIVER.
+Procesa los directorios y archivos DICOM encontrados en subdirectorios de un directorio CLASSIFIED.
+
+Arguments
+-------------
+enum CDargName{
+   CDargCmd,
+   CDargSpool,
+   CDargSuccess,
+   CDargFailure,
+   CDargDone,
+   CDargInstitutionmapping,          //mapping  sender -> org
+   CDargCdamwlDir,                       //cdawldicom matching
+   CDargPacsquery,                        //pacs for verification
+   CDargGDCasyncCompression   //true=multithreaded
+};
 
 Estructura de subdirectorios
 ------------------------------
-El subdirectorio CLASSIFIED es el contenedor de todas las nuevas entradas. Adentro, las imágenes están clasificadas en una estructura a tres niveles:
+CLASSIFIED es el contenedor de todas las nuevas entradas. Adentro, las imágenes están clasificadas en una estructura a tres niveles:
 - (source) La primera subdivisión indica el origen de dónde viene la imagen. Por ejemplo: la carpeta llamada "CR@NXGENRAD@192.168.4.16" indica que la imagen de modalidad radiografía directa (CR) fue enviada desde un equipo identificado por el AET "NXGENRAD" desde el IP local "192.168.4.16". Todas las subcarpetas de "CR@NXGENRAD@192.168.4.16" contienen archivos proveniente del mismo origen.
 - (study) La segunda subdivisión está constituida por carpetas con el identificador único de un estudio (EUID) como nombre.
 - (instance) El tercer nivel, o sea dentro de una carpeta de estudio, son las imágenes que correspondena este estudio, identificadas por su SOPInstanceUID.

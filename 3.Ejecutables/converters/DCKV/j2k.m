@@ -10,41 +10,6 @@
 #import "NSData+DCMmarkers.h"
 #import "NSData+MD5.h"
 
-int execTask(NSDictionary *environment, NSString *launchPath, NSArray *launchArgs, NSData *writeData, NSMutableData *readData)
-{
-   NSTask *task=[[NSTask alloc]init];
-   
-   if (environment) task.environment=environment;
-   
-   [task setLaunchPath:launchPath];
-   [task setArguments:launchArgs];
-   NSPipe *writePipe = [NSPipe pipe];
-   NSFileHandle *writeHandle = [writePipe fileHandleForWriting];
-   [task setStandardInput:writePipe];
-   
-   NSPipe* readPipe = [NSPipe pipe];
-   NSFileHandle *readingFileHandle=[readPipe fileHandleForReading];
-   [task setStandardOutput:readPipe];
-   //[task setStandardError:readPipe];
-   
-   [task launch];
-   [writeHandle writeData:writeData];
-   [writeHandle closeFile];
-   
-   NSData *dataPiped = nil;
-   while((dataPiped = [readingFileHandle availableData]) && [dataPiped length])
-   {
-      [readData appendData:dataPiped];
-   }
-   //while( [task isRunning]) [NSThread sleepForTimeInterval: 0.1];
-   //[task waitUntilExit];      // <- This is VERY DANGEROUS : the main runloop is continuing...
-   //[aTask interrupt];
-   
-   [task waitUntilExit];
-   int terminationStatus = [task terminationStatus];
-   if (terminationStatus!=0) NSLog(@"ERROR task terminationStatus: %d",terminationStatus);//warning
-   return terminationStatus;
-}
 
 
 int compress(
@@ -97,18 +62,43 @@ int compress(
    
    for (NSUInteger frameNumber=0; frameNumber<frameTotal; frameNumber++)
    {
-      NSMutableData *j2kData=[NSMutableData data];
       NSMutableArray *pixelAttrArray=[NSMutableArray array];
-      int result=execTask(
-               nil,
-               @"/usr/local/bin/opj_compress",
-               params,
-               [pixelData subdataWithRange:NSMakeRange(frameNumber*frameLength,frameLength)],
-               j2kData
-               );
+
+      NSMutableData *j2kData=[NSMutableData data];
+      NSTask *task=[[NSTask alloc]init];
+      //task.environment=@{};
+      task.currentDirectoryPath=@"/usr/local/bin";
+      NSLog(@"%@",task.currentDirectoryPath);
+      task.launchPath=@"/usr/local/bin/opj_compress";
+      task.arguments=params;
       
-      if (result !=0)
+      NSPipe *writePipe = [NSPipe pipe];
+      NSFileHandle *writeHandle = [writePipe fileHandleForWriting];
+      task.standardInput=writePipe;
+      
+      NSPipe* readPipe = [NSPipe pipe];
+      NSFileHandle *readingFileHandle=[readPipe fileHandleForReading];
+      task.standardOutput=readPipe;
+      //task.standardError=readPipe;
+      
+      [task launch];
+      [writeHandle writeData:[pixelData subdataWithRange:NSMakeRange(frameNumber*frameLength,frameLength)]];
+      [writeHandle closeFile];
+      
+      NSData *dataPiped = nil;
+      while((dataPiped = [readingFileHandle availableData]) && [dataPiped length])
       {
+         [j2kData appendData:dataPiped];
+      }
+
+      //while( [task isRunning]) [NSThread sleepForTimeInterval: 0.1];
+      //[task waitUntilExit];      // <- This is VERY DANGEROUS : the main runloop is continuing...
+      //[aTask interrupt];
+      [task waitUntilExit];
+      int terminationStatus = [task terminationStatus];
+      if (terminationStatus!=0)
+      {
+         NSLog(@"ERROR task terminationStatus: %d",terminationStatus);//warning
          NSString *errorString=[[NSString alloc]initWithData:j2kData encoding:NSUTF8StringEncoding];
          LOG_ERROR(@"compression J2K: %@",errorString);
          return failure;

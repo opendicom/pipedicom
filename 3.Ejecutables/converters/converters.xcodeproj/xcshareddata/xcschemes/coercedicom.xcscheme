@@ -68,7 +68,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Volumes/GITHUB/coercedicom/institutionMapping.json"
+            argument = "/Users/Shared/institutionMapping.json"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
@@ -77,6 +77,10 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "&quot;&quot;"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "true"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

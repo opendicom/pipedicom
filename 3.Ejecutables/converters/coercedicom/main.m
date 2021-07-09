@@ -31,9 +31,9 @@ void async_f_callback(void *context){
    #pragma mark · parse
          [inputData appendData:[NSData dataWithContentsOfFile:spoolFilePath]];
          
-         NSMutableDictionary *parsedAttrs=[NSMutableDictionary dictionary];//parsing
+         NSMutableDictionary *parsedAttrs=[NSMutableDictionary dictionary];
          NSMutableDictionary *blobDict=[NSMutableDictionary dictionary];
-         NSMutableDictionary *j2kAttrs=[NSMutableDictionary dictionary];//added compressing
+         NSMutableDictionary *j2kAttrs=[NSMutableDictionary dictionary];
          NSMutableDictionary *j2kBlobDict=[NSMutableDictionary dictionary];
          if (!D2dict(
                     inputData,
@@ -209,7 +209,8 @@ enum CDargName{
    CDargDone,
    CDargInstitutionmapping,   //mapping  sender -> org
    CDargCdamwlDir,            //cdawldicom matching
-   CDargPacsquery             //pacs for verification
+   CDargPacsquery,            //pacs for verification
+   CDargGDCasyncCompression   //true=multithreaded
 };
 
 
@@ -219,8 +220,9 @@ int main(int argc, const char * argv[]){ @autoreleasepool {
     NSError *error=nil;
     BOOL isDirectory=false;
 
-   NSProcessInfo *processInfo=[NSProcessInfo processInfo];
+    NSProcessInfo *processInfo=[NSProcessInfo processInfo];
     NSArray *args=[processInfo arguments];
+    BOOL asyncCompression=[args[CDargGDCasyncCompression] isEqualToString:@"true"];
     
     if (![fileManager fileExistsAtPath:args[CDargSpool] isDirectory:&isDirectory] || !isDirectory)
     {
@@ -324,7 +326,6 @@ The root is an array where items are clasified by priority of execution
     NSMutableArray *studyTasks=[NSMutableArray array];
     if (sourcesToBeProcessed.count)
     {
-#pragma mark dispatch_queue_t D2D
        static NSISO8601DateFormatter *ISO8601yyyyMMdd;
        ISO8601yyyyMMdd=[[NSISO8601DateFormatter alloc]init];
        ISO8601yyyyMMdd.formatOptions=NSISO8601DateFormatWithFullDate;
@@ -574,46 +575,15 @@ The root is an array where items are clasified by priority of execution
 */
             
             
-            
             [studyTasks addObject:studyTaskDict];
+            if (asyncCompression)
             dispatch_async_f(
                dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0 ),
                studyTaskDict,
                async_f_callback
-               );
-//               (__bridge void * _Nullable)(studyTaskDict),
-
+               );//(__bridge void * _Nullable)(studyTaskDict),
+            else async_f_callback(studyTaskDict);
             
-/*
-#pragma mark dispatch_async D2Dqueue
-            dispatch_async(D2Dqueue, ^{
-               NSTask *task=[[NSTask alloc]init];
-
-#pragma mark TODO use NSMutableDictionary *coerceStudy
-               NSString *jsonDataset=[NSString stringWithFormat:@"{ \"00000001_00080080-LO\" :[ \"%@\" ]}",source[@"org"]];
-               [jsonDataset writeToFile:@"/Users/Shared/jsonDataset.txt" atomically:NO encoding:NSUTF8StringEncoding error:nil];
-               task.environment=
-                  @{
-                     @"D2DcompressJ2K" : @"true",
-                     @"D2DjsonDataset" : jsonDataset
-                  };
-            
-            
-               [task setLaunchPath:@"/usr/local/bin/D2D"];
-               [task setArguments:
-                @[
-                   studyPath,
-                   [[args[CDargSuccess] stringByAppendingPathComponent:source[@"source"]]
-                      stringByAppendingPathComponent:StudyInstanceUID],
-                   [[args[CDargFailure] stringByAppendingPathComponent:source[@"source"]]
-                      stringByAppendingPathComponent:StudyInstanceUID],
-                   [[args[CDargDone] stringByAppendingPathComponent:source[@"source"]]
-                      stringByAppendingPathComponent:StudyInstanceUID]
-                  ]
-               ];
-               [task launch];
-            });//end of dispatch_async D2Dqueue
-*/
          } //NSLog(@"end of study loop");
        } //NSLog(@"end of source loop");
     } //NSLog(@"end of sources to be processed");

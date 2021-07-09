@@ -469,81 +469,9 @@
 		4A434CB825B996A200065B64 /* D */ = {
 			isa = PBXGroup;
 			children = (
-				4ADA50FE267B16FD008F98DB /* MG-large.ele.dcm */,
-				4ADA50FD267B16FD008F98DB /* US-icon.j2kr.dcm */,
-				4AD86139265EEECC002E4D3A /* CT1.ele.dcm */,
-				4AD8613D265EEECC002E4D3A /* CT1.j2ki.dcm */,
-				4AD8612E265EEECC002E4D3A /* CT1.j2kr.dcm */,
-				4AD86159265EEECD002E4D3A /* CT2.ele.dcm */,
-				4AD86132265EEECC002E4D3A /* CT2.j2ki.dcm */,
-				4AD8613B265EEECC002E4D3A /* CT2.j2kr.dcm */,
-				4AD86165265EEECD002E4D3A /* MG1.ele.dcm */,
-				4AD86133265EEECC002E4D3A /* MG1.j2ki.dcm */,
-				4AD86124265EEECC002E4D3A /* MG1.j2kr.dcm */,
-				4AD86123265EEECC002E4D3A /* MR1.ele.dcm */,
-				4AD8612D265EEECC002E4D3A /* MR1.j2ki.dcm */,
-				4AD8615A265EEECD002E4D3A /* MR1.j2kr.dcm */,
-				4AD8615B265EEECD002E4D3A /* MR2.ele.dcm */,
-				4AD86125265EEECC002E4D3A /* MR2.j2ki.dcm */,
-				4AD86143265EEECC002E4D3A /* MR2.j2kr.dcm */,
-				4AD8612A265EEECC002E4D3A /* MR3.ele.dcm */,
-				4AD86152265EEECD002E4D3A /* MR3.j2ki.dcm */,
-				4AD86164265EEECD002E4D3A /* MR3.j2kr.dcm */,
-				4AD8613A265EEECC002E4D3A /* MR4.ele.dcm */,
-				4AD8614F265EEECD002E4D3A /* MR4.j2ki.dcm */,
-				4AD86169265EEECD002E4D3A /* MR4.j2kr.dcm */,
-				4AD8615E265EEECD002E4D3A /* NM1.ele.dcm */,
-				4AD8614E265EEECD002E4D3A /* NM1.j2ki.dcm */,
-				4AD86156265EEECD002E4D3A /* NM1.j2kr.dcm */,
-				4AD86163265EEECD002E4D3A /* RF1.ele.dcm */,
-				4AD86145265EEECD002E4D3A /* RF1.j2kr.dcm */,
-				4AD86138265EEECC002E4D3A /* RG1.ele.dcm */,
-				4AD86131265EEECC002E4D3A /* RG1.j2ki.dcm */,
-				4AD8613E265EEECC002E4D3A /* RG1.j2kr.dcm */,
-				4AD86141265EEECC002E4D3A /* RG2.ele.dcm */,
-				4AD86150265EEECD002E4D3A /* RG2.j2ki.dcm */,
-				4AD86166265EEECD002E4D3A /* RG2.j2kr.dcm */,
-				4AD86167265EEECD002E4D3A /* RG3.ele.dcm */,
-				4AD86137265EEECC002E4D3A /* RG3.j2ki.dcm */,
-				4AD8612B265EEECC002E4D3A /* RG3.j2kr.dcm */,
-				4AD8616A265EEECD002E4D3A /* SC1.ele.dcm */,
-				4AD86160265EEECD002E4D3A /* SC1.j2ki.dcm */,
-				4AD86135265EEECC002E4D3A /* SC1.j2kr.dcm */,
-				4AD86136265EEECC002E4D3A /* SC2.arabic.ele.dcm */,
-				4AD86142265EEECC002E4D3A /* SC2.french.ele.dcm */,
-				4AD86146265EEECD002E4D3A /* SC2.german.ele.dcm */,
-				4AD86144265EEECD002E4D3A /* SC2.greek.ele.dcm */,
-				4AD86147265EEECD002E4D3A /* SC2.h31.ele.dcm */,
-				4AD8613C265EEECC002E4D3A /* SC2.h32.ele.dcm */,
-				4AD86134265EEECC002E4D3A /* SC2.hebrew.ele.dcm */,
-				4AD86128265EEECC002E4D3A /* SC2.l2.ele.dcm */,
-				4AD8615C265EEECD002E4D3A /* SC2.russian.ele.dcm */,
-				4AD86127265EEECC002E4D3A /* SC2.x1.ele.dcm */,
-				4AD86162265EEECD002E4D3A /* SC2.x2.ele.dcm */,
-				4AD8615F265EEECD002E4D3A /* US1.ele.dcm */,
-				4AD86148265EEECD002E4D3A /* US1.j2ki.dcm */,
-				4AD8612C265EEECC002E4D3A /* US1.j2kr.dcm */,
-				4AD86168265EEECD002E4D3A /* VL1.ele.dcm */,
-				4AD86126265EEECC002E4D3A /* VL1.j2ki.dcm */,
-				4AD86157265EEECD002E4D3A /* VL1.j2kr.dcm */,
-				4AD86130265EEECC002E4D3A /* VL2.ele.dcm */,
-				4AD86155265EEECD002E4D3A /* VL2.j2ki.dcm */,
-				4AD86149265EEECD002E4D3A /* VL2.j2kr.dcm */,
-				4AD86158265EEECD002E4D3A /* VL3.ele.dcm */,
-				4AD8614A265EEECD002E4D3A /* VL3.j2ki.dcm */,
-				4AD86151265EEECD002E4D3A /* VL3.j2kr.dcm */,
-				4AD86161265EEECD002E4D3A /* VL4.ele.dcm */,
-				4AD8613F265EEECC002E4D3A /* VL4.j2ki.dcm */,
-				4AD8616B265EEECD002E4D3A /* VL4.j2kr.dcm */,
-				4AD86153265EEECD002E4D3A /* VL5.ele.dcm */,
-				4AD86154265EEECD002E4D3A /* VL5.j2ki.dcm */,
-				4AD86140265EEECC002E4D3A /* VL5.j2kr.dcm */,
-				4AD86129265EEECC002E4D3A /* VL6.ele.dcm */,
-				4AD8614B265EEECD002E4D3A /* VL6.j2ki.dcm */,
-				4AD8612F265EEECC002E4D3A /* VL6.j2kr.dcm */,
-				4AD8614C265EEECD002E4D3A /* XA1.ele.dcm */,
-				4AD8615D265EEECD002E4D3A /* XA1.j2ki.dcm */,
-				4AD8614D265EEECD002E4D3A /* XA1.j2kr.dcm */,
+				4AD03C7E269888EA00855F3F /* ele */,
+				4AD03C7F2698897000855F3F /* j2kr */,
+				4AD03C80269889A300855F3F /* j2ki */,
 			);
 			path = D;
 			sourceTree = "<group>";
@@ -652,6 +580,102 @@
 				4AD03BE226973FEE00855F3F /* main.m */,
 			);
 			path = coercedicom;
+			sourceTree = "<group>";
+		};
+		4AD03C7E269888EA00855F3F /* ele */ = {
+			isa = PBXGroup;
+			children = (
+				4ADA50FE267B16FD008F98DB /* MG-large.ele.dcm */,
+				4AD86139265EEECC002E4D3A /* CT1.ele.dcm */,
+				4AD86159265EEECD002E4D3A /* CT2.ele.dcm */,
+				4AD86165265EEECD002E4D3A /* MG1.ele.dcm */,
+				4AD86123265EEECC002E4D3A /* MR1.ele.dcm */,
+				4AD8615B265EEECD002E4D3A /* MR2.ele.dcm */,
+				4AD8612A265EEECC002E4D3A /* MR3.ele.dcm */,
+				4AD8613A265EEECC002E4D3A /* MR4.ele.dcm */,
+				4AD8615E265EEECD002E4D3A /* NM1.ele.dcm */,
+				4AD86163265EEECD002E4D3A /* RF1.ele.dcm */,
+				4AD86138265EEECC002E4D3A /* RG1.ele.dcm */,
+				4AD86141265EEECC002E4D3A /* RG2.ele.dcm */,
+				4AD86167265EEECD002E4D3A /* RG3.ele.dcm */,
+				4AD8616A265EEECD002E4D3A /* SC1.ele.dcm */,
+				4AD86136265EEECC002E4D3A /* SC2.arabic.ele.dcm */,
+				4AD86142265EEECC002E4D3A /* SC2.french.ele.dcm */,
+				4AD86146265EEECD002E4D3A /* SC2.german.ele.dcm */,
+				4AD86144265EEECD002E4D3A /* SC2.greek.ele.dcm */,
+				4AD86147265EEECD002E4D3A /* SC2.h31.ele.dcm */,
+				4AD8613C265EEECC002E4D3A /* SC2.h32.ele.dcm */,
+				4AD86134265EEECC002E4D3A /* SC2.hebrew.ele.dcm */,
+				4AD86128265EEECC002E4D3A /* SC2.l2.ele.dcm */,
+				4AD8615C265EEECD002E4D3A /* SC2.russian.ele.dcm */,
+				4AD86127265EEECC002E4D3A /* SC2.x1.ele.dcm */,
+				4AD86162265EEECD002E4D3A /* SC2.x2.ele.dcm */,
+				4AD8615F265EEECD002E4D3A /* US1.ele.dcm */,
+				4AD86168265EEECD002E4D3A /* VL1.ele.dcm */,
+				4AD86130265EEECC002E4D3A /* VL2.ele.dcm */,
+				4AD86158265EEECD002E4D3A /* VL3.ele.dcm */,
+				4AD86161265EEECD002E4D3A /* VL4.ele.dcm */,
+				4AD86153265EEECD002E4D3A /* VL5.ele.dcm */,
+				4AD86129265EEECC002E4D3A /* VL6.ele.dcm */,
+				4AD8614C265EEECD002E4D3A /* XA1.ele.dcm */,
+			);
+			path = ele;
+			sourceTree = "<group>";
+		};
+		4AD03C7F2698897000855F3F /* j2kr */ = {
+			isa = PBXGroup;
+			children = (
+				4ADA50FD267B16FD008F98DB /* US-icon.j2kr.dcm */,
+				4AD8612E265EEECC002E4D3A /* CT1.j2kr.dcm */,
+				4AD8613B265EEECC002E4D3A /* CT2.j2kr.dcm */,
+				4AD86124265EEECC002E4D3A /* MG1.j2kr.dcm */,
+				4AD8615A265EEECD002E4D3A /* MR1.j2kr.dcm */,
+				4AD86143265EEECC002E4D3A /* MR2.j2kr.dcm */,
+				4AD86164265EEECD002E4D3A /* MR3.j2kr.dcm */,
+				4AD86169265EEECD002E4D3A /* MR4.j2kr.dcm */,
+				4AD86156265EEECD002E4D3A /* NM1.j2kr.dcm */,
+				4AD86145265EEECD002E4D3A /* RF1.j2kr.dcm */,
+				4AD8613E265EEECC002E4D3A /* RG1.j2kr.dcm */,
+				4AD86166265EEECD002E4D3A /* RG2.j2kr.dcm */,
+				4AD8612B265EEECC002E4D3A /* RG3.j2kr.dcm */,
+				4AD86135265EEECC002E4D3A /* SC1.j2kr.dcm */,
+				4AD8612C265EEECC002E4D3A /* US1.j2kr.dcm */,
+				4AD86157265EEECD002E4D3A /* VL1.j2kr.dcm */,
+				4AD86149265EEECD002E4D3A /* VL2.j2kr.dcm */,
+				4AD86151265EEECD002E4D3A /* VL3.j2kr.dcm */,
+				4AD8616B265EEECD002E4D3A /* VL4.j2kr.dcm */,
+				4AD86140265EEECC002E4D3A /* VL5.j2kr.dcm */,
+				4AD8612F265EEECC002E4D3A /* VL6.j2kr.dcm */,
+				4AD8614D265EEECD002E4D3A /* XA1.j2kr.dcm */,
+			);
+			path = j2kr;
+			sourceTree = "<group>";
+		};
+		4AD03C80269889A300855F3F /* j2ki */ = {
+			isa = PBXGroup;
+			children = (
+				4AD8613D265EEECC002E4D3A /* CT1.j2ki.dcm */,
+				4AD86132265EEECC002E4D3A /* CT2.j2ki.dcm */,
+				4AD86133265EEECC002E4D3A /* MG1.j2ki.dcm */,
+				4AD8612D265EEECC002E4D3A /* MR1.j2ki.dcm */,
+				4AD86125265EEECC002E4D3A /* MR2.j2ki.dcm */,
+				4AD86152265EEECD002E4D3A /* MR3.j2ki.dcm */,
+				4AD8614F265EEECD002E4D3A /* MR4.j2ki.dcm */,
+				4AD8614E265EEECD002E4D3A /* NM1.j2ki.dcm */,
+				4AD86131265EEECC002E4D3A /* RG1.j2ki.dcm */,
+				4AD86150265EEECD002E4D3A /* RG2.j2ki.dcm */,
+				4AD86137265EEECC002E4D3A /* RG3.j2ki.dcm */,
+				4AD86160265EEECD002E4D3A /* SC1.j2ki.dcm */,
+				4AD86148265EEECD002E4D3A /* US1.j2ki.dcm */,
+				4AD86126265EEECC002E4D3A /* VL1.j2ki.dcm */,
+				4AD86155265EEECD002E4D3A /* VL2.j2ki.dcm */,
+				4AD8614A265EEECD002E4D3A /* VL3.j2ki.dcm */,
+				4AD8613F265EEECC002E4D3A /* VL4.j2ki.dcm */,
+				4AD86154265EEECD002E4D3A /* VL5.j2ki.dcm */,
+				4AD8614B265EEECD002E4D3A /* VL6.j2ki.dcm */,
+				4AD8615D265EEECD002E4D3A /* XA1.j2ki.dcm */,
+			);
+			path = j2ki;
 			sourceTree = "<group>";
 		};
 		4ADA4EBE267291A4008F98DB /* Frameworks */ = {
@@ -999,7 +1023,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = "/bin/sh ";
-			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\n\nif [ ! -d /usr/local/lib ]; then\n   sudo -A mkdir ~/usr/local/lib;\nfi\ncd /usr/local/lib\nif [ ! -f libopenjp2.2.5.0.dylib ]; then\n   sudo -A cp -R $PROJECT_DIR/OPENJPEG/libopenjp2.2.5.0.dylib libopenjp2.2.5.0.dylib\n   sudo -A ln -s libopenjp2.2.5.0.dylib libopenjp2.7.dylib\n   sudo -A cp $PROJECT_DIR/OPENJPEG/liblcms2.a liblcms2.a\n   sudo -A cp $PROJECT_DIR/OPENJPEG/libopenjp2.a libopenjp2.a\n   sudo -A cp $PROJECT_DIR/OPENJPEG/libpng.a libpng.a\n   sudo -A cp $PROJECT_DIR/OPENJPEG/libtiff.a libtiff.a\n   sudo -A cp $PROJECT_DIR/OPENJPEG/libz.a libz.a\n   \n   if [ ! -d /usr/local/bin ]; then\n      sudo -A mkdir ~/usr/local/bin;\n   fi\n   cd /usr/local/bin\n   sudo -A cp $PROJECT_DIR/OPENJPEG/opj_decompress opj_decompress\n   sudo -A cp $PROJECT_DIR/OPENJPEG/opj_compress opj_compress\n   sudo -A cp $PROJECT_DIR/OPENJPEG/opj_dump opj_dum\nfi\n\ncd /usr/local/bin\nif [ ! -f stdin.rawl ]; then\n    sudo -A ln -s /dev/stdin stdin.rawl\nfi\nif [ ! -f stdout.j2k ]; then\n    sudo -A ln -s /dev/stdout stdout.j2k\nfi\n\nsudo -A rm -Rf /Library/Frameworks/DCKV.framework\nsudo -A cp -R $BUILD_ROOT/Debug/DCKV.framework /Library/Frameworks/DCKV.framework\n\n   \n";
+			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\n\nif [ ! -d /usr/local/lib ]; then\n   sudo -A mkdir ~/usr/local/lib;\nfi\ncd /usr/local/lib\nif [ ! -f libopenjp2.2.5.0.dylib ]; then\n   sudo -A cp -R $PROJECT_DIR/OPENJPEG/libopenjp2.2.5.0.dylib libopenjp2.2.5.0.dylib\n   sudo -A ln -s libopenjp2.2.5.0.dylib libopenjp2.7.dylib\n   sudo -A cp $PROJECT_DIR/OPENJPEG/liblcms2.a liblcms2.a\n   sudo -A cp $PROJECT_DIR/OPENJPEG/libopenjp2.a libopenjp2.a\n   sudo -A cp $PROJECT_DIR/OPENJPEG/libpng.a libpng.a\n   sudo -A cp $PROJECT_DIR/OPENJPEG/libtiff.a libtiff.a\n   sudo -A cp $PROJECT_DIR/OPENJPEG/libz.a libz.a\n   \n   if [ ! -d /usr/local/bin ]; then\n      sudo -A mkdir ~/usr/local/bin;\n   fi\n   cd /usr/local/bin\n   sudo -A cp $PROJECT_DIR/OPENJPEG/opj_decompress opj_decompress\n   sudo -A cp $PROJECT_DIR/OPENJPEG/opj_compress opj_compress\n   sudo -A cp $PROJECT_DIR/OPENJPEG/opj_dump opj_dum\nfi\n\ncd /usr/local/bin\nif [ ! -L stdin.rawl ]; then\n    sudo -A ln -s /dev/stdin stdin.rawl\nfi\nif [ ! -L stdout.j2k ]; then\n    sudo -A ln -s /dev/stdout stdout.j2k\nfi\n\nsudo -A rm -Rf /Library/Frameworks/DCKV.framework\nsudo -A cp -R $BUILD_ROOT/Debug/DCKV.framework /Library/Frameworks/DCKV.framework\n\n   \n";
 		};
 		4ACCF052268FBA6C006E12C2 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1101,7 +1125,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\nsudo -A cp $BUILD_ROOT/Debug/D2D /usr/local/bin/coercedicom\n";
+			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\nsudo -A cp $BUILD_ROOT/Debug/coercedicom /usr/local/bin/coercedicom\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1345,6 +1369,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				SYMROOT = /Users/Shared/BUILD;
 			};
 			name = Debug;
 		};
@@ -1400,6 +1425,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
+				SYMROOT = /Users/Shared/BUILD;
 			};
 			name = Release;
 		};
@@ -1470,7 +1496,7 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = NO;
 				CODE_SIGN_STYLE = Automatic;
-				COPY_PHASE_STRIP = YES;
+				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1485,7 +1511,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SYMROOT = /Users/Shared/BUILD/coercedicom;
+				SYMROOT = /Users/Shared/BUILD/;
 			};
 			name = Debug;
 		};
@@ -1494,7 +1520,7 @@
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = NO;
 				CODE_SIGN_STYLE = Automatic;
-				COPY_PHASE_STRIP = YES;
+				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1509,7 +1535,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SYMROOT = /Users/Shared/BUILD/coercedicom;
+				SYMROOT = /Users/Shared/BUILD/;
 			};
 			name = Release;
 		};
