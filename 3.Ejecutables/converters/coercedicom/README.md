@@ -1,7 +1,7 @@
 coercedicom
 ===========
 
-Procesa los directorios y archivos DICOM encontrados en subdirectorios de un directorio CLASSIFIED.
+Procesa los directorios y archivos DICOM encontrados en subdirectorios de un directorio Spool.
 
 Arguments
 -------------
@@ -14,15 +14,21 @@ enum CDargName{
    CDargInstitutionmapping,          //mapping  sender -> org
    CDargCdamwlDir,                       //cdawldicom matching
    CDargPacsquery,                        //pacs for verification
-   CDargGDCasyncCompression   //true=multithreaded
+   CDargAsyncMonitorLoopsWait   // nxms (n=loops number, m=seconds wait)
 };
 
 Estructura de subdirectorios
 ------------------------------
-CLASSIFIED es el contenedor de todas las nuevas entradas. Adentro, las imágenes están clasificadas en una estructura a tres niveles:
+Spool es el contenedor de todas las nuevas entradas. Adentro, las imágenes están clasificadas en una estructura a tres niveles:
 - (source) La primera subdivisión indica el origen de dónde viene la imagen. Por ejemplo: la carpeta llamada "CR@NXGENRAD@192.168.4.16" indica que la imagen de modalidad radiografía directa (CR) fue enviada desde un equipo identificado por el AET "NXGENRAD" desde el IP local "192.168.4.16". Todas las subcarpetas de "CR@NXGENRAD@192.168.4.16" contienen archivos proveniente del mismo origen.
 - (study) La segunda subdivisión está constituida por carpetas con el identificador único de un estudio (EUID) como nombre.
 - (instance) El tercer nivel, o sea dentro de una carpeta de estudio, son las imágenes que correspondena este estudio, identificadas por su SOPInstanceUID.
+
+Done es el destino de un mv de las subdirectorios de los originales procesados exitosamente
+
+En caso que hubo falla de procesamiento, se realiza un mv las subdirectorios de los originales a una subcarpeta de Failure
+
+El resultado del procesamiento se escribe dentro de Success. Un primer nivel de subdirectorios refleja la org de destino. Los siguientes niveles de subdirectorios reflejan la estructura dentro de Spool
 
 Tests
 ------

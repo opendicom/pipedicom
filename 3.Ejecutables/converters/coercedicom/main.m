@@ -202,19 +202,21 @@ void async_f_callback(void *context){
 
 
 enum CDargName{
-   CDargCmd,
+   CDargCmd=0,
    CDargSpool,
    CDargSuccess,
    CDargFailure,
    CDargDone,
-   CDargInstitutionmapping,   //mapping  sender -> org
-   CDargCdamwlDir,            //cdawldicom matching
-   CDargPacsquery,            //pacs for verification
-   CDargGDCasyncCompression   //true=multithreaded
+   CDargInstitutionmapping,
+   CDargCdamwlDir,
+   CDargPacsquery,
+   CDargAsyncMonitorLoopsWait
 };
 
 
-int main(int argc, const char * argv[]){ @autoreleasepool {
+int main(int argc, const char * argv[]){
+   int returnInt;
+   @autoreleasepool {
 
    NSFileManager *fileManager=[NSFileManager defaultManager];
     NSError *error=nil;
@@ -222,7 +224,18 @@ int main(int argc, const char * argv[]){ @autoreleasepool {
 
     NSProcessInfo *processInfo=[NSProcessInfo processInfo];
     NSArray *args=[processInfo arguments];
-    BOOL asyncCompression=[args[CDargGDCasyncCompression] isEqualToString:@"true"];
+    unsigned int waitSeconds=0;//no GDCasync
+    NSInteger waitLoops=NSNotFound;
+    NSString *arg8 = args[CDargAsyncMonitorLoopsWait];
+    if (arg8)
+    {
+       NSArray *arg8xs=[arg8 componentsSeparatedByString:@"x"];
+       if (arg8xs.count==2)
+       {
+          waitLoops=[arg8xs[0] unsignedIntValue];
+          waitSeconds=(unsigned int)[[arg8xs[1] substringToIndex:[arg8xs[1] length] -1 ] integerValue];
+       }
+    }
     
     if (![fileManager fileExistsAtPath:args[CDargSpool] isDirectory:&isDirectory] || !isDirectory)
     {
@@ -394,9 +407,22 @@ The root is an array where items are clasified by priority of execution
             
             [studyTaskDict setObject:studyPath forKey:@"spoolDirPath"];
 
-            [studyTaskDict setObject:[[args[CDargSuccess]stringByAppendingPathComponent:source[@"scu"]]stringByAppendingPathComponent:StudyInstanceUID] forKey:@"successDirPath"];
-            [studyTaskDict setObject:[[args[CDargFailure]stringByAppendingPathComponent:source[@"scu"]]stringByAppendingPathComponent:StudyInstanceUID] forKey:@"failureDirPath"];
-            [studyTaskDict setObject:[[args[CDargDone]stringByAppendingPathComponent:source[@"scu"]]stringByAppendingPathComponent:StudyInstanceUID] forKey:@"doneDirPath"];
+            [studyTaskDict setObject:
+             [[[args[CDargSuccess]
+               stringByAppendingPathComponent:source[@"coerce"][@"00000001_00080080-LO"][0]]
+               stringByAppendingPathComponent:source[@"scu"]]
+              stringByAppendingPathComponent:StudyInstanceUID
+              ] forKey:@"successDirPath"];
+            [studyTaskDict setObject:
+             [[args[CDargFailure]
+               stringByAppendingPathComponent:source[@"scu"]]
+              stringByAppendingPathComponent:StudyInstanceUID
+              ] forKey:@"failureDirPath"];
+            [studyTaskDict setObject:
+             [[args[CDargDone]
+               stringByAppendingPathComponent:source[@"scu"]]
+              stringByAppendingPathComponent:StudyInstanceUID
+              ] forKey:@"doneDirPath"];
 
 #pragma mark (2) check with cdawldicom
 /*
@@ -576,20 +602,22 @@ The root is an array where items are clasified by priority of execution
             
             
             [studyTasks addObject:studyTaskDict];
-            if (asyncCompression)
+            if (waitSeconds!=0)
             dispatch_async_f(
                dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0 ),
                studyTaskDict,
                async_f_callback
                );//(__bridge void * _Nullable)(studyTaskDict),
-            else async_f_callback(studyTaskDict);
+            else async_f_callback(studyTaskDict);//run sequentially on one thread
             
          } //NSLog(@"end of study loop");
        } //NSLog(@"end of source loop");
     } //NSLog(@"end of sources to be processed");
-   NSUInteger countdown=10;//minute
-   while (studyTasks.count && (countdown > 0))
+
+   while (studyTasks.count && (waitLoops > 0))
    {
+      waitLoops--;
+      sleep(waitSeconds);
       for (NSUInteger i=0; i < studyTasks.count; i++)
       {
          if (studyTasks[i][@"response"])
@@ -598,11 +626,9 @@ The root is an array where items are clasified by priority of execution
             [studyTasks removeObjectAtIndex:i];
          }
       }
-      sleep(2);
-      countdown--;
    }
-   if (studyTasks.count) NSLog(@"tasks remaining:\r\n%@",studyTasks.description);
-  }//end autoreleaspool
-  return 0;
+   returnInt=(int)studyTasks.count;
+}//end autoreleaspool
+  return returnInt;
 }
 
