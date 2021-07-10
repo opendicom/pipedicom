@@ -12,7 +12,8 @@ int compress(
              NSData *pixelData,
              NSMutableDictionary *parsedAttrs,
              NSMutableDictionary *j2kBlobDict,
-             NSMutableDictionary *j2kAttrs
+             NSMutableDictionary *j2kAttrs,
+             NSMutableString *message
              );
 
 NS_ASSUME_NONNULL_BEGIN

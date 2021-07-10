@@ -195,12 +195,15 @@ int main(int argc, const char * argv[]) {
                NSData *pixelData=nil;
                if ([parsedAttrs[pixelKey][0] isKindOfClass:[NSDictionary class]])  pixelData=blobDict[parsedAttrs[pixelKey][0][@"Native"][0]];
                else pixelData=dataWithB64String(blobDict[pixelKey]);
+               
+               NSMutableString *message=[NSMutableString string];
                if (compress(
                             [nativeUrlString substringToIndex:nativeUrlString.length-3],
                             pixelData,
                             parsedAttrs,
                             j2kBlobDict,
-                            j2kAttrs
+                            j2kAttrs,
+                            message
                             )==success
                    )
                {

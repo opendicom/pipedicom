@@ -6,10 +6,9 @@
 //
 
 #import "j2k.h"
-#import "ODLog.h"
 #import "NSData+DCMmarkers.h"
 #import "NSData+MD5.h"
-
+#import "ODLog.h"
 
 
 int compress(
@@ -17,7 +16,8 @@ int compress(
              NSData *pixelData,
              NSMutableDictionary *parsedAttrs,
              NSMutableDictionary *j2kBlobDict,
-             NSMutableDictionary *j2kAttrs
+             NSMutableDictionary *j2kAttrs,
+             NSMutableString *message
              )
 {
    //16 or less bits...
@@ -59,7 +59,8 @@ int compress(
    if (parsedAttrs[@"00000001_00280008-IS"]) frameTotal=[parsedAttrs[@"00000001_00280008-IS"][0] unsignedIntegerValue];
    NSUInteger frameLength=pixelTotalLength / frameTotal;
 
-   
+   NSDate *start = [NSDate date];
+   NSUInteger j2kTotalLength=0;
    for (NSUInteger frameNumber=0; frameNumber<frameTotal; frameNumber++)
    {
       NSMutableArray *pixelAttrArray=[NSMutableArray array];
@@ -68,7 +69,6 @@ int compress(
       NSTask *task=[[NSTask alloc]init];
       //task.environment=@{};
       task.currentDirectoryPath=@"/usr/local/bin";
-      NSLog(@"%@",task.currentDirectoryPath);
       task.launchPath=@"/usr/local/bin/opj_compress";
       task.arguments=params;
       
@@ -98,15 +98,15 @@ int compress(
       int terminationStatus = [task terminationStatus];
       if (terminationStatus!=0)
       {
-         NSLog(@"ERROR task terminationStatus: %d",terminationStatus);//warning
+         [message appendFormat:@"ERROR task terminationStatus: %d\r\n",terminationStatus];//warning
          NSString *errorString=[[NSString alloc]initWithData:j2kData encoding:NSUTF8StringEncoding];
-         LOG_ERROR(@"compression J2K: %@",errorString);
+         [message appendFormat:@"compression J2K: %@",errorString];
          return failure;
       }
       else
       {
 #pragma mark · subdivide j2kData
-
+         j2kTotalLength+=j2kData.length;
 
          NSUInteger fragmentOffset=0;
          int fragmentCounter=0;
@@ -152,7 +152,11 @@ int compress(
       }
       [frames addObject:[NSDictionary dictionaryWithObject:pixelAttrArray forKey:[NSString stringWithFormat:@"Frame#%08lu",frameNumber+1]]];
    }
-
+   [message appendFormat:@"ele %lu KB -> j2k: %f s, %lu x\r\n",
+         (unsigned long)pixelTotalLength/1024,
+         [[NSDate date] timeIntervalSinceDate:start],
+         pixelTotalLength / j2kTotalLength
+         ];
 #pragma mark · new attrs related to transfer syntax j2k
 
    [j2kAttrs setObject:frames forKey:@"00000001_7FE00010-OB"];

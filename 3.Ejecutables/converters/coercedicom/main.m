@@ -12,11 +12,11 @@ void async_f_callback(void *context){
    NSMutableDictionary *current = (NSMutableDictionary*) context;
    NSFileManager *fileManager=[NSFileManager defaultManager];
    NSError *error=nil;
-   NSString *response=nil;
-   
+   NSMutableString *response=[NSMutableString string];
+
    NSMutableArray *inputPaths=[NSMutableArray array];
    if (!visibleRelativeFiles(fileManager, current[@"spoolDirPath"], [fileManager contentsOfDirectoryAtPath:current[@"spoolDirPath"] error:&error] , inputPaths))
-      response=[NSString stringWithFormat:@"error reading directory %@",current[@"spoolDirPath"]];
+      [response appendFormat:@"error reading directory %@\r\n",current[@"spoolDirPath"]];
    else
    {
       NSMutableSet *successDirSet=[NSMutableSet set];
@@ -46,7 +46,7 @@ void async_f_callback(void *context){
                     )
              )
          {
-            response=[NSString stringWithFormat:@"could not parse %@",spoolFilePath];
+            [response appendFormat:@"could not parse %@\r\n",spoolFilePath];
             break;
          }
          else
@@ -70,7 +70,8 @@ void async_f_callback(void *context){
                             pixelData,
                             parsedAttrs,
                             j2kBlobDict,
-                            j2kAttrs
+                            j2kAttrs,
+                            response
                             )==success
                    )
                {
@@ -86,7 +87,7 @@ void async_f_callback(void *context){
                }
                else
                {
-                  response=[NSString stringWithFormat:@"could not compress %@",spoolFilePath];
+                  [response appendFormat:@"could not compress %@\r\n",spoolFilePath];
                   break;
                }
             }
@@ -157,12 +158,12 @@ void async_f_callback(void *context){
                if (enclosingDirectoryWritable(fileManager, failureDirSet, failureFilePath)==true)
                {
                   [outputData writeToFile:failureFilePath atomically:NO ];
-                  response=[NSString stringWithFormat:@"failed %@",failureFilePath];
+                  [response appendFormat:@"failed to write %@\r\n",failureFilePath];
 
                }
                else
                {
-                  response=[NSString stringWithFormat:@"can not write %@",failureFilePath];
+                  [response appendFormat:@"not writable %@\r\n",failureFilePath];
                }
                break;
             }
@@ -172,11 +173,10 @@ void async_f_callback(void *context){
             if (enclosingDirectoryWritable(fileManager, successDirSet, successFilePath)==true)
             {
                [outputData writeToFile:successFilePath atomically:NO ];
-               //NSLog(@"OK %@",successFilePath);
             }
             else
             {
-               response=[NSString stringWithFormat:@"can not write %@",successFilePath];
+               [response appendFormat:@"can not write %@\r\n",successFilePath];
                break;
             }
             
@@ -186,7 +186,7 @@ void async_f_callback(void *context){
                 || ![fileManager moveItemAtPath:spoolFilePath toPath:doneFilePath error:&error]
                 )
             {
-               response=[NSString stringWithFormat:@"can not move %@ to %@: %@",spoolFilePath,doneFilePath,error.description];
+               [response appendFormat:@"can not move %@ to %@: %@\r\n",spoolFilePath,doneFilePath,error.description];
                break;
             }
          }//end parsed
@@ -194,7 +194,6 @@ void async_f_callback(void *context){
       }//end loop
       
    }//end while true
-   if (!response) response=[NSString stringWithFormat:@"OK %@",current[@"spoolDirPath"]];
    [current setObject:response forKey:@"response"];
 }
 
