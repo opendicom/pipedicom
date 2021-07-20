@@ -629,36 +629,49 @@ int dict2D(NSString *baseURLString, NSDictionary *attrs, NSMutableData *data, NS
                      {
                         NSString *frameName=frameDict.allKeys[0];
                         NSArray *urls=frameDict[frameName];
-                        switch (pixelMode) {
-                           case dicomExplicitJ2kBase:
-                           {
-                              appendFrame(data, baseURLString, urls[0], true, blobDict);
-                           }
-                              break;
+                        if ([frameName hasPrefix:@"FrameBFHI"])
+                        {
+                           switch (pixelMode) {
+                              case dicomExplicitJ2kBase:
+                              {
+                                 appendFrame(data, baseURLString, urls[0], true, blobDict);
+                              }
+                                 break;
 
-                           case dicomExplicitJ2kFast:
-                           {
-                              appendFrame(data, baseURLString, urls[0], false,blobDict);
-                              appendFrame(data, baseURLString, urls[1], true,blobDict);
-                           }
-                              break;
+                              case dicomExplicitJ2kFast:
+                              {
+                                 appendFrame(data, baseURLString, urls[0], false,blobDict);
+                                 appendFrame(data, baseURLString, urls[1], true,blobDict);
+                              }
+                                 break;
 
-                           case dicomExplicitJ2kHres:
-                           {
-                              appendFrame(data, baseURLString, urls[0], false,blobDict);
-                              appendFrame(data, baseURLString, urls[1], false,blobDict);
-                              appendFrame(data, baseURLString, urls[2], true,blobDict);
-                           }
-                              break;
+                              case dicomExplicitJ2kHres:
+                              {
+                                 appendFrame(data, baseURLString, urls[0], false,blobDict);
+                                 appendFrame(data, baseURLString, urls[1], false,blobDict);
+                                 appendFrame(data, baseURLString, urls[2], true,blobDict);
+                              }
+                                 break;
 
-                           default://dicomExplicitJ2kIdem
-                           {
-                              appendFrame(data, baseURLString, urls[0], false,blobDict);
-                              appendFrame(data, baseURLString, urls[1], false,blobDict);
-                              appendFrame(data, baseURLString, urls[2], false,blobDict);
-                              appendFrame(data, baseURLString, urls[3], true,blobDict);
+                              default://dicomExplicitJ2kIdem
+                              {
+                                 appendFrame(data, baseURLString, urls[0], false,blobDict);
+                                 appendFrame(data, baseURLString, urls[1], false,blobDict);
+                                 appendFrame(data, baseURLString, urls[2], false,blobDict);
+                                 appendFrame(data, baseURLString, urls[3], true,blobDict);
+                              }
+                                 break;
                            }
-                              break;
+                        }
+                        else //not compressed FrameBFHI
+                        {
+                           int penultimo= (int)urls.count - 2 ;
+                           int i;
+                           for (i=0; i<penultimo; i++)
+                           {
+                              appendFrame(data, baseURLString, urls[i], false,blobDict);
+                           }
+                           appendFrame(data, baseURLString, urls[i], true,blobDict);
                         }
                      }
                      [data appendBytes:&SQend length:8];

@@ -52,36 +52,8 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/Samples/D/"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/Samples/D/MG-large.ele.dcm"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/Samples/D/US-icon.j2kr.dcm"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/Samples/D/CT1.ele.dcm"
+            argument = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/Samples/D/ele/SC1.ele.dcm"
             isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/Samples/D/CT2.ele.dcm"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/Samples/D/MG1.ele.dcm"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/Samples/D/SC1.ele.dcm"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/Samples/D/SC1.j2kr.dcm"
-            isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
       <EnvironmentVariables>

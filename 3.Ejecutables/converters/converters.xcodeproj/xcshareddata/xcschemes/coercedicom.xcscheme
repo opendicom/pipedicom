@@ -80,7 +80,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "10x10s"
+            argument = "60x0s"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

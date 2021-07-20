@@ -28,7 +28,7 @@ Done es el destino de un mv de las subdirectorios de los originales procesados e
 
 En caso que hubo falla de procesamiento, se realiza un mv las subdirectorios de los originales a una subcarpeta de Failure
 
-El resultado del procesamiento se escribe dentro de Success. Un primer nivel de subdirectorios refleja la org de destino. Los siguientes niveles de subdirectorios reflejan la estructura dentro de Spool
+El resultado del procesamiento se escribe dentro de Success. El primer nivel de subdirectorios refleja la org de destino. Los siguientes niveles de subdirectorios reflejan la estructura dentro de Spool
 
 Tests
 ------

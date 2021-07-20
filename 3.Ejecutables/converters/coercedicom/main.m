@@ -8,27 +8,71 @@
 #import <Foundation/Foundation.h>
 #import <DCKV/DCKV.h>
 
-void async_f_callback(void *context){
+void async_f_study_callback(void *context){
    NSMutableDictionary *current = (NSMutableDictionary*) context;
    NSFileManager *fileManager=[NSFileManager defaultManager];
    NSError *error=nil;
+   BOOL isDirectory=false;
    NSMutableString *response=[NSMutableString string];
 
    NSMutableArray *inputPaths=[NSMutableArray array];
    if (!visibleRelativeFiles(fileManager, current[@"spoolDirPath"], [fileManager contentsOfDirectoryAtPath:current[@"spoolDirPath"] error:&error] , inputPaths))
-      [response appendFormat:@"error reading directory %@\r\n",current[@"spoolDirPath"]];
-   else
    {
-      NSMutableSet *successDirSet=[NSMutableSet set];
-      NSMutableSet *failureDirSet=[NSMutableSet set];
-      NSMutableSet *doneDirSet=[NSMutableSet set];
+      [response appendFormat:@"error reading directory %@\r\n",current[@"spoolDirPath"]];
+      return;
+   }
+
+   //we want to create these folder, if necesary, once only
+   
+   BOOL successDirExists=([fileManager fileExistsAtPath:current[@"successDirPath"]]);
+   BOOL failureDirExists=([fileManager fileExistsAtPath:current[@"failureDirPath"]]);
+
+   NSString *doneDirPath=current[@"doneDirPath"];
+   if (![fileManager fileExistsAtPath:doneDirPath])
+   {
+      if (![fileManager createDirectoryAtPath:doneDirPath withIntermediateDirectories:NO attributes:nil error:&error])
+      {
+         [response appendFormat:@"can not create %@\r\n",doneDirPath];
+         return;
+      }
+   }
+   NSArray *DoneInitialContents=[fileManager contentsOfDirectoryAtPath:doneDirPath error:&error];//to find duplicate tasks and move them to ORIGINALS
 
 #pragma mark loop
-      NSMutableData *inputData=[NSMutableData data];
-      for (NSString *relativeInputPath in inputPaths)
+   NSMutableData *inputData=[NSMutableData data];
+   for (NSString *relativeInputPath in inputPaths)
+   {
+      NSString *spoolFilePath=[current[@"spoolDirPath"] stringByAppendingPathComponent:relativeInputPath];
+      //already in originals?
+      if ([DoneInitialContents indexOfObject:relativeInputPath] != NSNotFound)
       {
-         NSString *spoolFilePath=[current[@"spoolDirPath"] stringByAppendingPathComponent:relativeInputPath];
-   #pragma mark · parse
+         NSLog(@"%@ already existing",relativeInputPath);
+         NSString *sopDonePath=[doneDirPath stringByAppendingPathComponent:relativeInputPath];
+         if ([fileManager fileExistsAtPath:sopDonePath isDirectory:&isDirectory])
+         {
+            if (isDirectory==true)
+            {
+               //directory already existing
+               NSUInteger sameSopCount=[[fileManager contentsOfDirectoryAtPath:sopDonePath error:nil]count];
+               [fileManager moveItemAtPath:spoolFilePath toPath:[sopDonePath stringByAppendingPathComponent:[NSString stringWithFormat:@"%lu.dcm",sameSopCount + 1]] error:&error];
+            }
+            else
+            {
+               NSString *one=[current[@"doneDirPath"] stringByAppendingPathComponent:@"1"];
+               //rename sop to "1"
+               [fileManager moveItemAtPath:sopDonePath toPath:one error:&error];
+               //create dir
+               [fileManager createDirectoryAtPath:sopDonePath withIntermediateDirectories:false attributes:nil error:&error];
+               //move 1 to dir
+               [fileManager moveItemAtPath:one toPath:[sopDonePath stringByAppendingPathComponent:@"1.dcm"] error:&error];
+               [fileManager moveItemAtPath:spoolFilePath toPath:[sopDonePath stringByAppendingPathComponent:@"2.dcm"] error:&error];
+            }
+         }
+      }
+      else
+      {
+
+#pragma mark · parse
          [inputData appendData:[NSData dataWithContentsOfFile:spoolFilePath]];
          
          NSMutableDictionary *parsedAttrs=[NSMutableDictionary dictionary];
@@ -51,7 +95,7 @@ void async_f_callback(void *context){
          }
          else
          {
-   #pragma mark · compress ?
+#pragma mark · compress ?
             //NSLog(@"%@: %@",parsedAttrs[@"00000001_00020010-UI"][0],parsedAttrs[@"00000001_00020003-UI"][0]);
             NSString *pixelKey=nil;
             if (parsedAttrs[@"00000001_7FE00010-OB"])pixelKey=@"00000001_7FE00010-OB";
@@ -99,10 +143,10 @@ void async_f_callback(void *context){
             [parsedAttrs addEntriesFromDictionary:current[@"coerce"]];
 
             
-   #pragma mark outputData
+#pragma mark outputData
             NSMutableData *outputData;
             
-   //group 2 ?
+//group 2 ?
             if (parsedAttrs[@"00000001_00020003-UI"])
             {
                NSMutableDictionary *filemetainfoDict=[NSMutableDictionary dictionary];
@@ -143,7 +187,9 @@ void async_f_callback(void *context){
                [outputData appendData:filemetainfoData];
             }
             else outputData=[NSMutableData data];//not a part 10 dataset
-   //dataset
+
+
+#pragma mark finalize dataset
             if (dict2D(
                         @"",
                         parsedAttrs,
@@ -152,49 +198,50 @@ void async_f_callback(void *context){
                         blobDict
                         )==failure
                 )
+#pragma mark · failure
             {
                NSLog(@"could not serialize dataset. %@",parsedAttrs);
                NSString *failureFilePath=[current[@"failureDirPath"] stringByAppendingPathComponent:relativeInputPath];
-               if (enclosingDirectoryWritable(fileManager, failureDirSet, failureFilePath)==true)
+               if (!failureDirExists)
                {
-                  [outputData writeToFile:failureFilePath atomically:NO ];
-                  [response appendFormat:@"failed to write %@\r\n",failureFilePath];
-
+                  if (![fileManager createDirectoryAtPath:current[@"failureDirPath"] withIntermediateDirectories:NO attributes:nil error:&error])
+                  {
+                     [response appendFormat:@"failed to create %@\r\n",current[@"failureDirPath"]];
+                     break;
+                  }
                }
-               else
-               {
-                  [response appendFormat:@"not writable %@\r\n",failureFilePath];
-               }
+               [outputData writeToFile:failureFilePath atomically:NO ];
+               [response appendFormat:@"failed to write %@\r\n",failureFilePath];
                break;
             }
 
-   #pragma mark · write result
+#pragma mark · write result
             NSString *successFilePath=[current[@"successDirPath"] stringByAppendingPathComponent:relativeInputPath];
-            if (enclosingDirectoryWritable(fileManager, successDirSet, successFilePath)==true)
+            if (!successDirExists)
             {
-               [outputData writeToFile:successFilePath atomically:NO ];
+               if (![fileManager createDirectoryAtPath:current[@"successDirPath"] withIntermediateDirectories:YES attributes:nil error:&error])
+               {
+                  [response appendFormat:@"can not write %@\r\n",successFilePath];
+                  break;
+               }
             }
-            else
-            {
-               [response appendFormat:@"can not write %@\r\n",successFilePath];
-               break;
-            }
+            [outputData writeToFile:successFilePath atomically:NO ];
+
             
-            //move receiver
-            NSString *doneFilePath=[current[@"doneDirPath"] stringByAppendingPathComponent:relativeInputPath];
-            if (   (enclosingDirectoryWritable(fileManager, doneDirSet, doneFilePath)==false)
-                || ![fileManager moveItemAtPath:spoolFilePath toPath:doneFilePath error:&error]
-                )
+//move to doneFilePath
+            NSString *doneFilePath=[doneDirPath stringByAppendingPathComponent:relativeInputPath];
+            if (![fileManager moveItemAtPath:spoolFilePath toPath:doneFilePath error:&error])
             {
                [response appendFormat:@"can not move %@ to %@: %@\r\n",spoolFilePath,doneFilePath,error.description];
                break;
             }
          }//end parsed
          [inputData setLength:0];
-      }//end loop
-      
-   }//end while true
+      }
+   }//end loop
+   
    [current setObject:response forKey:@"response"];
+   return;
 }
 
 
@@ -370,7 +417,12 @@ The root is an array where items are clasified by priority of execution
            
         }
        
-       
+       dispatch_queue_attr_t attr=dispatch_queue_attr_make_with_autorelease_frequency(DISPATCH_QUEUE_CONCURRENT,DISPATCH_AUTORELEASE_FREQUENCY_WORK_ITEM);
+
+
+       dispatch_queue_t studyQueue = dispatch_queue_create("com.opendicom.coercedicom.studyqueue", attr);
+
+
 #pragma mark source loop
        for (NSDictionary *source in sourcesToBeProcessed)
        {
@@ -601,18 +653,23 @@ The root is an array where items are clasified by priority of execution
             
             
             [studyTasks addObject:studyTaskDict];
+            //dispatch_get_global_queue(QOS_CLASS_BACKGROUND, 0 ),
+
             if (waitSeconds!=0)
             dispatch_async_f(
-               dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0 ),
+               studyQueue,
                studyTaskDict,
-               async_f_callback
+               async_f_study_callback
                );//(__bridge void * _Nullable)(studyTaskDict),
-            else async_f_callback(studyTaskDict);//run sequentially on one thread
+            else async_f_study_callback(studyTaskDict);//run sequentially on one thread
             
          } //NSLog(@"end of study loop");
        } //NSLog(@"end of source loop");
     } //NSLog(@"end of sources to be processed");
-
+      
+      
+#pragma mark monitor studyTask completion
+      
    while (studyTasks.count && (waitLoops > 0))
    {
       waitLoops--;

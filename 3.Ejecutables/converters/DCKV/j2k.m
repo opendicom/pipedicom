@@ -150,13 +150,14 @@ int compress(
 
 
       }
-      [frames addObject:[NSDictionary dictionaryWithObject:pixelAttrArray forKey:[NSString stringWithFormat:@"Frame#%08lu",frameNumber+1]]];
+      [frames addObject:[NSDictionary dictionaryWithObject:pixelAttrArray forKey:[NSString stringWithFormat:@"FrameBFHI#%08lu",frameNumber+1]]];
    }
-   [message appendFormat:@"ele %lu KB -> j2k: %f s, %lu x\r\n",
-         (unsigned long)pixelTotalLength/1024,
-         [[NSDate date] timeIntervalSinceDate:start],
-         pixelTotalLength / j2kTotalLength
-         ];
+   [message appendFormat:@"ele->j2k(s,KB,KB,*)\t%f\t%lu\t%lu\t%f\r\n",
+    [[NSDate date] timeIntervalSinceDate:start],
+    (unsigned long)pixelTotalLength/1024,
+    (unsigned long)j2kTotalLength/1024,
+    (float)pixelTotalLength / j2kTotalLength
+    ];
 #pragma mark · new attrs related to transfer syntax j2k
 
    [j2kAttrs setObject:frames forKey:@"00000001_7FE00010-OB"];

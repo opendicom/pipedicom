@@ -939,7 +939,7 @@ NSUInteger D2J(
                          itemString : @[ urlString ]
                       }
                       ];
-                     [frameData appendData:[data subdataWithRange:NSMakeRange(bi+bi+8,vll)]];
+                     [frames addObject:[data subdataWithRange:NSMakeRange(bi+bi+8,vll)]];
                      bi += (vll>>1);
 
                      bi += 4;
