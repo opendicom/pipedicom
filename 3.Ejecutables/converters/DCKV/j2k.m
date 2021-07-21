@@ -82,7 +82,36 @@ int compress(
       //task.standardError=readPipe;
       
       [task launch];
-      [writeHandle writeData:[pixelData subdataWithRange:NSMakeRange(frameNumber*frameLength,frameLength)]];
+      switch (samples) {
+         case 1:
+            [writeHandle writeData:[pixelData subdataWithRange:NSMakeRange(frameNumber*frameLength,frameLength)]];
+            break;
+         case 3://RGB
+         {
+            NSData *RGB=[pixelData subdataWithRange:NSMakeRange(frameNumber*frameLength,frameLength)];
+            NSMutableData *R=[NSMutableData data];
+            NSMutableData *G=[NSMutableData data];
+            NSMutableData *B=[NSMutableData data];
+            unsigned char *pixel=(unsigned char *)[RGB bytes];
+            unsigned long i=0;
+            const NSUInteger afterLastR=RGB.length;
+            while (i<afterLastR)
+            {
+               [R appendBytes:&pixel[i++] length:1];
+               [G appendBytes:&pixel[i++] length:1];
+               [B appendBytes:&pixel[i++] length:1];
+            }
+            [R appendData:G];
+            [R appendData:B];
+            [writeHandle writeData:R];
+         }
+            break;
+
+         default:
+            NSLog(@"%d samples pixels not handled",samples);
+            break;
+      }
+      
       [writeHandle closeFile];
       
       NSData *dataPiped = nil;

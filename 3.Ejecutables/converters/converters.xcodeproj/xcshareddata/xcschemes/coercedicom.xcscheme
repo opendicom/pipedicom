@@ -64,6 +64,10 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "/Volumes/IN/AET/FAILURE"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "/Volumes/IN/AET/ORIGINALS"
             isEnabled = "YES">
          </CommandLineArgument>
