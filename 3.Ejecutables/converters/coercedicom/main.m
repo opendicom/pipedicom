@@ -19,6 +19,7 @@ void async_f_study_callback(void *context){
    if (!visibleRelativeFiles(fileManager, current[@"spoolDirPath"], [fileManager contentsOfDirectoryAtPath:current[@"spoolDirPath"] error:&error] , inputPaths))
    {
       [response appendFormat:@"error reading directory %@\r\n",current[@"spoolDirPath"]];
+      [current setObject:response forKey:@"response"];
       return;
    }
 
@@ -30,24 +31,32 @@ void async_f_study_callback(void *context){
    NSString *doneDirPath=current[@"doneDirPath"];
    if (![fileManager fileExistsAtPath:doneDirPath])
    {
-      if (![fileManager createDirectoryAtPath:doneDirPath withIntermediateDirectories:NO attributes:nil error:&error])
+      if (![fileManager createDirectoryAtPath:doneDirPath withIntermediateDirectories:YES attributes:nil error:&error])
       {
          [response appendFormat:@"can not create %@\r\n",doneDirPath];
+         [current setObject:response forKey:@"response"];
          return;
       }
    }
-   NSArray *DoneInitialContents=[fileManager contentsOfDirectoryAtPath:doneDirPath error:&error];//to find duplicate tasks and move them to ORIGINALS
+   
+   //to find duplicate tasks and move them to ORIGINALS
+   NSSet *DoneInitialSet=[NSSet setWithArray:[fileManager contentsOfDirectoryAtPath:doneDirPath error:&error]];
 
 #pragma mark loop
    NSMutableData *inputData=[NSMutableData data];
    for (NSString *relativeInputPath in inputPaths)
    {
+      if ([relativeInputPath hasPrefix:@"."]) continue;
       NSString *spoolFilePath=[current[@"spoolDirPath"] stringByAppendingPathComponent:relativeInputPath];
       //already in originals?
-      if ([DoneInitialContents indexOfObject:relativeInputPath] != NSNotFound)
+      NSString *relativeInputUidPath;
+      if ([relativeInputPath containsString:@"_"])
+         relativeInputUidPath=[[relativeInputPath componentsSeparatedByString:@"_"][0] stringByAppendingPathExtension:@"dcm"];
+      else relativeInputUidPath=relativeInputPath;
+      if ([DoneInitialSet containsObject:relativeInputUidPath])
       {
          NSLog(@"%@ already existing",relativeInputPath);
-         NSString *sopDonePath=[doneDirPath stringByAppendingPathComponent:relativeInputPath];
+         NSString *sopDonePath=[doneDirPath stringByAppendingPathComponent:relativeInputUidPath];
          if ([fileManager fileExistsAtPath:sopDonePath isDirectory:&isDirectory])
          {
             if (isDirectory==true)
@@ -204,7 +213,7 @@ void async_f_study_callback(void *context){
                NSString *failureFilePath=[current[@"failureDirPath"] stringByAppendingPathComponent:relativeInputPath];
                if (!failureDirExists)
                {
-                  if (![fileManager createDirectoryAtPath:current[@"failureDirPath"] withIntermediateDirectories:NO attributes:nil error:&error])
+                  if (![fileManager createDirectoryAtPath:current[@"failureDirPath"] withIntermediateDirectories:YES attributes:nil error:&error])
                   {
                      [response appendFormat:@"failed to create %@\r\n",current[@"failureDirPath"]];
                      break;
@@ -229,7 +238,7 @@ void async_f_study_callback(void *context){
 
             
 //move to doneFilePath
-            NSString *doneFilePath=[doneDirPath stringByAppendingPathComponent:relativeInputPath];
+            NSString *doneFilePath=[doneDirPath stringByAppendingPathComponent:relativeInputUidPath];
             if (![fileManager moveItemAtPath:spoolFilePath toPath:doneFilePath error:&error])
             {
                [response appendFormat:@"can not move %@ to %@: %@\r\n",spoolFilePath,doneFilePath,error.description];
@@ -251,6 +260,7 @@ enum CDargName{
    CDargCmd=0,
    CDargSpool,
    CDargSuccess,
+   CDargDiscarded,
    CDargFailure,
    CDargDone,
    CDargInstitutionmapping,
@@ -278,7 +288,7 @@ int main(int argc, const char * argv[]){
        NSArray *arg8xs=[arg8 componentsSeparatedByString:@"x"];
        if (arg8xs.count==2)
        {
-          waitLoops=[arg8xs[0] unsignedIntValue];
+          waitLoops=[arg8xs[0] integerValue];
           waitSeconds=(unsigned int)[[arg8xs[1] substringToIndex:[arg8xs[1] length] -1 ] integerValue];
        }
     }
@@ -297,16 +307,16 @@ int main(int argc, const char * argv[]){
     };
 
     if (!CLASSIFIEDarray.count) exit(0);
-    NSMutableArray *CLASSIFIEDrestingArray=[NSMutableArray arrayWithArray:CLASSIFIEDarray];
-    if ([CLASSIFIEDrestingArray[0] hasPrefix:@"."])
+    NSMutableArray *sourcesBeforeMapping=[NSMutableArray arrayWithArray:CLASSIFIEDarray];
+    if ([sourcesBeforeMapping[0] hasPrefix:@"."])
     {
-       if([fileManager removeItemAtPath:[args[CDargSpool] stringByAppendingPathComponent:CLASSIFIEDrestingArray[0]] error:&error])
+       if([fileManager removeItemAtPath:[args[CDargSpool] stringByAppendingPathComponent:sourcesBeforeMapping[0]] error:&error])
        {
-          [CLASSIFIEDrestingArray removeObjectAtIndex:0];
-          if (!CLASSIFIEDrestingArray.count) exit(0);
+          [sourcesBeforeMapping removeObjectAtIndex:0];
+          if (!sourcesBeforeMapping.count) exit(0);
 
        }
-       else NSLog(@"can not remove %@. %@",[args[CDargSpool] stringByAppendingPathComponent:CLASSIFIEDrestingArray[0]],error.description);
+       else NSLog(@"can not remove %@. %@",[args[CDargSpool] stringByAppendingPathComponent:sourcesBeforeMapping[0]],error.description);
     }
 
     
@@ -353,15 +363,14 @@ The root is an array where items are clasified by priority of execution
         if (!regex)
         {
             NSLog(@"bad institutionMapping json file:%@ item:%@ %@",args[CDargInstitutionmapping],matchDict.description,[error description]);
-            exit(1);
         }
        
-       //loop CLASSIFIEDrestingArray for matching regex filter
-       for ( long i=CLASSIFIEDrestingArray.count-1; i>=0; i--)
+       //loop sourcesBeforeMapping for matching regex filter
+       for ( long i=sourcesBeforeMapping.count-1; i>=0; i--)
        {
-          if ([regex numberOfMatchesInString:CLASSIFIEDrestingArray[i] options:0 range:NSMakeRange(0,[CLASSIFIEDrestingArray[i] length])])
+          if ([regex numberOfMatchesInString:sourcesBeforeMapping[i] options:0 range:NSMakeRange(0,[sourcesBeforeMapping[i] length])])
           {
-             NSArray *StudyInstanceUIDs=[fileManager contentsOfDirectoryAtPath:[args[CDargSpool] stringByAppendingPathComponent:CLASSIFIEDrestingArray[i]] error:&error];
+             NSArray *StudyInstanceUIDs=[fileManager contentsOfDirectoryAtPath:[args[CDargSpool] stringByAppendingPathComponent:sourcesBeforeMapping[i]] error:&error];
              if (  !StudyInstanceUIDs
                  ||(
                        (StudyInstanceUIDs.count==1)
@@ -369,17 +378,41 @@ The root is an array where items are clasified by priority of execution
                     )
                  )
              {
-                if(![fileManager removeItemAtPath:[args[CDargSpool] stringByAppendingPathComponent:CLASSIFIEDrestingArray[0]] error:&error]) NSLog(@"can not remove %@. %@",[args[CDargSpool] stringByAppendingPathComponent:CLASSIFIEDrestingArray[i]],error.description);
+                if(![fileManager removeItemAtPath:[args[CDargSpool] stringByAppendingPathComponent:sourcesBeforeMapping[0]] error:&error]) NSLog(@"can not remove %@. %@",[args[CDargSpool] stringByAppendingPathComponent:sourcesBeforeMapping[i]],error.description);
              }
              else
              {
                 [sourcesToBeProcessed addObject:[NSMutableDictionary dictionaryWithDictionary:matchDict]];
-                [sourcesToBeProcessed.lastObject setObject:CLASSIFIEDrestingArray[i] forKey:@"scu"];
+                [sourcesToBeProcessed.lastObject setObject:sourcesBeforeMapping[i] forKey:@"scu"];
              }
-             [CLASSIFIEDrestingArray removeObjectAtIndex:i];
+             [sourcesBeforeMapping removeObjectAtIndex:i];
           }
        }
     }
+      
+#pragma mark - sources To Be discarded
+      for (NSString *source in sourcesBeforeMapping)
+      {
+         NSString *discardedSourceDirPath=[args[CDargDiscarded] stringByAppendingPathComponent:source];
+         if ([fileManager fileExistsAtPath:discardedSourceDirPath])
+         {
+            //move contents there
+            NSString *sourceDirPath=[args[CDargSpool] stringByAppendingPathComponent:source];
+
+            NSArray *StudyInstanceUIDs=[fileManager contentsOfDirectoryAtPath:sourceDirPath error:&error];
+            for (NSString *StudyInstanceUID in StudyInstanceUIDs)
+            {
+               if ([StudyInstanceUID hasPrefix:@"."]) continue;
+               [fileManager moveItemAtPath:[sourceDirPath stringByAppendingPathComponent:StudyInstanceUID] toPath:[discardedSourceDirPath stringByAppendingPathComponent:StudyInstanceUID] error:&error];
+            }
+            [fileManager removeItemAtPath:sourceDirPath error:&error];
+         }
+         else //new discarded source
+         {
+            //move source there
+            [fileManager moveItemAtPath:[args[CDargSpool] stringByAppendingPathComponent:source] toPath:discardedSourceDirPath error:&error];
+         }
+      }
         
 #pragma mark - sourcesToBeProcessed
     NSMutableArray *studyTasks=[NSMutableArray array];

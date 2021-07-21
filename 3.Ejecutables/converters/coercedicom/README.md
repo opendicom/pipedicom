@@ -14,7 +14,7 @@ enum CDargName{
    CDargInstitutionmapping,          //mapping  sender -> org
    CDargCdamwlDir,                       //cdawldicom matching
    CDargPacsquery,                        //pacs for verification
-   CDargAsyncMonitorLoopsWait   // nxms (n=loops number, m=seconds wait)
+   CDargAsyncMonitorLoopsWait   // nxms (n=loops number, m=seconds wait , m=0 -> proceso sincrónico, para debug)
 };
 
 Estructura de subdirectorios
@@ -40,7 +40,7 @@ coercedicom aplica :
 Dependiendo de los resultados:
 
 - Si (test1) falla, la carpeta (source) está movida al subdirectorio DISCARDED.
-- Si (test2) o (test3) falla, la carpeta (study) está movida a un directorio creado en base al nombre del error encontrado.
+- Si (test2) o (test3) falla, la carpeta (study) está movida a un subdirectorio FAILURE.
 - Si los tests son exitosos, los archivos (instance) están procesados.
 - Si el proceso es exitoso, el resultado del procesamiento está colocado dentro del directorio COERCED (repitiendo la misma subestructura de carpetas que dentro del directorio CLASSIFIED). Los originales (antes procesamiento) están  desplazados a un subdirectorio ORIGINALS de RECEIVER (repitiendo la misma subestructura que dentro del directorio CLASSIFIED).
 - Si el proceso fracasó,  los originales (antes procesamiento) están  desplazados a un directorio creado en base al nombre del error encontrado dentro de RECEIVER.
