@@ -8,6 +8,12 @@
 #import <Foundation/Foundation.h>
 #import <DCKV/DCKV.h>
 
+const UInt32 DICM='MCID';
+const UInt64 _0002000_tag_vr=0x44C5500000002;
+const UInt64 _0002001_tag_vr=0x0000424F00010002;
+const UInt32 _0002001_length=0x00000002;
+const UInt16 _0002001_value=0x0001;
+
 void async_f_study_callback(void *context){
    NSMutableDictionary *current = (NSMutableDictionary*) context;
    NSFileManager *fileManager=[NSFileManager defaultManager];
@@ -84,12 +90,35 @@ void async_f_study_callback(void *context){
 #pragma mark · parse
          [inputData appendData:[NSData dataWithContentsOfFile:spoolFilePath]];
          
+         uint32 inputFileMetadataLength=0;
+         [inputData getBytes:&inputFileMetadataLength range:NSMakeRange(140,4)];
+         NSData *inputFileMetadata=[inputData subdataWithRange:NSMakeRange(158,inputFileMetadataLength-14)];
+         
+         
          NSMutableDictionary *parsedAttrs=[NSMutableDictionary dictionary];
          NSMutableDictionary *blobDict=[NSMutableDictionary dictionary];
          NSMutableDictionary *j2kAttrs=[NSMutableDictionary dictionary];
          NSMutableDictionary *j2kBlobDict=[NSMutableDictionary dictionary];
+         
+         NSMutableDictionary *fileMetadataAttrs=[NSMutableDictionary dictionary];
          if (!D2dict(
-                    inputData,
+                    inputFileMetadata,
+                    fileMetadataAttrs,
+                    0,//blob min size
+                    blobModeResources,
+                    @"",//prefix
+                    @"",//suffix
+                    blobDict
+                    )
+             )
+         {
+            [response appendFormat:@"could not parse fileMetadata %@\r\n",spoolFilePath];
+            break;
+         }
+
+
+         if (!D2dict(
+                     [inputData subdataWithRange:NSMakeRange(144+inputFileMetadataLength,inputData.length-144-inputFileMetadataLength)],
                     parsedAttrs,
                     0,//blob min size
                     blobModeResources,
@@ -111,7 +140,7 @@ void async_f_study_callback(void *context){
             else if (parsedAttrs[@"00000001_7FE00010-OW"])pixelKey=@"00000001_7FE00010-OW";
             
             if (   pixelKey
-                && [parsedAttrs[@"00000001_00020010-UI"][0] isEqualToString:@"1.2.840.10008.1.2.1"]
+                && [fileMetadataAttrs[@"00000001_00020010-UI"][0] isEqualToString:@"1.2.840.10008.1.2.1"]
                 )
             {
                NSString *nativeUrlString=parsedAttrs[pixelKey][0][@"Native"][0];
@@ -135,8 +164,9 @@ void async_f_study_callback(void *context){
                   
                   //remove native attributes
                   [parsedAttrs removeObjectForKey:pixelKey];
-                  [parsedAttrs removeObjectForKey:@"00000001_00020010-UI"];
                   [parsedAttrs addEntriesFromDictionary:j2kAttrs];
+
+                  [fileMetadataAttrs setObject:@[@"1.2.840.10008.1.2.4.90"] forKey:@"00000001_00020010-UI"];
                }
                else
                {
@@ -145,60 +175,44 @@ void async_f_study_callback(void *context){
                }
             }
             
-            //remove group2 length
-            [parsedAttrs removeObjectForKey:@"00000001_00020000-UL"];
             
-            //add overriding dataset
-            [parsedAttrs addEntriesFromDictionary:current[@"coerce"]];
+#pragma mark coerce and outputData init
+            if (current[@"coerceDataset"]) [parsedAttrs addEntriesFromDictionary:current[@"coerceDataset"]];
+            
+            if (current[@"coerceFileMetadata"]) [fileMetadataAttrs addEntriesFromDictionary:current[@"coerceFileMetadata"]];
+            
+            if (current[@"coerceBlobs"]) [blobDict addEntriesFromDictionary:current[@"coerceBlobs"]];
 
-            
-#pragma mark outputData
             NSMutableData *outputData;
-            
-//group 2 ?
-            if (parsedAttrs[@"00000001_00020003-UI"])
-            {
-               NSMutableDictionary *filemetainfoDict=[NSMutableDictionary dictionary];
-               NSArray *keys=[parsedAttrs allKeys];
-               for (NSString *key in keys)
-               {
-                  if ([key hasPrefix:@"00000001_0002"])
-                  {
-                     [filemetainfoDict setObject:parsedAttrs[key] forKey:key];
-                     [parsedAttrs removeObjectForKey:key];
-                  }
-               }
-               
-               NSMutableData *filemetainfoData=[NSMutableData data];
-               if (dict2D(
-                          @"",
-                          filemetainfoDict,
-                          filemetainfoData,
-                          4, //dicomExplicitJ2kIdem
-                          blobDict
-                          ) == failure
+//prefix
+            if (!current[@"coercePrefix"]) outputData=[NSMutableData dataWithLength:128];
+            else outputData=[NSMutableData dataWithLength:128];
+            [outputData appendBytes:&DICM length:4];
+//fileMetadata
+            NSMutableData *outputFileMetadata=[NSMutableData data];
+            if (dict2D(
+                        @"",
+                        fileMetadataAttrs,
+                        outputFileMetadata,
+                        4, //dicomExplicitJ2kIdem
+                        blobDict
+                        ) == failure
                    )
                {
-                  NSLog(@"could not serialize group 0002. %@",filemetainfoDict.description);
+                  NSLog(@"could not serialize group 0002. %@",fileMetadataAttrs.description);
                   exit(failure);
                }
                
-               //create 128 empty bytes + 'DICM' + 00020000 attribute
-               outputData=[NSMutableData dataWithLength:128];
-               UInt32 DICM='MCID';
-               [outputData appendBytes:&DICM length:4];
-               UInt64 group2LengthAttr=0x44C5500000002;
-               [outputData appendBytes:&group2LengthAttr length:8];
-               UInt32 group2Length=(UInt32)filemetainfoData.length;
-               [outputData appendBytes:&group2Length length:4];
-               
-               //append group2 contents
-               [outputData appendData:filemetainfoData];
-            }
-            else outputData=[NSMutableData data];//not a part 10 dataset
+               [outputData appendBytes:&_0002000_tag_vr length:8];
+               UInt32 fileMetadataLength=(UInt32)outputFileMetadata.length+14;//00020001
+               [outputData appendBytes:&fileMetadataLength length:4];
+               [outputData appendBytes:&_0002001_tag_vr length:8];
+               [outputData appendBytes:&_0002001_length length:4];
+               [outputData appendBytes:&_0002001_value length:2];
+               [outputData appendData:outputFileMetadata];
 
 
-#pragma mark finalize dataset
+// dataset
             if (dict2D(
                         @"",
                         parsedAttrs,
