@@ -66,10 +66,10 @@ void async_f_study_callback(void *context){
 
    //we want to create these folder, if necesary, once only
    
-   BOOL successDirExists=([fileManager fileExistsAtPath:current[@"successDirPath"]]);
-   BOOL failureDirExists=([fileManager fileExistsAtPath:current[@"failureDirPath"]]);
+   BOOL successDirExists=([fileManager fileExistsAtPath:current[@"successDir"]]);
+   BOOL failureDirExists=([fileManager fileExistsAtPath:current[@"failureDir"]]);
 
-   NSString *doneDir=current[@"doneDirPath"];
+   NSString *doneDir=current[@"doneDir"];
    if (![fileManager fileExistsAtPath:doneDir])
    {
       if (![fileManager createDirectoryAtPath:doneDir withIntermediateDirectories:YES attributes:nil error:&error])
@@ -85,6 +85,8 @@ void async_f_study_callback(void *context){
 
 #pragma mark loop
    NSMutableData *inputData=[NSMutableData data];
+   long long bucketNumber=0;
+   long long bucketSpaceLeft=0;
    for (NSString *srcName in inputPaths)
    {
       if ([srcName hasPrefix:@"."]) continue;
@@ -117,7 +119,7 @@ void async_f_study_callback(void *context){
             //move srcFile to FAILURE
             NSString *errMsg=moveDup(
                                      srcFile,
-                                     [current[@"failureDirPath"] stringByAppendingPathComponent:dstName]
+                                     [current[@"failureDir"] stringByAppendingPathComponent:dstName]
                                      );
             if (errMsg) [response appendString:errMsg];
             continue;
@@ -226,19 +228,19 @@ void async_f_study_callback(void *context){
                         4, //dicomExplicitJ2kIdem
                         blobDict
                         ) == failure
-                   )
-               {
-                  NSLog(@"could not serialize group 0002. %@",fileMetadataAttrs.description);
-                  exit(failure);
-               }
-               
-               [outputData appendBytes:&_0002000_tag_vr length:8];
-               UInt32 fileMetadataLength=(UInt32)outputFileMetadata.length+14;//00020001
-               [outputData appendBytes:&fileMetadataLength length:4];
-               [outputData appendBytes:&_0002001_tag_vr length:8];
-               [outputData appendBytes:&_0002001_length length:4];
-               [outputData appendBytes:&_0002001_value length:2];
-               [outputData appendData:outputFileMetadata];
+                )
+            {
+               NSLog(@"could not serialize group 0002. %@",fileMetadataAttrs.description);
+               exit(failure);
+            }
+            
+            [outputData appendBytes:&_0002000_tag_vr length:8];
+            UInt32 fileMetadataLength=(UInt32)outputFileMetadata.length+14;//00020001
+            [outputData appendBytes:&fileMetadataLength length:4];
+            [outputData appendBytes:&_0002001_tag_vr length:8];
+            [outputData appendBytes:&_0002001_length length:4];
+            [outputData appendBytes:&_0002001_value length:2];
+            [outputData appendData:outputFileMetadata];
 
 
 // dataset
@@ -253,12 +255,12 @@ void async_f_study_callback(void *context){
 #pragma mark · failure
             {
                NSLog(@"could not serialize dataset. %@",parsedAttrs);
-               NSString *failureFile=[current[@"failureDirPath"] stringByAppendingPathComponent:dstName];
+               NSString *failureFile=[current[@"failureDir"] stringByAppendingPathComponent:dstName];
                if (!failureDirExists)
                {
-                  if (![fileManager createDirectoryAtPath:current[@"failureDirPath"] withIntermediateDirectories:YES attributes:nil error:&error])
+                  if (![fileManager createDirectoryAtPath:current[@"failureDir"] withIntermediateDirectories:YES attributes:nil error:&error])
                   {
-                     [response appendFormat:@"failed to create %@\r\n",current[@"failureDirPath"]];
+                     [response appendFormat:@"failed to create %@\r\n",current[@"failureDir"]];
                      break;
                   }
                }
@@ -267,16 +269,33 @@ void async_f_study_callback(void *context){
             }
 
 #pragma mark · write result
-            NSString *successFile=[current[@"successDirPath"] stringByAppendingPathComponent:srcName];
+
+            if (outputData.length > [current[@"successBucketSize"] longLongValue])
+            {
+               [response appendFormat:@"%@ dataset (%lu) larger than bucket (%lld). Increase bucket size\r\n",srcName,(unsigned long)outputData.length,[current[@"successBucketSize"] longLongValue] ];
+               break;
+            }
+            
+            bucketSpaceLeft-=outputData.length;
+            if (bucketSpaceLeft < 0)
+            {
+               bucketNumber++;
+               bucketSpaceLeft=[current[@"successBucketSize"] longLongValue]-outputData.length;
+               successDirExists=false;
+            }
+            NSString *bucketDir=[current[@"successDir"]
+                                 stringByAppendingPathComponent:[NSString stringWithFormat:@"%lld",bucketNumber]
+                                 ];
             if (!successDirExists)
             {
-               if (![fileManager createDirectoryAtPath:current[@"successDirPath"] withIntermediateDirectories:YES attributes:nil error:&error])
+               if (![fileManager createDirectoryAtPath:bucketDir withIntermediateDirectories:YES attributes:nil error:&error])
                {
-                  [response appendFormat:@"can not write %@\r\n",successFile];
+                  [response appendFormat:@"can not create %@\r\n",bucketDir];
                   break;
                }
+               successDirExists=true;
             }
-            [outputData writeToFile:successFile atomically:NO ];
+            [outputData writeToFile:[bucketDir stringByAppendingPathComponent:srcName] atomically:NO ];
 
             
 //move to doneFilePath
@@ -381,10 +400,21 @@ int main(int argc, const char * argv[]){
 format:
 [
 {
-  org:string,
-  regex:string
-  coerce:{}
+  org:string (pacs aet)
+ 
+  regex:string (scu pattern)
+  scu:string (scu matching)
+ 
+  coerceDataset:{}
+  coerceFileMetadata
+  coerceBlobs
+  coercePrefix
   ...
+ 
+  successDir
+  failureDir
+  doneDir
+  successBucketSize (subdir max size for storedicom operation)
 }
 ...
 ]
@@ -410,11 +440,11 @@ The root is an array where items are clasified by priority of execution
        {
           if ([regex numberOfMatchesInString:sourcesBeforeMapping[i] options:0 range:NSMakeRange(0,[sourcesBeforeMapping[i] length])])
           {
-             NSArray *StudyInstanceUIDs=[fileManager contentsOfDirectoryAtPath:[args[CDargSpool] stringByAppendingPathComponent:sourcesBeforeMapping[i]] error:&error];
-             if (  !StudyInstanceUIDs
+             NSArray *Eiuids=[fileManager contentsOfDirectoryAtPath:[args[CDargSpool] stringByAppendingPathComponent:sourcesBeforeMapping[i]] error:&error];
+             if (  !Eiuids
                  ||(
-                       (StudyInstanceUIDs.count==1)
-                    && [StudyInstanceUIDs[0] hasPrefix:@"."]
+                       (Eiuids.count==1)
+                    && [Eiuids[0] hasPrefix:@"."]
                     )
                  )
              {
@@ -431,26 +461,26 @@ The root is an array where items are clasified by priority of execution
     }
       
 #pragma mark - sources To Be discarded
-      for (NSString *source in sourcesBeforeMapping)
+      for (NSString *sourceName in sourcesBeforeMapping)
       {
-         NSString *discardedSourceDirPath=[args[CDargDiscarded] stringByAppendingPathComponent:source];
-         if ([fileManager fileExistsAtPath:discardedSourceDirPath])
+         NSString *discardedSourceDir=[args[CDargDiscarded] stringByAppendingPathComponent:sourceName];
+         if ([fileManager fileExistsAtPath:discardedSourceDir])
          {
             //move contents there
-            NSString *sourceDirPath=[args[CDargSpool] stringByAppendingPathComponent:source];
+            NSString *sourceDir=[args[CDargSpool] stringByAppendingPathComponent:sourceName];
 
-            NSArray *StudyInstanceUIDs=[fileManager contentsOfDirectoryAtPath:sourceDirPath error:&error];
-            for (NSString *StudyInstanceUID in StudyInstanceUIDs)
+            NSArray *Eiuids=[fileManager contentsOfDirectoryAtPath:sourceDir error:&error];
+            for (NSString *Eiuid in Eiuids)
             {
-               if ([StudyInstanceUID hasPrefix:@"."]) continue;
-               [fileManager moveItemAtPath:[sourceDirPath stringByAppendingPathComponent:StudyInstanceUID] toPath:[discardedSourceDirPath stringByAppendingPathComponent:StudyInstanceUID] error:&error];
+               if ([Eiuid hasPrefix:@"."]) continue;
+               [fileManager moveItemAtPath:[sourceDir stringByAppendingPathComponent:Eiuid] toPath:[discardedSourceDir stringByAppendingPathComponent:Eiuid] error:&error];
             }
-            [fileManager removeItemAtPath:sourceDirPath error:&error];
+            [fileManager removeItemAtPath:sourceDir error:&error];
          }
          else //new discarded source
          {
             //move source there
-            [fileManager moveItemAtPath:[args[CDargSpool] stringByAppendingPathComponent:source] toPath:discardedSourceDirPath error:&error];
+            [fileManager moveItemAtPath:[args[CDargSpool] stringByAppendingPathComponent:sourceName] toPath:discardedSourceDir error:&error];
          }
       }
         
@@ -497,19 +527,19 @@ The root is an array where items are clasified by priority of execution
 
 
 #pragma mark source loop
-       for (NSDictionary *source in sourcesToBeProcessed)
+       for (NSDictionary *sourceDict in sourcesToBeProcessed)
        {
-            NSString *sourcePath=[args[CDargSpool] stringByAppendingPathComponent:source[@"scu"]];
-            NSArray *StudyInstanceUIDs=[fileManager contentsOfDirectoryAtPath:sourcePath error:nil];
+            NSString *sourceDir=[args[CDargSpool] stringByAppendingPathComponent:sourceDict[@"scu"]];
+            NSArray *Eiuids=[fileManager contentsOfDirectoryAtPath:sourceDir error:nil];
 
           
 #pragma mark - StudyUIDs loop
-         for (NSString *StudyInstanceUID in StudyInstanceUIDs)
+         for (NSString *Eiuid in Eiuids)
          {
             
 #pragma mark empty ?
-            NSString *studyPath=[sourcePath stringByAppendingPathComponent:StudyInstanceUID];
-            if ([StudyInstanceUID hasPrefix:@"."])
+            NSString *studyPath=[sourceDir stringByAppendingPathComponent:Eiuid];
+            if ([Eiuid hasPrefix:@"."])
             {
                 if (![fileManager removeItemAtPath:studyPath error:&error]) NSLog(@"can not remove %@. %@",studyPath,error.description);
                 continue;
@@ -527,30 +557,30 @@ The root is an array where items are clasified by priority of execution
                continue;
             }
 
-            NSMutableDictionary *studyTaskDict=[NSMutableDictionary dictionaryWithObject:source[@"coerce"] forKey:@"coerce"];
+            NSMutableDictionary *studyTaskDict=[NSMutableDictionary dictionaryWithDictionary:sourceDict];
             
             [studyTaskDict setObject:studyPath forKey:@"spoolDirPath"];
 
             [studyTaskDict setObject:
              [[[args[CDargSuccess]
-               stringByAppendingPathComponent:source[@"coerce"][@"00000001_00080080-LO"][0]]
-               stringByAppendingPathComponent:source[@"scu"]]
-              stringByAppendingPathComponent:StudyInstanceUID
-              ] forKey:@"successDirPath"];
+               stringByAppendingPathComponent:sourceDict[@"coerceDataset"][@"00000001_00080080-LO"][0]]
+               stringByAppendingPathComponent:sourceDict[@"scu"]]
+              stringByAppendingPathComponent:Eiuid
+              ] forKey:@"successDir"];
             [studyTaskDict setObject:
              [[args[CDargFailure]
-               stringByAppendingPathComponent:source[@"scu"]]
-              stringByAppendingPathComponent:StudyInstanceUID
-              ] forKey:@"failureDirPath"];
+               stringByAppendingPathComponent:sourceDict[@"scu"]]
+              stringByAppendingPathComponent:Eiuid
+              ] forKey:@"failureDir"];
             [studyTaskDict setObject:
              [[args[CDargDone]
-               stringByAppendingPathComponent:source[@"scu"]]
-              stringByAppendingPathComponent:StudyInstanceUID
-              ] forKey:@"doneDirPath"];
+               stringByAppendingPathComponent:sourceDict[@"scu"]]
+              stringByAppendingPathComponent:Eiuid
+              ] forKey:@"doneDir"];
 
 #pragma mark (2) check with cdawldicom
 /*
-            //add eventual additional coercion in correspondinng "coerce" mutable dictionary of the study
+            //add eventual additional coercion in correspondinng "coerceDataset" mutable dictionary of the study
             if (wltodayEUIDkeys)
             {
                 //depending on the results of cdawldicom, pacsTesting will be executed, or not
@@ -561,7 +591,7 @@ The root is an array where items are clasified by priority of execution
                NSUInteger ANindex=NSNotFound;
                NSUInteger PIDindex=NSNotFound;
 #pragma mark (2.1) StudyInstanceUID match
-               NSUInteger EUIDindex=[wltodayEUIDkeys indexOfObject:StudyInstanceUID];
+               NSUInteger EUIDindex=[wltodayEUIDkeys indexOfObject:Eiuid];
                if (EUIDindex!=NSNotFound)
                {
                   EUIDpath=[wltodayEUIDFolder stringByAppendingPathComponent:wltodayEUIDkeys[EUIDindex] ];
@@ -620,7 +650,7 @@ The root is an array where items are clasified by priority of execution
                    //no definitive Accssion Number matching
 
                    //read wldict
-                   NSDictionary *wldict=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:[[wltodayEUIDFolder stringByAppendingPathComponent:StudyInstanceUID]stringByAppendingPathComponent:@"wl.json"] options:0 error:&error] options:0 error:&error];
+                   NSDictionary *wldict=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:[[wltodayEUIDFolder stringByAppendingPathComponent:Eiuid]stringByAppendingPathComponent:@"wl.json"] options:0 error:&error] options:0 error:&error];
                    
                    
                  
@@ -651,7 +681,7 @@ The root is an array where items are clasified by priority of execution
                      @[@"-s"],
                      [
                          [args[argPacsquery] stringByAppendingFormat:args[argInstitutionmapping],
-                          StudyInstanceUID]
+                          Eiuid]
                          dataUsingEncoding:NSUTF8StringEncoding
                      ],
                      sqlResponseData
@@ -681,7 +711,7 @@ The root is an array where items are clasified by priority of execution
                 
                  if (![sqlResponseString isEqualToString:institutionName])
                  {
-                     LOG_WARNING(@"%@ discarded. Comes from %@. Was already registered for %@)",StudyInstanceUID,institutionName,sqlResponseString);
+                     LOG_WARNING(@"%@ discarded. Comes from %@. Was already registered for %@)",Eiuid,institutionName,sqlResponseString);
                  
                      [fileManager
                       moveItemAtPath:studyPath
@@ -692,15 +722,15 @@ The root is an array where items are clasified by priority of execution
                  }
              }
                 
-             NSURL *pacsURI=[NSURL URLWithString:[NSString stringWithFormat:@"%@/%@",pacsURIString,StudyInstanceUID]];
-             NSString *qidoRequest=[NSString stringWithFormat:@"%@?StudyInstanceUID=%@",pacsURIString,StudyInstanceUID];
+             NSURL *pacsURI=[NSURL URLWithString:[NSString stringWithFormat:@"%@/%@",pacsURIString,Eiuid]];
+             NSString *qidoRequest=[NSString stringWithFormat:@"%@?StudyInstanceUID=%@",pacsURIString,Eiuid];
              NSURL *qidoRequestURL=[NSURL URLWithString:qidoRequest];
                 
              NSDictionary *q=[NSDictionary studyAttributesForQidoURL:qidoRequestURL];
              if (q[@"00100020"] && [q[@"00100020"] length])
              {
 //JF                   LOG_INFO(@"%@ %@ (%@/%@) for patient %@ in PACS before STOW",
-//JF                      StudyInstanceUID,
+//JF                      Eiuid,
 //JF                      q[@"00080061"],
 //JF                      q[@"00201206"],
 //JF                      q[@"00201208"],
@@ -709,8 +739,8 @@ The root is an array where items are clasified by priority of execution
              }
              else if (q[@"name"] && [q[@"name"] length])
              {
-//JF                   LOG_WARNING(@"study %@ discarded. %@: %@",StudyInstanceUID,q[@"name"],q[@"reason"]);
-                NSString *DISCARDEDpath=[NSString stringWithFormat:@"%@/%@/%@@%f",DISCARDED,CLASSIFIEDname,StudyInstanceUID,[[NSDate date]timeIntervalSinceReferenceDate
+//JF                   LOG_WARNING(@"study %@ discarded. %@: %@",Eiuid,q[@"name"],q[@"reason"]);
+                NSString *DISCARDEDpath=[NSString stringWithFormat:@"%@/%@/%@@%f",DISCARDED,CLASSIFIEDname,Eiuid,[[NSDate date]timeIntervalSinceReferenceDate
                 ]];
                 [fileManager createDirectoryAtPath:[DISCARDED stringByAppendingPathComponent:CLASSIFIEDname] withIntermediateDirectories:YES attributes:nil error:&error];
                 [fileManager moveItemAtPath:studyPath

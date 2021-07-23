@@ -10,9 +10,9 @@
 enum {
    D2Dcommand=0,
    D2DspoolDirPath,
-   D2DsuccessDirPath,
-   D2DfailureDirPath,
-   D2DdoneDirPath
+   D2DsuccessDir,
+   D2DfailureDir,
+   D2DdoneDir
 } D2DcommandArgs;
 
 int main(int argc, const char * argv[]) {
@@ -22,7 +22,7 @@ int main(int argc, const char * argv[]) {
       NSArray *args=[processInfo arguments];
       if (args.count!=5)//stdin
       {
-         NSLog(@"Should be: D2D spoolDirPath successDirPath failureDirPath doneDirPath. Was: %@",args.description);
+         NSLog(@"Should be: D2D spoolDirPath successDir failureDir doneDir. Was: %@",args.description);
          exit(failure);
       }
 
@@ -190,7 +190,7 @@ int main(int argc, const char * argv[]) {
                 )
             {
                NSLog(@"could not serialize dataset. %@",parsedAttrs);
-               NSString *failureFilePath=[args[D2DfailureDirPath] stringByAppendingPathComponent:relativeInputPath];
+               NSString *failureFilePath=[args[D2DfailureDir] stringByAppendingPathComponent:relativeInputPath];
                if (enclosingDirectoryWritable(fileManager, failureDirSet, failureFilePath)==true)
                   [outputData writeToFile:failureFilePath atomically:NO ];
                else
@@ -201,7 +201,7 @@ int main(int argc, const char * argv[]) {
             }
 
 #pragma mark · write result
-            NSString *successFilePath=[args[D2DsuccessDirPath] stringByAppendingPathComponent:relativeInputPath];
+            NSString *successFilePath=[args[D2DsuccessDir] stringByAppendingPathComponent:relativeInputPath];
             if (enclosingDirectoryWritable(fileManager, successDirSet, successFilePath)==true)
             {
                [outputData writeToFile:successFilePath atomically:NO ];
@@ -214,7 +214,7 @@ int main(int argc, const char * argv[]) {
             }
             
             //move receiver
-            NSString *doneFilePath=[args[D2DdoneDirPath]stringByAppendingPathComponent:relativeInputPath];
+            NSString *doneFilePath=[args[D2DdoneDir]stringByAppendingPathComponent:relativeInputPath];
             if (   (enclosingDirectoryWritable(fileManager, doneDirSet, doneFilePath)==false)
                 || ![fileManager moveItemAtPath:spoolFilePath toPath:doneFilePath error:&error]
                 )
