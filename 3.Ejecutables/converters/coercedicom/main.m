@@ -14,11 +14,46 @@ const UInt64 _0002001_tag_vr=0x0000424F00010002;
 const UInt32 _0002001_length=0x00000002;
 const UInt16 _0002001_value=0x0001;
 
+NSString *noUnderscoreSuffixBeforeDcmExt(NSString *name)
+{
+   if ([name containsString:@"_"])
+      return [[name componentsSeparatedByString:@"_"][0] stringByAppendingPathExtension:@"dcm"];
+   else return name;
+}
+
+NSString *moveDup(NSString *srcFile,NSString *dstFile)
+{
+   NSFileManager *fileManager=[NSFileManager defaultManager];
+   BOOL isDir;
+   NSError *error;
+   
+   if ([fileManager fileExistsAtPath:dstFile isDirectory:&isDir])
+   {
+      if (isDir)
+      {
+         //directory already existing
+         NSUInteger sameFileCount=[[fileManager contentsOfDirectoryAtPath:dstFile error:&error]count];
+         if (![fileManager moveItemAtPath:srcFile toPath:[dstFile stringByAppendingPathComponent:[NSString stringWithFormat:@"%lu.dcm",sameFileCount + 1]] error:&error]) return error.description;
+         return nil;
+      }
+      else
+      {
+         NSString *tmpFile=[[dstFile stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"1"];
+         if (![fileManager moveItemAtPath:dstFile toPath:tmpFile error:&error]) return error.description;
+         if (![fileManager createDirectoryAtPath:dstFile withIntermediateDirectories:true attributes:nil error:&error]) return error.description;
+         if (![fileManager moveItemAtPath:tmpFile toPath:[dstFile stringByAppendingPathComponent:@"1.dcm"] error:&error]) return error.description;
+         if (![fileManager moveItemAtPath:srcFile toPath:[dstFile stringByAppendingPathComponent:@"2.dcm"] error:&error]) return error.description;
+         return nil;
+      }
+   }
+   else if (![fileManager moveItemAtPath:srcFile toPath:dstFile error:&error]) return error.description;
+   else return nil;
+}
+
 void async_f_study_callback(void *context){
    NSMutableDictionary *current = (NSMutableDictionary*) context;
    NSFileManager *fileManager=[NSFileManager defaultManager];
    NSError *error=nil;
-   BOOL isDirectory=false;
    NSMutableString *response=[NSMutableString string];
 
    NSMutableArray *inputPaths=[NSMutableArray array];
@@ -34,65 +69,59 @@ void async_f_study_callback(void *context){
    BOOL successDirExists=([fileManager fileExistsAtPath:current[@"successDirPath"]]);
    BOOL failureDirExists=([fileManager fileExistsAtPath:current[@"failureDirPath"]]);
 
-   NSString *doneDirPath=current[@"doneDirPath"];
-   if (![fileManager fileExistsAtPath:doneDirPath])
+   NSString *doneDir=current[@"doneDirPath"];
+   if (![fileManager fileExistsAtPath:doneDir])
    {
-      if (![fileManager createDirectoryAtPath:doneDirPath withIntermediateDirectories:YES attributes:nil error:&error])
+      if (![fileManager createDirectoryAtPath:doneDir withIntermediateDirectories:YES attributes:nil error:&error])
       {
-         [response appendFormat:@"can not create %@\r\n",doneDirPath];
+         [response appendFormat:@"can not create %@\r\n",doneDir];
          [current setObject:response forKey:@"response"];
          return;
       }
    }
    
    //to find duplicate tasks and move them to ORIGINALS
-   NSSet *DoneInitialSet=[NSSet setWithArray:[fileManager contentsOfDirectoryAtPath:doneDirPath error:&error]];
+   NSSet *DoneInitialSet=[NSSet setWithArray:[fileManager contentsOfDirectoryAtPath:doneDir error:&error]];
 
 #pragma mark loop
    NSMutableData *inputData=[NSMutableData data];
-   for (NSString *relativeInputPath in inputPaths)
+   for (NSString *srcName in inputPaths)
    {
-      if ([relativeInputPath hasPrefix:@"."]) continue;
-      NSString *spoolFilePath=[current[@"spoolDirPath"] stringByAppendingPathComponent:relativeInputPath];
+      if ([srcName hasPrefix:@"."]) continue;
+      NSString *srcFile=[current[@"spoolDirPath"] stringByAppendingPathComponent:srcName];
       //already in originals?
-      NSString *relativeInputUidPath;
-      if ([relativeInputPath containsString:@"_"])
-         relativeInputUidPath=[[relativeInputPath componentsSeparatedByString:@"_"][0] stringByAppendingPathExtension:@"dcm"];
-      else relativeInputUidPath=relativeInputPath;
-      if ([DoneInitialSet containsObject:relativeInputUidPath])
+      NSString *dstName=noUnderscoreSuffixBeforeDcmExt(srcName);
+      if ([DoneInitialSet containsObject:dstName])
       {
-         NSLog(@"%@ already existing",relativeInputPath);
-         NSString *sopDonePath=[doneDirPath stringByAppendingPathComponent:relativeInputUidPath];
-         if ([fileManager fileExistsAtPath:sopDonePath isDirectory:&isDirectory])
-         {
-            if (isDirectory==true)
-            {
-               //directory already existing
-               NSUInteger sameSopCount=[[fileManager contentsOfDirectoryAtPath:sopDonePath error:nil]count];
-               [fileManager moveItemAtPath:spoolFilePath toPath:[sopDonePath stringByAppendingPathComponent:[NSString stringWithFormat:@"%lu.dcm",sameSopCount + 1]] error:&error];
-            }
-            else
-            {
-               NSString *one=[current[@"doneDirPath"] stringByAppendingPathComponent:@"1"];
-               //rename sop to "1"
-               [fileManager moveItemAtPath:sopDonePath toPath:one error:&error];
-               //create dir
-               [fileManager createDirectoryAtPath:sopDonePath withIntermediateDirectories:false attributes:nil error:&error];
-               //move 1 to dir
-               [fileManager moveItemAtPath:one toPath:[sopDonePath stringByAppendingPathComponent:@"1.dcm"] error:&error];
-               [fileManager moveItemAtPath:spoolFilePath toPath:[sopDonePath stringByAppendingPathComponent:@"2.dcm"] error:&error];
-            }
-         }
+         NSString *errMsg=moveDup(
+                                  srcFile,
+                                  [doneDir stringByAppendingPathComponent:dstName]);
+         if (errMsg) [response appendString:errMsg];
       }
       else
       {
 
 #pragma mark · parse
-         [inputData appendData:[NSData dataWithContentsOfFile:spoolFilePath]];
+         [inputData appendData:[NSData dataWithContentsOfFile:srcFile]];
          
          uint32 inputFileMetadataLength=0;
-         [inputData getBytes:&inputFileMetadataLength range:NSMakeRange(140,4)];
-         NSData *inputFileMetadata=[inputData subdataWithRange:NSMakeRange(158,inputFileMetadataLength-14)];
+         if (inputData.length > 144) [inputData getBytes:&inputFileMetadataLength range:NSMakeRange(140,4)];
+         
+         NSData *inputFileMetadata=nil;
+         if (   ( inputFileMetadataLength > 100 )
+             && ( inputData.length >= 144 + inputFileMetadataLength )
+             )
+            inputFileMetadata=[inputData subdataWithRange:NSMakeRange(158,inputFileMetadataLength-14)];
+         else
+         {
+            //move srcFile to FAILURE
+            NSString *errMsg=moveDup(
+                                     srcFile,
+                                     [current[@"failureDirPath"] stringByAppendingPathComponent:dstName]
+                                     );
+            if (errMsg) [response appendString:errMsg];
+            continue;
+         }
          
          
          NSMutableDictionary *parsedAttrs=[NSMutableDictionary dictionary];
@@ -112,7 +141,7 @@ void async_f_study_callback(void *context){
                     )
              )
          {
-            [response appendFormat:@"could not parse fileMetadata %@\r\n",spoolFilePath];
+            [response appendFormat:@"could not parse fileMetadata %@\r\n",srcFile];
             break;
          }
 
@@ -128,7 +157,7 @@ void async_f_study_callback(void *context){
                     )
              )
          {
-            [response appendFormat:@"could not parse %@\r\n",spoolFilePath];
+            [response appendFormat:@"could not parse %@\r\n",srcFile];
             break;
          }
          else
@@ -170,7 +199,7 @@ void async_f_study_callback(void *context){
                }
                else
                {
-                  [response appendFormat:@"could not compress %@\r\n",spoolFilePath];
+                  [response appendFormat:@"could not compress %@\r\n",srcFile];
                   break;
                }
             }
@@ -224,7 +253,7 @@ void async_f_study_callback(void *context){
 #pragma mark · failure
             {
                NSLog(@"could not serialize dataset. %@",parsedAttrs);
-               NSString *failureFilePath=[current[@"failureDirPath"] stringByAppendingPathComponent:relativeInputPath];
+               NSString *failureFile=[current[@"failureDirPath"] stringByAppendingPathComponent:dstName];
                if (!failureDirExists)
                {
                   if (![fileManager createDirectoryAtPath:current[@"failureDirPath"] withIntermediateDirectories:YES attributes:nil error:&error])
@@ -233,31 +262,28 @@ void async_f_study_callback(void *context){
                      break;
                   }
                }
-               [outputData writeToFile:failureFilePath atomically:NO ];
-               [response appendFormat:@"failed to write %@\r\n",failureFilePath];
+               if (![outputData writeToFile:failureFile options:0 error:&error]) [response appendFormat:@"failed to write %@\r\n",failureFile];
                break;
             }
 
 #pragma mark · write result
-            NSString *successFilePath=[current[@"successDirPath"] stringByAppendingPathComponent:relativeInputPath];
+            NSString *successFile=[current[@"successDirPath"] stringByAppendingPathComponent:srcName];
             if (!successDirExists)
             {
                if (![fileManager createDirectoryAtPath:current[@"successDirPath"] withIntermediateDirectories:YES attributes:nil error:&error])
                {
-                  [response appendFormat:@"can not write %@\r\n",successFilePath];
+                  [response appendFormat:@"can not write %@\r\n",successFile];
                   break;
                }
             }
-            [outputData writeToFile:successFilePath atomically:NO ];
+            [outputData writeToFile:successFile atomically:NO ];
 
             
 //move to doneFilePath
-            NSString *doneFilePath=[doneDirPath stringByAppendingPathComponent:relativeInputUidPath];
-            if (![fileManager moveItemAtPath:spoolFilePath toPath:doneFilePath error:&error])
-            {
-               [response appendFormat:@"can not move %@ to %@: %@\r\n",spoolFilePath,doneFilePath,error.description];
-               break;
-            }
+            NSString *errMsg=moveDup(
+                                     srcFile,
+                                     [doneDir stringByAppendingPathComponent:noUnderscoreSuffixBeforeDcmExt(srcName)]);
+            if (errMsg) [response appendString:errMsg];
          }//end parsed
          [inputData setLength:0];
       }
