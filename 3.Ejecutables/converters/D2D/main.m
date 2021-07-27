@@ -12,7 +12,7 @@ enum {
    D2DspoolDirPath,
    D2DsuccessDir,
    D2DfailureDir,
-   D2DdoneDir
+   D2DoriginalsDir
 } D2DcommandArgs;
 
 int main(int argc, const char * argv[]) {
@@ -22,7 +22,7 @@ int main(int argc, const char * argv[]) {
       NSArray *args=[processInfo arguments];
       if (args.count!=5)//stdin
       {
-         NSLog(@"Should be: D2D spoolDirPath successDir failureDir doneDir. Was: %@",args.description);
+         NSLog(@"Should be: D2D spoolDirPath successDir failureDir originalsDir. Was: %@",args.description);
          exit(failure);
       }
 
@@ -63,7 +63,7 @@ int main(int argc, const char * argv[]) {
 #pragma mark - processing
       NSMutableSet *successDirSet=[NSMutableSet set];
       NSMutableSet *failureDirSet=[NSMutableSet set];
-      NSMutableSet *doneDirSet=[NSMutableSet set];
+      NSMutableSet *originalsDirSet=[NSMutableSet set];
 #pragma mark loop
 
       NSMutableData *inputData=[NSMutableData data];
@@ -214,8 +214,8 @@ int main(int argc, const char * argv[]) {
             }
             
             //move receiver
-            NSString *doneFilePath=[args[D2DdoneDir]stringByAppendingPathComponent:relativeInputPath];
-            if (   (enclosingDirectoryWritable(fileManager, doneDirSet, doneFilePath)==false)
+            NSString *doneFilePath=[args[D2DoriginalsDir]stringByAppendingPathComponent:relativeInputPath];
+            if (   (enclosingDirectoryWritable(fileManager, originalsDirSet, doneFilePath)==false)
                 || ![fileManager moveItemAtPath:spoolFilePath toPath:doneFilePath error:&error]
                 )
             {

@@ -3,7 +3,7 @@
 DICOM binary to DICOM binary with compresión and coerción inbetween
 
 ## args
-D2D D2DspoolDirPath D2DsuccessDir D2DfailureDir D2DdoneDir
+D2D D2DspoolDirPath D2DsuccessDir D2DfailureDir D2DoriginalsDir
 
 ## Environment
 - "D2DcompressJ2K" convierte explicit little endian a jpeg 2000 lossless with quality layers separated into tile-parts.

@@ -165,6 +165,7 @@
 		4A44192925EC4A490091495B /* B64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = B64.h; sourceTree = "<group>"; };
 		4A44193425EE53CE0091495B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4A44197B25F764150091495B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		4A4B772626AC58A000A96811 /* storedicom.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = storedicom.sh; sourceTree = "<group>"; };
 		4A5CC03A2639D057003070E7 /* 00000001_7FE00010-OB#00000001.j2k */ = {isa = PBXFileReference; lastKnownFileType = file; path = "00000001_7FE00010-OB#00000001.j2k"; sourceTree = "<group>"; };
 		4A5CC03B2639D057003070E7 /* FluroWithDisplayShutterj2k.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FluroWithDisplayShutterj2k.json; sourceTree = "<group>"; };
 		4A5CC03C2639D057003070E7 /* FluroWithDisplayShutterj2ksource.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FluroWithDisplayShutterj2ksource.json; sourceTree = "<group>"; };
@@ -203,7 +204,7 @@
 		4AD03BE026973FEE00855F3F /* coercedicom */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = coercedicom; sourceTree = BUILT_PRODUCTS_DIR; };
 		4AD03BE226973FEE00855F3F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4AD03BF22697402B00855F3F /* DCKV.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DCKV.framework; path = ../../../../../Library/Frameworks/DCKV.framework; sourceTree = "<group>"; };
-		4AD03C46269782CB00855F3F /* institutionMapping.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = institutionMapping.json; sourceTree = "<group>"; };
+		4AD03C46269782CB00855F3F /* coercedicom.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = coercedicom.json; sourceTree = "<group>"; };
 		4AD03C47269782CB00855F3F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4AD86123265EEECC002E4D3A /* MR1.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = MR1.ele.dcm; sourceTree = "<group>"; };
 		4AD86124265EEECC002E4D3A /* MG1.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = MG1.j2kr.dcm; sourceTree = "<group>"; };
@@ -575,7 +576,8 @@
 		4AD03BE126973FEE00855F3F /* coercedicom */ = {
 			isa = PBXGroup;
 			children = (
-				4AD03C46269782CB00855F3F /* institutionMapping.json */,
+				4A4B772626AC58A000A96811 /* storedicom.sh */,
+				4AD03C46269782CB00855F3F /* coercedicom.json */,
 				4AD03C47269782CB00855F3F /* README.md */,
 				4AD03BE226973FEE00855F3F /* main.m */,
 			);
