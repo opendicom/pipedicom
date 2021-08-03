@@ -356,7 +356,7 @@ void async_f_study_callback(void *context){
                   if (bucketSpaceLeft < 69)
                   {
                      //copy mime tail?
-                     NSString *tailFile=[[current[@"successDir"] stringByAppendingPathComponent:[NSString stringWithFormat:@"%lld",bucketNumber]] stringByAppendingPathComponent:@"multipart.tail"];
+                     NSString *tailFile=[[current[@"successDir"] stringByAppendingPathComponent:[NSString stringWithFormat:@"%lld",bucketNumber]] stringByAppendingPathComponent:@"zygote-mime-multipart"];
                      if (![fileManager fileExistsAtPath:tailFile]) [tailData writeToFile:tailFile atomically:NO];
                      
                      //new bucket
@@ -399,7 +399,7 @@ void async_f_study_callback(void *context){
    if (bucketNumber > 0)
    {
       //last tail?
-      NSString *tailFile=[[current[@"successDir"] stringByAppendingPathComponent:[NSString stringWithFormat:@"%lld",bucketNumber]] stringByAppendingPathComponent:@"multipart.tail"];
+      NSString *tailFile=[[current[@"successDir"] stringByAppendingPathComponent:[NSString stringWithFormat:@"%lld",bucketNumber]] stringByAppendingPathComponent:@"zygote-mime-multipart"];
       if (![fileManager fileExistsAtPath:tailFile]) [tailData writeToFile:tailFile atomically:NO];
    }
    

@@ -1,8 +1,8 @@
 [
     {
-        "regex":"^a.*",
+        "regex":"^.*",
         "coerceDataset":{
-           "00000001_00080080-LO" :[ "org" ]
+           "00000001_00080080-LO" :[ "DCM4CHEE" ]
         },
         "storeBucketSize":100000000
     }

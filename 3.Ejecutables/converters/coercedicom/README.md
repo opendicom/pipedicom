@@ -14,13 +14,13 @@ Spool es el contenedor de todas las nuevas imágenes, clasificadas en una estruc
 
 - instance: El tercer nivel, o sea dentro de una carpeta de estudio, son las imágenes que correspondena este estudio, identificadas por su SOPUID.
 
-```
+
 | SPOOL      |
 |------------|
 | [SOURCE]   |
 | [STUDY]    |
 | [instance] |
-```
+
 
 El procesamiento se realiza en base a las directivas que se encuentran en coercedicom.json.
 

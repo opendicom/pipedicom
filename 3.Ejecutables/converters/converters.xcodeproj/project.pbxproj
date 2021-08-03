@@ -199,6 +199,8 @@
 		4AC7BE5926694A2700C14265 /* NSData+MD5.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+MD5.m"; sourceTree = "<group>"; };
 		4AC7BE62266A724A00C14265 /* DCKV.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = DCKV.md; sourceTree = "<group>"; };
 		4ACCF084268FBFA0006E12C2 /* DCKV.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DCKV.framework; path = ../../../../../usr/local/lib/DCKV.framework; sourceTree = "<group>"; };
+		4ACFF86626B5CDB50092096C /* storedicom_response.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = storedicom_response.xml; sourceTree = "<group>"; };
+		4ACFF86726B86AD20092096C /* storedicom_response_parsing.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = storedicom_response_parsing.sh; sourceTree = "<group>"; };
 		4AD03B9E2696430400855F3F /* fileManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fileManager.h; sourceTree = "<group>"; };
 		4AD03B9F2696430400855F3F /* fileManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = fileManager.m; sourceTree = "<group>"; };
 		4AD03BE026973FEE00855F3F /* coercedicom */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = coercedicom; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -576,10 +578,12 @@
 		4AD03BE126973FEE00855F3F /* coercedicom */ = {
 			isa = PBXGroup;
 			children = (
+				4ACFF86626B5CDB50092096C /* storedicom_response.xml */,
 				4A4B772626AC58A000A96811 /* storedicom.sh */,
 				4AD03C46269782CB00855F3F /* coercedicom.json */,
 				4AD03C47269782CB00855F3F /* README.md */,
 				4AD03BE226973FEE00855F3F /* main.m */,
+				4ACFF86726B86AD20092096C /* storedicom_response_parsing.sh */,
 			);
 			path = coercedicom;
 			sourceTree = "<group>";
