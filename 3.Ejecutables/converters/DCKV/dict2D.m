@@ -324,6 +324,10 @@ int dict2D(NSString *baseURLString, NSDictionary *attrs, NSMutableData *data, NS
                else
                {
                   NSUInteger encodingIndexes[]={0,0,0};
+                  
+#pragma mark TODO does not work for vr without prefix
+                  /*
+
                   NSString *eps=[[key componentsSeparatedByString:@"-"] lastObject ];//encoding prefixes
                   for (int j=0; j < eps.length / 4; j++)
                   {
@@ -335,7 +339,7 @@ int dict2D(NSString *baseURLString, NSDictionary *attrs, NSMutableData *data, NS
                         return failure;
                      }
                   }
-                  
+                  */
                   NSMutableData *PNdata=[NSMutableData data];
                   for (NSUInteger l=0; l<strings.count; l++)
                   {
