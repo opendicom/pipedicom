@@ -953,6 +953,7 @@ NSUInteger D2J(
                   
                   //jump over 0xe0ddfffe
                   bi += 4;
+                  if (bi >= bip) continue;//case compressed pixels as last attribute
                   tag = shortsBuffer[bi]
                       + ( shortsBuffer[bi+1] << 16 );
                   vll = ( shortsBuffer[bi+2]       )

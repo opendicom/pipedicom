@@ -47,17 +47,43 @@ Cada uno de ellos contiene un regex que permite matchear [SOURCE]. Las directiva
 
 Cuando aparece un SOURCE que no satisface ningún regex, coercedicom lo mueve a un subdirectorio del  directorio DISCARDED.
 
-```
- original SOURCE            otro estudio              otra instancia           instancia repetida
 
-|SPOOL     |DISCARDED|     |SPOOL    |DISCARDED|     |SPOOL    |DISCARDED|     |SPOOL    |DISCARDED|
-|----------|---------|     |---------|---------|     |---------|---------|     |---------|---------|
-|[SOURCE]->|[SOURCE] |     |SOURCE_1 |SOURCE_1 |     |SOURCE_1 |SOURCE_1 |     |SOURCE_1 |SOURCE_1 |
-                           |[STUDY]->|[STUDY]  |     |STUDY_1  |STUDY_1  |     |STUDY_1  |STUDY_1  |
-                                                     |[image]->|[image]  |     |         |IMAGE_1  |
-                                                                               |         |1.dcm    |
-                                                                               |image_1->|2.dcm    |
-```
+ original SOURCE
+
+|SPOOL     |DISCARDED|
+|----------|---------|
+|[SOURCE]->|[SOURCE] |
+
+
+
+  otro estudio
+  
+|SPOOL    |DISCARDED|
+|---------|---------|
+|SOURCE_1 |SOURCE_1 |
+|[STUDY]->|[STUDY]  |
+
+
+
+  otra instancia
+
+|SPOOL    |DISCARDED|
+|---------|---------|
+|SOURCE_1 |SOURCE_1 |
+|STUDY_1  |STUDY_1  |
+|[image]->|[image]  |
+
+
+
+ instancia repetida
+
+|SPOOL    |DISCARDED|
+|---------|---------|
+|SOURCE_1 |SOURCE_1 |
+|STUDY_1  |STUDY_1  |
+|         |IMAGE_1  |
+|         |1.dcm    |
+|image_1->|2.dcm    |
 
 En caso de imagen repetida, se cree un directorio para todas las instancias.
 Este tipo de traslado no destruye datos recibidos y construye un historial de lo recibido.
@@ -67,26 +93,31 @@ Este tipo de traslado no destruye datos recibidos y construye un historial de lo
 
 Cuando aparece una imagen de un SOURCE que valida regex, se realizan las operaciones de coerción correspondientes, que tienen por resultado la creación de una nueva imagen, en caso que las operaciones fuesen exitosas. Luego de las operaciones, el original sin modificar está trasladado a una de las carpetas ORIGINALS (si la operación fue exitosa) o FAILURE (si no se pudo crear la nueva imagen).
 
-```
- otra instancia           instancia repetida
 
-|SPOOL    |ORIGINALS|     |SPOOL    |ORIGINALS|
-|---------|---------|     |---------|---------|
-|SOURCE_1 |SOURCE_1 |     |SOURCE_1 |SOURCE_1 |
-|STUDY_1  |STUDY_1  |     |STUDY_1  |STUDY_1  |
-|[image]->|[image]  |     |         |IMAGE_1  |
-                          |         |1.dcm    |
-                          |image_1->|2.dcm    |
+ otra instancia
+
+|SPOOL    |ORIGINALS|
+|         |FAILURE  |
+|---------|---------|
+|SOURCE_1 |SOURCE_1 |
+|STUDY_1  |STUDY_1  |
+|[image]->|[image]  |
 
 
-|SPOOL    |FAILURE  |     |SPOOL    |FAILURE  |
-|---------|---------|     |---------|---------|
-|SOURCE_1 |SOURCE_1 |     |SOURCE_1 |SOURCE_1 |
-|STUDY_1  |STUDY_1  |     |STUDY_1  |STUDY_1  |
-|[image]->|[image]  |     |         |IMAGE_1  |
-                          |         |1.dcm    |
-                          |image_1->|2.dcm    |
-```
+
+instancia repetida
+
+|SPOOL    |ORIGINALS|
+|         |FAILURE  |
+|---------|---------|
+|SOURCE_1 |SOURCE_1 |
+|STUDY_1  |STUDY_1  |
+|         |IMAGE_1  |
+|         |1.dcm    |
+|image_1->|2.dcm    |
+
+
+
 
 ## SUCCESS
 
