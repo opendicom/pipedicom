@@ -1,16 +1,13 @@
-   #!/bin/sh
-SECONDS=0
-PATH=$PATH:/usr/local/bin:/usr/bin
-
-# PARAMS:
-
+#!/bin/sh
 SEND=$1
 MISMATCHSERVICE=$2
 SENT=$3
 REJECTED=$4
-STOREURL=$5 (with %@ for PACS ORG AET found at first level of SEND
+STOREURL=$5
+# with %@ for PACS ORG AET found at first level of SEND
 #'https://serviciosridi.preprod.asse.uy/dcm4chee-arc/stow/'"DCM4CHEE"'/studies'
 CURLVERBOSE=$6
+
 
 cd $SEND
 if [ ! -z "$(ls -A)" ]; then
@@ -73,9 +70,10 @@ if [ ! -z "$(ls -A)" ]; then
             numbers=$(echo $FAILEDSOPSQ | sed 's/[^0-9\.>]*//g')
             numberArray=(${numbers//>/ })
             numberSize=${#numberArray[@]}
-            for (( i=0; i<$numberSize; i++)); do
+echo 'tokens failed : '"$numberSize"
+            for (( i=4; i<$numberSize; i+=10)); do
              if [[ ${numberArray[$i]} = '00081155' ]];then
-              if [[ ${numberArray[$i+3]} = '00081197' ]]; then
+              if [[ $i < numberSize-5 ]] && [[ ${numberArray[$i+3]} = '00081197' ]]; then
                failure=${numberArray[$i+5]}/
               else
                failure='0'
@@ -98,6 +96,7 @@ if [ ! -z "$(ls -A)" ]; then
             numbers=$(echo $REFERENCEDSOPSQ | sed 's/[^0-9\.>]*//g')
             numberArray=(${numbers//>/ })
             numberSize=${#numberArray[@]}
+echo 'tokens referenced : '"$numberSize"
             for (( i=0; i<$numberSize; i++)); do
              if [[ ${numberArray[$i]} = '00081155' ]];then
              

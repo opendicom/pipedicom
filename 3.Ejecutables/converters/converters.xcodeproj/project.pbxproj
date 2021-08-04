@@ -150,9 +150,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		0718621725F6825F00802276 /* FluroWithDisplayShutter.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FluroWithDisplayShutter.json; sourceTree = "<group>"; };
-		0718621825F6825F00802276 /* SCSARAB.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = SCSARAB.json; sourceTree = "<group>"; };
-		0718621B25F6849900802276 /* SCSFREN.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = SCSFREN.json; sourceTree = "<group>"; };
 		4A025E5E25E418E5005AA1A3 /* DCMcharset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCMcharset.h; sourceTree = "<group>"; };
 		4A025EA625E593E0005AA1A3 /* D2dict.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = D2dict.m; sourceTree = "<group>"; };
 		4A025EAF25E5944E005AA1A3 /* D2dict.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = D2dict.h; sourceTree = "<group>"; };
@@ -164,16 +161,9 @@
 		4A44192825EC4A490091495B /* B64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = B64.m; sourceTree = "<group>"; };
 		4A44192925EC4A490091495B /* B64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = B64.h; sourceTree = "<group>"; };
 		4A44193425EE53CE0091495B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		4A44197B25F764150091495B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		4A4B772626AC58A000A96811 /* storedicom.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = storedicom.sh; sourceTree = "<group>"; };
-		4A5CC03A2639D057003070E7 /* 00000001_7FE00010-OB#00000001.j2k */ = {isa = PBXFileReference; lastKnownFileType = file; path = "00000001_7FE00010-OB#00000001.j2k"; sourceTree = "<group>"; };
-		4A5CC03B2639D057003070E7 /* FluroWithDisplayShutterj2k.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FluroWithDisplayShutterj2k.json; sourceTree = "<group>"; };
-		4A5CC03C2639D057003070E7 /* FluroWithDisplayShutterj2ksource.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FluroWithDisplayShutterj2ksource.json; sourceTree = "<group>"; };
-		4A5CC03D2639D057003070E7 /* FluroWithDisplayShutterj2kinline.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = FluroWithDisplayShutterj2kinline.json; sourceTree = "<group>"; };
 		4A5CC060263C28AE003070E7 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4A7B85A025824EAE00E62971 /* ODLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ODLog.m; sourceTree = "<group>"; };
 		4A7B85A125824EAE00E62971 /* ODLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ODLog.h; sourceTree = "<group>"; };
-		4A7B85AC2582A4C300E62971 /* dicomattrs.hex */ = {isa = PBXFileReference; lastKnownFileType = text; path = dicomattrs.hex; sourceTree = "<group>"; };
 		4A7B85D8258BC12800E62971 /* H2D */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = H2D; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A7B85DA258BC12800E62971 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4A7B85FA258CD7A700E62971 /* M2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = M2; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -199,8 +189,6 @@
 		4AC7BE5926694A2700C14265 /* NSData+MD5.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+MD5.m"; sourceTree = "<group>"; };
 		4AC7BE62266A724A00C14265 /* DCKV.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = DCKV.md; sourceTree = "<group>"; };
 		4ACCF084268FBFA0006E12C2 /* DCKV.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DCKV.framework; path = ../../../../../usr/local/lib/DCKV.framework; sourceTree = "<group>"; };
-		4ACFF86626B5CDB50092096C /* storedicom_response.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = storedicom_response.xml; sourceTree = "<group>"; };
-		4ACFF86726B86AD20092096C /* storedicom_response_parsing.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = storedicom_response_parsing.sh; sourceTree = "<group>"; };
 		4AD03B9E2696430400855F3F /* fileManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fileManager.h; sourceTree = "<group>"; };
 		4AD03B9F2696430400855F3F /* fileManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = fileManager.m; sourceTree = "<group>"; };
 		4AD03BE026973FEE00855F3F /* coercedicom */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = coercedicom; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -208,79 +196,6 @@
 		4AD03BF22697402B00855F3F /* DCKV.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DCKV.framework; path = ../../../../../Library/Frameworks/DCKV.framework; sourceTree = "<group>"; };
 		4AD03C46269782CB00855F3F /* coercedicom.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = coercedicom.json; sourceTree = "<group>"; };
 		4AD03C47269782CB00855F3F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		4AD86123265EEECC002E4D3A /* MR1.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = MR1.ele.dcm; sourceTree = "<group>"; };
-		4AD86124265EEECC002E4D3A /* MG1.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = MG1.j2kr.dcm; sourceTree = "<group>"; };
-		4AD86125265EEECC002E4D3A /* MR2.j2ki.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = MR2.j2ki.dcm; sourceTree = "<group>"; };
-		4AD86126265EEECC002E4D3A /* VL1.j2ki.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = VL1.j2ki.dcm; sourceTree = "<group>"; };
-		4AD86127265EEECC002E4D3A /* SC2.x1.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = SC2.x1.ele.dcm; sourceTree = "<group>"; };
-		4AD86128265EEECC002E4D3A /* SC2.l2.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = SC2.l2.ele.dcm; sourceTree = "<group>"; };
-		4AD86129265EEECC002E4D3A /* VL6.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = VL6.ele.dcm; sourceTree = "<group>"; };
-		4AD8612A265EEECC002E4D3A /* MR3.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = MR3.ele.dcm; sourceTree = "<group>"; };
-		4AD8612B265EEECC002E4D3A /* RG3.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = RG3.j2kr.dcm; sourceTree = "<group>"; };
-		4AD8612C265EEECC002E4D3A /* US1.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = US1.j2kr.dcm; sourceTree = "<group>"; };
-		4AD8612D265EEECC002E4D3A /* MR1.j2ki.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = MR1.j2ki.dcm; sourceTree = "<group>"; };
-		4AD8612E265EEECC002E4D3A /* CT1.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = CT1.j2kr.dcm; sourceTree = "<group>"; };
-		4AD8612F265EEECC002E4D3A /* VL6.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = VL6.j2kr.dcm; sourceTree = "<group>"; };
-		4AD86130265EEECC002E4D3A /* VL2.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = VL2.ele.dcm; sourceTree = "<group>"; };
-		4AD86131265EEECC002E4D3A /* RG1.j2ki.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = RG1.j2ki.dcm; sourceTree = "<group>"; };
-		4AD86132265EEECC002E4D3A /* CT2.j2ki.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = CT2.j2ki.dcm; sourceTree = "<group>"; };
-		4AD86133265EEECC002E4D3A /* MG1.j2ki.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = MG1.j2ki.dcm; sourceTree = "<group>"; };
-		4AD86134265EEECC002E4D3A /* SC2.hebrew.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = SC2.hebrew.ele.dcm; sourceTree = "<group>"; };
-		4AD86135265EEECC002E4D3A /* SC1.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = SC1.j2kr.dcm; sourceTree = "<group>"; };
-		4AD86136265EEECC002E4D3A /* SC2.arabic.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = SC2.arabic.ele.dcm; sourceTree = "<group>"; };
-		4AD86137265EEECC002E4D3A /* RG3.j2ki.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = RG3.j2ki.dcm; sourceTree = "<group>"; };
-		4AD86138265EEECC002E4D3A /* RG1.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = RG1.ele.dcm; sourceTree = "<group>"; };
-		4AD86139265EEECC002E4D3A /* CT1.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = CT1.ele.dcm; sourceTree = "<group>"; };
-		4AD8613A265EEECC002E4D3A /* MR4.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = MR4.ele.dcm; sourceTree = "<group>"; };
-		4AD8613B265EEECC002E4D3A /* CT2.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = CT2.j2kr.dcm; sourceTree = "<group>"; };
-		4AD8613C265EEECC002E4D3A /* SC2.h32.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = SC2.h32.ele.dcm; sourceTree = "<group>"; };
-		4AD8613D265EEECC002E4D3A /* CT1.j2ki.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = CT1.j2ki.dcm; sourceTree = "<group>"; };
-		4AD8613E265EEECC002E4D3A /* RG1.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = RG1.j2kr.dcm; sourceTree = "<group>"; };
-		4AD8613F265EEECC002E4D3A /* VL4.j2ki.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = VL4.j2ki.dcm; sourceTree = "<group>"; };
-		4AD86140265EEECC002E4D3A /* VL5.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = VL5.j2kr.dcm; sourceTree = "<group>"; };
-		4AD86141265EEECC002E4D3A /* RG2.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = RG2.ele.dcm; sourceTree = "<group>"; };
-		4AD86142265EEECC002E4D3A /* SC2.french.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = SC2.french.ele.dcm; sourceTree = "<group>"; };
-		4AD86143265EEECC002E4D3A /* MR2.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = MR2.j2kr.dcm; sourceTree = "<group>"; };
-		4AD86144265EEECD002E4D3A /* SC2.greek.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = SC2.greek.ele.dcm; sourceTree = "<group>"; };
-		4AD86145265EEECD002E4D3A /* RF1.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = RF1.j2kr.dcm; sourceTree = "<group>"; };
-		4AD86146265EEECD002E4D3A /* SC2.german.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = SC2.german.ele.dcm; sourceTree = "<group>"; };
-		4AD86147265EEECD002E4D3A /* SC2.h31.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = SC2.h31.ele.dcm; sourceTree = "<group>"; };
-		4AD86148265EEECD002E4D3A /* US1.j2ki.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = US1.j2ki.dcm; sourceTree = "<group>"; };
-		4AD86149265EEECD002E4D3A /* VL2.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = VL2.j2kr.dcm; sourceTree = "<group>"; };
-		4AD8614A265EEECD002E4D3A /* VL3.j2ki.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = VL3.j2ki.dcm; sourceTree = "<group>"; };
-		4AD8614B265EEECD002E4D3A /* VL6.j2ki.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = VL6.j2ki.dcm; sourceTree = "<group>"; };
-		4AD8614C265EEECD002E4D3A /* XA1.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = XA1.ele.dcm; sourceTree = "<group>"; };
-		4AD8614D265EEECD002E4D3A /* XA1.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = XA1.j2kr.dcm; sourceTree = "<group>"; };
-		4AD8614E265EEECD002E4D3A /* NM1.j2ki.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = NM1.j2ki.dcm; sourceTree = "<group>"; };
-		4AD8614F265EEECD002E4D3A /* MR4.j2ki.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = MR4.j2ki.dcm; sourceTree = "<group>"; };
-		4AD86150265EEECD002E4D3A /* RG2.j2ki.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = RG2.j2ki.dcm; sourceTree = "<group>"; };
-		4AD86151265EEECD002E4D3A /* VL3.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = VL3.j2kr.dcm; sourceTree = "<group>"; };
-		4AD86152265EEECD002E4D3A /* MR3.j2ki.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = MR3.j2ki.dcm; sourceTree = "<group>"; };
-		4AD86153265EEECD002E4D3A /* VL5.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = VL5.ele.dcm; sourceTree = "<group>"; };
-		4AD86154265EEECD002E4D3A /* VL5.j2ki.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = VL5.j2ki.dcm; sourceTree = "<group>"; };
-		4AD86155265EEECD002E4D3A /* VL2.j2ki.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = VL2.j2ki.dcm; sourceTree = "<group>"; };
-		4AD86156265EEECD002E4D3A /* NM1.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = NM1.j2kr.dcm; sourceTree = "<group>"; };
-		4AD86157265EEECD002E4D3A /* VL1.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = VL1.j2kr.dcm; sourceTree = "<group>"; };
-		4AD86158265EEECD002E4D3A /* VL3.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = VL3.ele.dcm; sourceTree = "<group>"; };
-		4AD86159265EEECD002E4D3A /* CT2.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = CT2.ele.dcm; sourceTree = "<group>"; };
-		4AD8615A265EEECD002E4D3A /* MR1.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = MR1.j2kr.dcm; sourceTree = "<group>"; };
-		4AD8615B265EEECD002E4D3A /* MR2.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = MR2.ele.dcm; sourceTree = "<group>"; };
-		4AD8615C265EEECD002E4D3A /* SC2.russian.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = SC2.russian.ele.dcm; sourceTree = "<group>"; };
-		4AD8615D265EEECD002E4D3A /* XA1.j2ki.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = XA1.j2ki.dcm; sourceTree = "<group>"; };
-		4AD8615E265EEECD002E4D3A /* NM1.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = NM1.ele.dcm; sourceTree = "<group>"; };
-		4AD8615F265EEECD002E4D3A /* US1.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = US1.ele.dcm; sourceTree = "<group>"; };
-		4AD86160265EEECD002E4D3A /* SC1.j2ki.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = SC1.j2ki.dcm; sourceTree = "<group>"; };
-		4AD86161265EEECD002E4D3A /* VL4.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = VL4.ele.dcm; sourceTree = "<group>"; };
-		4AD86162265EEECD002E4D3A /* SC2.x2.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = SC2.x2.ele.dcm; sourceTree = "<group>"; };
-		4AD86163265EEECD002E4D3A /* RF1.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = RF1.ele.dcm; sourceTree = "<group>"; };
-		4AD86164265EEECD002E4D3A /* MR3.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = MR3.j2kr.dcm; sourceTree = "<group>"; };
-		4AD86165265EEECD002E4D3A /* MG1.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = MG1.ele.dcm; sourceTree = "<group>"; };
-		4AD86166265EEECD002E4D3A /* RG2.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = RG2.j2kr.dcm; sourceTree = "<group>"; };
-		4AD86167265EEECD002E4D3A /* RG3.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = RG3.ele.dcm; sourceTree = "<group>"; };
-		4AD86168265EEECD002E4D3A /* VL1.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = VL1.ele.dcm; sourceTree = "<group>"; };
-		4AD86169265EEECD002E4D3A /* MR4.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = MR4.j2kr.dcm; sourceTree = "<group>"; };
-		4AD8616A265EEECD002E4D3A /* SC1.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = SC1.ele.dcm; sourceTree = "<group>"; };
-		4AD8616B265EEECD002E4D3A /* VL4.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = VL4.j2kr.dcm; sourceTree = "<group>"; };
 		4ADA4ED62672A778008F98DB /* DsourceJ */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DsourceJ; sourceTree = BUILT_PRODUCTS_DIR; };
 		4ADA4ED82672A778008F98DB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4ADA4EE72672A7A3008F98DB /* DinlineJ */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DinlineJ; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -305,8 +220,6 @@
 		4ADA50E6267A8A57008F98DB /* opj_dump */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = opj_dump; sourceTree = "<group>"; };
 		4ADA50E7267A8A57008F98DB /* liblcms2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = liblcms2.a; sourceTree = "<group>"; };
 		4ADA50E8267A8A57008F98DB /* opj_decompress */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = opj_decompress; sourceTree = "<group>"; };
-		4ADA50FD267B16FD008F98DB /* US-icon.j2kr.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = "US-icon.j2kr.dcm"; sourceTree = "<group>"; };
-		4ADA50FE267B16FD008F98DB /* MG-large.ele.dcm */ = {isa = PBXFileReference; lastKnownFileType = file; path = "MG-large.ele.dcm"; sourceTree = "<group>"; };
 		4ADA518C2688125F008F98DB /* D2D */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = D2D; sourceTree = BUILT_PRODUCTS_DIR; };
 		4ADA518E2688125F008F98DB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4ADA519B26881312008F98DB /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -436,57 +349,6 @@
 			path = xsd;
 			sourceTree = "<group>";
 		};
-		4A02600C25E62E1F005AA1A3 /* Samples */ = {
-			isa = PBXGroup;
-			children = (
-				4A02605025E6ECA7005AA1A3 /* J */,
-				4A02600D25E62E4B005AA1A3 /* H */,
-				4A434CB825B996A200065B64 /* D */,
-				4A44197B25F764150091495B /* README.md */,
-			);
-			path = Samples;
-			sourceTree = "<group>";
-		};
-		4A02600D25E62E4B005AA1A3 /* H */ = {
-			isa = PBXGroup;
-			children = (
-				4A7B85AC2582A4C300E62971 /* dicomattrs.hex */,
-			);
-			path = H;
-			sourceTree = "<group>";
-		};
-		4A02605025E6ECA7005AA1A3 /* J */ = {
-			isa = PBXGroup;
-			children = (
-				4A5CC0392639D057003070E7 /* FluroWithDisplayShutterj2k.bulkdata */,
-				4A5CC03B2639D057003070E7 /* FluroWithDisplayShutterj2k.json */,
-				4A5CC03D2639D057003070E7 /* FluroWithDisplayShutterj2kinline.json */,
-				4A5CC03C2639D057003070E7 /* FluroWithDisplayShutterj2ksource.json */,
-				0718621B25F6849900802276 /* SCSFREN.json */,
-				0718621725F6825F00802276 /* FluroWithDisplayShutter.json */,
-				0718621825F6825F00802276 /* SCSARAB.json */,
-			);
-			path = J;
-			sourceTree = "<group>";
-		};
-		4A434CB825B996A200065B64 /* D */ = {
-			isa = PBXGroup;
-			children = (
-				4AD03C7E269888EA00855F3F /* ele */,
-				4AD03C7F2698897000855F3F /* j2kr */,
-				4AD03C80269889A300855F3F /* j2ki */,
-			);
-			path = D;
-			sourceTree = "<group>";
-		};
-		4A5CC0392639D057003070E7 /* FluroWithDisplayShutterj2k.bulkdata */ = {
-			isa = PBXGroup;
-			children = (
-				4A5CC03A2639D057003070E7 /* 00000001_7FE00010-OB#00000001.j2k */,
-			);
-			path = FluroWithDisplayShutterj2k.bulkdata;
-			sourceTree = "<group>";
-		};
 		4A7B8569258002A100E62971 = {
 			isa = PBXGroup;
 			children = (
@@ -495,7 +357,6 @@
 				4ADA4F602672B81B008F98DB /* unused.m */,
 				4A44193425EE53CE0091495B /* README.md */,
 				4ABDE91725B1A8FE00C8D33F /* XML */,
-				4A02600C25E62E1F005AA1A3 /* Samples */,
 				4A7B85D9258BC12800E62971 /* H2D */,
 				4AAE862B25C0253500117D26 /* M2 */,
 				4ADA5218268C9607008F98DB /* OPENJPEG */,
@@ -578,110 +439,11 @@
 		4AD03BE126973FEE00855F3F /* coercedicom */ = {
 			isa = PBXGroup;
 			children = (
-				4ACFF86626B5CDB50092096C /* storedicom_response.xml */,
-				4A4B772626AC58A000A96811 /* storedicom.sh */,
 				4AD03C46269782CB00855F3F /* coercedicom.json */,
 				4AD03C47269782CB00855F3F /* README.md */,
 				4AD03BE226973FEE00855F3F /* main.m */,
-				4ACFF86726B86AD20092096C /* storedicom_response_parsing.sh */,
 			);
 			path = coercedicom;
-			sourceTree = "<group>";
-		};
-		4AD03C7E269888EA00855F3F /* ele */ = {
-			isa = PBXGroup;
-			children = (
-				4ADA50FE267B16FD008F98DB /* MG-large.ele.dcm */,
-				4AD86139265EEECC002E4D3A /* CT1.ele.dcm */,
-				4AD86159265EEECD002E4D3A /* CT2.ele.dcm */,
-				4AD86165265EEECD002E4D3A /* MG1.ele.dcm */,
-				4AD86123265EEECC002E4D3A /* MR1.ele.dcm */,
-				4AD8615B265EEECD002E4D3A /* MR2.ele.dcm */,
-				4AD8612A265EEECC002E4D3A /* MR3.ele.dcm */,
-				4AD8613A265EEECC002E4D3A /* MR4.ele.dcm */,
-				4AD8615E265EEECD002E4D3A /* NM1.ele.dcm */,
-				4AD86163265EEECD002E4D3A /* RF1.ele.dcm */,
-				4AD86138265EEECC002E4D3A /* RG1.ele.dcm */,
-				4AD86141265EEECC002E4D3A /* RG2.ele.dcm */,
-				4AD86167265EEECD002E4D3A /* RG3.ele.dcm */,
-				4AD8616A265EEECD002E4D3A /* SC1.ele.dcm */,
-				4AD86136265EEECC002E4D3A /* SC2.arabic.ele.dcm */,
-				4AD86142265EEECC002E4D3A /* SC2.french.ele.dcm */,
-				4AD86146265EEECD002E4D3A /* SC2.german.ele.dcm */,
-				4AD86144265EEECD002E4D3A /* SC2.greek.ele.dcm */,
-				4AD86147265EEECD002E4D3A /* SC2.h31.ele.dcm */,
-				4AD8613C265EEECC002E4D3A /* SC2.h32.ele.dcm */,
-				4AD86134265EEECC002E4D3A /* SC2.hebrew.ele.dcm */,
-				4AD86128265EEECC002E4D3A /* SC2.l2.ele.dcm */,
-				4AD8615C265EEECD002E4D3A /* SC2.russian.ele.dcm */,
-				4AD86127265EEECC002E4D3A /* SC2.x1.ele.dcm */,
-				4AD86162265EEECD002E4D3A /* SC2.x2.ele.dcm */,
-				4AD8615F265EEECD002E4D3A /* US1.ele.dcm */,
-				4AD86168265EEECD002E4D3A /* VL1.ele.dcm */,
-				4AD86130265EEECC002E4D3A /* VL2.ele.dcm */,
-				4AD86158265EEECD002E4D3A /* VL3.ele.dcm */,
-				4AD86161265EEECD002E4D3A /* VL4.ele.dcm */,
-				4AD86153265EEECD002E4D3A /* VL5.ele.dcm */,
-				4AD86129265EEECC002E4D3A /* VL6.ele.dcm */,
-				4AD8614C265EEECD002E4D3A /* XA1.ele.dcm */,
-			);
-			path = ele;
-			sourceTree = "<group>";
-		};
-		4AD03C7F2698897000855F3F /* j2kr */ = {
-			isa = PBXGroup;
-			children = (
-				4ADA50FD267B16FD008F98DB /* US-icon.j2kr.dcm */,
-				4AD8612E265EEECC002E4D3A /* CT1.j2kr.dcm */,
-				4AD8613B265EEECC002E4D3A /* CT2.j2kr.dcm */,
-				4AD86124265EEECC002E4D3A /* MG1.j2kr.dcm */,
-				4AD8615A265EEECD002E4D3A /* MR1.j2kr.dcm */,
-				4AD86143265EEECC002E4D3A /* MR2.j2kr.dcm */,
-				4AD86164265EEECD002E4D3A /* MR3.j2kr.dcm */,
-				4AD86169265EEECD002E4D3A /* MR4.j2kr.dcm */,
-				4AD86156265EEECD002E4D3A /* NM1.j2kr.dcm */,
-				4AD86145265EEECD002E4D3A /* RF1.j2kr.dcm */,
-				4AD8613E265EEECC002E4D3A /* RG1.j2kr.dcm */,
-				4AD86166265EEECD002E4D3A /* RG2.j2kr.dcm */,
-				4AD8612B265EEECC002E4D3A /* RG3.j2kr.dcm */,
-				4AD86135265EEECC002E4D3A /* SC1.j2kr.dcm */,
-				4AD8612C265EEECC002E4D3A /* US1.j2kr.dcm */,
-				4AD86157265EEECD002E4D3A /* VL1.j2kr.dcm */,
-				4AD86149265EEECD002E4D3A /* VL2.j2kr.dcm */,
-				4AD86151265EEECD002E4D3A /* VL3.j2kr.dcm */,
-				4AD8616B265EEECD002E4D3A /* VL4.j2kr.dcm */,
-				4AD86140265EEECC002E4D3A /* VL5.j2kr.dcm */,
-				4AD8612F265EEECC002E4D3A /* VL6.j2kr.dcm */,
-				4AD8614D265EEECD002E4D3A /* XA1.j2kr.dcm */,
-			);
-			path = j2kr;
-			sourceTree = "<group>";
-		};
-		4AD03C80269889A300855F3F /* j2ki */ = {
-			isa = PBXGroup;
-			children = (
-				4AD8613D265EEECC002E4D3A /* CT1.j2ki.dcm */,
-				4AD86132265EEECC002E4D3A /* CT2.j2ki.dcm */,
-				4AD86133265EEECC002E4D3A /* MG1.j2ki.dcm */,
-				4AD8612D265EEECC002E4D3A /* MR1.j2ki.dcm */,
-				4AD86125265EEECC002E4D3A /* MR2.j2ki.dcm */,
-				4AD86152265EEECD002E4D3A /* MR3.j2ki.dcm */,
-				4AD8614F265EEECD002E4D3A /* MR4.j2ki.dcm */,
-				4AD8614E265EEECD002E4D3A /* NM1.j2ki.dcm */,
-				4AD86131265EEECC002E4D3A /* RG1.j2ki.dcm */,
-				4AD86150265EEECD002E4D3A /* RG2.j2ki.dcm */,
-				4AD86137265EEECC002E4D3A /* RG3.j2ki.dcm */,
-				4AD86160265EEECD002E4D3A /* SC1.j2ki.dcm */,
-				4AD86148265EEECD002E4D3A /* US1.j2ki.dcm */,
-				4AD86126265EEECC002E4D3A /* VL1.j2ki.dcm */,
-				4AD86155265EEECD002E4D3A /* VL2.j2ki.dcm */,
-				4AD8614A265EEECD002E4D3A /* VL3.j2ki.dcm */,
-				4AD8613F265EEECC002E4D3A /* VL4.j2ki.dcm */,
-				4AD86154265EEECD002E4D3A /* VL5.j2ki.dcm */,
-				4AD8614B265EEECD002E4D3A /* VL6.j2ki.dcm */,
-				4AD8615D265EEECD002E4D3A /* XA1.j2ki.dcm */,
-			);
-			path = j2ki;
 			sourceTree = "<group>";
 		};
 		4ADA4EBE267291A4008F98DB /* Frameworks */ = {
