@@ -16,9 +16,7 @@ if [[ $response == *"NativeDicomModel"* ]]; then
 #          00081155 ReferencedSOPInstanceUID
 #          00081197 FailureReason
 
-
   if [[ $FAILEDSOPSQ != '' ]]; then
-    #http://dicom.nema.org/medical/dicom/current/output/chtml/part18/sect_6.6.html#table_6.6.1-4
     DSTBUCKETDIR="REJECTED"
     
     #loop for each 00081155.*
@@ -32,12 +30,12 @@ if [[ $response == *"NativeDicomModel"* ]]; then
       numberArray=(${numbers//>/ })
       numberSize=${#numberArray[@]}
 #echo 'tokens failed: '"$numbers"
-        if [[ $i < numberSize-4 ]] && [[ ${numberArray[$i+2]} = '00081197' ]]; then
-          reason=${numberArray[$i+4]}/
-        else
-          reason='0'
-        fi
-        echo "$DSTBUCKETDIR"/"$reason""${numberArray[$i + 1]}"'.dcm.part'
+      if [[ $i < numberSize-4 ]] && [[ ${numberArray[$i+2]} = '00081197' ]]; then
+        reason=${numberArray[$i+4]}/
+      else
+        reason='0'
+      fi
+      echo "$DSTBUCKETDIR"/"$reason""${numberArray[$i + 1]}"'.dcm.part'
     done
   fi
 

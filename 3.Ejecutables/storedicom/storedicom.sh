@@ -64,55 +64,74 @@ if [ ! -z "$(ls -A)" ]; then
 
 
 # 00081198 FailedSOPSequence
+#          00081150 ReferencedSOPClassUID
+#          00081155 ReferencedSOPInstanceUID
 #          00081197 FailureReason
+
            if [[ $FAILEDSOPSQ != '' ]]; then
-            #http://dicom.nema.org/medical/dicom/current/output/chtml/part18/sect_6.6.html#table_6.6.1-4
-            numbers=$(echo $FAILEDSOPSQ | sed 's/[^0-9\.>]*//g')
-            numberArray=(${numbers//>/ })
-            numberSize=${#numberArray[@]}
-echo 'tokens failed : '"$numberSize"
-            for (( i=4; i<$numberSize; i+=10)); do
-             if [[ ${numberArray[$i]} = '00081155' ]];then
-              if [[ $i < numberSize-5 ]] && [[ ${numberArray[$i+3]} = '00081197' ]]; then
-               failure=${numberArray[$i+5]}/
-              else
-               failure='0'
-              fi
-              DSTBUCKETDIR="$REJECTED"'/'"$ORG"'/'"$SOURCE"'/'"$STUDY"'/'"$failure"'/'"$BUCKET"'/'
-              if [ ! -d "$DSTBUCKETDIR" ]; then
-               mkdir -p "$DSTBUCKETDIR"
-              fi
-              mv ${numberArray[$i+2]}'.dcm.part' "$DSTBUCKETDIR"
+           
+            #loop for each 00081155.*
+            FAILEDSOPSQ=$(echo $FAILEDSOPSQ 00081155)
+            FAILEDSOPSQ=${FAILEDSOPSQ#*00081155}
+            while [[ $FAILEDSOPSQ ]]; do
+             FAILEDSOP=${FAILEDSOPSQ%%00081155*}
+             FAILEDSOPSQ=${FAILEDSOPSQ#*00081155}
+
+             numbers=$(echo $FAILEDSOP | sed 's/[^0-9\.>]*//g')
+             numberArray=(${numbers//>/ })
+             numberSize=${#numberArray[@]}
+#echo 'tokens failed : '"$numberSize"
+             if [[ $i < numberSize-4 ]] && [[ ${numberArray[$i+2]} = '00081197' ]]; then
+              failure=${numberArray[$i+4]}/
+             else
+              failure='0'
              fi
+             DSTBUCKETDIR="$REJECTED"'/'"$ORG"'/'"$SOURCE"'/'"$STUDY"'/'"$failure"'/'"$BUCKET"'/'
+             if [ ! -d "$DSTBUCKETDIR" ]; then
+              mkdir -p "$DSTBUCKETDIR"
+             fi
+             mv ${numberArray[$i+2]}'.dcm.part' "$DSTBUCKETDIR"
             done
             echo $STORERESP > "$REJECTED"'/'"$ORG"'/'"$SOURCE"'/'"$STUDY"'/.'"$BUCKET"'.response'
            fi
 
 
 # 00081199 ReferencedSopSequence
-#          00081197 WarningReason
+#          00081150 ReferencedSOPClassUID
+#          00081155 ReferencedSOPInstanceUID
 #          00081190 RetrieveURL
+#          00081196 WarningReason
+#          04000561 OriginalAttributesSequence
+#                   04000550 ModifiedAttributesSequence
+#                            ...
+#                   04000562 AttributeModificationDateTime
+#                   04000563 ModifyingSystem
+#                   04000564 SourceOfPreviousValues
+
            if [[ $REFERENCEDSOPSQ != '' ]]; then
-            numbers=$(echo $REFERENCEDSOPSQ | sed 's/[^0-9\.>]*//g')
-            numberArray=(${numbers//>/ })
-            numberSize=${#numberArray[@]}
-echo 'tokens referenced : '"$numberSize"
-            for (( i=0; i<$numberSize; i++)); do
-             if [[ ${numberArray[$i]} = '00081155' ]];then
-             
-              if [[ $i < numberSize-5 ]] && [[ ${numberArray[$i+3]} = '00081197' ]]; then
-               warning=${numberArray[$i+5]}
-              elif [[ $i < numberSize-8 ]] && [[ ${numberArray[$i+6]} = '00081197' ]]; then
-               warning=${numberArray[$i+8]}
-              else
-               warning='0'
-              fi
-              DSTBUCKETDIR="$SENT"'/'"$ORG"'/'"$SOURCE"'/'"$STUDY"'/'"$warning"'/'"$BUCKET"'/'
-              if [ ! -d "$DSTBUCKETDIR" ]; then
-               mkdir -p "$DSTBUCKETDIR"
-              fi
-              mv ${numberArray[$i + 2]}'.dcm.part' "$DSTBUCKETDIR"
+
+            #loop for each 00081155.*
+            REFERENCEDSOPSQ=$(echo $REFERENCEDSOPSQ 00081155)
+            REFERENCEDSOPSQ=${REFERENCEDSOPSQ#*00081155}
+            while [[ $REFERENCEDSOPSQ ]]; do
+             REFERENCEDSOP=${REFERENCEDSOPSQ%%00081155*}
+             REFERENCEDSOPSQ=${REFERENCEDSOPSQ#*00081155}
+      
+             numbers=$(echo $REFERENCEDSOPSQ | sed 's/[^0-9\.>]*//g')
+             numberArray=(${numbers//>/ })
+             numberSize=${#numberArray[@]}
+             if [[ $i < numberSize-4 ]] && [[ ${numberArray[$i+2]} = '00081196' ]]; then
+               warning=${numberArray[$i+4]}
+             elif [[ $i < numberSize-7 ]] && [[ ${numberArray[$i+5]} = '00081196' ]]; then
+               warning=${numberArray[$i+7]}
+             else
+              warning='0'
              fi
+             DSTBUCKETDIR="$SENT"'/'"$ORG"'/'"$SOURCE"'/'"$STUDY"'/'"$warning"'/'"$BUCKET"'/'
+             if [ ! -d "$DSTBUCKETDIR" ]; then
+              mkdir -p "$DSTBUCKETDIR"
+             fi
+             mv ${numberArray[$i + 2]}'.dcm.part' "$DSTBUCKETDIR"
             done
             echo $STORERESP > "$SEND"'/'"$ORG"'/'"$SOURCE"'/'"$STUDY"'/.'"$BUCKET"'.response'
            fi
