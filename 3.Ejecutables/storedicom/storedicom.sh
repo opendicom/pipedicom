@@ -55,10 +55,10 @@ if [ ! -z "$(ls -A)" ]; then
           cd ..
          else
 #response
-          if [[ $response == *"NativeDicomModel"* ]]; then
-           REFERENCEDSOPSQ=$(echo $response |  tr '\12' '\40' | sed 's/.*00081199//s')
-           NOREFERENCEDSOPSQ=$(echo $response |  tr '\12' '\40' | sed 's/00081199.*//s')
-           FAILEDSOPSQ=$(echo $NOREFERENCEDSOPSQ | sed 's/.*00081198//s')
+          if [[ $STORERESP == *"NativeDicomModel"* ]]; then
+           REFERENCEDSOPSQ=$(echo $STORERESP |  tr '\12' '\40' | sed 's/.*00081199//')
+           NOREFERENCEDSOPSQ=$(echo $STORERESP |  tr '\12' '\40' | sed 's/00081199.*//')
+           FAILEDSOPSQ=$(echo $NOREFERENCEDSOPSQ | sed 's/.*00081198//')
 
 # 00081190 RetrieveURL
 
@@ -80,17 +80,18 @@ if [ ! -z "$(ls -A)" ]; then
              numbers=$(echo $FAILEDSOP | sed 's/[^0-9\.>]*//g')
              numberArray=(${numbers//>/ })
              numberSize=${#numberArray[@]}
-#echo 'tokens failed : '"$numberSize"
+#echo 'tokens failed : '"$numbers"
              if [[ $i < numberSize-4 ]] && [[ ${numberArray[$i+2]} = '00081197' ]]; then
-              failure=${numberArray[$i+4]}/
+              failure=${numberArray[$i+4]}
              else
               failure='0'
              fi
-             DSTBUCKETDIR="$REJECTED"'/'"$ORG"'/'"$SOURCE"'/'"$STUDY"'/'"$failure"'/'"$BUCKET"'/'
+             DSTBUCKETDIR="$REJECTED"'/'"$ORG"'/'"$SOURCE"'/'"$STUDY"'/'"$failure"'/'"$BUCKET"
              if [ ! -d "$DSTBUCKETDIR" ]; then
               mkdir -p "$DSTBUCKETDIR"
              fi
-             mv ${numberArray[$i+2]}'.dcm.part' "$DSTBUCKETDIR"
+             FILENAME=${numberArray[$i+1]}'*'
+             mv `ls $FILENAME` "$DSTBUCKETDIR"
             done
             echo $STORERESP > "$REJECTED"'/'"$ORG"'/'"$SOURCE"'/'"$STUDY"'/.'"$BUCKET"'.response'
            fi
@@ -131,12 +132,14 @@ if [ ! -z "$(ls -A)" ]; then
              if [ ! -d "$DSTBUCKETDIR" ]; then
               mkdir -p "$DSTBUCKETDIR"
              fi
-             mv ${numberArray[$i + 2]}'.dcm.part' "$DSTBUCKETDIR"
+             FILENAME=${numberArray[$i+1]}'*'
+             mv `ls $FILENAME` "$DSTBUCKETDIR"
             done
-            echo $STORERESP > "$SEND"'/'"$ORG"'/'"$SOURCE"'/'"$STUDY"'/.'"$BUCKET"'.response'
+            echo $STORERESP > "$SENT"'/'"$ORG"'/'"$SOURCE"'/'"$STUDY"'/.'"$BUCKET"'.response'
            fi
+
+
           else
-           # response is not ann xml NativeDicomModel
            DSTBUCKETDIR="$MISMATCHSERVICE"/"$ORG"/"$SOURCE"/"$STUDY"/"$BUCKET"/
            if [ ! -d "$DSTBUCKETDIR" ]; then
             mkdir -p "$DSTBUCKETDIR"
@@ -144,6 +147,8 @@ if [ ! -z "$(ls -A)" ]; then
            mv * "$DSTBUCKETDIR"
            echo $STORERESP > "$DSTBUCKETDIR"'.response'
           fi
+
+
           cd ..
           rm -Rf "$BUCKET"
          fi
