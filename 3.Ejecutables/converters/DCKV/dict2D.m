@@ -242,7 +242,7 @@ int dict2D(NSString *baseURLString, NSDictionary *attrs, NSMutableData *data, NS
               
                  BOOL odd=stringData.length % 2;
                  vll=(uint32)(stringData.length + odd);
-                 [data appendBytes:&vll length:2];
+                 [data appendBytes:&vll length:4];
                  [data appendData:stringData];
                  if (odd) [data appendBytes:&paddingspace length:1];
               }
@@ -270,7 +270,7 @@ int dict2D(NSString *baseURLString, NSDictionary *attrs, NSMutableData *data, NS
                
                   BOOL odd=stringData.length % 2;
                   vll=(uint32)(stringData.length + odd);
-                  [data appendBytes:&vll length:2];
+                  [data appendBytes:&vll length:4];
                   [data appendData:stringData];
                   if (odd) [data appendBytes:&paddingspace length:1];
                }
@@ -306,7 +306,7 @@ int dict2D(NSString *baseURLString, NSDictionary *attrs, NSMutableData *data, NS
                
                   BOOL odd=stringData.length % 2;
                   vll=(uint32)(stringData.length + odd);
-                  [data appendBytes:&vll length:2];
+                  [data appendBytes:&vll length:4];
                   [data appendData:stringData];
                   if (odd) [data appendBytes:&paddingspace length:1];
                }
