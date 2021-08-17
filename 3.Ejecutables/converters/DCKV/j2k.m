@@ -17,7 +17,8 @@ int compress(
              NSMutableDictionary *parsedAttrs,
              NSMutableDictionary *j2kBlobDict,
              NSMutableDictionary *j2kAttrs,
-             NSMutableString *message
+             NSMutableString *message,
+             NSString *compressorPath
              )
 {
    //16 or less bits...
@@ -34,14 +35,17 @@ int compress(
                bits,
                sign?@"s":@"u"
                ];
-   
+
+   NSString *stdinSymlink=[@"~/Download/dicom.frame.stdin.rawl" stringByExpandingTildeInPath];
+   NSString *stdoutSymlink=[@"~/Download/dicom.frame.stdout.j2k" stringByExpandingTildeInPath];
+
    NSArray *params=@[
       @"-F",
       F,
       @"-i",
-      @"stdin.rawl",
+      stdinSymlink,
       @"-o",
-      @"stdout.j2k",
+      stdoutSymlink,
       @"-n",
       @"6",
       @"-r",
@@ -68,28 +72,28 @@ int compress(
       NSMutableData *j2kData=[NSMutableData data];
       NSTask *task=[[NSTask alloc]init];
       //task.environment=@{};
-      task.currentDirectoryPath=@"/usr/local/bin";
-      task.launchPath=@"/usr/local/bin/opj_compress";
+      //task.currentDirectoryPath=@"/usr/local/bin";
+      task.launchPath=compressorPath;
       task.arguments=params;
       
-      NSPipe *writePipe = [NSPipe pipe];
-      NSFileHandle *writeHandle = [writePipe fileHandleForWriting];
-      task.standardInput=writePipe;
-      
-      NSPipe* readPipe = [NSPipe pipe];
-      NSFileHandle *readingFileHandle=[readPipe fileHandleForReading];
-      task.standardOutput=readPipe;
+      NSPipe *stdinPipe = [NSPipe pipe];
+      task.standardInput=stdinPipe;
+
+      NSPipe* stdoutPipe = [NSPipe pipe];
+      task.standardOutput=stdoutPipe;
       //task.standardError=readPipe;
+
+      id frameData;
       
-      [task launch];
+#pragma mark TODO switch interleaved/components compressor type
       switch (samples) {
          case 1:
-            [writeHandle writeData:[pixelData subdataWithRange:NSMakeRange(frameNumber*frameLength,frameLength)]];
+            frameData=[pixelData subdataWithRange:NSMakeRange(frameNumber*frameLength,frameLength)];
             break;
          case 3://RGB
          {
             NSData *RGB=[pixelData subdataWithRange:NSMakeRange(frameNumber*frameLength,frameLength)];
-            NSMutableData *R=[NSMutableData data];
+            frameData=[NSMutableData data];//R
             NSMutableData *G=[NSMutableData data];
             NSMutableData *B=[NSMutableData data];
             unsigned char *pixel=(unsigned char *)[RGB bytes];
@@ -97,13 +101,12 @@ int compress(
             const NSUInteger afterLastR=RGB.length;
             while (i<afterLastR)
             {
-               [R appendBytes:&pixel[i++] length:1];
+               [frameData appendBytes:&pixel[i++] length:1];
                [G appendBytes:&pixel[i++] length:1];
                [B appendBytes:&pixel[i++] length:1];
             }
-            [R appendData:G];
-            [R appendData:B];
-            [writeHandle writeData:R];
+            [frameData appendData:G];
+            [frameData appendData:B];
          }
             break;
 
@@ -111,29 +114,43 @@ int compress(
             NSLog(@"%d samples pixels not handled",samples);
             break;
       }
-      
-      [writeHandle closeFile];
-      
-      NSData *dataPiped = nil;
-      while((dataPiped = [readingFileHandle availableData]) && [dataPiped length])
+
+      [task launch];
+      NSFileHandle *stdinHandle=[stdinPipe fileHandleForWriting];
+      [stdinHandle writeData:[pixelData subdataWithRange:NSMakeRange(frameNumber*frameLength,frameLength)]];
+      [stdinHandle closeFile];
+
+   
+
+      NSUInteger j2kDataLength=NSNotFound;
+      NSFileHandle *stdoutHandle=[stdoutPipe fileHandleForReading];
+      while (j2kDataLength!=j2kData.length)
       {
-         [j2kData appendData:dataPiped];
+         j2kDataLength=j2kData.length;
+         [j2kData appendData:[stdoutHandle availableData]];
       }
+      [stdoutHandle closeFile];
+
 
       //while( [task isRunning]) [NSThread sleepForTimeInterval: 0.1];
       //[task waitUntilExit];      // <- This is VERY DANGEROUS : the main runloop is continuing...
-      //[aTask interrupt];
+      //[task interrupt];
       [task waitUntilExit];
       int terminationStatus = [task terminationStatus];
       if (terminationStatus!=0)
       {
-         [message appendFormat:@"ERROR task terminationStatus: %d\r\n",terminationStatus];//warning
+         NSString *stdinFile=[@"~/Download/dicom.frame.stdinfile.rawl" stringByExpandingTildeInPath];
+         NSString *stdoutFile=[@"~/Download/dicom.frame.stdoutfile.j2k" stringByExpandingTildeInPath];
+         [frameData writeToFile:stdinFile atomically:NO];
+         [j2kData writeToFile:stdoutFile atomically:NO];
+         [message appendFormat:@"status %d\r\n\r\ncat %@ |  %@ -F %@ -i %@ -o %@ -n 6 -r 6,5,4,3,2,1 -p RLCP -TP R > %@\r\n\r\n",terminationStatus,stdinFile,compressorPath,F,stdoutSymlink,stdinSymlink,stdoutFile];//warning
          NSString *errorString=[[NSString alloc]initWithData:j2kData encoding:NSUTF8StringEncoding];
          [message appendFormat:@"compression J2K: %@",errorString];
          return failure;
       }
       else
       {
+         [j2kData writeToFile:@"/Users/Shared/result.j2k" atomically:NO];
 #pragma mark · subdivide j2kData
          j2kTotalLength+=j2kData.length;
 

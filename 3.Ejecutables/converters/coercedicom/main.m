@@ -14,6 +14,34 @@ const UInt64 _0002001_tag_vr=0x0000424F00010002;
 const UInt32 _0002001_length=0x00000002;
 const UInt16 _0002001_value=0x0001;
 
+BOOL symlinkOK(NSFileManager *fileManager,NSString *symlinkPath,NSString *stdPath)
+{
+   if ([fileManager fileExistsAtPath:symlinkPath])
+   {
+      NSError *symlinkError=nil;
+      NSString *symlinkDestPath=[fileManager destinationOfSymbolicLinkAtPath:symlinkPath error:&symlinkError];
+      if (!symlinkDestPath || ![symlinkDestPath isEqualToString:stdPath])
+      {
+         if (symlinkError) NSLog(@"%@",symlinkError.description);
+         else NSLog(@"ERROR: symlink dest:%@ is not the required dest:%@",symlinkPath,stdPath);
+         NSError *symlinkRemovalError=nil;
+         if ([fileManager fileExistsAtPath:symlinkPath] && ![fileManager removeItemAtPath:symlinkPath error:&symlinkRemovalError])
+         {
+            NSLog(@"%@",symlinkRemovalError.description);
+            return false;
+         }
+      }
+      else return true;
+   }
+   NSError *symlinkCreationError=nil;
+   if (![fileManager createSymbolicLinkAtPath:symlinkPath withDestinationPath:stdPath error:&symlinkCreationError])
+   {
+      NSLog(@"%@",symlinkCreationError.description);
+      return false;
+   }
+   return true;
+}
+
 NSString *noUnderscoreSuffixBeforeDcmExt(NSString *name)
 {
    if ([name containsString:@"_"])
@@ -236,7 +264,8 @@ void async_f_study_callback(void *context){
                             parsedAttrs,
                             j2kBlobDict,
                             j2kAttrs,
-                            response
+                            response,
+                            current[@"compressorPath"]
                             )==success
                    )
                {
@@ -426,7 +455,7 @@ enum CDargName{
    CDargCdamwlDir,
    CDargPacsSearchUrl,
    
-   CDargAsyncMonitorLoopsWait
+   CDargAsyncMonitorLoopsWait,
 };
 
 
@@ -437,6 +466,9 @@ int main(int argc, const char * argv[]){
    NSFileManager *fileManager=[NSFileManager defaultManager];
     NSError *error=nil;
     BOOL isDirectory=false;
+
+    if (!symlinkOK(fileManager,[@"~/Downloads/dicom.frame.stdin.rawl" stringByExpandingTildeInPath],@"/dev/stdin")) exit(1);
+    if (!symlinkOK(fileManager,[@"~/Downloads/dicom.frame.stdout.j2k" stringByExpandingTildeInPath],@"/dev/stdout")) exit(1);       
 
     NSProcessInfo *processInfo=[NSProcessInfo processInfo];
     NSArray *args=[processInfo arguments];

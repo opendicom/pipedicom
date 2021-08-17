@@ -2,8 +2,9 @@
     {
         "regex":"^.*",
         "coerceDataset":{
-           "00000001_00080080-LO" :[ "DCM4CHEE" ]
+           "00000001_00080080-1100LO" :[ "DCM4CHEE" ]
         },
-        "storeBucketSize":100000000
+        "storeBucketSize":100000000,
+        "compressorPath":"/usr/local/bin/opj_compress"
     }
 ]

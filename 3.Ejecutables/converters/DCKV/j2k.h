@@ -13,7 +13,8 @@ int compress(
              NSMutableDictionary *parsedAttrs,
              NSMutableDictionary *j2kBlobDict,
              NSMutableDictionary *j2kAttrs,
-             NSMutableString *message
+             NSMutableString *message,
+             NSString *compressorPath
              );
 
 NS_ASSUME_NONNULL_BEGIN
