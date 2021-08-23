@@ -8,7 +8,7 @@ enum {
    dicomExplicitJ2kFast,
    dicomExplicitJ2kHres,
    dicomExplicitJ2kIdem
-} dicomExplicitPixelMode;
+};
 
 
 int dict2D(NSString *baseURLString, NSDictionary *dict, NSMutableData *data, NSUInteger pixelMode, NSDictionary *blobDict);

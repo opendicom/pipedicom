@@ -24,25 +24,30 @@ if [ ! -z "$(ls -A)" ]; then
    else
     URL=$STOREURL
    fi
-
+echo 'url:'$URL
    for SOURCE in *; do
     if [ -z "$(ls "$SOURCE")" ]; then
      rm -Rf "$SOURCE"
     else
-#echo $SOURCE
+echo 'source:'$SOURCE
      cd $SOURCE
 
      for STUDY in *; do
       if [ -z "$(ls "$STUDY")" ]; then
        rm -Rf "$STUDY"
       else
+echo 'study:'$STUDY
        cd $STUDY
 
        for BUCKET in *; do
-        if [ -z "$(ls "$BUCKET")" ]; then
+        if [[ $BUCKET == *".xml" ]]; then
+         rm -f $BUCKET
+        elif [ -z "$(ls "$BUCKET")" ]; then
          rm -Rf "$BUCKET"
         else
+echo 'bucket:'$BUCKET
          cd $BUCKET
+         find . -name '.DS_*' -exec rm -rf {} \;
 
          if [[ CURL_VERBOSE == *"CURL_VERBOSE"* ]]; then
           STORERESP=$( cat * | curl -X POST -H "Content-Type: multipart/related; type=\"application/dicom\"; boundary=myboundary" "$URL" --data-binary @- )
@@ -51,14 +56,13 @@ if [ ! -z "$(ls -A)" ]; then
          fi
 
          if [[ -z $STORERESP ]]; then
-          echo "$ORG"/"$SOURCE"/"$STUDY"/"$BUCKET"/ 'no response'
+          echo '<noresponse/>' >$ORG"/"$SOURCE"/"$STUDY"/"$BUCKET"'.xml'
           cd ..
          else
 #response
+echo $STORERESP
           if [[ $STORERESP == *"NativeDicomModel"* ]]; then
-           REFERENCEDSOPSQ=$(echo $STORERESP |  tr '\12' '\40' | sed 's/.*00081199//')
-           NOREFERENCEDSOPSQ=$(echo $STORERESP |  tr '\12' '\40' | sed 's/00081199.*//')
-           FAILEDSOPSQ=$(echo $NOREFERENCEDSOPSQ | sed 's/.*00081198//')
+
 
 # 00081190 RetrieveURL
 
@@ -68,8 +72,11 @@ if [ ! -z "$(ls -A)" ]; then
 #          00081155 ReferencedSOPInstanceUID
 #          00081197 FailureReason
 
+NOREFERENCEDSOPSQ=$(echo $STORERESP |  tr '\12' '\40' | sed 's/<DicomAttribute.keyword="ReferencedSOPSequence".tag="00081199.*//')
+FAILEDSOPSQ=$(echo $NOREFERENCEDSOPSQ | sed 's/.*"00081198//')
+FAILEDRESP='<?xml version="1.0" encoding="UTF-8"?><NativeDicomModel xml-space="preserved"><DicomAttribute keyword="FailedSOPSequence" tag="00081198'"$FAILEDSOPSQ"'</NativeDicomModel>'
+
            if [[ $FAILEDSOPSQ != '' ]]; then
-           
             #loop for each 00081155.*
             FAILEDSOPSQ=$(echo $FAILEDSOPSQ 00081155)
             FAILEDSOPSQ=${FAILEDSOPSQ#*00081155}
@@ -91,9 +98,12 @@ if [ ! -z "$(ls -A)" ]; then
               mkdir -p "$DSTBUCKETDIR"
              fi
              FILENAME=${numberArray[$i+1]}'*'
+echo `ls $FILENAME`
+echo '->'$DSTBUCKETDIR
              mv `ls $FILENAME` "$DSTBUCKETDIR"
             done
-            echo $STORERESP > "$REJECTED"'/'"$ORG"'/'"$SOURCE"'/'"$STUDY"'/.'"$BUCKET"'.response'
+
+            echo $FAILEDRESP > "$REJECTED"'/'"$ORG"'/'"$SOURCE"'/'"$STUDY"'/'"$BUCKET"'.xml'
            fi
 
 
@@ -109,8 +119,11 @@ if [ ! -z "$(ls -A)" ]; then
 #                   04000563 ModifyingSystem
 #                   04000564 SourceOfPreviousValues
 
-           if [[ $REFERENCEDSOPSQ != '' ]]; then
+REFERENCEDSOPSQ=$(echo $STORERESP |  tr '\12' '\40' | sed 's/.*00081199\" vr=\"SQ\">//')
+REFERENCEDSOPRESP="$REFERENCEDSOPSQ"'<?xml version="1.0" encoding="UTF-8"?><NativeDicomModel xml-space="preserved"><DicomAttribute keyword="ReferencedSOPSequence" tag="00081199" vr="SQ">'
 
+           if [[ $REFERENCEDSOPSQ != '' ]]; then
+echo'referenced:'
             #loop for each 00081155.*
             REFERENCEDSOPSQ=$(echo $REFERENCEDSOPSQ 00081155)
             REFERENCEDSOPSQ=${REFERENCEDSOPSQ#*00081155}
@@ -128,24 +141,29 @@ if [ ! -z "$(ls -A)" ]; then
              else
               warning='0'
              fi
+
              DSTBUCKETDIR="$SENT"'/'"$ORG"'/'"$SOURCE"'/'"$STUDY"'/'"$warning"'/'"$BUCKET"'/'
              if [ ! -d "$DSTBUCKETDIR" ]; then
               mkdir -p "$DSTBUCKETDIR"
              fi
+
              FILENAME=${numberArray[$i+1]}'*'
+echo `ls $FILENAME`
+echo '->'$DSTBUCKETDIR
              mv `ls $FILENAME` "$DSTBUCKETDIR"
             done
-            echo $STORERESP > "$SENT"'/'"$ORG"'/'"$SOURCE"'/'"$STUDY"'/.'"$BUCKET"'.response'
+
+            echo $REFERENCEDSOPRESP > "$SENT"'/'"$ORG"'/'"$SOURCE"'/'"$STUDY"'/'"$BUCKET".xm'
            fi
 
 
           else
-           DSTBUCKETDIR="$MISMATCHSERVICE"/"$ORG"/"$SOURCE"/"$STUDY"/"$BUCKET"/
+           DSTBUCKETDIR="$MISMATCHSERVICE"'/'"$ORG"'/'"$SOURCE"'/'"$STUDY"'/'"$BUCKET"'/'
            if [ ! -d "$DSTBUCKETDIR" ]; then
             mkdir -p "$DSTBUCKETDIR"
            fi
            mv * "$DSTBUCKETDIR"
-           echo $STORERESP > "$DSTBUCKETDIR"'.response'
+           echo $STORERESP > "$MISMATCHSERVICE"'/'"$ORG"'/'"$SOURCE"'/'"$STUDY"'/.'"$BUCKET"'_response'
           fi
 
 

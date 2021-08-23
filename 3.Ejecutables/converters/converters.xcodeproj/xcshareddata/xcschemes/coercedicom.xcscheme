@@ -52,7 +52,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Volumes/IN/AET/CLASSIFIED"
+            argument = "/Volumes/IN/RECEIVING_AET/CLASSIFIED"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
@@ -60,27 +60,27 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Volumes/IN/AET/FAILURE"
+            argument = "/Volumes/IN/RECEIVING_AET/FAILURE"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Volumes/IN/AET/ORIGINALS"
+            argument = "/Volumes/IN/RECEIVING_AET/ORIGINALS"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Volumes/IN/AET/sourceMismatch"
+            argument = "/Volumes/IN/RECEIVING_AET/MISMATCH_SOURCE"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Volumes/IN/AET/cdawlMismatch"
+            argument = "/Volumes/IN/RECEIVING_AET/MISMATCH_CDAWL"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Volumes/IN/AET/pacsMismatch"
+            argument = "/Volumes/IN/RECEIVING_AET/MISMATCH_PACS"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/coercedicom/coercedicom.json"
+            argument = "/Users/Shared/coercedicom/coercedicom.json"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument

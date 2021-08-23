@@ -1,0 +1,5 @@
+https://serviciosridi.asse.uy/dcm4chee-arc/qido/DCM4CHEE/instances?Modality=OT&SeriesDescription=solicitud&NumberOfStudyRelatedInstances=1&00080080=asseCQP&StudyDate=
+
+/Users/Shared/wlmscpfs/aet/DCM4CHE
+
+DCM4CHEE

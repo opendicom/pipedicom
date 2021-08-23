@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.opendicom.cdawldicom.asseMaldonado</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/Users/shared/cdawldicom/deploy/cdawldicom</string>
+		<string>https://serviciosridi/dcm4chee-arc/qido/DCM4CHEE/instances?Modality=OT&amp;00080080=asseMaldonado&amp;SeriesDescription=solicitud&amp;NumberOfStudyRelatedInstances=1&amp;StudyDate=</string>
+		<string>/Users/Shared/wlmscpfs/aet/DCM4CHEE/</string>
+	</array>
+	<key>StartInterval</key>
+	<integer>60</integer>
+</dict>
+</plist>
