@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-<<<<<<< Updated upstream
    LastUpgradeVersion = "1230"
-=======
-   LastUpgradeVersion = "1240"
->>>>>>> Stashed changes
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -18,11 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-<<<<<<< Updated upstream
                BlueprintIdentifier = "4AE0109C26D433DD00D5A91B"
-=======
-               BlueprintIdentifier = "0758695E26D4CDAE009CD16E"
->>>>>>> Stashed changes
                BuildableName = "cdamwldicom"
                BlueprintName = "cdamwldicom"
                ReferencedContainer = "container:converters.xcodeproj">
@@ -52,11 +44,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-<<<<<<< Updated upstream
             BlueprintIdentifier = "4AE0109C26D433DD00D5A91B"
-=======
-            BlueprintIdentifier = "0758695E26D4CDAE009CD16E"
->>>>>>> Stashed changes
             BuildableName = "cdamwldicom"
             BlueprintName = "cdamwldicom"
             ReferencedContainer = "container:converters.xcodeproj">
@@ -64,11 +52,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-<<<<<<< Updated upstream
             argument = "/Volumes/GITHUB/pipedicomOpenjpeg/3.Ejecutables/converters/cdamwldicom/cda2mwl.xsl"
-=======
-            argument = "/Users/Shared/cdamwldicom/cda2mwl.xsl"
->>>>>>> Stashed changes
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
@@ -95,11 +79,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-<<<<<<< Updated upstream
             BlueprintIdentifier = "4AE0109C26D433DD00D5A91B"
-=======
-            BlueprintIdentifier = "0758695E26D4CDAE009CD16E"
->>>>>>> Stashed changes
             BuildableName = "cdamwldicom"
             BlueprintName = "cdamwldicom"
             ReferencedContainer = "container:converters.xcodeproj">
