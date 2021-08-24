@@ -47,12 +47,14 @@
 		4ADA5201268BB4CA008F98DB /* schema-for-json.xsd in Resources */ = {isa = PBXBuildFile; fileRef = 4AAE865C25C0AABB00117D26 /* schema-for-json.xsd */; };
 		4ADA5209268BB4E4008F98DB /* N.rng in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE91C25B1A8FE00C8D33F /* N.rng */; };
 		4AE010A026D433DD00D5A91B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AE0109F26D433DD00D5A91B /* main.m */; };
-		4AE010B726D4372C00D5A91B /* libzipzap.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4AE010B626D4372C00D5A91B /* libzipzap.a */; };
 		4AE0115326D43E1500D5A91B /* ZZArchive.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AE010B126D4371D00D5A91B /* ZZArchive.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4AE0115E26D43E1B00D5A91B /* ZZArchiveEntry.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AE010B326D4371D00D5A91B /* ZZArchiveEntry.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4AE0116926D43E1F00D5A91B /* ZZChannel.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AE010B226D4371D00D5A91B /* ZZChannel.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4AE0117426D43E2400D5A91B /* ZZConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AE010B426D4371D00D5A91B /* ZZConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4AE0117F26D43E2800D5A91B /* ZZError.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AE010B526D4371D00D5A91B /* ZZError.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4AE0119626D4551D00D5A91B /* libzipzap.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4AE010B626D4372C00D5A91B /* libzipzap.a */; };
+		4AE011BF26D4720A00D5A91B /* libzipzap.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4AE010B626D4372C00D5A91B /* libzipzap.a */; };
+		4AE011CB26D472D700D5A91B /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4AE011CA26D472D700D5A91B /* libz.tbd */; };
 		4AE7CEB725E7CBE0004942E3 /* M.xsd in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE92125B1A8FE00C8D33F /* M.xsd */; };
 		4AE7CEB825E7CBE0004942E3 /* M1N.xsl in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE91E25B1A8FE00C8D33F /* M1N.xsl */; };
 		4AE7CEB925E7CBE0004942E3 /* N1M.xsl in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE92025B1A8FE00C8D33F /* N1M.xsl */; };
@@ -264,6 +266,7 @@
 		4AE010C826D4390E00D5A91B /* 2.16.858.2.10001442.67430.20210128154923.3548623.8.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = 2.16.858.2.10001442.67430.20210128154923.3548623.8.json; sourceTree = "<group>"; };
 		4AE0118A26D4519A00D5A91B /* cda2mwl.xsl */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = cda2mwl.xsl; sourceTree = "<group>"; };
 		4AE0118B26D4519A00D5A91B /* wlmscpfs.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = wlmscpfs.md; sourceTree = "<group>"; };
+		4AE011CA26D472D700D5A91B /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -271,6 +274,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4AE0119626D4551D00D5A91B /* libzipzap.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -339,7 +343,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4AE010B726D4372C00D5A91B /* libzipzap.a in Frameworks */,
+				4AE011CB26D472D700D5A91B /* libz.tbd in Frameworks */,
+				4AE011BF26D4720A00D5A91B /* libzipzap.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -498,6 +503,7 @@
 		4ADA4EBE267291A4008F98DB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4AE011CA26D472D700D5A91B /* libz.tbd */,
 				4AD03BF22697402B00855F3F /* DCKV.framework */,
 				4ACCF084268FBFA0006E12C2 /* DCKV.framework */,
 			);
@@ -1177,6 +1183,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/DCKV",
+					"$(PROJECT_DIR)/cdamwldicom/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_BUNDLE_IDENTIFIER = com.opendicom.jacquesfauquex.DCKV;
@@ -1212,6 +1219,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/DCKV",
+					"$(PROJECT_DIR)/cdamwldicom/lib",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_BUNDLE_IDENTIFIER = com.opendicom.jacquesfauquex.DCKV;
@@ -1549,8 +1557,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/cdamwdicom/lib",
+					"$(PROJECT_DIR)/cdamwldicom/lib",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -1562,8 +1571,9 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/cdamwdicom/lib",
+					"$(PROJECT_DIR)/cdamwldicom/lib",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
