@@ -1,5 +1,14 @@
+<<<<<<< Updated upstream
 //  Created by jacquesfauquex@opendicom.com on 2014-07-30.
 //  Copyright (c) 2014-2021 opendicom.com. All rights reserved.
+=======
+//
+//  main.m
+//  cdamwldicom
+//
+//  Created by pcs on 8/24/21.
+//
+>>>>>>> Stashed changes
 
 #import <Foundation/Foundation.h>
 #import "ZZArchiveEntry.h"
@@ -14,12 +23,23 @@
 
 int main(int argc, const char * argv[])
 {
+<<<<<<< Updated upstream
+=======
+ 
+   int returnInt=0;
+
+>>>>>>> Stashed changes
  @autoreleasepool {
      
      
 #pragma mark init
      
     NSError *error=nil;
+<<<<<<< Updated upstream
+=======
+    
+    
+>>>>>>> Stashed changes
     const uint64 tag00420011=0x0000424F00110042;//encapsulatedCDA tag + vr + padding (used in order to find the offset)
     NSFileManager *fileManager=[NSFileManager defaultManager];
 
@@ -160,11 +180,19 @@ int main(int argc, const char * argv[])
                   continue;
               }
               
+<<<<<<< Updated upstream
+=======
+             NSData *unzipped=nil;
+>>>>>>> Stashed changes
               //unzip
               NSError *error=nil;
               ZZArchive *archive = [ZZArchive archiveWithData:downloaded];
               ZZArchiveEntry *firstEntry = archive.entries[0];
+<<<<<<< Updated upstream
               NSData *unzipped = [firstEntry newDataWithError:&error];
+=======
+              unzipped = [firstEntry newDataWithError:&error];
+>>>>>>> Stashed changes
               if (error!=nil)
               {
                   LOG_WARNING(@"could NOT unzip %@",RetrieveString);
@@ -240,5 +268,9 @@ int main(int argc, const char * argv[])
           }
      }
   }
+<<<<<<< Updated upstream
   return 0;
+=======
+  return returnInt;
+>>>>>>> Stashed changes
 }

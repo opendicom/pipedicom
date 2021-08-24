@@ -52,7 +52,11 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
+<<<<<<< Updated upstream
             argument = "/Volumes/IN/RECEIVING_AET/CLASSIFIED"
+=======
+            argument = "/Volumes/IN/asseCQP/CLASSIFIED"
+>>>>>>> Stashed changes
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
@@ -60,6 +64,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
+<<<<<<< Updated upstream
             argument = "/Volumes/IN/RECEIVING_AET/FAILURE"
             isEnabled = "YES">
          </CommandLineArgument>
@@ -81,6 +86,29 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/Shared/coercedicom/coercedicom.json"
+=======
+            argument = "/Volumes/IN/asseCQP/FAILURE"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/IN/asseCQP/ORIGINALS"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/IN/asseCQP/MISMATCH_SOURCE"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/IN/asseCQP/MISMATCH_CDAWL"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/IN/asseCQP/MISMATCH_PACS"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/Shared/coercedicom/asseCQP.json"
+>>>>>>> Stashed changes
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
