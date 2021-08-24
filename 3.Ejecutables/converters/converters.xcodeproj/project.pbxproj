@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		071F04B526D4F071001F655A /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 071F04B426D4F071001F655A /* libz.a */; };
+		071F04B626D4F081001F655A /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
+		071F04B726D4F081001F655A /* DCKV.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4A025F3F25E5C455005AA1A3 /* DCKV.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A025F3D25E5C455005AA1A3 /* DCKV.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A025F5C25E60BBA005AA1A3 /* DCMcharset.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A025E5E25E418E5005AA1A3 /* DCMcharset.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A025F6325E60BE0005AA1A3 /* ODLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A7B85A125824EAE00E62971 /* ODLog.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -54,7 +57,6 @@
 		4AE0117F26D43E2800D5A91B /* ZZError.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AE010B526D4371D00D5A91B /* ZZError.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4AE0119626D4551D00D5A91B /* libzipzap.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4AE010B626D4372C00D5A91B /* libzipzap.a */; };
 		4AE011BF26D4720A00D5A91B /* libzipzap.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4AE010B626D4372C00D5A91B /* libzipzap.a */; };
-		4AE011CB26D472D700D5A91B /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 4AE011CA26D472D700D5A91B /* libz.tbd */; };
 		4AE7CEB725E7CBE0004942E3 /* M.xsd in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE92125B1A8FE00C8D33F /* M.xsd */; };
 		4AE7CEB825E7CBE0004942E3 /* M1N.xsl in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE91E25B1A8FE00C8D33F /* M1N.xsl */; };
 		4AE7CEB925E7CBE0004942E3 /* N1M.xsl in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE92025B1A8FE00C8D33F /* N1M.xsl */; };
@@ -63,6 +65,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		071F04B826D4F081001F655A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4A7B856A258002A100E62971 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4A025F3A25E5C455005AA1A3;
+			remoteInfo = DCKV;
+		};
 		4ACCF06A268FBE2C006E12C2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4A7B856A258002A100E62971 /* Project object */;
@@ -108,6 +117,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		071F04BA26D4F082001F655A /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				071F04B726D4F081001F655A /* DCKV.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		4A7B85D6258BC12800E62971 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -175,6 +195,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		071F04B426D4F071001F655A /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libz.a; sourceTree = "<group>"; };
 		4A025E5E25E418E5005AA1A3 /* DCMcharset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCMcharset.h; sourceTree = "<group>"; };
 		4A025EA625E593E0005AA1A3 /* D2dict.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = D2dict.m; sourceTree = "<group>"; };
 		4A025EAF25E5944E005AA1A3 /* D2dict.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = D2dict.h; sourceTree = "<group>"; };
@@ -343,7 +364,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4AE011CB26D472D700D5A91B /* libz.tbd in Frameworks */,
+				071F04B526D4F071001F655A /* libz.a in Frameworks */,
+				071F04B626D4F081001F655A /* DCKV.framework in Frameworks */,
 				4AE011BF26D4720A00D5A91B /* libzipzap.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -592,6 +614,7 @@
 		4AE010B026D4352600D5A91B /* lib */ = {
 			isa = PBXGroup;
 			children = (
+				071F04B426D4F071001F655A /* libz.a */,
 				4AE010B626D4372C00D5A91B /* libzipzap.a */,
 			);
 			path = lib;
@@ -817,11 +840,13 @@
 				4AE0109926D433DD00D5A91B /* Sources */,
 				4AE0109A26D433DD00D5A91B /* Frameworks */,
 				4AE0109B26D433DD00D5A91B /* CopyFiles */,
+				071F04BA26D4F082001F655A /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				4AE010D426D43D1000D5A91B /* PBXTargetDependency */,
+				071F04B926D4F081001F655A /* PBXTargetDependency */,
 			);
 			name = cdamwldicom;
 			productName = cdamwdicom;
@@ -1126,6 +1151,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		071F04B926D4F081001F655A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
+			targetProxy = 071F04B826D4F081001F655A /* PBXContainerItemProxy */;
+		};
 		4ACCF06B268FBE2C006E12C2 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
@@ -1554,6 +1584,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_OPTIMIZATION_LEVEL = 0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/cdamwdicom/lib",
@@ -1568,6 +1600,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/cdamwdicom/lib",
