@@ -20,12 +20,19 @@ int main(int argc, const char * argv[])
 #pragma mark init
      
     NSError *error=nil;
+    const UInt32 DICM='MCID';
+    const UInt64 _0002000_tag_vr=0x44C5500000002;
+    const UInt64 _0002001_tag_vr=0x0000424F00010002;
+    const UInt32 _0002001_length=0x00000002;
+    const UInt16 _0002001_value=0x0001;
     const uint64 tag00420011=0x0000424F00110042;//encapsulatedCDA tag + vr + padding (used in order to find the offset)
     NSFileManager *fileManager=[NSFileManager defaultManager];
 
     //http://unicode.org/reports/tr35/tr35-6.html#Date_Format_Patterns
     NSDateFormatter *DAFormatter = [[NSDateFormatter alloc] init];
     [DAFormatter setDateFormat:@"yyyyMMdd"];
+    NSDateFormatter *DTFormatter = [[NSDateFormatter alloc] init];
+    [DTFormatter setDateFormat:@"yyyyMMddhhmmss"];
 
 #pragma mark args
      
@@ -41,13 +48,10 @@ int main(int argc, const char * argv[])
      
      //[1]cda2mwl.xsl path
      NSData *xslt1Data=[NSData dataWithContentsOfFile:[args[1] stringByExpandingTildeInPath]];
-     
-     //NSString *DA=@"20161018";
-     NSString *DA=[DAFormatter stringFromDate:[NSDate date]];
-     NSDictionary *DAargdict = [NSDictionary dictionaryWithObject:DA forKey:@"now"];
 
      //arg[2] base URL
      //ejemplo: https://serviciosridi.asse.uy/dcm4chee-arc/qido/DCM4CHEE/instances?Modality=OT&SeriesDescription=solicitud&NumberOfStudyRelatedInstances=1&00080080=asseMALDONADO&StudyDate=20210128&StudyTime=1210-
+     NSString *DA=[DAFormatter stringFromDate:[NSDate date]];
      NSURL *qidoURL=[NSURL URLWithString:[NSString stringWithFormat:@"%@%@",args[2],DA]];
      
      //arg[3] audit path
@@ -207,7 +211,7 @@ int main(int argc, const char * argv[])
 #pragma mark write wl.json
               //transform CDA 2 WorkItem (wl) json contextualkey-values
               id wl = [xmlDocument objectByApplyingXSLT:xslt1Data
-                                                       arguments:DAargdict
+                                                       arguments:nil
                                                            error:&error];
               if (!wl)
               {
@@ -232,11 +236,29 @@ int main(int argc, const char * argv[])
                   continue;
               }
 
-              NSMutableData *dicomData=[NSMutableData data];
-              int result=dict2D(@"", json, dicomData, 0, @{});
-              
-              [dicomData writeToFile:[NSString stringWithFormat:@"%@/%@.wl",aetscppath,EUID] atomically:NO];
-
+             NSMutableData *outputData=[NSMutableData dataWithLength:128];
+             [outputData appendBytes:&DICM length:4];
+ //fileMetadata
+             NSMutableData *outputFileMetadata=[NSMutableData data];
+             if (dict2D(@"",json[@"metadata"],outputFileMetadata,0,@{})==failure)
+             {
+                NSLog(@"could not serialize group 0002");
+                continue;
+             }
+             [outputData appendBytes:&_0002000_tag_vr length:8];
+             UInt32 fileMetadataLength=(UInt32)outputFileMetadata.length+14;
+             [outputData appendBytes:&fileMetadataLength length:4];
+             [outputData appendBytes:&_0002001_tag_vr length:8];
+             [outputData appendBytes:&_0002001_length length:4];
+             [outputData appendBytes:&_0002001_value length:2];
+             [outputData appendData:outputFileMetadata];
+ // dataset
+             if (dict2D(@"",json[@"dataset"],outputData,0,@{})==failure)
+             {
+                NSLog(@"could not serialize dataset");
+                continue;
+             }
+             [outputData writeToFile:[NSString stringWithFormat:@"%@/%@.wl",aetscppath,EUID] atomically:NO];
           }
      }
   }

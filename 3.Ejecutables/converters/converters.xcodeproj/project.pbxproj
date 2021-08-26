@@ -113,6 +113,13 @@
 			remoteGlobalIDString = 4A025F3A25E5C455005AA1A3;
 			remoteInfo = DCKV;
 		};
+		4AE0126026D6C12B00D5A91B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4A7B856A258002A100E62971 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4A025F3A25E5C455005AA1A3;
+			remoteInfo = DCKV;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -730,6 +737,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				4AE0126126D6C12B00D5A91B /* PBXTargetDependency */,
 			);
 			name = J2D;
 			productName = B2M;
@@ -1184,6 +1192,11 @@
 			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
 			targetProxy = 4AE010D326D43D1000D5A91B /* PBXContainerItemProxy */;
 		};
+		4AE0126126D6C12B00D5A91B /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
+			targetProxy = 4AE0126026D6C12B00D5A91B /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
@@ -1435,6 +1448,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

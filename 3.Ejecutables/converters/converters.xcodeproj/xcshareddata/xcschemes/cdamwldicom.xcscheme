@@ -52,7 +52,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Volumes/GITHUB/pipedicomOpenjpeg/3.Ejecutables/converters/cdamwldicom/cda2mwl.xsl"
+            argument = "/Users/Shared/cdamwldicom/cda2mwl.xsl"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
@@ -64,7 +64,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "DCM4CHEE"
+            argument = "DCM4CHE"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

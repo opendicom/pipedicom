@@ -1,5 +1,4 @@
 #import <Foundation/Foundation.h>
-#import "ODLog.h"
 #import <DCKV/DCKV.h>
 
 //J2D
@@ -33,7 +32,7 @@ int main(int argc, const char * argv[]) {
      NSData *moreData;
       while ((moreData=[readingFileHandle availableData]) && moreData.length) [inputData appendData:moreData];
       */
-      [inputData appendData:[NSData dataWithContentsOfFile:@"/Users/Shared/D/CT1.ele.json"]];
+      [inputData appendData:[NSData dataWithContentsOfFile:@"/Users/jacquesfauquex/Desktop/test.json"]];
       
       NSError *error=nil;
       NSDictionary *inputDict=[NSJSONSerialization JSONObjectWithData:inputData options:0 error:&error];
@@ -60,28 +59,28 @@ int main(int argc, const char * argv[]) {
       }
  
       
-#pragma mark concatenate datasets
-      NSMutableDictionary *datasets=[NSMutableDictionary dictionaryWithDictionary:inputDict[@"dataset"]];
+#pragma mark concatenate dataset
+      NSMutableDictionary *dataset=[NSMutableDictionary dictionaryWithDictionary:inputDict[@"dataset"]];
 
       if (pixelMode==dicomExplicit)
       {
-         if (inputDict[@"native"]) [datasets addEntriesFromDictionary:inputDict[@"native"]];
+         if (inputDict[@"native"]) [dataset addEntriesFromDictionary:inputDict[@"native"]];
       }
       else if (pixelMode==dicomExplicitJ2kIdem)
       {
-         if (inputDict[@"j2k"]) [datasets addEntriesFromDictionary:inputDict[@"j2k"]];
+         if (inputDict[@"j2k"]) [dataset addEntriesFromDictionary:inputDict[@"j2k"]];
       }
       else
       {
-         [datasets setObject:@[@"1.2.840.10008.1.2.4.91"] forKey:@"00000001_00020010-UI"];
-         [datasets setObject:@[[inputDict[@"j2k"][@"00000001_00082111-ST"][0] substringFromIndex:9]] forKey:@"00000001_00082111-ST"];//remove "lossless"
-         [datasets setObject:inputDict[@"j2k"][@"00000001_7FE00010-OB"] forKey:@"00000001_7FE00010-OB" ];
+         [dataset setObject:@[@"1.2.840.10008.1.2.4.91"] forKey:@"00000001_00020010-UI"];
+         [dataset setObject:@[[inputDict[@"j2k"][@"00000001_00082111-ST"][0] substringFromIndex:9]] forKey:@"00000001_00082111-ST"];//remove "lossless"
+         [dataset setObject:inputDict[@"j2k"][@"00000001_7FE00010-OB"] forKey:@"00000001_7FE00010-OB" ];
 
          NSMutableArray *frames=[NSMutableArray array];
          switch (pixelMode) {
             case dicomExplicitJ2kBase:
             {
-               [datasets setObject:@[@"dcmj2kbase; first quality layer (compression factor 50)"] forKey:@"00000001_00204000-2006LT"];
+               [dataset setObject:@[@"dcmj2kbase; first quality layer (compression factor 50)"] forKey:@"00000001_00204000-2006LT"];
                /*
                for (NSDictionary *frameDict in inputDict[@"j2k"][@"00000001_7FE00010-OB"])
                {
@@ -100,7 +99,7 @@ int main(int argc, const char * argv[]) {
                
             case dicomExplicitJ2kFast:
             {
-               [datasets setObject:@[@"dcmj2kfast; first two quality layers (compression factor 20)"] forKey:@"00000001_00204000-2006LT"];
+               [dataset setObject:@[@"dcmj2kfast; first two quality layers (compression factor 20)"] forKey:@"00000001_00204000-2006LT"];
                /*
                for (NSDictionary *frameDict in inputDict[@"j2k"][@"00000001_7FE00010-OB"])
                {
@@ -119,7 +118,7 @@ int main(int argc, const char * argv[]) {
                
             case dicomExplicitJ2kHres:
             {
-               [datasets setObject:@[@"dcmj2khres; first three quality layer (compression factor 10)"] forKey:@"00000001_00204000-2006LT"];
+               [dataset setObject:@[@"dcmj2khres; first three quality layer (compression factor 10)"] forKey:@"00000001_00204000-2006LT"];
                /*
                for (NSDictionary *frameDict in inputDict[@"j2k"][@"00000001_7FE00010-OB"])
                {
@@ -138,28 +137,37 @@ int main(int argc, const char * argv[]) {
                break;
          }
          
-         //[datasets setObject:frames forKey:@"00000001_7FE00010-OB"];
+         //[dataset setObject:frames forKey:@"00000001_7FE00010-OB"];
 
       }
 
 
-#pragma mark initiate outputDdata (with or without group 2)
-      NSMutableData *outputData;
-      
-      //group 2 ?
-      if (datasets[@"00000001_00020003-UI"])
+#pragma mark group 2 ?
+      NSMutableDictionary *filemetainfoDict=[NSMutableDictionary dictionary];
+
+//incluido dentro de dataset
+      if (dataset[@"00000001_00020003-UI"])
       {
-         NSMutableDictionary *filemetainfoDict=[NSMutableDictionary dictionary];
-         NSArray *keys=[datasets allKeys];
+         NSArray *keys=[dataset allKeys];
          for (NSString *key in keys)
          {
             if ([key hasPrefix:@"00000001_0002"])
             {
-               [filemetainfoDict setObject:datasets[key] forKey:key];
-               [datasets removeObjectForKey:key];
+               [filemetainfoDict setObject:dataset[key] forKey:key];
+               [dataset removeObjectForKey:key];
             }
          }
-         
+      }
+// por separado dentro de filemetainfo
+      if (inputDict[@"filemetainfo"])
+      {
+         [filemetainfoDict addEntriesFromDictionary:inputDict[@"filemetainfo"]];
+      }
+      
+#pragma mark outputData
+      NSMutableData *outputData;
+      if (filemetainfoDict.count)
+      {
          NSMutableData *filemetainfoData=[NSMutableData data];
          if (dict2D(environment[@"PWD"],filemetainfoDict,filemetainfoData,pixelMode,nil) == failure)
          {
@@ -179,12 +187,13 @@ int main(int argc, const char * argv[]) {
          //append group2 contents
          [outputData appendData:filemetainfoData];
       }
-      else outputData=[NSMutableData data];//not a part 10 dataset
+      else //no filemetainfo
+         outputData=[NSMutableData data];
 
       
-      //serialize and append datasets
-      if (dict2D(environment[@"PWD"],datasets,outputData,pixelMode,nil)==success)
-         [outputData writeToFile:@"/Users/Shared/j2k.dcm" atomically:NO];
+      //serialize and append dataset
+      if (dict2D(environment[@"PWD"],dataset,outputData,pixelMode,nil)==success)
+         [outputData writeToFile:@"/Users/jacquesfauquex/Desktop/test.dcm" atomically:NO];
 //         [outputData writeToFile:@"/dev/stdout" atomically:NO];
    }//end autorelease pool
    return 0;
