@@ -1037,7 +1037,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\nsudo -A cp $BUILD_ROOT/Debug/cdamwldicom /usr/local/bin/cdamwldicom\n";
+			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\n\nif [ ! -d /usr/local/lib ]; then\n   sudo -A mkdir ~/usr/local/lib;\nfi\ncd /usr/local/lib\nif [ ! -f libz.a ]; then\n   sudo -A cp -R $PROJECT_DIR/cdamwldicom/lib/libz.a  libz.a\nfi\nif [ ! -f libzipzap.a ]; then\n   sudo -A cp -R $PROJECT_DIR/cdamwldicom/lib/libzipzap.a  libzipzap.a\nfi\nsudo -A cp $BUILD_ROOT/Debug/cdamwldicom /usr/local/bin/cdamwldicom\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
