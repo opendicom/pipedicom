@@ -60,11 +60,11 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/Shared/wlmscpfs/aet/DCM4CHE"
+            argument = "/Users/Shared/wlmscpfs/aet/DCM4CHEE"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "DCM4CHE"
+            argument = "DCM4CHEE"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
