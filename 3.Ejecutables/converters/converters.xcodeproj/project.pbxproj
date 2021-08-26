@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		071F04B526D4F071001F655A /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 071F04B426D4F071001F655A /* libz.a */; };
 		071F04B626D4F081001F655A /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
-		071F04B726D4F081001F655A /* DCKV.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4A025F3F25E5C455005AA1A3 /* DCKV.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A025F3D25E5C455005AA1A3 /* DCKV.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A025F5C25E60BBA005AA1A3 /* DCMcharset.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A025E5E25E418E5005AA1A3 /* DCMcharset.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A025F6325E60BE0005AA1A3 /* ODLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A7B85A125824EAE00E62971 /* ODLog.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -64,13 +63,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		071F04B826D4F081001F655A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4A7B856A258002A100E62971 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 4A025F3A25E5C455005AA1A3;
-			remoteInfo = DCKV;
-		};
 		4ACCF06A268FBE2C006E12C2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4A7B856A258002A100E62971 /* Project object */;
@@ -123,17 +115,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		071F04BA26D4F082001F655A /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				071F04B726D4F081001F655A /* DCKV.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		4A7B85D6258BC12800E62971 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -144,15 +125,6 @@
 			runOnlyForDeploymentPostprocessing = 1;
 		};
 		4A7B85F8258CD7A700E62971 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-		};
-		4AD03BDE26973FEE00855F3F /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = /usr/share/man/man1/;
@@ -188,15 +160,6 @@
 				4ADA4FD32678365D008F98DB /* opj_compress in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4AE0109B26D433DD00D5A91B /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = /usr/share/man/man1/;
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -750,7 +713,6 @@
 			buildPhases = (
 				4AD03BDC26973FEE00855F3F /* Sources */,
 				4AD03BDD26973FEE00855F3F /* Frameworks */,
-				4AD03BDE26973FEE00855F3F /* CopyFiles */,
 				4AD03BF42697405200855F3F /* ShellScript */,
 			);
 			buildRules = (
@@ -845,14 +807,12 @@
 				4AE010D526D43D2B00D5A91B /* Headers */,
 				4AE0109926D433DD00D5A91B /* Sources */,
 				4AE0109A26D433DD00D5A91B /* Frameworks */,
-				4AE0109B26D433DD00D5A91B /* CopyFiles */,
-				071F04BA26D4F082001F655A /* Embed Frameworks */,
+				4AE0126B26D7CF7F00D5A91B /* ShellScript */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				4AE010D426D43D1000D5A91B /* PBXTargetDependency */,
-				071F04B926D4F081001F655A /* PBXTargetDependency */,
 			);
 			name = cdamwldicom;
 			productName = cdamwdicom;
@@ -1062,6 +1022,23 @@
 			shellPath = /bin/sh;
 			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\nsudo -A cp $BUILD_ROOT/Debug/coercedicom /usr/local/bin/coercedicom\n";
 		};
+		4AE0126B26D7CF7F00D5A91B /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\nsudo -A cp $BUILD_ROOT/Debug/cdamwldicom /usr/local/bin/cdamwldicom\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -1157,11 +1134,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		071F04B926D4F081001F655A /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
-			targetProxy = 071F04B826D4F081001F655A /* PBXContainerItemProxy */;
-		};
 		4ACCF06B268FBE2C006E12C2 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
