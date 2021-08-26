@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		071F04B526D4F071001F655A /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 071F04B426D4F071001F655A /* libz.a */; };
 		071F04B626D4F081001F655A /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
 		4A025F3F25E5C455005AA1A3 /* DCKV.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A025F3D25E5C455005AA1A3 /* DCKV.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A025F5C25E60BBA005AA1A3 /* DCMcharset.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A025E5E25E418E5005AA1A3 /* DCMcharset.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -54,7 +53,8 @@
 		4AE0116926D43E1F00D5A91B /* ZZChannel.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AE010B226D4371D00D5A91B /* ZZChannel.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4AE0117426D43E2400D5A91B /* ZZConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AE010B426D4371D00D5A91B /* ZZConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4AE0117F26D43E2800D5A91B /* ZZError.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AE010B526D4371D00D5A91B /* ZZError.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4AE011BF26D4720A00D5A91B /* libzipzap.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4AE010B626D4372C00D5A91B /* libzipzap.a */; };
+		4AE0128126D7F01700D5A91B /* libzipzap.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4AE0128026D7F01700D5A91B /* libzipzap.a */; };
+		4AE0128326D7F03500D5A91B /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4AE0128226D7F03500D5A91B /* libz.a */; };
 		4AE7CEB725E7CBE0004942E3 /* M.xsd in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE92125B1A8FE00C8D33F /* M.xsd */; };
 		4AE7CEB825E7CBE0004942E3 /* M1N.xsl in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE91E25B1A8FE00C8D33F /* M1N.xsl */; };
 		4AE7CEB925E7CBE0004942E3 /* N1M.xsl in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE92025B1A8FE00C8D33F /* N1M.xsl */; };
@@ -257,6 +257,8 @@
 		4AE0118A26D4519A00D5A91B /* cda2mwl.xsl */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = cda2mwl.xsl; sourceTree = "<group>"; };
 		4AE0118B26D4519A00D5A91B /* wlmscpfs.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = wlmscpfs.md; sourceTree = "<group>"; };
 		4AE011CA26D472D700D5A91B /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		4AE0128026D7F01700D5A91B /* libzipzap.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libzipzap.a; path = ../../../../../usr/local/lib/libzipzap.a; sourceTree = "<group>"; };
+		4AE0128226D7F03500D5A91B /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libz.a; path = ../../../../../usr/local/lib/libz.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -332,9 +334,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				071F04B526D4F071001F655A /* libz.a in Frameworks */,
+				4AE0128326D7F03500D5A91B /* libz.a in Frameworks */,
+				4AE0128126D7F01700D5A91B /* libzipzap.a in Frameworks */,
 				071F04B626D4F081001F655A /* DCKV.framework in Frameworks */,
-				4AE011BF26D4720A00D5A91B /* libzipzap.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -493,6 +495,8 @@
 		4ADA4EBE267291A4008F98DB /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4AE0128226D7F03500D5A91B /* libz.a */,
+				4AE0128026D7F01700D5A91B /* libzipzap.a */,
 				4AE011CA26D472D700D5A91B /* libz.tbd */,
 				4AD03BF22697402B00855F3F /* DCKV.framework */,
 				4ACCF084268FBFA0006E12C2 /* DCKV.framework */,

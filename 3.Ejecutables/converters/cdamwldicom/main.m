@@ -14,12 +14,15 @@
 
 int main(int argc, const char * argv[])
 {
+   int returnInt=success;
+
  @autoreleasepool {
      
+    NSError *finalError=nil;
+
      
 #pragma mark init
      
-    NSError *error=nil;
     const UInt32 DICM='MCID';
     const UInt64 _0002000_tag_vr=0x44C5500000002;
     const UInt64 _0002001_tag_vr=0x0000424F00010002;
@@ -52,7 +55,6 @@ int main(int argc, const char * argv[])
      //arg[2] base URL
      //ejemplo: https://serviciosridi.asse.uy/dcm4chee-arc/qido/DCM4CHEE/instances?Modality=OT&SeriesDescription=solicitud&NumberOfStudyRelatedInstances=1&00080080=asseMALDONADO&StudyDate=20210128&StudyTime=1210-
      NSString *DA=[DAFormatter stringFromDate:[NSDate date]];
-     NSURL *qidoURL=[NSURL URLWithString:[NSString stringWithFormat:@"%@%@",args[2],DA]];
      
      //arg[3] audit path
      NSString *DApath=[[args[3] stringByExpandingTildeInPath] stringByAppendingPathComponent:DA];
@@ -61,42 +63,48 @@ int main(int argc, const char * argv[])
      NSString *aetscppath=[[[args[3] stringByExpandingTildeInPath]stringByAppendingPathComponent:@"published"] stringByAppendingPathComponent:args[4]];
      
 #pragma mark qido
+     NSURL *qidoURL=[NSURL URLWithString:[NSString stringWithFormat:@"%@%@",args[2],DA]];
+     if (!qidoURL)
+     {
+        NSLog(@"ERROR no qido url");
+        return (failure);
+     }
      NSData *qidoResponse=[NSData dataWithContentsOfURL:qidoURL
                                                 options:NSDataReadingUncached
-                                                  error:&error];
-     if (error)
-     {
-        LOG_ERROR(@"%@",[error description]);
-         exit(0);
-     }
+                                                  error:nil];
      if (!qidoResponse)
      {
-        LOG_WARNING(@"no answer to qido");
-         exit(0);
+        NSLog(@"server timeout");
+        return (failure);
      }
-     if (![qidoResponse length]) exit(0);
+     if (![qidoResponse length])
+     {
+        return (success);
+     }
 
 
-      NSArray *list = [NSJSONSerialization JSONObjectWithData:qidoResponse options:0 error:&error];
+
+      NSArray *list = [NSJSONSerialization JSONObjectWithData:qidoResponse options:0 error:&finalError];
       if (!list)
       {
-          LOG_ERROR(@"qido response not json. %@ %@",[error description],[[NSString alloc]initWithData:qidoResponse encoding:NSUTF8StringEncoding] );
-          exit(1);
+          NSLog(@"qido response to %@ not json. %@ %@",[qidoURL absoluteString],finalError.description,[[NSString alloc]initWithData:qidoResponse encoding:NSUTF8StringEncoding] );
+          return (failure);
       }
      
      
       for (NSDictionary *instance in list)
       {
 #pragma mark - loop StudyInstanceUIDs
-          
+          NSError *localError=nil;
+
           NSString *EUID=[[[instance objectForKey:@"0020000D"]objectForKey:@"Value"]firstObject];
           NSString *EUIDpath=[[DApath stringByAppendingPathComponent:@"EUID"] stringByAppendingPathComponent:EUID];
           
           if([fileManager fileExistsAtPath:[EUIDpath stringByAppendingPathComponent:@"wl.xml"]]) continue;//WorkItem (wl.xml) already downloaded
           
-          if(![fileManager fileExistsAtPath:EUIDpath] && ![fileManager createDirectoryAtPath:EUIDpath withIntermediateDirectories:YES attributes:nil error:nil])
+          if(![fileManager fileExistsAtPath:EUIDpath] && ![fileManager createDirectoryAtPath:EUIDpath withIntermediateDirectories:YES attributes:nil error:&localError])
           {
-              LOG_ERROR(@"could not create folder %@", EUIDpath);
+              NSLog(@"ERROR could not create folder %@. %@", EUIDpath, localError.description);
               continue;
           }
           else
@@ -116,15 +124,15 @@ int main(int argc, const char * argv[])
               NSString *ANpath=[[DApath stringByAppendingPathComponent:@"AN"] stringByAppendingPathComponent:AN];
               if(![fileManager fileExistsAtPath:ANpath])
               {
-                  if(![fileManager createDirectoryAtPath:ANpath withIntermediateDirectories:YES attributes:nil error:nil])
+                  if(![fileManager createDirectoryAtPath:ANpath withIntermediateDirectories:YES attributes:nil error:&localError])
                   {
-                      LOG_ERROR(@"could not create folder %@", ANpath);
+                      NSLog(@"ERROR could not create folder %@. %@", ANpath, localError.description);
                       continue;
                   }
               }
-              if (![fileManager createSymbolicLinkAtPath:[ANpath stringByAppendingPathComponent:EUID] withDestinationPath:EUIDpath error:&error])
+              if (![fileManager createSymbolicLinkAtPath:[ANpath stringByAppendingPathComponent:EUID] withDestinationPath:EUIDpath error:&localError])
               {
-                  LOG_ERROR(@"could not create AccessionNumber symlink %@ to %@. %@",AN, EUIDpath, [error description]);
+                  NSLog(@"ERROR could not create AccessionNumber symlink %@ to %@. %@",AN, EUIDpath, localError.description);
                   continue;
               }
 
@@ -142,36 +150,50 @@ int main(int argc, const char * argv[])
               {
                   if(![fileManager createDirectoryAtPath:PIDpath withIntermediateDirectories:YES attributes:nil error:nil])
                   {
-                      LOG_ERROR(@"could not create folder %@", PIDpath);
+                      NSLog(@"ERROR could not create folder %@", PIDpath);
                       continue;
                   }
               }
-              if (![fileManager createSymbolicLinkAtPath:[PIDpath stringByAppendingPathComponent:EUID] withDestinationPath:EUIDpath error:&error])
+              if (![fileManager createSymbolicLinkAtPath:[PIDpath stringByAppendingPathComponent:EUID] withDestinationPath:EUIDpath error:&localError])
               {
-                  LOG_ERROR(@"could not create PatientID symlink %@ to %@. %@",PID, EUIDpath, [error description]);
+                  NSLog(@"ERROR could not create PatientID symlink %@ to %@. %@",PID, EUIDpath, localError.description);
                   continue;
               }
           }
          
 #pragma mark download details
           NSString *RetrieveString=[[[instance objectForKey:@"00081190"]objectForKey:@"Value"]firstObject];
-          if (RetrieveString)
+          if (RetrieveString && RetrieveString.length)
           {
-              NSData *downloaded=[NSData dataWithContentsOfURL:[NSURL URLWithString:RetrieveString]];
-              if (!downloaded || ![qidoResponse length])
-              {
-                  LOG_WARNING(@"NO response to %@",RetrieveString);
-                  continue;
-              }
+             NSURL *RetrieveURL=[NSURL URLWithString:RetrieveString];
+             if (!RetrieveURL)
+             {
+                NSLog(@"ERROR could not create URL from %@",RetrieveString);
+                continue;
+             }
+             NSData *downloaded=[NSData dataWithContentsOfURL:RetrieveURL
+                                                      options:NSDataReadingUncached
+                                                        error:&localError];
+             if (!downloaded)
+             {
+                NSLog(@"ERROR response to %@: %@",RetrieveString,localError.description);
+                continue;
+             }
+
+                                  
+             if (downloaded.length == 0)
+             {
+                 NSLog(@"empty response to %@",RetrieveString);
+                 continue;
+             }
               
               //unzip
-              NSError *error=nil;
               ZZArchive *archive = [ZZArchive archiveWithData:downloaded];
               ZZArchiveEntry *firstEntry = archive.entries[0];
-              NSData *unzipped = [firstEntry newDataWithError:&error];
-              if (error!=nil)
+              NSData *unzipped = [firstEntry newDataWithError:&localError];
+              if (localError!=nil)
               {
-                  LOG_WARNING(@"could NOT unzip %@",RetrieveString);
+                  NSLog(@"could NOT unzip response to %@: %@",RetrieveString,downloaded.description);
                   continue;
               }
               
@@ -181,7 +203,7 @@ int main(int argc, const char * argv[])
                                                     range:NSMakeRange(0,[unzipped length])];
               if (range00420011.location==NSNotFound)
               {
-                  LOG_WARNING(@"NO contiene attr 00420011: %@",RetrieveString);
+                  NSLog(@"response to %@ NO contiene attr 00420011",RetrieveString);
                   continue;
               }
               //get CDA: 00420011.length
@@ -194,14 +216,14 @@ int main(int argc, const char * argv[])
               
               if (!encapsulatedData)
               {
-                  LOG_WARNING(@"attr 00420011 empty: %@",RetrieveString);
+                  NSLog(@"attr 00420011 empty: %@",RetrieveString);
                   continue;
               }
               
-              NSXMLDocument *xmlDocument = [[NSXMLDocument alloc]initWithData:encapsulatedData options:0 error:&error];
+              NSXMLDocument *xmlDocument = [[NSXMLDocument alloc]initWithData:encapsulatedData options:0 error:&localError];
               if (!xmlDocument)
               {
-                  LOG_WARNING(@"00420011 NOT xml %@\r%@",RetrieveString,[error description]);
+                  LOG_WARNING(@"00420011 NOT xml %@\r%@",RetrieveString,localError.description);
                   continue;
               }
 #pragma mark write cda.xml
@@ -212,16 +234,16 @@ int main(int argc, const char * argv[])
               //transform CDA 2 WorkItem (wl) json contextualkey-values
               id wl = [xmlDocument objectByApplyingXSLT:xslt1Data
                                                        arguments:nil
-                                                           error:&error];
+                                                           error:&localError];
               if (!wl)
               {
-                  LOG_WARNING(@"could not transform %@ to wl.json\r%@",cdapath,[error description]);
+                  NSLog(@"could not transform %@ to wl.json\r%@",cdapath,[localError description]);
                   continue;
               }
               
               if (![wl isKindOfClass:[NSData class]])
               {
-                  LOG_WARNING(@"xslt1 on %@ did not output data file",cdapath);
+                  NSLog(@"xslt1 on %@ did not output data file",cdapath);
                   continue;
               }
 
@@ -229,10 +251,10 @@ int main(int argc, const char * argv[])
               [wl writeToFile:wlpath atomically:NO];
 
 #pragma mark serialize wl json data to dicom
-              NSDictionary *json=[NSJSONSerialization JSONObjectWithData:wl options:0 error:&error];
+              NSDictionary *json=[NSJSONSerialization JSONObjectWithData:wl options:0 error:&localError];
               if (!json)
               {
-                  LOG_WARNING(@"ERROR reading %@: %@",wlpath,[error description]);
+                  LOG_WARNING(@"ERROR reading %@: %@",wlpath,[localError description]);
                   continue;
               }
 
@@ -259,8 +281,8 @@ int main(int argc, const char * argv[])
                 continue;
              }
              [outputData writeToFile:[NSString stringWithFormat:@"%@/%@.wl",aetscppath,EUID] atomically:NO];
-          }
+          }//end retrieveString url prepared
      }
   }
-  return 0;
+   return returnInt;
 }
