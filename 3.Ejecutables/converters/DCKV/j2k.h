@@ -16,6 +16,15 @@ int compress(
              NSMutableString *message
              );
 
+int compressBFHI(
+             NSString *pixelUrl,
+             NSData *pixelData,
+             NSMutableDictionary *parsedAttrs,
+             NSMutableDictionary *j2kBlobDict,
+             NSMutableDictionary *j2kAttrs,
+             NSMutableString *message
+             );
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface j2k : NSObject
