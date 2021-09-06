@@ -3,12 +3,13 @@
 //
 
 enum {
-   dicomExplicit=NSNotFound,
-   dicomExplicitJ2kBase=1,
-   dicomExplicitJ2kFast,
-   dicomExplicitJ2kHres,
-   dicomExplicitJ2kIdem
+   native=0,
+   j2kBase,
+   j2kFast,
+   j2kHres,
+   idem,
+   jpeg50
 };
-
+// j2kBase, j2kFast, j2kHres require FrameBFHI JSON codification
 
 int dict2D(NSString *baseURLString, NSDictionary *dict, NSMutableData *data, NSUInteger pixelMode, NSDictionary *blobDict);

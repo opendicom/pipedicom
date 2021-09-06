@@ -35,7 +35,7 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
-      useCustomWorkingDirectory = "YES"
+      useCustomWorkingDirectory = "NO"
       customWorkingDirectory = "/Users/Shared/D/"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
@@ -53,24 +53,28 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "dcmj2kidem"
+            argument = "native"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "dcmj2khres"
+            argument = "j2kBase"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "dcmj2kfast"
+            argument = "j2kHres"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "dcmj2kbase"
+            argument = "j2kFast"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "dcmexplicit"
-            isEnabled = "NO">
+            argument = "idem"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/GITHUB/_dicom_samples/J/FluroWithDisplayShutter.json"
+            isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>

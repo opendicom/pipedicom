@@ -14,8 +14,6 @@
 
 int main(int argc, const char * argv[])
 {
-   int returnInt=success;
-
  @autoreleasepool {
      
     NSError *finalError=nil;
@@ -61,7 +59,15 @@ int main(int argc, const char * argv[])
      
      //arg[4] aet
      NSString *aetscppath=[[[args[3] stringByExpandingTildeInPath]stringByAppendingPathComponent:@"published"] stringByAppendingPathComponent:args[4]];
-     
+     if(![fileManager fileExistsAtPath:aetscppath])
+     {
+        if(![fileManager createDirectoryAtPath:aetscppath withIntermediateDirectories:YES attributes:nil error:&finalError])
+        {
+            NSLog(@"ERROR could not create folder %@. %@", aetscppath, finalError.description);
+            return failure;
+        }
+     }
+
 #pragma mark qido
      NSURL *qidoURL=[NSURL URLWithString:[NSString stringWithFormat:@"%@%@",args[2],DA]];
      if (!qidoURL)
@@ -72,15 +78,9 @@ int main(int argc, const char * argv[])
      NSData *qidoResponse=[NSData dataWithContentsOfURL:qidoURL
                                                 options:NSDataReadingUncached
                                                   error:nil];
-     if (!qidoResponse)
-     {
-        NSLog(@"server timeout");
-        return (failure);
-     }
-     if (![qidoResponse length])
-     {
-        return (success);
-     }
+     if (!qidoResponse) return (failure);//NSURLConnection finished with error - code -1002
+     if (![qidoResponse length]) return (success);//no instance found
+
 
 
 
@@ -284,5 +284,5 @@ int main(int argc, const char * argv[])
           }//end retrieveString url prepared
      }
   }
-   return returnInt;
+   return 0;
 }

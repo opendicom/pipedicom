@@ -55,7 +55,7 @@ DCKV es un formato de dataset parte del formato EDCKV (Entry Dicom Contextualize
 
 ```
 
-
+Nota: when map1 is named "remove", elimina los atributos de mismo key del dataset al cual se agrega el dataset "remove".
 
 ##DCKV
 ```
@@ -103,6 +103,7 @@ map3 has one of the following keys:
 - Native
 - Fragment#00000001 (fragment number - there may be many fragments in a frame, applies to source blob mode only)
 - Frame#00000001 (frame number applies to any mode)
+- FrameBFHI#00000001 (frame number applies to any mode. Refers to a j2k 4 quality levels)
 - pdf (kind of encapsulated document)
 - xml (kind of encapsulated document - DICOM call it encapsulated CDA)
 - stl (kind of encapsulated document)

@@ -10,15 +10,28 @@ In DCKV JSON, large binary objects are represented as :
 
 Relative references are applied from current directory 
 
+## env
+J2DLogLevel : [ DEBUG | VERBOSE | INFO | WARNING | ERROR | EXCEPTION ]
+default : ERROR
+
 ## args
-(default: dcmj2kidem)
-[ dcmnative | dcmj2kbase | dcmj2kfast | dcmj2khres | dcmj2kidem ]  
+J2D [ native | j2kbase | j2kfast | j2khres | idem ]
+
+native: if j2k compressed, decompress it, else idem
+j2base: if j2k compressed, with base layer only, else idem
+j2fast: if j2k compressed, with base and fast layers only, else  idem
+j2hres: if j2k compressed, with base,fast and hres layers only, else idem
+idem: as in json with full information
+
+no arg : default idem
 
 ## stdin
-DICOM filePath
+DCKV file Path
 
 ## stderr
 errors
+"2>" redirect to file
 
 ## stdout
 dicom binary
+">" redirect to file

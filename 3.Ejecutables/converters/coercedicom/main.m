@@ -7,6 +7,7 @@
 
 #import <Foundation/Foundation.h>
 #import <DCKV/DCKV.h>
+#import "fileManager.h"
 
 const UInt32 DICM='MCID';
 const UInt64 _0002000_tag_vr=0x44C5500000002;

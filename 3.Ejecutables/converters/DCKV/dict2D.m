@@ -622,7 +622,7 @@ int dict2D(NSString *baseURLString, NSDictionary *attrs, NSMutableData *data, NS
                   [data appendBytes:&vr length:2];
                   [data appendBytes:&vl0 length:2];
                   
-                  if ((tag==0x107fe0) && (pixelMode != dicomExplicit))
+                  if ((tag==0x107fe0) && (pixelMode != native))
                   {
 #pragma mark .fragments
                      [data appendBytes:&undefinedlength length:4];
@@ -636,20 +636,20 @@ int dict2D(NSString *baseURLString, NSDictionary *attrs, NSMutableData *data, NS
                         if ([frameName hasPrefix:@"FrameBFHI"])
                         {
                            switch (pixelMode) {
-                              case dicomExplicitJ2kBase:
+                              case j2kBase:
                               {
                                  appendFrame(data, baseURLString, urls[0], true, blobDict);
                               }
                                  break;
 
-                              case dicomExplicitJ2kFast:
+                              case j2kFast:
                               {
                                  appendFrame(data, baseURLString, urls[0], false,blobDict);
                                  appendFrame(data, baseURLString, urls[1], true,blobDict);
                               }
                                  break;
 
-                              case dicomExplicitJ2kHres:
+                              case j2kHres:
                               {
                                  appendFrame(data, baseURLString, urls[0], false,blobDict);
                                  appendFrame(data, baseURLString, urls[1], false,blobDict);
@@ -657,7 +657,7 @@ int dict2D(NSString *baseURLString, NSDictionary *attrs, NSMutableData *data, NS
                               }
                                  break;
 
-                              default://dicomExplicitJ2kIdem
+                              default://idem
                               {
                                  appendFrame(data, baseURLString, urls[0], false,blobDict);
                                  appendFrame(data, baseURLString, urls[1], false,blobDict);
@@ -682,7 +682,6 @@ int dict2D(NSString *baseURLString, NSDictionary *attrs, NSMutableData *data, NS
                      break;
                   }
                   
-                  //no break yet
 #pragma mark .native
                   
                   if ([attrs[key] count])
