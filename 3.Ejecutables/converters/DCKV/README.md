@@ -41,6 +41,7 @@ ln -s /dev/stdout stdout.j2k
 <DCKV/NSData+MD5.h>
 <DCKV/NSData+DCMmarkers.h>
 <DCKV/j2k.h>
+<DCKV/fileManager.h>
 
 
 ## XML resources

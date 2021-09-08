@@ -414,14 +414,14 @@ void async_f_study_callback(void *context){
 enum CDargName{
    CDargCmd=0,
    
-   CDargSpool,
-   CDargSuccess,
-   CDargFailure,
-   CDargOriginals,
+   CDargRECEIVED,
+   CDargSEND,
+   CDargFAILURE,
+   CDargORIGINALS,
    
-   CDargSourceMismatch,
-   CDargCdawlMismatch,
-   CDargPacsMismatch,
+   CDargMISMATCH_SOURCE,
+   CDargMISMATCH_CDAMWL,
+   CDargMISMATCH_PACS,
    
    CDargCoercedicomFile,
    CDargCdamwlDir,
@@ -454,16 +454,16 @@ int main(int argc, const char * argv[]){
        }
     }
     
-    if (![fileManager fileExistsAtPath:args[CDargSpool] isDirectory:&isDirectory] || !isDirectory)
+    if (![fileManager fileExistsAtPath:args[CDargRECEIVED] isDirectory:&isDirectory] || !isDirectory)
     {
-         NSLog(@"CLASSIFIED directory not found: %@",args[CDargSpool]);
+         NSLog(@"CLASSIFIED directory not found: %@",args[CDargRECEIVED]);
          exit(1);
     };
     
-    NSArray *CLASSIFIEDarray=[fileManager contentsOfDirectoryAtPath:args[CDargSpool] error:&error];
+    NSArray *CLASSIFIEDarray=[fileManager contentsOfDirectoryAtPath:args[CDargRECEIVED] error:&error];
     if (!CLASSIFIEDarray)
     {
-        NSLog(@"Can not open CLASSIFIED directory: %@. %@",args[CDargSpool], error.description);
+        NSLog(@"Can not open CLASSIFIED directory: %@. %@",args[CDargRECEIVED], error.description);
          exit(1);
     };
 
@@ -471,13 +471,13 @@ int main(int argc, const char * argv[]){
     NSMutableArray *sourcesBeforeMapping=[NSMutableArray arrayWithArray:CLASSIFIEDarray];
     if ([sourcesBeforeMapping[0] hasPrefix:@"."])
     {
-       if([fileManager removeItemAtPath:[args[CDargSpool] stringByAppendingPathComponent:sourcesBeforeMapping[0]] error:&error])
+       if([fileManager removeItemAtPath:[args[CDargRECEIVED] stringByAppendingPathComponent:sourcesBeforeMapping[0]] error:&error])
        {
           [sourcesBeforeMapping removeObjectAtIndex:0];
           if (!sourcesBeforeMapping.count) exit(0);
 
        }
-       else NSLog(@"can not remove %@. %@",[args[CDargSpool] stringByAppendingPathComponent:sourcesBeforeMapping[0]],error.description);
+       else NSLog(@"can not remove %@. %@",[args[CDargRECEIVED] stringByAppendingPathComponent:sourcesBeforeMapping[0]],error.description);
     }
 
     
@@ -542,7 +542,7 @@ The root is an array where items are clasified by priority of execution
        {
           if ([regex numberOfMatchesInString:sourcesBeforeMapping[i] options:0 range:NSMakeRange(0,[sourcesBeforeMapping[i] length])])
           {
-             NSArray *Eiuids=[fileManager contentsOfDirectoryAtPath:[args[CDargSpool] stringByAppendingPathComponent:sourcesBeforeMapping[i]] error:&error];
+             NSArray *Eiuids=[fileManager contentsOfDirectoryAtPath:[args[CDargRECEIVED] stringByAppendingPathComponent:sourcesBeforeMapping[i]] error:&error];
              if (  !Eiuids
                  ||(
                        (Eiuids.count==1)
@@ -550,7 +550,7 @@ The root is an array where items are clasified by priority of execution
                     )
                  )
              {
-                if(![fileManager removeItemAtPath:[args[CDargSpool] stringByAppendingPathComponent:sourcesBeforeMapping[0]] error:&error]) NSLog(@"can not remove %@. %@",[args[CDargSpool] stringByAppendingPathComponent:sourcesBeforeMapping[i]],error.description);
+                if(![fileManager removeItemAtPath:[args[CDargRECEIVED] stringByAppendingPathComponent:sourcesBeforeMapping[0]] error:&error]) NSLog(@"can not remove %@. %@",[args[CDargRECEIVED] stringByAppendingPathComponent:sourcesBeforeMapping[i]],error.description);
              }
              else
              {
@@ -565,7 +565,7 @@ The root is an array where items are clasified by priority of execution
 #pragma mark - sourceMismatch To Be discarded
       for (NSString *sourceName in sourcesBeforeMapping)
       {
-         NSString *errMsg=mergeDir(fileManager, [args[CDargSpool] stringByAppendingPathComponent:sourceName], [args[CDargSourceMismatch] stringByAppendingPathComponent:sourceName]);
+         NSString *errMsg=mergeDir(fileManager, [args[CDargRECEIVED] stringByAppendingPathComponent:sourceName], [args[CDargMISMATCH_SOURCE] stringByAppendingPathComponent:sourceName]);
          if (errMsg && errMsg.length)
          {
             NSLog(@"%@",errMsg);
@@ -618,7 +618,7 @@ The root is an array where items are clasified by priority of execution
 #pragma mark source loop
        for (NSDictionary *sourceDict in sourcesToBeProcessed)
        {
-            NSString *sourceDir=[args[CDargSpool] stringByAppendingPathComponent:sourceDict[@"scu"]];
+            NSString *sourceDir=[args[CDargRECEIVED] stringByAppendingPathComponent:sourceDict[@"scu"]];
             NSArray *Eiuids=[fileManager contentsOfDirectoryAtPath:sourceDir error:nil];
 
           
@@ -651,18 +651,18 @@ The root is an array where items are clasified by priority of execution
             [studyTaskDict setObject:studyPath forKey:@"spoolDirPath"];
 
             [studyTaskDict setObject:
-             [[[args[CDargSuccess]
+             [[[args[CDargSEND]
                stringByAppendingPathComponent:sourceDict[@"coerceDataset"][@"00000001_00080080-LO"][0]]
                stringByAppendingPathComponent:sourceDict[@"scu"]]
               stringByAppendingPathComponent:Eiuid
               ] forKey:@"successDir"];
             [studyTaskDict setObject:
-             [[args[CDargFailure]
+             [[args[CDargFAILURE]
                stringByAppendingPathComponent:sourceDict[@"scu"]]
               stringByAppendingPathComponent:Eiuid
               ] forKey:@"failureDir"];
             [studyTaskDict setObject:
-             [[args[CDargOriginals]
+             [[args[CDargORIGINALS]
                stringByAppendingPathComponent:sourceDict[@"scu"]]
               stringByAppendingPathComponent:Eiuid
               ] forKey:@"originalsDir"];

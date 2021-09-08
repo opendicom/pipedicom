@@ -4,9 +4,9 @@ coercedicom
 Procesa los directorios y archivos DICOM encontrados en subdirectorios de un directorio Spool.
 
 
-## Spool
+## RECEIVED
 
-Spool es el contenedor de todas las nuevas imágenes, clasificadas en una estructura a tres niveles:
+RECEIVED es el contenedor de todas las nuevas imágenes, clasificadas en una estructura a tres niveles:
 
 - SOURCE: La primera subdivisión indica el origen de dónde viene la imagen. Por ejemplo: la carpeta llamada "CR@NXGENRAD@192.168.4.16" indica que la imagen de modalidad radiografía directa (CR) fue enviada desde un equipo identificado por el AET "NXGENRAD" desde el IP local "192.168.4.16". Todas las subcarpetas de "CR@NXGENRAD@192.168.4.16" contienen archivos proveniente del mismo origen.
 
@@ -15,8 +15,8 @@ Spool es el contenedor de todas las nuevas imágenes, clasificadas en una estruc
 - instance: El tercer nivel, o sea dentro de una carpeta de estudio, son las imágenes que correspondena este estudio, identificadas por su SOPUID.
 
 
-| SPOOL      |
-|------------|
+| RECEIVED   |
+| ---------- |
 | [SOURCE]   |
 | [STUDY]    |
 | [instance] |
@@ -29,9 +29,9 @@ El procesamiento se realiza en base a las directivas que se encuentran en coerce
     {
         "regex":".*",
         "coerceDataset":{
-           "00000001_00080080-LO" :[ "org" ]
+           "00000001_00080080-1100LO" :[ "DCM4CHEE" ]
         },
-        "storeBucketSize":10000000
+        "storeBucketSize":3450000
     },
     {
         ...
@@ -39,101 +39,103 @@ El procesamiento se realiza en base a las directivas que se encuentran en coerce
 ]
 ```
 
-Coercedicom.json es un array de objetos. 
-Cada uno de ellos contiene un regex que permite matchear [SOURCE]. Las directivas incluidas en el objeto aplican a las [SOURCE] que satisfacen el regex.
-
-
-## DISCARDED
-
-Cuando aparece un SOURCE que no satisface ningún regex, coercedicom lo mueve a un subdirectorio del  directorio DISCARDED.
-
-
- original SOURCE
-
-|SPOOL     |DISCARDED|
-|----------|---------|
-|[SOURCE]->|[SOURCE] |
+Coercedicom.json es un array de objetos. Cada uno de ellos contiene un regex que permite matchear la  [SOURCE] de las imágenes recibidas. Las directivas incluidas en el objeto aplican a los estudios provenientes de las [SOURCE] que satisfacen el regex.
 
 
 
-  otro estudio
-  
-|SPOOL    |DISCARDED|
-|---------|---------|
-|SOURCE_1 |SOURCE_1 |
-|[STUDY]->|[STUDY]  |
+## MISMATCH_SOURCE, MISMATCH_CDAMWL, MISMATCH_PACS
+
+Cuando aparece un SOURCE que no satisface ningún regex, coercedicom lo mueve a un subdirectorio del  directorio MISMATCH_SOURCE. 
+
+Cuando coercedicom está acoplado a cdamwl, un estudio que demuestra incompatibilidades con el item de MWL correspondiente va a MISMATCH_CDAMWL.
+
+Lo mismo cuando coercedicom está configurado para verificar los datos patronímicos con un pacs de destino, pero esta vez los estudios que generan ambiguëdad a nivel de la identificación del paciente están apartados dentro  de un directorio MISMATCH_PACS
+
+
+ SOURCE nuevo
+
+| RECEIVED   | MISMATCH_SOURCE |
+| ---------- | --------------- |
+| [SOURCE]-> | [SOURCE]        |
 
 
 
-  otra instancia
+  Otro estudio de un  SOURCE ya descartado o descartado luego de otras verificaciones
 
-|SPOOL    |DISCARDED|
-|---------|---------|
-|SOURCE_1 |SOURCE_1 |
-|STUDY_1  |STUDY_1  |
-|[image]->|[image]  |
-
+| RECEIVED  | MISMATCH_SOURCE  \| MISMATCH_CDAMWL \|  MISMATCH_PACS |
+| --------- | ----------------------------------------------------- |
+| SOURCE_1  | SOURCE_1                                              |
+| [STUDY]-> | [STUDY]                                               |
 
 
- instancia repetida
 
-|SPOOL    |DISCARDED|
-|---------|---------|
-|SOURCE_1 |SOURCE_1 |
-|STUDY_1  |STUDY_1  |
-|         |IMAGE_1  |
-|         |1.dcm    |
-|image_1->|2.dcm    |
+  Otra instancia de un estudio ya descartado
+
+| SPOOL     | MISMATCH_SOURCE  \| MISMATCH_CDAMWL \| MISMATCH_PACS |
+| --------- | ---------------------------------------------------- |
+| SOURCE_1  | SOURCE_1                                             |
+| STUDY_1   | STUDY_1                                              |
+| [image]-> | [image]                                              |
+
+
+
+ Instancia repetida de un estudio ya descartado
+
+| SPOOL     | MISMATCH_SOURCE  \|  MISMATCH_CDAMWL \|  MISMATCH_PACS |
+| --------- | ------------------------------------------------------ |
+| SOURCE_1  | SOURCE_1                                               |
+| STUDY_1   | STUDY_1                                                |
+|           | IMAGE_1                                                |
+|           | 1.dcm                                                  |
+| image_1-> | 2.dcm                                                  |
 
 En caso de imagen repetida, se cree un directorio para todas las instancias.
 Este tipo de traslado no destruye datos recibidos y construye un historial de lo recibido.
- 
+
+
 
 ## ORIGINALS y FAILURE
 
-Cuando aparece una imagen de un SOURCE que valida regex, se realizan las operaciones de coerción correspondientes, que tienen por resultado la creación de una nueva imagen, en caso que las operaciones fuesen exitosas. Luego de las operaciones, el original sin modificar está trasladado a una de las carpetas ORIGINALS (si la operación fue exitosa) o FAILURE (si no se pudo crear la nueva imagen).
+Cuando aparece una imagen de un SOURCE válido, se realizan las operaciones de coerción correspondientes, que tienen por resultado la creación de una nueva imagen, en caso que las operaciones fuesen exitosas. Luego de las operaciones, el original sin modificar está trasladado a una de las carpetas ORIGINALS (si la operación fue exitosa) o FAILURE (si no se pudo crear la nueva imagen).
 
 
- otra instancia
+Otra instancia de un estudio
 
-|SPOOL    |ORIGINALS|
-|         |FAILURE  |
-|---------|---------|
-|SOURCE_1 |SOURCE_1 |
-|STUDY_1  |STUDY_1  |
-|[image]->|[image]  |
-
-
-
-instancia repetida
-
-|SPOOL    |ORIGINALS|
-|         |FAILURE  |
-|---------|---------|
-|SOURCE_1 |SOURCE_1 |
-|STUDY_1  |STUDY_1  |
-|         |IMAGE_1  |
-|         |1.dcm    |
-|image_1->|2.dcm    |
+| RECEIVED  | ORIGINALS / FAILURE |
+| --------- | ------------------- |
+| SOURCE_1  | SOURCE_1            |
+| STUDY_1   | STUDY_1             |
+| [image]-> | [image]             |
 
 
 
+Instancia repetida
 
-## SUCCESS
+| RECEIVED  | ORIGINALS / FAILURE |
+| --------- | ------------------- |
+| SOURCE_1  | SOURCE_1            |
+| STUDY_1   | STUDY_1             |
+|           | IMAGE_1             |
+|           | 1.dcm               |
+| image_1-> | 2.dcm               |
 
+
+
+
+
+
+## SEND
 
 Un subdirectorio de SUCCESS recibe las imágenes creadas como resultado de la coerción.
 En esta ocasión aparecen dos niveles de subcarpetas adicionales, ORG y BUCKET
 
-```
-|SUCCESS   |
-|----------|
-|[ORG]     |
-|[SOURCE]  |
-|[STUDY]   |
-|[BUCKET]  |
-|[instance]|
-```
+| SEND       |
+| ---------- |
+| [ORG]      |
+| [SOURCE]   |
+| [STUDY]    |
+| [BUCKET]   |
+| [instance] |
 
 - ORG indica el AET de la institución de referencia de las imágenes en el PACS central. Por ejemplo asseMALDONADO.
 - BUCKET subdivide el estudio en grupos de archivos que en total no superan cierto tamaño y pueden ser objeto de un envío por lote sin superar el limite definido en el servidor para los POST. Dentro de bucket, los archivos DICOM tienen un prefijo http y se agrega al conjunto un archivo http tail que facilita la construcción de un POST http multipart/related
@@ -143,7 +145,7 @@ Tests
 =====
 
 coercedicom aplica :
-- (test1) fuente de la información (source) conocida (ya lo vimos), 
+- (test1) fuente de la información (source) conocida, 
 - (test2) compatibilidad de (study) con los items de cdawl (presupone test1 exitoso)
 - (test3) compatibilidad de (study) con los datos existentes en el pacs (no implementado en ASSE)
 
@@ -208,7 +210,7 @@ enum CDargName{
    CDargPacsMismatch,
 
    CDargcoercedicom,            //archivo de configuración de las coerciones
-   CDargCdamwlDir,              //cdawldicom dir path (if empty, no test2)
+   CDargCdamwlDir,               //cdawldicom dir path (if empty, no test2)
    CDargPacsSearch,             //DICOMweb search url (if empty, no test3)
 
    CDargAsyncMonitorLoopsWait   // nxms (n=loops number, m=seconds wait) m=0 -> proceso sincrónico
