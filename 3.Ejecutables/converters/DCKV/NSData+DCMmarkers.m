@@ -3,7 +3,6 @@
 //  D2M
 //
 //  Created by jacquesfauquex on 2021-02-24.
-//
 
 #import "NSData+DCMmarkers.h"
 

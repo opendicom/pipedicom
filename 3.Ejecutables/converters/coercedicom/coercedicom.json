@@ -1,9 +1,6 @@
-[
-    {
-        "regex":"^.*",
-        "coerceDataset":{
-           "00000001_00080080-1100LO" :[ "DCM4CHEE" ]
-        },
-        "storeBucketSize":34500000
-    }
-]
+[{
+"regex":"^.*",
+"coerceDataset":{ "00000001_00080080-LO" :[ "asseMALDONADO" ]},
+"supplementToDataset":{ "00000001_00081060-PN":["asseMALDONADO^-^-"]},
+"storeBucketSize":50000000
+}]

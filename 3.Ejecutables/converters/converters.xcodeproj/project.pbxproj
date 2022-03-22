@@ -8,11 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		071F04B626D4F081001F655A /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
-		4A025F3F25E5C455005AA1A3 /* DCKV.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A025F3D25E5C455005AA1A3 /* DCKV.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A025F5C25E60BBA005AA1A3 /* DCMcharset.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A025E5E25E418E5005AA1A3 /* DCMcharset.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A025F6325E60BE0005AA1A3 /* ODLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A7B85A125824EAE00E62971 /* ODLog.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A025F6625E60BE0005AA1A3 /* D2dict.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A025EAF25E5944E005AA1A3 /* D2dict.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4A025F6725E60BE0005AA1A3 /* dict2D.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABE45AB25C87F610072B84E /* dict2D.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A025F8625E60CCA005AA1A3 /* DCMcharset.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABF584125CECD4700EB725E /* DCMcharset.m */; };
 		4A025F8725E60CCA005AA1A3 /* ODLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7B85A025824EAE00E62971 /* ODLog.m */; };
 		4A025F8A25E60CCA005AA1A3 /* D2dict.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A025EA625E593E0005AA1A3 /* D2dict.m */; };
@@ -26,13 +23,20 @@
 		4A95E3CE26063E9800224363 /* dckRangeVecs.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A95E3CC26063E9800224363 /* dckRangeVecs.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A95E3CF26063E9800224363 /* dckRangeVecs.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A95E3CD26063E9800224363 /* dckRangeVecs.m */; };
 		4AAE862D25C0253500117D26 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AAE862C25C0253500117D26 /* main.m */; };
+		4AC0742D26F967A90069C42E /* EDCKV.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AC7860926E8F7230002DBE9 /* EDCKV.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4AC0744C26F9689A0069C42E /* dict2D.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABE45AB25C87F610072B84E /* dict2D.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4AC0745726F9689F0069C42E /* D2dict.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A025EAF25E5944E005AA1A3 /* D2dict.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4AC0747626F969190069C42E /* DCKV.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A025F3D25E5C455005AA1A3 /* DCKV.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4AC0748B26F969B60069C42E /* DCKV.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A025F3D25E5C455005AA1A3 /* DCKV.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4AC4113F2712374700E9D041 /* DCKV.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A025F3D25E5C455005AA1A3 /* DCKV.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4AC4115E2714613500E9D041 /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
+		4AC7860A26E8F7230002DBE9 /* EDCKV.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AC7860826E8F7230002DBE9 /* EDCKV.m */; };
 		4AC7BE5A26694A2700C14265 /* NSData+MD5.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AC7BE5826694A2700C14265 /* NSData+MD5.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4AC7BE5B26694A2700C14265 /* NSData+MD5.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AC7BE5926694A2700C14265 /* NSData+MD5.m */; };
 		4AC7BE63266A724A00C14265 /* DCKV.md in Resources */ = {isa = PBXBuildFile; fileRef = 4AC7BE62266A724A00C14265 /* DCKV.md */; };
 		4AD03BA02696430400855F3F /* fileManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AD03B9E2696430400855F3F /* fileManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4AD03BA12696430400855F3F /* fileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AD03B9F2696430400855F3F /* fileManager.m */; };
 		4AD03BE326973FEE00855F3F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AD03BE226973FEE00855F3F /* main.m */; };
-		4AD03BF32697402B00855F3F /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4AD03BF22697402B00855F3F /* DCKV.framework */; };
 		4ADA4ED92672A778008F98DB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ADA4ED82672A778008F98DB /* main.m */; };
 		4ADA4EEA2672A7A3008F98DB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ADA4EE92672A7A3008F98DB /* main.m */; };
 		4ADA4EFC2672A7B5008F98DB /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ADA4EFB2672A7B5008F98DB /* main.m */; };
@@ -47,6 +51,8 @@
 		4ADA51E4268BAE59008F98DB /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 4ADA51E3268BAE59008F98DB /* README.md */; };
 		4ADA5201268BB4CA008F98DB /* schema-for-json.xsd in Resources */ = {isa = PBXBuildFile; fileRef = 4AAE865C25C0AABB00117D26 /* schema-for-json.xsd */; };
 		4ADA5209268BB4E4008F98DB /* N.rng in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE91C25B1A8FE00C8D33F /* N.rng */; };
+		4ADB50B826F2A394001C4F96 /* ODLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A7B85A125824EAE00E62971 /* ODLog.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		4ADB50C326F2A3B3001C4F96 /* ODLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7B85A025824EAE00E62971 /* ODLog.m */; };
 		4AE010A026D433DD00D5A91B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AE0109F26D433DD00D5A91B /* main.m */; };
 		4AE0115326D43E1500D5A91B /* ZZArchive.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AE010B126D4371D00D5A91B /* ZZArchive.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4AE0115E26D43E1B00D5A91B /* ZZArchiveEntry.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AE010B326D4371D00D5A91B /* ZZArchiveEntry.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -55,7 +61,6 @@
 		4AE0117F26D43E2800D5A91B /* ZZError.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AE010B526D4371D00D5A91B /* ZZError.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4AE0128126D7F01700D5A91B /* libzipzap.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4AE0128026D7F01700D5A91B /* libzipzap.a */; };
 		4AE0128326D7F03500D5A91B /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4AE0128226D7F03500D5A91B /* libz.a */; };
-		4AE0141126DD54D500D5A91B /* dict2D.h in Headers */ = {isa = PBXBuildFile; fileRef = 4ABE45AB25C87F610072B84E /* dict2D.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4AE7CEB725E7CBE0004942E3 /* M.xsd in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE92125B1A8FE00C8D33F /* M.xsd */; };
 		4AE7CEB825E7CBE0004942E3 /* M1N.xsl in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE91E25B1A8FE00C8D33F /* M1N.xsl */; };
 		4AE7CEB925E7CBE0004942E3 /* N1M.xsl in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE92025B1A8FE00C8D33F /* N1M.xsl */; };
@@ -64,14 +69,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		4ACCF06A268FBE2C006E12C2 /* PBXContainerItemProxy */ = {
+		4AC4115F2714614200E9D041 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4A7B856A258002A100E62971 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 4A025F3A25E5C455005AA1A3;
 			remoteInfo = DCKV;
 		};
-		4AD03BF02697400000855F3F /* PBXContainerItemProxy */ = {
+		4ACCF06A268FBE2C006E12C2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 4A7B856A258002A100E62971 /* Project object */;
 			proxyType = 1;
@@ -201,10 +206,13 @@
 		4ABE45AB25C87F610072B84E /* dict2D.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = dict2D.h; sourceTree = "<group>"; };
 		4ABE45AC25C87F610072B84E /* dict2D.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = dict2D.m; sourceTree = "<group>"; };
 		4ABF584125CECD4700EB725E /* DCMcharset.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DCMcharset.m; sourceTree = "<group>"; };
+		4AC7860626E8F6560002DBE9 /* EDCKV.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = EDCKV.md; sourceTree = "<group>"; };
+		4AC7860726E8F6560002DBE9 /* jpeg2000.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = jpeg2000.pdf; sourceTree = "<group>"; };
+		4AC7860826E8F7230002DBE9 /* EDCKV.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = EDCKV.m; sourceTree = "<group>"; };
+		4AC7860926E8F7230002DBE9 /* EDCKV.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EDCKV.h; sourceTree = "<group>"; };
 		4AC7BE5826694A2700C14265 /* NSData+MD5.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+MD5.h"; sourceTree = "<group>"; };
 		4AC7BE5926694A2700C14265 /* NSData+MD5.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+MD5.m"; sourceTree = "<group>"; };
 		4AC7BE62266A724A00C14265 /* DCKV.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = DCKV.md; sourceTree = "<group>"; };
-		4ACCF084268FBFA0006E12C2 /* DCKV.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DCKV.framework; path = ../../../../../usr/local/lib/DCKV.framework; sourceTree = "<group>"; };
 		4AD03B9E2696430400855F3F /* fileManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fileManager.h; sourceTree = "<group>"; };
 		4AD03B9F2696430400855F3F /* fileManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = fileManager.m; sourceTree = "<group>"; };
 		4AD03BE026973FEE00855F3F /* coercedicom */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = coercedicom; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -216,7 +224,7 @@
 		4ADA4ED82672A778008F98DB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4ADA4EE72672A7A3008F98DB /* DinlineJ */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DinlineJ; sourceTree = BUILT_PRODUCTS_DIR; };
 		4ADA4EE92672A7A3008F98DB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		4ADA4EF92672A7B5008F98DB /* D2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = D2; sourceTree = BUILT_PRODUCTS_DIR; };
+		4ADA4EF92672A7B5008F98DB /* D2J */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = D2J; sourceTree = BUILT_PRODUCTS_DIR; };
 		4ADA4EFB2672A7B5008F98DB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4ADA4F2C2672A90F008F98DB /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4ADA4F2D2672A91F008F98DB /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -296,7 +304,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4AD03BF32697402B00855F3F /* DCKV.framework in Frameworks */,
+				4AC4115E2714613500E9D041 /* DCKV.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -347,6 +355,10 @@
 		4A025F3C25E5C455005AA1A3 /* DCKV */ = {
 			isa = PBXGroup;
 			children = (
+				4AC7860926E8F7230002DBE9 /* EDCKV.h */,
+				4AC7860826E8F7230002DBE9 /* EDCKV.m */,
+				4AC7860626E8F6560002DBE9 /* EDCKV.md */,
+				4AC7860726E8F6560002DBE9 /* jpeg2000.pdf */,
 				4ADA51E3268BAE59008F98DB /* README.md */,
 				4A025F3E25E5C455005AA1A3 /* Info.plist */,
 				4A025F3D25E5C455005AA1A3 /* DCKV.h */,
@@ -364,8 +376,8 @@
 				4A7B85A025824EAE00E62971 /* ODLog.m */,
 				4ABE45AB25C87F610072B84E /* dict2D.h */,
 				4ABE45AC25C87F610072B84E /* dict2D.m */,
-				4A025EA625E593E0005AA1A3 /* D2dict.m */,
 				4A025EAF25E5944E005AA1A3 /* D2dict.h */,
+				4A025EA625E593E0005AA1A3 /* D2dict.m */,
 				4AC7BE62266A724A00C14265 /* DCKV.md */,
 				4ADA50062678AA85008F98DB /* j2k.h */,
 				4ADA50072678AA85008F98DB /* j2k.m */,
@@ -408,7 +420,7 @@
 				4A025F3C25E5C455005AA1A3 /* DCKV */,
 				4ADA4EE82672A7A3008F98DB /* DinlineJ */,
 				4ADA4ED72672A778008F98DB /* DsourceJ */,
-				4ADA4EFA2672A7B5008F98DB /* D2 */,
+				4ADA4EFA2672A7B5008F98DB /* D2J */,
 				4ABF583625CEC1EB00EB725E /* J2D */,
 				4ADA518D2688125F008F98DB /* D2D */,
 				4AD03BE126973FEE00855F3F /* coercedicom */,
@@ -427,7 +439,7 @@
 				4A025F3B25E5C455005AA1A3 /* DCKV.framework */,
 				4ADA4ED62672A778008F98DB /* DsourceJ */,
 				4ADA4EE72672A7A3008F98DB /* DinlineJ */,
-				4ADA4EF92672A7B5008F98DB /* D2 */,
+				4ADA4EF92672A7B5008F98DB /* D2J */,
 				4ADA518C2688125F008F98DB /* D2D */,
 				4AD03BE026973FEE00855F3F /* coercedicom */,
 				4AE0109D26D433DD00D5A91B /* cdamwldicom */,
@@ -500,7 +512,6 @@
 				4AE0128026D7F01700D5A91B /* libzipzap.a */,
 				4AE011CA26D472D700D5A91B /* libz.tbd */,
 				4AD03BF22697402B00855F3F /* DCKV.framework */,
-				4ACCF084268FBFA0006E12C2 /* DCKV.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -523,13 +534,13 @@
 			path = DinlineJ;
 			sourceTree = "<group>";
 		};
-		4ADA4EFA2672A7B5008F98DB /* D2 */ = {
+		4ADA4EFA2672A7B5008F98DB /* D2J */ = {
 			isa = PBXGroup;
 			children = (
 				4ADA4F362672A930008F98DB /* README.md */,
 				4ADA4EFB2672A7B5008F98DB /* main.m */,
 			);
-			path = D2;
+			path = D2J;
 			sourceTree = "<group>";
 		};
 		4ADA518D2688125F008F98DB /* D2D */ = {
@@ -612,17 +623,34 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4AC0748B26F969B60069C42E /* DCKV.h in Headers */,
 				4ADA50782678B096008F98DB /* NSData+DCMmarkers.h in Headers */,
 				4AC7BE5A26694A2700C14265 /* NSData+MD5.h in Headers */,
-				4A025F3F25E5C455005AA1A3 /* DCKV.h in Headers */,
-				4A025F6625E60BE0005AA1A3 /* D2dict.h in Headers */,
-				4A025F6725E60BE0005AA1A3 /* dict2D.h in Headers */,
 				4A025F5C25E60BBA005AA1A3 /* DCMcharset.h in Headers */,
 				4A95E3CE26063E9800224363 /* dckRangeVecs.h in Headers */,
 				4ADA50082678AA85008F98DB /* j2k.h in Headers */,
+				4A44192B25EC4A490091495B /* B64.h in Headers */,
 				4A025F6325E60BE0005AA1A3 /* ODLog.h in Headers */,
 				4AD03BA02696430400855F3F /* fileManager.h in Headers */,
-				4A44192B25EC4A490091495B /* B64.h in Headers */,
+				4AC0744C26F9689A0069C42E /* dict2D.h in Headers */,
+				4AC0745726F9689F0069C42E /* D2dict.h in Headers */,
+				4AC0742D26F967A90069C42E /* EDCKV.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4AC22E6526F5397600F9FB97 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4AC4113F2712374700E9D041 /* DCKV.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4ADB50B726F2A37D001C4F96 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4ADB50B826F2A394001C4F96 /* ODLog.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -642,7 +670,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4AE0141126DD54D500D5A91B /* dict2D.h in Headers */,
+				4AC0747626F969190069C42E /* DCKV.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -689,6 +717,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4A7B85FE258CD7A700E62971 /* Build configuration list for PBXNativeTarget "M2" */;
 			buildPhases = (
+				4ADB50B726F2A37D001C4F96 /* Headers */,
 				4A7B85F6258CD7A700E62971 /* Sources */,
 				4A7B85F7258CD7A700E62971 /* Frameworks */,
 				4A7B85F8258CD7A700E62971 /* CopyFiles */,
@@ -725,6 +754,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4AD03BE626973FEE00855F3F /* Build configuration list for PBXNativeTarget "coercedicom" */;
 			buildPhases = (
+				4AC22E6526F5397600F9FB97 /* Headers */,
 				4AD03BDC26973FEE00855F3F /* Sources */,
 				4AD03BDD26973FEE00855F3F /* Frameworks */,
 				4AD03BF42697405200855F3F /* ShellScript */,
@@ -732,7 +762,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				4AD03BF12697400000855F3F /* PBXTargetDependency */,
+				4AC411602714614200E9D041 /* PBXTargetDependency */,
 			);
 			name = coercedicom;
 			productName = coercedicom;
@@ -777,9 +807,9 @@
 			productReference = 4ADA4EE72672A7A3008F98DB /* DinlineJ */;
 			productType = "com.apple.product-type.tool";
 		};
-		4ADA4EF82672A7B5008F98DB /* D2 */ = {
+		4ADA4EF82672A7B5008F98DB /* D2J */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 4ADA4EFD2672A7B5008F98DB /* Build configuration list for PBXNativeTarget "D2" */;
+			buildConfigurationList = 4ADA4EFD2672A7B5008F98DB /* Build configuration list for PBXNativeTarget "D2J" */;
 			buildPhases = (
 				4ADA4EF52672A7B5008F98DB /* Sources */,
 				4ADA4EF62672A7B5008F98DB /* Frameworks */,
@@ -791,9 +821,9 @@
 			dependencies = (
 				4ADA4FC9267835E5008F98DB /* PBXTargetDependency */,
 			);
-			name = D2;
+			name = D2J;
 			productName = D2;
-			productReference = 4ADA4EF92672A7B5008F98DB /* D2 */;
+			productReference = 4ADA4EF92672A7B5008F98DB /* D2J */;
 			productType = "com.apple.product-type.tool";
 		};
 		4ADA518B2688125F008F98DB /* D2D */ = {
@@ -891,7 +921,7 @@
 				4A7B85F9258CD7A700E62971 /* M2 */,
 				4ADA4ED52672A778008F98DB /* DsourceJ */,
 				4ADA4EE62672A7A3008F98DB /* DinlineJ */,
-				4ADA4EF82672A7B5008F98DB /* D2 */,
+				4ADA4EF82672A7B5008F98DB /* D2J */,
 				4AAE866925C0C19600117D26 /* J2D */,
 				4ADA518B2688125F008F98DB /* D2D */,
 				4AD03BDF26973FEE00855F3F /* coercedicom */,
@@ -983,7 +1013,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\nsudo -A cp $BUILD_ROOT/Debug/D2 /usr/local/bin/D2\n";
+			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\nsudo -A cp $BUILD_ROOT/Debug/D2J /usr/local/bin/D2J\n";
 		};
 		4ACCF0B8269334AA006E12C2 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1061,6 +1091,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4AC7BE5B26694A2700C14265 /* NSData+MD5.m in Sources */,
+				4AC7860A26E8F7230002DBE9 /* EDCKV.m in Sources */,
 				4A025F8625E60CCA005AA1A3 /* DCMcharset.m in Sources */,
 				4A025FC425E625ED005AA1A3 /* NSData+DCMmarkers.m in Sources */,
 				4A95E3CF26063E9800224363 /* dckRangeVecs.m in Sources */,
@@ -1086,6 +1117,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4AAE862D25C0253500117D26 /* main.m in Sources */,
+				4ADB50C326F2A3B3001C4F96 /* ODLog.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1148,15 +1180,15 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		4AC411602714614200E9D041 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
+			targetProxy = 4AC4115F2714614200E9D041 /* PBXContainerItemProxy */;
+		};
 		4ACCF06B268FBE2C006E12C2 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
 			targetProxy = 4ACCF06A268FBE2C006E12C2 /* PBXContainerItemProxy */;
-		};
-		4AD03BF12697400000855F3F /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 4A025F3A25E5C455005AA1A3 /* DCKV */;
-			targetProxy = 4AD03BF02697400000855F3F /* PBXContainerItemProxy */;
 		};
 		4ADA4F722672F38C008F98DB /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1355,13 +1387,14 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -1453,6 +1486,7 @@
 				);
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_OPTIMIZATION_LEVEL = 0;
+				HEADER_SEARCH_PATHS = "";
 				INSTALL_PATH = /usr/local/bin;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				OTHER_LDFLAGS = (
@@ -1461,7 +1495,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SYMROOT = /Users/Shared/BUILD/;
+				SYMROOT = $HOME/Movies/converters;
 			};
 			name = Debug;
 		};
@@ -1478,6 +1512,7 @@
 				);
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_OPTIMIZATION_LEVEL = 0;
+				HEADER_SEARCH_PATHS = "";
 				INSTALL_PATH = /usr/local/bin;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				OTHER_LDFLAGS = (
@@ -1486,7 +1521,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SYMROOT = /Users/Shared/BUILD/;
+				SYMROOT = $HOME/Movies/converters;
 			};
 			name = Release;
 		};
@@ -1530,8 +1565,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEPLOYMENT_LOCATION = NO;
+				DEPLOYMENT_POSTPROCESSING = NO;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Debug;
 		};
@@ -1539,8 +1577,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				DEPLOYMENT_LOCATION = NO;
+				DEPLOYMENT_POSTPROCESSING = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Release;
 		};
@@ -1586,8 +1628,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/cdamwdicom/lib",
-					"$(PROJECT_DIR)/cdamwldicom/lib",
+					"\"$(SRCROOT)/cdamwldicom/lib/\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1601,8 +1642,7 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(PROJECT_DIR)/cdamwdicom/lib",
-					"$(PROJECT_DIR)/cdamwldicom/lib",
+					"\"$(SRCROOT)/cdamwldicom/lib/\"",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.13;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1619,7 +1659,7 @@
 				4A025F4225E5C455005AA1A3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4A7B856D258002A100E62971 /* Build configuration list for PBXProject "converters" */ = {
 			isa = XCConfigurationList;
@@ -1628,7 +1668,7 @@
 				4A7B857A258002A100E62971 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4A7B85DC258BC12800E62971 /* Build configuration list for PBXNativeTarget "H2D" */ = {
 			isa = XCConfigurationList;
@@ -1637,7 +1677,7 @@
 				4A7B85DE258BC12800E62971 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4A7B85FE258CD7A700E62971 /* Build configuration list for PBXNativeTarget "M2" */ = {
 			isa = XCConfigurationList;
@@ -1646,7 +1686,7 @@
 				4A7B8600258CD7A700E62971 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4AAE866E25C0C19600117D26 /* Build configuration list for PBXNativeTarget "J2D" */ = {
 			isa = XCConfigurationList;
@@ -1655,7 +1695,7 @@
 				4AAE867025C0C19600117D26 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4AD03BE626973FEE00855F3F /* Build configuration list for PBXNativeTarget "coercedicom" */ = {
 			isa = XCConfigurationList;
@@ -1664,7 +1704,7 @@
 				4AD03BE526973FEE00855F3F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4ADA4EDA2672A778008F98DB /* Build configuration list for PBXNativeTarget "DsourceJ" */ = {
 			isa = XCConfigurationList;
@@ -1673,7 +1713,7 @@
 				4ADA4EDC2672A778008F98DB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4ADA4EEB2672A7A3008F98DB /* Build configuration list for PBXNativeTarget "DinlineJ" */ = {
 			isa = XCConfigurationList;
@@ -1682,16 +1722,16 @@
 				4ADA4EED2672A7A3008F98DB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
-		4ADA4EFD2672A7B5008F98DB /* Build configuration list for PBXNativeTarget "D2" */ = {
+		4ADA4EFD2672A7B5008F98DB /* Build configuration list for PBXNativeTarget "D2J" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				4ADA4EFE2672A7B5008F98DB /* Debug */,
 				4ADA4EFF2672A7B5008F98DB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4ADA51902688125F008F98DB /* Build configuration list for PBXNativeTarget "D2D" */ = {
 			isa = XCConfigurationList;
@@ -1700,7 +1740,7 @@
 				4ADA51922688125F008F98DB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		4AE010A326D433DD00D5A91B /* Build configuration list for PBXNativeTarget "cdamwldicom" */ = {
 			isa = XCConfigurationList;
@@ -1709,7 +1749,7 @@
 				4AE010A226D433DD00D5A91B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};

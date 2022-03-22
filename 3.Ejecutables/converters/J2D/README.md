@@ -1,29 +1,36 @@
 # J2D
 
-DCKV JSON to DICOM binary
+EDCKV JSON to DICOM binary
 Relative references are applied from current directory 
 
-In DCKV JSON, large binary objects are represented as :
+In EDCKV JSON, large binary objects are represented as :
 1)  base64 inline
-2)  absolute or relative URL referencing the original DICOM binary from which they were derived
+2)  absolute or relative URL referencing a portion of the original DICOM binary from which they were derived
 3)  relative URL referencing bulkdata files or aliases of them gathered in a DCKV.bulkdata directory next to the DCKV.json file
 
-Relative references are applied from current directory 
+Relative references are applied from the current directory 
 
 ## env
 J2DLogLevel : [ DEBUG | VERBOSE | INFO | WARNING | ERROR | EXCEPTION ]
 default : ERROR
 
 ## args
-J2D [ native | j2kbase | j2kfast | j2khres | idem ]
+J2D [ undf | natv | j2kb | j2kf | j2kh | j2ki | j2kr | j2k ] [ path ]
 
-native: if j2k compressed, decompress it, else idem
-j2base: if j2k compressed, with base layer only, else idem
-j2fast: if j2k compressed, with base and fast layers only, else  idem
-j2hres: if j2k compressed, with base,fast and hres layers only, else idem
-idem: as in json with full information
+no args : default undf for arg1
+two args: the second one is a path which replaces stdin
 
-no arg : default idem
+arg1 may imply conversions.
+
+- (undf) undefined: defaults to j2k, or native or what is into dataset in this order depending of the existence of the sets.
+- (natv) native: explicit little endian without compression
+- (j2kb) j2kBase: the quality of a miniature.
+- (j2kf) j2kFast: compressión con pérdida, pero muy rápido, compuesta de 2 capas
+- (j2kh) j2kHres: compressión con pérdida invisible, compuesta de 3 capas
+- (j2ki) j2kIdem: compresión sin perdida, compuesta de 4 capas
+- (j2kr) j2kr: compresión sin perdida, compuesta de una capa
+- (j2k) j2k: j2kIdem o j2kr
+
 
 ## stdin
 DCKV file Path

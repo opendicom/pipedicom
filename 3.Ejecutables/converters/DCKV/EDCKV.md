@@ -54,4 +54,17 @@ Es un formato de "entry" para la comunicación de uno o más datasets DCKV y met
 
 ```
 
-Nota: when map1 is named "remove", elimina los atributos de mismo key del dataset al cual se agrega el dataset "remove".
+# EDCKV's maps
+
+"map1" in EDCKV is also called "set". Sets are named. Some are of reserved use.
+
+- "dataset" is the base one. It can contain everything.
+
+- "filemetainfo" may also exist and contain group2 attributes, in which it replaces any group2 attributes which may be found in "dataset". The attribute 00000001_00020010-UI (transfert syntax) shall be communicated in "filemetainfo" when EDCKV is serialized.
+
+- "native" and/or "j2kr"/"bfhi" are DCKV reserved names and contain non group 2 attributes corresponding to explicit little endian and j2k transfer representations respectively. When "native" and/or "j2kr"/"bfhi" are present in EDCKV, dataset does not contain any of the same attributes as in "native" or "j2kr"/"bfhi". When both "native" and "j2k" are present, only one is used for serializing, depending on the directive pixelMode.
+
+- Other dictionaries found override "dataset" (in any order).
+
+- If a dictionary is called "remove", this is the last to be processed and its effect is to remove the corresponding attributes from "dataset".
+

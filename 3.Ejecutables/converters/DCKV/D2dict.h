@@ -3,16 +3,14 @@
 //  converters
 //
 //  Created by jacquesfauquex on 2021-02-23.
-//
-
-#ifndef D2dict_h
-#define D2dict_h
 
 enum blobModeOptions {
    blobModeInline,
    blobModeSource,
    blobModeResources
 } ;
+
+NSString *jsonObject4attrs(NSDictionary *attrs);
 
 int D2dict(
            NSData *data,
@@ -24,6 +22,18 @@ int D2dict(
            NSMutableDictionary *blobDict
            );
 
-NSString *jsonObject4attrs(NSDictionary *attrs);
-
-#endif /* D2dict_h */
+int parse(
+           NSMutableData *data,
+           NSMutableDictionary *filemetainfoAttrs,
+           NSMutableDictionary *datasetAttrs,
+           NSMutableDictionary *nativeAttrs,
+           NSMutableDictionary *j2kAttrs,
+           NSMutableDictionary *blobDict,
+           NSMutableDictionary *j2kBlobDict,
+           long long blobMinSize,
+           int blobMode,
+           NSString* blobRefPrefix,
+           NSString* blobRefSuffix,
+           BOOL toJ2KR,
+           BOOL toBFHI
+           );

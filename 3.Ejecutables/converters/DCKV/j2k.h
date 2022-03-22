@@ -3,11 +3,24 @@
 //  DCKV
 //
 //  Created by jacquesfauquex on 2021-06-15.
-//
 
 #import <Foundation/Foundation.h>
 
-int compress(
+
+enum {
+   undf=0,
+   natv,
+   j2kb,
+   j2kf,
+   j2kh,
+   j2ki,
+   j2kr,
+   j2ks
+};
+// j2kb, j2kf, j2kh, j2ki require FrameBFHI JSON codification
+
+
+int compressJ2KR(
              NSString *pixelUrl,
              NSData *pixelData,
              NSMutableDictionary *parsedAttrs,
@@ -25,10 +38,6 @@ int compressBFHI(
              NSMutableString *message
              );
 
-NS_ASSUME_NONNULL_BEGIN
 
 @interface j2k : NSObject
-
 @end
-
-NS_ASSUME_NONNULL_END

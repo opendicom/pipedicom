@@ -3,14 +3,12 @@
 //  DCKV
 //
 //  Created by jacquesfauquex on 2021-06-15.
+//
 
 #import "j2k.h"
 #import "NSData+DCMmarkers.h"
 #import "NSData+MD5.h"
 #import "ODLog.h"
-
-@implementation j2k
-@end
 
 
 int compressBFHI(
@@ -163,7 +161,7 @@ int compressBFHI(
          NSRange nextSOCRange=[j2kData rangeOfData:NSData.SOT
                                            options:0
                                              range:j2kRange];
-         NSArray *SOCs=@[@"",@"",@"",@".j2kb",@".j2kf",@".j2kh"];
+         NSArray *SOCs=@[@"",@"",@"",@".dcmj2kbase",@".dcmj2kfast",@".dcmj2khres"];
          while (nextSOCRange.location != NSNotFound)
          {
             if (fragmentCounter > 2)
@@ -190,7 +188,7 @@ int compressBFHI(
          nextSOCRange=[j2kData rangeOfData:NSData.EOC
                                            options:0
                                              range:j2kRange];
-         NSString *fragmentName=[NSString stringWithFormat:@"%@-%08lu.j2ki",pixelUrl,frameNumber+1]
+         NSString *fragmentName=[NSString stringWithFormat:@"%@-%08lu.dcmj2kidem",pixelUrl,frameNumber+1]
          ;
          [pixelAttrArray addObject:fragmentName];
          [j2kBlobDict setObject:[j2kData subdataWithRange:NSMakeRange(fragmentOffset, nextSOCRange.location + nextSOCRange.length - fragmentOffset)] forKey:fragmentName];
@@ -200,24 +198,27 @@ int compressBFHI(
       }
       [frames addObject:[NSDictionary dictionaryWithObject:pixelAttrArray forKey:[NSString stringWithFormat:@"FrameBFHI#%08lu",frameNumber+1]]];
    }
-   /*
+    //[message appendString:@"."];
+    /* mal, Ejemplo de output:
+     2022-01-20 00:01:34.400841-0300 coercedicom[20155:74875] (0.385296 s) 732 Kb / 0 Kb = inf x
+     
    [message appendFormat:@"(%f s) %lu Kb / %lu Kb = %f x",
     [[NSDate date] timeIntervalSinceDate:start],
     (unsigned long)pixelTotalLength/1024,
     (unsigned long)j2kTotalLength/1024,
     (float)pixelTotalLength / j2kTotalLength
     ];
-    */
+     */
 #pragma mark · new attrs related to transfer syntax j2k
 
    [j2kAttrs setObject:frames forKey:@"00000001_7FE00010-OB"];
    [j2kAttrs setObject:@[[NSString stringWithFormat:@"lossless compression J2K codec openjpeg 2.5. Original data size:%lu md5:%@)",(unsigned long)pixelData.length,[pixelData MD5String]]] forKey:@"00000001_00082111-ST"];
-   [j2kAttrs setObject:@[@"j2ki; 4 tile-part quality layer (50,20,10,1)"] forKey:@"00000001_00204000-2006LT"];
+   [j2kAttrs setObject:@[@"dcmj2kidem; 4 tile-part quality layer (50,20,10,1)"] forKey:@"00000001_00204000-2006LT"];
 
    return success;
 }
 
-int compressJ2KR(
+int compress(
              NSString *pixelUrl,
              NSData *pixelData,
              NSMutableDictionary *parsedAttrs,
@@ -311,7 +312,6 @@ int compressJ2KR(
             return failure;
             break;
       }
-      
       [task launch];
       [writeHandle writeData:frameData];
       [writeHandle closeFile];
@@ -324,7 +324,10 @@ int compressJ2KR(
          [j2kData appendData:[readingFileHandle availableData]];
       }
       [task waitUntilExit];
+
+
       int terminationStatus = [task terminationStatus];
+
       if (terminationStatus!=0)
       {
          NSString *stdinFile=[@"~/Downloads/dicom.frame.stdinfile.rawl" stringByExpandingTildeInPath];
@@ -339,6 +342,7 @@ int compressJ2KR(
       else
       {
          NSUInteger j2kLength=j2kData.length;
+         j2kTotalLength+=j2kLength;
          NSRange j2kRange=NSMakeRange(0,j2kLength);
          //last tile-part (ended with EOC)
          NSRange EOCRange=[j2kData rangeOfData:NSData.EOC
@@ -351,14 +355,14 @@ int compressJ2KR(
       }
       [frames addObject:[NSDictionary dictionaryWithObject:pixelAttrArray forKey:[NSString stringWithFormat:@"Frame#%08lu",frameNumber+1]]];
    }
-   /*
-    [message appendFormat:@"(%f s) %lu Kb / %lu Kb = %f x",
+    /*
+   [message appendFormat:@"(%f s) %lu Kb / %lu Kb = %f x",
     [[NSDate date] timeIntervalSinceDate:start],
     (unsigned long)pixelTotalLength/1024,
     (unsigned long)j2kTotalLength/1024,
     (float)pixelTotalLength / j2kTotalLength
     ];
-    */
+     */
 #pragma mark · new attrs related to transfer syntax j2k
 
    [j2kAttrs setObject:frames forKey:@"00000001_7FE00010-OB"];
@@ -368,4 +372,7 @@ int compressJ2KR(
    return success;
 }
 
+@implementation j2k
+
+@end
 

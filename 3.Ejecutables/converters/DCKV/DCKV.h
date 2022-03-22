@@ -15,6 +15,7 @@ FOUNDATION_EXPORT const unsigned char DCKVVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <DCKV/PublicHeader.h>
 
+#import <DCKV/EDCKV.h>
 #import <DCKV/DCMcharset.h>
 #import <DCKV/D2dict.h>
 #import <DCKV/dict2D.h>

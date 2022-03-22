@@ -6,7 +6,8 @@ DICOM binary to DICOM binary with compresión and coerción inbetween
 D2D D2DspoolDirPath D2DsuccessDir D2DfailureDir D2DoriginalsDir
 
 ## Environment
-- "D2DcompressJ2K" convierte explicit little endian a jpeg 2000 lossless with quality layers separated into tile-parts.
+- "D2DcompressJ2KR" convierte explicit little endian a jpeg 2000 lossless.
+- "D2DcompressBFHI" convierte explicit little endian a jpeg 2000 lossless with quality layers separated into tile-parts.
 - "D2DjsonDataset" attributes overriding the originals
 
 ## stderr

@@ -3,13 +3,13 @@
 //  D2J
 //
 //  Created by jacquesfauquex on 2021-02-23.
-//
 
 #import <Foundation/Foundation.h>
 #import "DCMcharset.h"
 #import "NSData+DCMmarkers.h"
 #import "ODLog.h"
 #import "B64.h"
+#import "j2k.h"
 
 #import "D2dict.h"
 
@@ -77,6 +77,207 @@ NSString *keyPrefixed(
 
 
 #pragma mark -
+
+
+NSString *jsonObject4attrs(NSDictionary *attrs)
+{
+   //NSData *JSONdata=[NSJSONSerialization dataWithJSONObject:@{@"dataset":dict} options:NSJSONWritingSortedKeys error:&error];//10.15 || NSJSONWritingWithoutEscapingSlashes
+
+   NSMutableString *JSONstring=[NSMutableString stringWithFormat:@"{"];
+   NSArray *keys=[[attrs allKeys] sortedArrayUsingSelector:@selector(compare:)];
+   
+   
+#pragma mark loop on ordered keys
+   for (NSString *key in keys)
+   {
+      //LOG_DEBUG(@"%@",key);
+      [JSONstring appendFormat:@" \"%@\" :",key];
+      
+      switch ([key characterAtIndex:key.length-2]+([key characterAtIndex:key.length-1]*0x100))
+      {
+         
+#pragma mark · string based attributes
+//AS DA AE DT TM CS LO LT SH ST PN UC UT UR UI AT
+         case 0x5341://AS
+         case 0x4144://DA
+         case 0x4541://AE
+         case 0x5444://DT
+         case 0x4d54://TM
+         case 0x5343://CS
+         case 0x4f4c://LO
+         case 0x544c://LT
+         case 0x4853://SH
+         case 0x5453://ST
+         case 0x4e50://PN
+         case 0x4355://UC
+         case 0x5455://UT
+         case 0x5255://UR
+         case 0x4955://UI
+         case 0x5441://AT
+         {
+            switch ([attrs[key] count]) {
+               case 0:
+               {
+                  [JSONstring appendString:@"[ ],"];
+                  break;
+               }
+
+               case 1:
+               {
+                  [JSONstring appendFormat:@"[\"%@\"],",
+                   attrs[key][0]];
+                  break;
+               }
+
+               default:
+               {
+                  [JSONstring appendString:@"["];
+                  for (NSString *string in attrs[key])
+                  {
+                     [JSONstring appendFormat:@"\"%@\",",
+                      string];
+                  }
+                  [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-1,1)];
+                  [JSONstring appendString:@"],"];
+
+                  break;
+               }
+            }
+            
+            break;
+         }
+            
+            
+#pragma mark · string or map based
+         case 0x424F://OB
+         case 0x444F://OD
+         case 0x464F://OF
+         case 0x4C4F://OL
+         case 0x564F://OV
+         case 0x574F://OW
+         case 0x4E55://UN
+         {
+            switch ([attrs[key] count]) {
+               case 0:
+               {
+                  [JSONstring appendString:@"[ ],"];
+                  break;
+               }
+
+               case 1:
+               {
+                  id obj=attrs[key][0];
+                  if ([obj isKindOfClass:[NSString class]])
+                  {
+                     [JSONstring appendFormat:@"[\"%@\"],",
+                   obj];
+                  }
+                  else //@[@{ @"Frame#00000001" :[urlString]}]
+                  {
+                     NSString *subKey=[obj allKeys][0];
+                     [JSONstring appendFormat:@"[{ \"%@\" :[",subKey];
+                     for (NSString *url in obj[subKey])
+                     {
+                        [JSONstring appendFormat:@"\"%@\",",url];
+                     }
+                     [JSONstring replaceCharactersInRange:NSMakeRange(JSONstring.length-1,1) withString:@"]}],"];
+                  }
+                  break;
+               }
+
+               default://more than one value
+               {
+                  [JSONstring appendString:@"["];
+                  id obj=attrs[key][0];
+                  if ([obj isKindOfClass:[NSString class]])
+                  {
+                     for (NSString *string in attrs[key])
+                     {
+                        [JSONstring appendFormat:@"\"%@\",",
+                         string];
+                     }
+                     [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-1,1)];
+                     [JSONstring appendString:@"],"];
+                  }
+                  else //@[@{ @"BulkData":urlString}]
+                  {
+                     for (NSDictionary *d in attrs[key])
+                     {
+                        NSString *subKey=[d allKeys][0];
+                        [JSONstring appendFormat:@"{ \"%@\" :[\"%@\"]},",subKey, d[subKey][0]];
+                     }
+                     [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-1,1)];
+                     [JSONstring appendString:@"],"];
+                  }
+                  break;
+               }
+            }
+            break;
+         }
+            
+            
+#pragma mark · null based
+//SQ IQ IZ SZ
+         case 0x5153://SQ
+         case 0x5149://IQ
+         case 0x5A49://IZ
+         case 0x5A53://SZ
+         {
+            [JSONstring appendString:@"null,"];
+            break;
+         }
+
+            
+#pragma mark · number based attributes
+//IS DS SL UL SS US SV UV FL FD
+         case 0x5349://IS
+         case 0x5344://DS
+         case 0x4C53://SL
+         case 0x4C55://UL
+         case 0x5353://SS
+         case 0x5355://US
+         case 0x5653://SV
+         case 0x5655://UV
+         case 0x4C46://FL
+         case 0x4446://FD
+         {
+            switch ([attrs[key] count]) {
+               case 0:
+               {
+                  [JSONstring appendString:@"[ ],"];
+                  break;
+               }
+
+               case 1:
+               {
+                  [JSONstring appendFormat:@"[%@],", attrs[key][0]];
+                  break;
+               }
+
+               default:
+               {
+                  [JSONstring appendString:@"["];
+                  for (NSString *string in attrs[key])
+                  {
+                     [JSONstring appendFormat:@"%@,",
+                      string];
+                  }
+                  [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-1,1)];
+                  [JSONstring appendString:@"],"];
+
+                  break;
+               }
+            }
+            break;
+         }
+      }
+   }
+   [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-1,1)];
+   [JSONstring appendString:@"}"];
+   return [NSString stringWithString:JSONstring];
+}
+
+
 //(bi=shortsBufferIndex, bip=pastShortBufferIndex)
 NSUInteger D2J(
                          NSData *data,
@@ -99,7 +300,7 @@ NSUInteger D2J(
               + ( shortsBuffer[bi+1] << 16 );
    NSMutableString *vrCharsetPrefixNew=[NSMutableString stringWithString:vrCharsetPrefix];
    uint16 vrCharsetUint16New=vrCharsetUint16;
-    while (tag!=0xe00dfffe &&  bi < bip) //(end item)
+    while (tag!=0xe00dfffe) //end item (for recursion). End of data is treated with a break at the end of the loop
    {
       UInt16 vl = shortsBuffer[bi+3];//for AE,AS,AT,CS,DA,DS,DT,FL,FD,IS,LO,LT,PN,SH,SL,SS,ST,TM,UI,UL,US
       
@@ -203,14 +404,12 @@ NSUInteger D2J(
          }
 
 
-#pragma mark LO LT PN SH ST
-         case 0x4f4c://LO
-         case 0x544c://LT
+#pragma mark SH
          case 0x4853://SH
-         case 0x5453://ST
          {
             //variable length (eventually ended with 0x20
             //specific charset
+            //no CR (0D) LF (0A) TAB (09) FF (0B)
             if (!vl)
             {
                [attr setObject:@[] forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
@@ -223,6 +422,42 @@ NSUInteger D2J(
                for (NSString *value in arrayContents)
                {
                   NSMutableString *mutableString=[NSMutableString stringWithString:value];
+                  trimLeadingSpaces(mutableString);
+                  trimTrailingSpaces(mutableString);
+                  [values addObject:mutableString];
+               }
+               [attr setObject:values forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
+            }
+            bi+=4+(vl/2);
+            break;
+         }
+
+
+#pragma mark LO LT ST
+         case 0x4f4c://LO
+         case 0x544c://LT
+         case 0x5453://ST
+         {
+            //variable length (eventually ended with 0x20)
+            //specific charset
+            //may contain CR (0D) LF (0A) TAB (09) FF (0B)
+
+            if (!vl)
+            {
+               [attr setObject:@[] forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
+            }
+            else
+            {
+               NSArray *arrayContents=[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange(bi+bi+8,vl)] encoding:encodingNS[vrCharsetUint16]]componentsSeparatedByString:@"\\"];
+
+               NSMutableArray *values=[NSMutableArray array];
+               for (NSString *value in arrayContents)
+               {
+                  NSMutableString *mutableString=[NSMutableString stringWithString:value];
+                  [mutableString replaceOccurrencesOfString:@"\r" withString:@"\\r" options:0 range:NSMakeRange(0,mutableString.length)];
+                  [mutableString replaceOccurrencesOfString:@"\n" withString:@"\\n" options:0 range:NSMakeRange(0,mutableString.length)];
+                  [mutableString replaceOccurrencesOfString:@"\t" withString:@"\\t" options:0 range:NSMakeRange(0,mutableString.length)];
+                  [mutableString replaceOccurrencesOfString:@"\f" withString:@"\\f" options:0 range:NSMakeRange(0,mutableString.length)];
                   trimLeadingSpaces(mutableString);
                   trimTrailingSpaces(mutableString);
                   [values addObject:mutableString];
@@ -327,7 +562,16 @@ NSUInteger D2J(
          */
          case 0x5455://UT
          /*
-          A character string that may contain one or more paragraphs. It may contain the Graphic Character set and the Control Characters, CR, LF, FF, and ESC. It may be padded with trailing spaces, which may be ignored, but leading spaces are considered to be significant. Data Elements with this VR shall not be multi-valued and therefore character code 5CH (the BACKSLASH "\" in ISO-IR 6) may be used.
+          A character string that may contain one or more paragraphs.
+          
+          
+          !!!
+          It may contain the Graphic Character set and the Control Characters, CR, LF, FF, and ESC.
+          ¡¡¡
+          
+          
+          
+          It may be padded with trailing spaces, which may be ignored, but leading spaces are considered to be significant. Data Elements with this VR shall not be multi-valued and therefore character code 5CH (the BACKSLASH "\" in ISO-IR 6) may be used.
          */
          {
             uint32 vll = ( shortsBuffer[bi+4]       )
@@ -339,7 +583,13 @@ NSUInteger D2J(
             }
             else
             {
-               [attr setObject:@[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange((bi+6)*2,vll)] encoding:encodingNS[vrCharsetUint16]]] forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
+               NSMutableString *mutableString=[[NSMutableString alloc]initWithData:[data subdataWithRange:NSMakeRange((bi+6)*2,vll)] encoding:encodingNS[vrCharsetUint16]];
+               [mutableString replaceOccurrencesOfString:@"\r" withString:@"\\r" options:0 range:NSMakeRange(0,mutableString.length)];
+               [mutableString replaceOccurrencesOfString:@"\n" withString:@"\\n" options:0 range:NSMakeRange(0,mutableString.length)];
+               [mutableString replaceOccurrencesOfString:@"\t" withString:@"\\t" options:0 range:NSMakeRange(0,mutableString.length)];
+               [mutableString replaceOccurrencesOfString:@"\f" withString:@"\\f" options:0 range:NSMakeRange(0,mutableString.length)];
+
+               [attr setObject:@[[NSString stringWithString:mutableString]] forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
             }
             bi+=6+(vll/2);
             break;
@@ -784,7 +1034,7 @@ NSUInteger D2J(
                        + ( shortsBuffer[bi+5] << 16 )
             ;
             NSString *blobKey=key(branch,tag,vr);
-            if (!vll)//empty
+            if (vll==0)//empty
             {
                [attr setObject:@[] forKey:blobKey];
                bi+= 6 + (vll/2);
@@ -1103,7 +1353,9 @@ NSUInteger D2J(
             break;
          }
       }
-      tag=shortsBuffer[bi]+(shortsBuffer[bi+1]<<16);
+      if (bi < bip)
+         tag=shortsBuffer[bi]+(shortsBuffer[bi+1]<<16);
+      else break;
    }
    return bi;
 }
@@ -1170,200 +1422,118 @@ int D2dict(
 
 
 
-NSString *jsonObject4attrs(NSDictionary *attrs)
+int parse(
+           NSMutableData *data,
+           NSMutableDictionary *filemetainfoAttrs,
+           NSMutableDictionary *datasetAttrs,
+           NSMutableDictionary *nativeAttrs,
+           NSMutableDictionary *j2kAttrs,
+           NSMutableDictionary *blobDict,
+           NSMutableDictionary *j2kBlobDict,
+           long long blobMinSize,
+           int blobMode,
+           NSString* blobRefPrefix,
+           NSString* blobRefSuffix,
+           BOOL toJ2KR,
+           BOOL toBFHI
+           )
 {
-   //NSData *JSONdata=[NSJSONSerialization dataWithJSONObject:@{@"dataset":dict} options:NSJSONWritingSortedKeys error:&error];//10.15 || NSJSONWritingWithoutEscapingSlashes
-
-   NSMutableString *JSONstring=[NSMutableString stringWithFormat:@"{"];
-   NSArray *keys=[[attrs allKeys] sortedArrayUsingSelector:@selector(compare:)];
-   
-   
-#pragma mark loop on ordered keys
-   for (NSString *key in keys)
+   //filemetainfo?
+   uint32 inputFilemetadataLength=0;
+   if (data.length > 144)
    {
-      //LOG_DEBUG(@"%@",key);
-      [JSONstring appendFormat:@" \"%@\" :",key];
-      
-      switch ([key characterAtIndex:key.length-2]+([key characterAtIndex:key.length-1]*0x100))
+      [data getBytes:&inputFilemetadataLength range:NSMakeRange(128,4)];
+      if (inputFilemetadataLength==0x4D434944)
       {
-         
-#pragma mark · string based attributes
-//AS DA AE DT TM CS LO LT SH ST PN UC UT UR UI AT
-         case 0x5341://AS
-         case 0x4144://DA
-         case 0x4541://AE
-         case 0x5444://DT
-         case 0x4d54://TM
-         case 0x5343://CS
-         case 0x4f4c://LO
-         case 0x544c://LT
-         case 0x4853://SH
-         case 0x5453://ST
-         case 0x4e50://PN
-         case 0x4355://UC
-         case 0x5455://UT
-         case 0x5255://UR
-         case 0x4955://UI
-         case 0x5441://AT
+         [data getBytes:&inputFilemetadataLength range:NSMakeRange(140,4)];
+         if (   ( inputFilemetadataLength > 100 )
+             && ( data.length >= 144 + inputFilemetadataLength )
+             )
          {
-            switch ([attrs[key] count]) {
-               case 0:
-               {
-                  [JSONstring appendString:@"[ ],"];
-                  break;
-               }
-
-               case 1:
-               {
-                  [JSONstring appendFormat:@"[\"%@\"],",
-                   attrs[key][0]];
-                  break;
-               }
-
-               default:
-               {
-                  [JSONstring appendString:@"["];
-                  for (NSString *string in attrs[key])
-                  {
-                     [JSONstring appendFormat:@"\"%@\",",
-                      string];
-                  }
-                  [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-1,1)];
-                  [JSONstring appendString:@"],"];
-
-                  break;
-               }
+            if (!D2dict(
+              [data subdataWithRange:NSMakeRange(158,inputFilemetadataLength-14)],
+              filemetainfoAttrs,
+              blobMinSize,
+              blobMode,
+              blobRefPrefix,
+              blobRefSuffix,
+              blobDict
+              )
+                )
+            {
+               LOG_ERROR(@"could not parse filemetainfo");
+               return failure;
             }
-            
-            break;
-         }
-            
-            
-#pragma mark · string or map based
-         case 0x424F://OB
-         case 0x444F://OD
-         case 0x464F://OF
-         case 0x4C4F://OL
-         case 0x564F://OV
-         case 0x574F://OW
-         case 0x4E55://UN
-         {
-            switch ([attrs[key] count]) {
-               case 0:
-               {
-                  [JSONstring appendString:@"[ ],"];
-                  break;
-               }
-
-               case 1:
-               {
-                  id obj=attrs[key][0];
-                  if ([obj isKindOfClass:[NSString class]])
-                  {
-                     [JSONstring appendFormat:@"[\"%@\"],",
-                   obj];
-                  }
-                  else //@[@{ @"Frame#00000001" :[urlString]}]
-                  {
-                     NSString *subKey=[obj allKeys][0];
-                     [JSONstring appendFormat:@"[{ \"%@\" :[",subKey];
-                     for (NSString *url in obj[subKey])
-                     {
-                        [JSONstring appendFormat:@"\"%@\",",url];
-                     }
-                     [JSONstring replaceCharactersInRange:NSMakeRange(JSONstring.length-1,1) withString:@"]}],"];
-                  }
-                  break;
-               }
-
-               default://more than one value
-               {
-                  [JSONstring appendString:@"["];
-                  id obj=attrs[key][0];
-                  if ([obj isKindOfClass:[NSString class]])
-                  {
-                     for (NSString *string in attrs[key])
-                     {
-                        [JSONstring appendFormat:@"\"%@\",",
-                         string];
-                     }
-                     [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-1,1)];
-                     [JSONstring appendString:@"],"];
-                  }
-                  else //@[@{ @"BulkData":urlString}]
-                  {
-                     for (NSDictionary *d in attrs[key])
-                     {
-                        NSString *subKey=[d allKeys][0];
-                        [JSONstring appendFormat:@"{ \"%@\" :[\"%@\"]},",subKey, d[subKey][0]];
-                     }
-                     [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-1,1)];
-                     [JSONstring appendString:@"],"];
-                  }
-                  break;
-               }
-            }
-            break;
-         }
-            
-            
-#pragma mark · null based
-//SQ IQ IZ SZ
-         case 0x5153://SQ
-         case 0x5149://IQ
-         case 0x5A49://IZ
-         case 0x5A53://SZ
-         {
-            [JSONstring appendString:@"null,"];
-            break;
-         }
-
-            
-#pragma mark · number based attributes
-//IS DS SL UL SS US SV UV FL FD
-         case 0x5349://IS
-         case 0x5344://DS
-         case 0x4C53://SL
-         case 0x4C55://UL
-         case 0x5353://SS
-         case 0x5355://US
-         case 0x5653://SV
-         case 0x5655://UV
-         case 0x4C46://FL
-         case 0x4446://FD
-         {
-            switch ([attrs[key] count]) {
-               case 0:
-               {
-                  [JSONstring appendString:@"[ ],"];
-                  break;
-               }
-
-               case 1:
-               {
-                  [JSONstring appendFormat:@"[%@],", attrs[key][0]];
-                  break;
-               }
-
-               default:
-               {
-                  [JSONstring appendString:@"["];
-                  for (NSString *string in attrs[key])
-                  {
-                     [JSONstring appendFormat:@"%@,",
-                      string];
-                  }
-                  [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-1,1)];
-                  [JSONstring appendString:@"],"];
-
-                  break;
-               }
-            }
-            break;
+            [data replaceBytesInRange:NSMakeRange(0,inputFilemetadataLength+144) withBytes:NULL length:0];
          }
       }
    }
-   [JSONstring deleteCharactersInRange:NSMakeRange(JSONstring.length-1,1)];
-   [JSONstring appendString:@"}"];
-   return [NSString stringWithString:JSONstring];
+   
+   
+   if (!D2dict(
+              data,
+              datasetAttrs,
+              blobMinSize,
+              blobMode,
+              blobRefPrefix,
+              blobRefSuffix,
+              blobDict
+              )
+       )
+   {
+      LOG_ERROR(@"could not parse dataset");
+      return failure;
+   }
+
+#pragma mark · compress ?
+   //NSLog(@"%@: %@",datasetAttrs[@"00000001_00020010-UI"][0],datasetAttrs[@"00000001_00020003-UI"][0]);
+   NSString *pixelKey=nil;
+   if (datasetAttrs[@"00000001_7FE00010-OB"])pixelKey=@"00000001_7FE00010-OB";
+   else if (datasetAttrs[@"00000001_7FE00010-OW"])pixelKey=@"00000001_7FE00010-OW";
+   if (pixelKey)
+   {
+      if (   (toJ2KR || toBFHI)
+          && [filemetainfoAttrs[@"00000001_00020010-UI"][0] isEqualToString:@"1.2.840.10008.1.2.1"]
+          )
+      {
+         //from native
+         NSString *nativeUrlString=datasetAttrs[pixelKey][0][@"Native"][0];
+         NSData *pixelData=nil;
+         if ([datasetAttrs[pixelKey][0] isKindOfClass:[NSDictionary class]])  pixelData=blobDict[datasetAttrs[pixelKey][0][@"Native"][0]];
+         else pixelData=dataWithB64String(blobDict[pixelKey]);
+         
+         //toJ2KR or toBFHI
+         NSMutableString *returnString=[NSMutableString string];
+         if
+         (
+               (toJ2KR && !compressJ2KR(
+            [nativeUrlString substringToIndex:nativeUrlString.length-3],
+            pixelData,
+            datasetAttrs,
+            j2kBlobDict,
+            j2kAttrs,
+            returnString
+            ))
+             ||(toBFHI && !compressBFHI(
+            [nativeUrlString substringToIndex:nativeUrlString.length-3],
+            pixelData,
+            datasetAttrs,
+            j2kBlobDict,
+            j2kAttrs,
+            returnString
+            ))
+         )
+         {
+            NSLog(@"%@",returnString);
+            return failure;
+         }
+
+         //include j2k blobs
+         [blobDict addEntriesFromDictionary:j2kBlobDict];
+      }
+      //remove native pixel blob and corresponding attribute
+      [nativeAttrs setObject:datasetAttrs[pixelKey] forKey:pixelKey];
+      [datasetAttrs removeObjectForKey:pixelKey];
+   }
+   return success;
 }

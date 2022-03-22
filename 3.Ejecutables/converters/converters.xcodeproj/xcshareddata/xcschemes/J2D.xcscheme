@@ -73,7 +73,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Volumes/GITHUB/_dicom_samples/J/FluroWithDisplayShutter.json"
+            argument = "/Users/Shared/Desktop/1.3.12.2.1107.5.1.7.111639.30000022020312440488400000050_1643903264.json"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

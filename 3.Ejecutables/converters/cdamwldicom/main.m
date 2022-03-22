@@ -97,11 +97,11 @@ int main(int argc, const char * argv[])
 #pragma mark - loop StudyInstanceUIDs
           NSError *localError=nil;
 
-          NSString *EUID=[[[instance objectForKey:@"0020000D"]objectForKey:@"Value"]firstObject];
+          NSString *EUID=[instance[@"0020000D"][@"Value"] firstObject];
           NSString *EUIDpath=[[DApath stringByAppendingPathComponent:@"EUID"] stringByAppendingPathComponent:EUID];
           
-          if([fileManager fileExistsAtPath:[EUIDpath stringByAppendingPathComponent:@"wl.xml"]]) continue;//WorkItem (wl.xml) already downloaded
-          
+         if([fileManager fileExistsAtPath:[[aetscppath stringByAppendingPathComponent:EUID] stringByAppendingPathExtension:@"wl"]]) continue;// published/aet/EUID.wl already created
+
           if(![fileManager fileExistsAtPath:EUIDpath] && ![fileManager createDirectoryAtPath:EUIDpath withIntermediateDirectories:YES attributes:nil error:&localError])
           {
               NSLog(@"ERROR could not create folder %@. %@", EUIDpath, localError.description);
@@ -114,55 +114,59 @@ int main(int argc, const char * argv[])
               //                /symlink StudyInstanceUID -> StudyInstanceUID
               
               NSString *ANIsuffix=nil;
-              NSString *ANL=[[[instance objectForKey:@"00080051.00400031"]objectForKey:@"Value"]firstObject];
-              NSString *ANU=[[[instance objectForKey:@"00080051.00400032"]objectForKey:@"Value"]firstObject];
+             NSString *ANL=[instance[@"00080051.00400031"][@"Value"] firstObject];
+             NSString *ANU=[instance[@"00080051.00400032"][@"Value"] firstObject];
               if (ANL && ANU) ANIsuffix=[NSString stringWithFormat:@"^%@^%@",ANL,ANU];
               else if (ANL)   ANIsuffix=[NSString stringWithFormat:@"^%@",ANL];
               else if (ANU)   ANIsuffix=[NSString stringWithFormat:@"^%@",ANU];
               else            ANIsuffix=@"";
-              NSString *AN=[[[[instance objectForKey:@"00080050"]objectForKey:@"Value"]firstObject]stringByAppendingString:ANIsuffix];
-              NSString *ANpath=[[DApath stringByAppendingPathComponent:@"AN"] stringByAppendingPathComponent:AN];
-              if(![fileManager fileExistsAtPath:ANpath])
-              {
-                  if(![fileManager createDirectoryAtPath:ANpath withIntermediateDirectories:YES attributes:nil error:&localError])
-                  {
-                      NSLog(@"ERROR could not create folder %@. %@", ANpath, localError.description);
-                      continue;
-                  }
-              }
-              if (![fileManager createSymbolicLinkAtPath:[ANpath stringByAppendingPathComponent:EUID] withDestinationPath:EUIDpath error:&localError])
-              {
-                  NSLog(@"ERROR could not create AccessionNumber symlink %@ to %@. %@",AN, EUIDpath, localError.description);
-                  continue;
-              }
+             NSString *AN=[[instance[@"00080050"][@"Value"] firstObject] stringByAppendingString:ANIsuffix];
+             NSString *ANpath=[[DApath stringByAppendingPathComponent:@"AN"] stringByAppendingPathComponent:AN];
+             if(![fileManager fileExistsAtPath:ANpath])
+             {
+                 if(![fileManager createDirectoryAtPath:ANpath withIntermediateDirectories:YES attributes:nil error:&localError])
+                 {
+                     NSLog(@"ERROR could not create folder %@. %@", ANpath, localError.description);
+                     continue;
+                 }
+             }
+             if (![fileManager fileExistsAtPath:[ANpath stringByAppendingPathComponent:EUID]])
+             {
+                if (![fileManager createSymbolicLinkAtPath:[ANpath stringByAppendingPathComponent:EUID] withDestinationPath:EUIDpath error:&localError])
+                {
+                    NSLog(@"ERROR could not create AccessionNumber symlink %@ to %@. %@",AN, EUIDpath, localError.description);
+                }
+             }
 
 #pragma mark PatientID
               //        /PatientID[^issuer]
               //                /symlink StudyInstanceUID -> StudyInstanceUID
 
               NSString *PIDIsuffix=nil;
-              NSString *PIDI=[[[instance objectForKey:@"00100021"]objectForKey:@"Value"]firstObject];
-              if (PIDI) PIDIsuffix=[NSString stringWithFormat:@"^%@",PIDI];
-              else      PIDIsuffix=@"";
-              NSString *PID=[[[[instance objectForKey:@"00100020"]objectForKey:@"Value"]firstObject]stringByAppendingString:PIDIsuffix];
-              NSString *PIDpath=[[DApath stringByAppendingPathComponent:@"PID"]stringByAppendingPathComponent:PID];
-              if(![fileManager fileExistsAtPath:PIDpath])
-              {
-                  if(![fileManager createDirectoryAtPath:PIDpath withIntermediateDirectories:YES attributes:nil error:nil])
-                  {
-                      NSLog(@"ERROR could not create folder %@", PIDpath);
-                      continue;
-                  }
-              }
-              if (![fileManager createSymbolicLinkAtPath:[PIDpath stringByAppendingPathComponent:EUID] withDestinationPath:EUIDpath error:&localError])
-              {
-                  NSLog(@"ERROR could not create PatientID symlink %@ to %@. %@",PID, EUIDpath, localError.description);
-                  continue;
-              }
-          }
-         
+             NSString *PIDI=[instance[@"00100021"][@"Value"] firstObject];
+             if (PIDI) PIDIsuffix=[NSString stringWithFormat:@"^%@",PIDI];
+             else      PIDIsuffix=@"";
+             NSString *PID=[[instance[@"00100020"][@"Value"] firstObject] stringByAppendingString:PIDIsuffix];
+             NSString *PIDpath=[[DApath stringByAppendingPathComponent:@"PID"]stringByAppendingPathComponent:PID];
+             if(![fileManager fileExistsAtPath:PIDpath])
+             {
+                 if(![fileManager createDirectoryAtPath:PIDpath withIntermediateDirectories:YES attributes:nil error:nil])
+                 {
+                     NSLog(@"ERROR could not create folder %@", PIDpath);
+                     continue;
+                 }
+             }
+            if (![fileManager fileExistsAtPath:[PIDpath stringByAppendingPathComponent:EUID]])
+            {
+                if (![fileManager createSymbolicLinkAtPath:[PIDpath stringByAppendingPathComponent:EUID] withDestinationPath:EUIDpath error:&localError])
+                {
+                    NSLog(@"ERROR could not create PatientID symlink %@ to %@. %@",PID, EUIDpath, localError.description);
+                }
+            }
+         }
+
 #pragma mark download details
-          NSString *RetrieveString=[[[instance objectForKey:@"00081190"]objectForKey:@"Value"]firstObject];
+         NSString *RetrieveString=[instance[@"00081190"][@"Value"] firstObject];
           if (RetrieveString && RetrieveString.length)
           {
              NSURL *RetrieveURL=[NSURL URLWithString:RetrieveString];

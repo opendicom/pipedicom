@@ -1,6 +1,3 @@
-#ifndef DCMcharset_h
-#define DCMcharset_h
-
 #import <Foundation/Foundation.h>
 
 #pragma mark doc
@@ -148,5 +145,3 @@ uint64 popUint64(struct uint64stack *pt);
 NSString *peekString(struct uint64stack *pt);
 NSString *popString(struct uint64stack *pt);
 */
-
-#endif /* DCMcharset_h */

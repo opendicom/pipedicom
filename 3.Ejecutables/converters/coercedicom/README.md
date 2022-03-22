@@ -1,3 +1,5 @@
+
+
 coercedicom
 ===========
 
@@ -25,18 +27,12 @@ RECEIVED es el contenedor de todas las nuevas imágenes, clasificadas en una est
 El procesamiento se realiza en base a las directivas que se encuentran en coercedicom.json.
 
 ```
-[
-    {
-        "regex":".*",
-        "coerceDataset":{
-           "00000001_00080080-1100LO" :[ "DCM4CHEE" ]
-        },
-        "storeBucketSize":3450000
-    },
-    {
-        ...
-    }
-]
+[{
+"regex":"^.*",
+"coerceDataset":{ "00000001_00080080-LO" :[ "asseMALDONADO" ]},
+"supplementToDataset":{ "00000001_00081060-PN":["asseMALDONADO^-^-"]},
+"storeBucketSize":50000000
+}]
 ```
 
 Coercedicom.json es un array de objetos. Cada uno de ellos contiene un regex que permite matchear la  [SOURCE] de las imágenes recibidas. Las directivas incluidas en el objeto aplican a los estudios provenientes de las [SOURCE] que satisfacen el regex.
@@ -138,7 +134,7 @@ En esta ocasión aparecen dos niveles de subcarpetas adicionales, ORG y BUCKET
 | [instance] |
 
 - ORG indica el AET de la institución de referencia de las imágenes en el PACS central. Por ejemplo asseMALDONADO.
-- BUCKET subdivide el estudio en grupos de archivos que en total no superan cierto tamaño y pueden ser objeto de un envío por lote sin superar el limite definido en el servidor para los POST. Dentro de bucket, los archivos DICOM tienen un prefijo http y se agrega al conjunto un archivo http tail que facilita la construcción de un POST http multipart/related
+- BUCKET subdivide el estudio en grupos de archivos que en total no superan cierto tamaño y pueden ser objeto de un envío por lote sin superar el limite definido en el servidor para los POST. Dentro de bucket, los archivos DICOM tienen un prefijo http que facilita la construcción de un POST http multipart/related
 
 
 Tests
@@ -216,5 +212,70 @@ enum CDargName{
    CDargAsyncMonitorLoopsWait   // nxms (n=loops number, m=seconds wait) m=0 -> proceso sincrónico
 };
 
-
 # Archivo de configuración coercedicom.json
+
+Ejemplo:
+
+```
+[{
+"regex":"^.*",
+"coerceDataset":{ "00000001_00080080-LO" :[ "asseMALDONADO" ]},
+"supplementToDataset":{ "00000001_00081060-PN":["asseMALDONADO^-^-"]},
+"storeBucketSize":50000000
+}]
+```
+
+| label                 | descripción                                                |
+| --------------------- | ---------------------------------------------------------- |
+| regex           | expresión regular que matchea la identificación del source |
+| suplementToDataset {} | dataset de los atributos a agregar / modificar             |
+| remove {}             | lista de atributos a eliminar                              |
+| storeBucketSize       | tamaño en bytes de un bucket para dicomStore               |
+| pixel                 | natv \| j2kr \| bfhi                                       |
+
+- natv: native sin compresión, 
+- j2kr: 1 fragmento, 
+- bfhi: j2kr with four quality layers (base/fast/hres/idem)
+
+
+
+## otra version ... (unificar en función de lo que hay en el código !!!)
+
+| Set                      | Función                                                      |
+| ------------------------ | ------------------------------------------------------------ |
+| coercePrefix             | 128 bytes coded base64 to be placed as prefix of the dicom file |
+| coerceBlobs              | replaces or suplements blobs                                 |
+| coerceFileMetainfo       | replaces or suplements attrs in fileMetainfo                 |
+| replaceInFileMetainfo    | only if attr already existed in fileMetainfo                 |
+| supplementToFileMetainfo | only if attr did not exist in fileMetainfo                   |
+| removeFromFileMetainfo   | performed last (may undo a previous coercion)                |
+| coerceDataset            | replaces or suplements attrs in dataset                      |
+| replaceInDataset         | only if attr already existed in dataset                      |
+| supplementToDataset      | only if attr did not exist in dataset                        |
+| removeFromDataset        | performed last (may undo a previous coercion)                |
+| compression                         | 0=natv, 1=j2kr, 4=bfhi    |
+
+
+
+format:
+[
+{
+  org:string (pacs aet)
+
+  regex:string (scu pattern)
+  scu:string (scu matching)
+
+  coerceDataset:{}
+  coerceFileMetadata
+  coerceBlobs
+  coercePrefix
+  ...
+
+  successDir
+  failureDir
+  originalsDir
+  storeBucketSize (subdir max size for storedicom operation)
+}
+...
+]
+

@@ -44,8 +44,9 @@ int main(int argc, const char * argv[]) {
       NSDictionary *environment=processInfo.environment;
 
 
-#pragma mark D2DcompressJ2K
-      BOOL compressJ2K=environment[@"D2DcompressJ2K"] && [environment[@"D2DcompressJ2K"] isEqualToString:@"true"];
+#pragma mark D2DcompressJ2KR
+      BOOL compressJ2KR=environment[@"D2DcompressJ2KR"] && [environment[@"D2DcompressJ2KR"] isEqualToString:@"true"];
+      BOOL compressBFHI=environment[@"D2DcompressBFHI"] && [environment[@"D2DcompressBFHI"] isEqualToString:@"true"];
 
       
 #pragma mark D2DjsonDataset
@@ -96,7 +97,7 @@ int main(int argc, const char * argv[]) {
             else if (parsedAttrs[@"00000001_7FE00010-OW"])pixelKey=@"00000001_7FE00010-OW";
             
             if (   pixelKey
-                && compressJ2K
+                && (compressJ2KR || compressBFHI)
                 && [parsedAttrs[@"00000001_00020010-UI"][0] isEqualToString:@"1.2.840.10008.1.2.1"]
                 )
             {
@@ -106,15 +107,27 @@ int main(int argc, const char * argv[]) {
                else pixelData=dataWithB64String(blobDict[pixelKey]);
                
                NSMutableString *message=[NSMutableString string];
-               if (compress(
-                            [nativeUrlString substringToIndex:nativeUrlString.length-3],
-                            pixelData,
-                            parsedAttrs,
-                            j2kBlobDict,
-                            j2kAttrs,
-                            message
-                            )==success
-                   )
+               NSString *errString=nil;
+               if (compressJ2KR) errString=compressJ2KR(
+                  [nativeUrlString substringToIndex:nativeUrlString.length-3],
+                  pixelData,
+                  parsedAttrs,
+                  j2kBlobDict,
+                  j2kAttrs
+                  );
+               else errString=compressBFHI(
+                  [nativeUrlString substringToIndex:nativeUrlString.length-3],
+                  pixelData,
+                  parsedAttrs,
+                  j2kBlobDict,
+                  j2kAttrs
+                  );
+               if (errString)
+               {
+                  NSLog(@"%@",errString);
+                  return 1;
+               }
+#pragma mark TODO groups j2kr o bfhi
                {
                   //remove native pixel blob and corresponding attribute
                   

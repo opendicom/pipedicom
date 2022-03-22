@@ -1,6 +1,3 @@
-#ifndef dckRangeVecs_h
-#define dckRangeVecs_h
-
 #import <Foundation/Foundation.h>
 
 struct dckRange
@@ -32,6 +29,3 @@ NSUInteger pushDckRange(
 struct dckRange peekDckRange(struct dckRangeVecs pt,NSUInteger idx);
 
 struct dckRange popDckRange(struct dckRangeVecs pt);
-
-
-#endif /* dckRangeVecs_h */

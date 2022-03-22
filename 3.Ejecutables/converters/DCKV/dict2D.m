@@ -109,7 +109,13 @@ uint32 shortshortFromFourByteHexaString(NSString *string)
 #pragma mark TODO: encodings
 
 
-int dict2D(NSString *baseURLString, NSDictionary *attrs, NSMutableData *data, NSUInteger pixelMode, NSDictionary *blobDict)
+int dict2D(
+           NSString *baseURLString,
+           NSDictionary *attrs,
+           NSMutableData *data,
+           NSUInteger pixelMode,
+           NSDictionary *blobDict
+           )
 {
     if (attrs && attrs.count)
     {
@@ -622,7 +628,7 @@ int dict2D(NSString *baseURLString, NSDictionary *attrs, NSMutableData *data, NS
                   [data appendBytes:&vr length:2];
                   [data appendBytes:&vl0 length:2];
                   
-                  if ((tag==0x107fe0) && (pixelMode != native))
+                  if ((tag==0x107fe0) && (pixelMode != natv))
                   {
 #pragma mark .fragments
                      [data appendBytes:&undefinedlength length:4];
@@ -636,20 +642,20 @@ int dict2D(NSString *baseURLString, NSDictionary *attrs, NSMutableData *data, NS
                         if ([frameName hasPrefix:@"FrameBFHI"])
                         {
                            switch (pixelMode) {
-                              case j2kBase:
+                              case j2kb:
                               {
                                  appendFrame(data, baseURLString, urls[0], true, blobDict);
                               }
                                  break;
 
-                              case j2kFast:
+                              case j2kf:
                               {
                                  appendFrame(data, baseURLString, urls[0], false,blobDict);
                                  appendFrame(data, baseURLString, urls[1], true,blobDict);
                               }
                                  break;
 
-                              case j2kHres:
+                              case j2kh:
                               {
                                  appendFrame(data, baseURLString, urls[0], false,blobDict);
                                  appendFrame(data, baseURLString, urls[1], false,blobDict);

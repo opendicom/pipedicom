@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "4ADA4EF82672A7B5008F98DB"
-               BuildableName = "D2"
-               BlueprintName = "D2"
+               BuildableName = "D2J"
+               BlueprintName = "D2J"
                ReferencedContainer = "container:converters.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -45,56 +45,69 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4ADA4EF82672A7B5008F98DB"
-            BuildableName = "D2"
-            BlueprintName = "D2"
+            BuildableName = "D2J"
+            BlueprintName = "D2J"
             ReferencedContainer = "container:converters.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Volumes/GITHUB/pipedicom/3.Ejecutables/converters/Samples/D/ele/SC1.ele.dcm"
+            argument = "/Users/jacquesfauquex/Desktop/1.3.12.2.1107.5.1.7.111639.30000022020312440488400000050_1643903264.dcm"
             isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/GITHUB/_dicom_samples/D/ele/CT1.ele.dcm"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Users/jacquesfauquex/Desktop/SG@CT111639@10.252.23.30/2.16.858.2.10001442.67430.20220123201734.4393800.8/1.3.12.2.1107.5.1.7.111639.30000022012323413346400000035_1642992985.dcm"
+            isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
       <EnvironmentVariables>
          <EnvironmentVariable
-            key = "D2outputDir"
+            key = "D2JoutputDir"
             value = "/Users/Shared/"
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "D2logLevel"
+            key = "D2JlogLevel"
             value = "INFO"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-         <EnvironmentVariable
-            key = "D2logLevel"
-            value = "DEBUG"
             isEnabled = "NO">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "D2relativePathComponents"
+            key = "D2JlogLevel"
+            value = "DEBUG"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "D2JrelativePathComponents"
             value = "2"
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "D2blobMinSize"
+            key = "D2JblobMinSize"
             value = "1000"
             isEnabled = "YES">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "D2blobRefPrefix"
+            key = "D2JblobRefPrefix"
             value = ""
             isEnabled = "NO">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "D2blobRefSuffix"
+            key = "D2JblobRefSuffix"
             value = ""
             isEnabled = "NO">
          </EnvironmentVariable>
          <EnvironmentVariable
-            key = "D2compressJ2K"
-            value = "true"
+            key = "D2Jpixel"
+            value = "bfhi"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "D2_pixel"
+            value = "j2kr"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>
@@ -110,8 +123,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "4ADA4EF82672A7B5008F98DB"
-            BuildableName = "D2"
-            BlueprintName = "D2"
+            BuildableName = "D2J"
+            BlueprintName = "D2J"
             ReferencedContainer = "container:converters.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

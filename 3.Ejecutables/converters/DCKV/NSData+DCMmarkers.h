@@ -3,11 +3,8 @@
 //  D2M
 //
 //  Created by jacquesfauquex on 2021-02-24.
-//
 
 #import <Foundation/Foundation.h>
-
-NS_ASSUME_NONNULL_BEGIN
 
 @interface NSData (DCMmarkers)
 
@@ -21,5 +18,3 @@ NS_ASSUME_NONNULL_BEGIN
 @property (class, nonatomic, assign, readonly) NSData* EOC;
 
 @end
-
-NS_ASSUME_NONNULL_END
