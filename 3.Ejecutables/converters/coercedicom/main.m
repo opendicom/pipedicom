@@ -15,67 +15,95 @@ const UInt64 _0002001_tag_vr=0x0000424F00010002;
 const UInt32 _0002001_length=0x00000002;
 const UInt16 _0002001_value=0x0001;
 
+static NSMutableSet *seriesTODO=nil;//for detached series processes monitoring
+static NSMutableSet *seriesDONE=nil;//for detached series processes monitoring
 
-void async_f_study_callback(void *context){
-   NSDictionary *current = (NSDictionary*) context;
+void series_callback(void *context){
+   NSDictionary *thisContext = (NSDictionary*) context;
+   /*
+app:
+    spoolDir
+    spoolDirLogPath
+    
+    originalsDir
+    failureDir
+
+    successDir
+    
+    coercePrefix
+
+cfg:
+    Siuid
+    regex
+    scu
+    coerceBlobs
+    coerceFileMetainfo
+    replaceInFileMetainfo
+    supplementToFileMetainfo
+    removeFromFileMetainfo
+    
+    coerceDataset
+    replaceInDataset
+    supplementToDataset
+    removeFromDataset
+    
+    */
+   
    NSFileManager *fileManager=[NSFileManager defaultManager];
    NSError *error=nil;
+   NSArray *iuid_times=[fileManager contentsOfDirectoryAtPath:thisContext[@"spoolDir"] error:&error];
+   NSUInteger iuidCount=iuid_times.count;
+   if (
+          (iuidCount==0)
+       ||((iuidCount==1) && [iuid_times[0] hasPrefix:@"."])
+       )
+   {
+       if (![fileManager removeItemAtPath:thisContext[@"spoolDir"] error:&error]) NSLog(@"%@",error.description);
+   }
+   else
+   {
+    
+
+   BOOL isDirectory=false;
+   NSData *dotData=[@"." dataUsingEncoding:NSASCIIStringEncoding];
+   NSData *headData=[@"\r\n--myboundary\r\nContent-Type: application/dicom\r\n\r\n" dataUsingEncoding:NSASCIIStringEncoding];
+   NSMutableData *inputData=[NSMutableData data];
 
    
-   //this folder is always required to remove files from classified
-   NSString *originalsDir=current[@"originalsDir"];
+   //logHandle (always new because of date suffix)
+   if (![fileManager fileExistsAtPath:thisContext[@"spoolDirLogPath"]])
+       [fileManager createFileAtPath:thisContext[@"spoolDirLogPath"] contents:nil attributes:nil];
+   NSFileHandle *logHandle=[NSFileHandle fileHandleForWritingAtPath:thisContext[@"spoolDirLogPath"]];
+   if (!logHandle)
+   {
+      NSLog(@"can not create: %@",thisContext[@"spoolDirLogPath"]);
+      logHandle=[NSFileHandle fileHandleWithStandardError];
+   }
+   else [logHandle seekToEndOfFile];
+
+   //doneSet is used to avoid processing again instances already found in originals, that is already processed
+   NSMutableSet *doneSet=[NSMutableSet set];
+   //This is why OriginalsDir needs to exist
+   NSString *originalsDir=thisContext[@"originalsDir"];
    if (![fileManager fileExistsAtPath:originalsDir])
    {
       if(![fileManager createDirectoryAtPath:originalsDir withIntermediateDirectories:YES attributes:nil error:&error])
       {
-          NSLog(@"can not create: %@: %@",originalsDir, error.description);
-          return;
+         [logHandle writeData:[[NSString stringWithFormat:@"can not create: %@: %@",originalsDir, error.description]dataUsingEncoding:NSUTF8StringEncoding]];
+          return;// !!! unfinished business
       }
+      [doneSet setSet:[NSSet setWithArray:[fileManager contentsOfDirectoryAtPath:originalsDir error:&error]]];
    }
 
-   
-   //log file
-   [[NSFileManager defaultManager] createFileAtPath:current[@"spoolDirLogPath"] contents:nil attributes:nil];
-   NSFileHandle *logHandle=[NSFileHandle fileHandleForWritingAtPath:current[@"spoolDirLogPath"]];
-   if (!logHandle)
-   {
-      NSLog(@"can not create: %@",current[@"spoolDirLogPath"]);
-      return;
-   }
-
-   
-   //variable init
-   BOOL isDirectory=false;
-    NSData *dotData=[@"." dataUsingEncoding:NSASCIIStringEncoding];
-   NSData *headData=[@"\r\n--myboundary\r\nContent-Type: application/dicom\r\n\r\n" dataUsingEncoding:NSASCIIStringEncoding];
-   NSMutableData *inputData=[NSMutableData data];
-   long long storeBucketSize=[current[@"storeBucketSize"] longLongValue];
-   NSMutableString *bucketName=[NSMutableString string];
-   long long bucketSpaceLeft=0;
-
-   
-   //we want to create this folder, if necesary, and once only
-   BOOL successDirExists=([fileManager fileExistsAtPath:current[@"successDir"]]);
-   
-   
-   //doneSet is used to avoid processing again instances already found in originals, that is already processed
-   NSMutableSet *doneSet=[NSMutableSet setWithArray:[fileManager contentsOfDirectoryAtPath:originalsDir error:&error]];
-
-
+   BOOL successDirExists=[fileManager fileExistsAtPath:thisContext[@"successDir"]];
    
 #pragma mark loop
-   
-   NSArray *iuid_times=[fileManager contentsOfDirectoryAtPath:current[@"spoolDirPath"] error:&error];
-   NSInteger maxBatchCount=[current[@"maxIperE"] integerValue];
    for (NSString *iuid_time in iuid_times)
    {
-       if (maxBatchCount==0) break;
-       maxBatchCount--;
        @autoreleasepool {
            
-          if ([iuid_time hasPrefix:@"#"]) continue;//log file
           if ([iuid_time hasPrefix:@"."]) continue;
-          NSString *iuid_timePath=[current[@"spoolDirPath"] stringByAppendingPathComponent:iuid_time];
+          NSString *iuid_timePath=[thisContext[@"spoolDir"] stringByAppendingPathComponent:iuid_time];
 
           
           //is this a directory containing versions?
@@ -106,7 +134,7 @@ void async_f_study_callback(void *context){
              NSString *returnMsg=moveVersionedInstance(
                                   fileManager,
                                   iuid_timePath,                                           //srciPath
-                                  current[@"originalsDir"],                                //dstePath
+                                  thisContext[@"originalsDir"],                            //dstePath
                                   iuid                                                     //iName
                                   );
              if (returnMsg.length) [logHandle writeData:[returnMsg dataUsingEncoding:NSUTF8StringEncoding]];
@@ -129,11 +157,11 @@ void async_f_study_callback(void *context){
              else
              {
     #pragma mark ·· failed
-                //move iuid_timePath (or its contents) to current[@"failureDir"]
+                //move iuid_timePath (or its contents) to thisContext[@"failureDir"]
                 NSString *returnMsg=moveVersionedInstance(
                                      fileManager,
                                      iuid_timePath,                                         //srciPath
-                                     current[@"failureDir"],                                //dstePath
+                                     thisContext[@"failureDir"],                            //dstePath
                                      iuid                                                   //iName
                                      );
                 if (returnMsg.length) [logHandle writeData:[returnMsg dataUsingEncoding:NSUTF8StringEncoding]];
@@ -159,8 +187,15 @@ void async_f_study_callback(void *context){
                  )
              {
                 [logHandle writeData:[[NSString stringWithFormat:@"could not parse fileMetainfo %@%@\r\n",iuid_timePath,versionSuffix] dataUsingEncoding:NSUTF8StringEncoding]];
-
-                break;
+                //move iuid_timePath (or its contents) to thisContext[@"failureDir"]
+                NSString *returnMsg=moveVersionedInstance(
+                                     fileManager,
+                                     iuid_timePath,                                         //srciPath
+                                     thisContext[@"failureDir"],                                //dstePath
+                                     iuid                                                   //iName
+                                     );
+                if (returnMsg.length) [logHandle writeData:[returnMsg dataUsingEncoding:NSUTF8StringEncoding]];
+                continue;
              }
 
 
@@ -176,12 +211,21 @@ void async_f_study_callback(void *context){
                  )
              {
                 [logHandle writeData:[[NSString stringWithFormat:@"could not parse %@%@\r\n",iuid_timePath,versionSuffix] dataUsingEncoding:NSUTF8StringEncoding]];
-                break;
+                //move iuid_timePath (or its contents) to thisContext[@"failureDir"]
+                NSString *returnMsg=moveVersionedInstance(
+                                     fileManager,
+                                     iuid_timePath,                                         //srciPath
+                                     thisContext[@"failureDir"],                                //dstePath
+                                     iuid                                                   //iName
+                                     );
+                if (returnMsg.length) [logHandle writeData:[returnMsg dataUsingEncoding:NSUTF8StringEncoding]];
+                continue;
              }
              else
              {
-    #pragma mark · compress ?
-                //NSLog(@"%@: %@",parsedAttrs[@"00000001_00020010-UI"][0],parsedAttrs[@"00000001_00020003-UI"][0]);
+    #pragma mark ·· parsed
+                
+    #pragma mark ··· compress ?
                 NSString *pixelKey=nil;
                 if (parsedAttrs[@"00000001_7FE00010-OB"])pixelKey=@"00000001_7FE00010-OB";
                 else if (parsedAttrs[@"00000001_7FE00010-OW"])pixelKey=@"00000001_7FE00010-OW";
@@ -220,31 +264,32 @@ void async_f_study_callback(void *context){
                    else
                    {
                       [logHandle writeData:[[NSString stringWithFormat:@"could not compress %@%@\r\n",iuid_timePath,versionSuffix] dataUsingEncoding:NSUTF8StringEncoding]];
-                      break;
+#pragma mark TODO move to failed
+                      continue;
                    }
                 }
 
-    #pragma mark · coerce
+    #pragma mark ··· coerce
                 
-    #pragma mark ·· fileMetainfo
-                if (current[@"coerceFileMetainfo"]) [fileMetainfoAttrs addEntriesFromDictionary:current[@"coerceFileMetainfo"]];
+    #pragma mark ···· fileMetainfo
+                if (thisContext[@"coerceFileMetainfo"]) [fileMetainfoAttrs addEntriesFromDictionary:thisContext[@"coerceFileMetainfo"]];
 
-    #pragma mark ·· blobs
-                if (current[@"coerceBlobs"]) [blobDict addEntriesFromDictionary:current[@"coerceBlobs"]];
+    #pragma mark ···· blobs
+                if (thisContext[@"coerceBlobs"]) [blobDict addEntriesFromDictionary:thisContext[@"coerceBlobs"]];
 
-    #pragma mark ·· coerceFileMetainfo
+    #pragma mark ···· coerceFileMetainfo
 
-    #pragma mark ·· replaceInFileMetainfo
+    #pragma mark ···· replaceInFileMetainfo
 
-    #pragma mark ·· supplementToFileMetainfo
+    #pragma mark ···· supplementToFileMetainfo
 
-    #pragma mark ·· removeFromFileMetainfo
+    #pragma mark ···· removeFromFileMetainfo
 
                 
                 NSArray *datasetKeys=[parsedAttrs allKeys];
                 
-    #pragma mark ·· coerceDataset
-                NSArray *coerceKeys=[current[@"coerceDataset"] allKeys];
+    #pragma mark ···· coerceDataset
+                NSArray *coerceKeys=[thisContext[@"coerceDataset"] allKeys];
                 for (NSString *coerceKey in coerceKeys)
                 {
                    NSString *keyNoSuffix=[coerceKey componentsSeparatedByString:@"-"][0];
@@ -262,11 +307,11 @@ void async_f_study_callback(void *context){
                       [parsedAttrs removeObjectForKey:keyFound];
                    }
                    //coerce
-                   [parsedAttrs setObject:current[@"coerceDataset"][coerceKey] forKey:coerceKey];
+                   [parsedAttrs setObject:thisContext[@"coerceDataset"][coerceKey] forKey:coerceKey];
                 }
 
-    #pragma mark ·· replaceInDataset
-                NSArray *replaceKeys=[current[@"replaceInDataset"] allKeys];
+    #pragma mark ···· replaceInDataset
+                NSArray *replaceKeys=[thisContext[@"replaceInDataset"] allKeys];
                 for (NSString *replaceKey in replaceKeys)
                 {
                    NSString *keyNoSuffix=[replaceKey componentsSeparatedByString:@"-"][0];
@@ -283,12 +328,12 @@ void async_f_study_callback(void *context){
                    {
                       //replace
                       [parsedAttrs removeObjectForKey:keyFound];
-                      [parsedAttrs setObject:current[@"replaceInDataset"][replaceKey] forKey:replaceKey];
+                      [parsedAttrs setObject:thisContext[@"replaceInDataset"][replaceKey] forKey:replaceKey];
                    }
                 }
 
-    #pragma mark ·· supplementToDataset
-                NSArray *supplementKeys=[current[@"supplementToDataset"] allKeys];
+    #pragma mark ···· supplementToDataset
+                NSArray *supplementKeys=[thisContext[@"supplementToDataset"] allKeys];
                 for (NSString *supplementKey in supplementKeys)
                 {
                    NSString *keyNoSuffix=[supplementKey componentsSeparatedByString:@"-"][0];
@@ -304,14 +349,14 @@ void async_f_study_callback(void *context){
                    if (!keyFound)
                    {
                       //supplement
-                      [parsedAttrs setObject:current[@"supplementToDataset"][supplementKey] forKey:supplementKey];
+                      [parsedAttrs setObject:thisContext[@"supplementToDataset"][supplementKey] forKey:supplementKey];
                    }
                 }
 
                 
-    #pragma mark ·· removeFromDataset
+    #pragma mark ···· removeFromDataset
 
-                for (NSString *removeKey in current[@"removeFromDataset"])
+                for (NSString *removeKey in thisContext[@"removeFromDataset"])
                 {
                    NSString *keyNoSuffix=[removeKey componentsSeparatedByString:@"-"][0];
                    NSString *keyFound=nil;
@@ -326,7 +371,7 @@ void async_f_study_callback(void *context){
                    if (keyFound)
                    {
                       //remove
-                      [parsedAttrs removeObjectForKey:removeKey];
+                      [parsedAttrs removeObjectForKey:keyFound];
                    }
                 }
 
@@ -335,7 +380,7 @@ void async_f_study_callback(void *context){
     #pragma mark ·· outputData init
                 NSMutableData *outputData;
     //prefix
-                if (!current[@"coercePrefix"]) outputData=[NSMutableData dataWithLength:128];
+                if (!thisContext[@"coercePrefix"]) outputData=[NSMutableData dataWithLength:128];
                 else outputData=[NSMutableData dataWithLength:128];
                 [outputData appendBytes:&DICM length:4];
     //fileMetainfo
@@ -349,8 +394,9 @@ void async_f_study_callback(void *context){
                             ) == failure
                     )
                 {
-                   NSLog(@"could not serialize group 0002. %@",fileMetainfoAttrs.description);
-                   exit(failure);
+                   [logHandle writeData:[[NSString stringWithFormat:@"could not serialize group 0002. %@",fileMetainfoAttrs.description]dataUsingEncoding:NSUTF8StringEncoding]];
+#pragma mark move to failed
+                   continue;
                 }
                 
                 [outputData appendBytes:&_0002000_tag_vr length:8];
@@ -373,87 +419,51 @@ void async_f_study_callback(void *context){
                     )
     #pragma mark ··· failure
                 {
-                   NSLog(@"could not serialize dataset. %@",parsedAttrs);
-                   //move iuid_timePath (or its contents) to current[@"failureDir"]
+                   [logHandle writeData:[[NSString stringWithFormat:@"could not serialize dataset. %@",parsedAttrs]dataUsingEncoding:NSUTF8StringEncoding]];
+
+                   //move iuid_timePath (or its contents) to thisContext[@"failureDir"]
                    NSString *returnMsg=moveVersionedInstance(
                                         fileManager,
-                                        iuid_timePath,           //srciPath
-                                        current[@"failureDir"],  //dstePath
-                                        iuid                     //iName
+                                        iuid_timePath,               //srciPath
+                                        thisContext[@"failureDir"],  //dstePath
+                                        iuid                         //iName
                                         );
+                   
                    if (returnMsg.length) [logHandle writeData:[returnMsg dataUsingEncoding:NSUTF8StringEncoding]];
                    continue;
                 }
                 else
                 {
     #pragma mark ··· success
-                   
-                   if (storeBucketSize == 0)
-    #pragma mark ···· directly into EIUID
-                   {
-                      if (!successDirExists)
-                      {
-                         if (![fileManager createDirectoryAtPath:current[@"successDir"] withIntermediateDirectories:YES attributes:nil error:&error])
-                         {
-                            [logHandle writeData:[[NSString stringWithFormat:@"can not create %@\r\n",current[@"successDir"]] dataUsingEncoding:NSUTF8StringEncoding]];
-                            break;
-                         }
-                         successDirExists=true;
-                      }
-                      
-                      [outputData writeToFile:[current[@"successDir"] stringByAppendingPathComponent:iuid] atomically:NO];
-                   }
-                   else
-    #pragma mark ···· into store buckets
-                   {
-                      //67 = mime head 51 + space + space + mime tail 16
-                      if (outputData.length > [current[@"storeBucketSize"] longLongValue]-67)
-                      {
-                         [logHandle writeData:[[NSString stringWithFormat:@"%@ dataset (%lu + mime) larger than bucket (%lld). Increase bucket size\r\n",iuid,(unsigned long)outputData.length,[current[@"storeBucketSize"] longLongValue] ] dataUsingEncoding:NSUTF8StringEncoding]];
-                         break;
-                      }
-                      
-                      bucketSpaceLeft-=outputData.length;
-                      if (bucketSpaceLeft < 69)
-                      {
-                         //69 for mime tail?
-                         //replaced by cat * tail i storedicom
-                         //new bucket
-                         [bucketName setString:[[NSUUID UUID]UUIDString]];
-                         bucketSpaceLeft=[current[@"storeBucketSize"] longLongValue]-outputData.length;
-                         successDirExists=false;
-                      }
 
-                      NSString *bucketDir=[current[@"successDir"]
-                                           stringByAppendingPathComponent:bucketName];
-                      if (!successDirExists)
-                      {
-                         if (![fileManager createDirectoryAtPath:bucketDir withIntermediateDirectories:YES attributes:nil error:&error])
-                         {
-                            [logHandle writeData:[[NSString stringWithFormat:@"can not create %@\r\n",bucketDir] dataUsingEncoding:NSUTF8StringEncoding]];
-                            break;
-                         }
-                         successDirExists=true;
-                      }
+                  if (!successDirExists)
+                  {
+                     if (![fileManager createDirectoryAtPath:thisContext[@"successDir"] withIntermediateDirectories:YES attributes:nil error:&error])
+                     {
+                         [logHandle writeData:[[NSString stringWithFormat:@"can not create %@\r\n",thisContext[@"successDir"]] dataUsingEncoding:NSUTF8StringEncoding]];
+                         break;
+                     }
+                     successDirExists=true;
+                  }
                       
-                      [outputData replaceBytesInRange:NSMakeRange(0,0) withBytes:headData.bytes length:51 ];
-                      [outputData writeToFile:[bucketDir stringByAppendingPathComponent:[iuid stringByAppendingPathExtension:@"part"]] atomically:NO];
-                   }
+                  [outputData replaceBytesInRange:NSMakeRange(0,0) withBytes:headData.bytes length:51 ];
+                  [outputData writeToFile:[thisContext[@"successDir"] stringByAppendingPathComponent:[iuid stringByAppendingPathExtension:@"part"]] atomically:NO];
+                   
                    
                    
     #pragma mark ···· original to originalsDir
 
-                   //move iuid_timePath (or its contents) to current[@"originalsDir"] iuid
-                   NSString *returnMsg=moveVersionedInstance(
+                  //move iuid_timePath (or its contents) to thisContext[@"originalsDir"] iuid
+                  NSString *returnMsg=moveVersionedInstance(
                                         fileManager,
                                         iuid_timePath,            //srciPath
-                                        current[@"originalsDir"], //dstePath
+                                        thisContext[@"originalsDir"], //dstePath
                                         iuid                      //iName
                                         );
-                   if (returnMsg.length) [logHandle writeData:[returnMsg dataUsingEncoding:NSUTF8StringEncoding]];
+                  if (returnMsg.length) [logHandle writeData:[returnMsg dataUsingEncoding:NSUTF8StringEncoding]];
 
                    
-                   [doneSet addObject:[current[@"originalsDir"] stringByAppendingPathComponent:iuid]];
+                  [doneSet addObject:[thisContext[@"originalsDir"] stringByAppendingPathComponent:iuid]];
                 }//end parsed
                 [inputData setLength:0];
              }
@@ -461,8 +471,11 @@ void async_f_study_callback(void *context){
        }
        [logHandle writeData:dotData];
    }//end loop
-   
+
    [logHandle closeFile];
+   [seriesDONE addObject:thisContext[@"Siuid"]];
+   }
+   [seriesTODO removeObject:thisContext[@"Siuid"]];
 }
 
 
@@ -471,20 +484,25 @@ void async_f_study_callback(void *context){
 enum CDargName{
    CDargCmd=0,
    
-   CDargSpool,
-   CDargSuccess,
-   CDargFailure,
-   CDargOriginals,
+   CDargSpool,                //receive
+   CDargSuccess,              //send
+   CDargFailure,              //coerce error
+   CDargOriginals,            //destination where to move originals of successfull coertion
    
-   CDargSourceMismatch,
-   CDargCdawlMismatch,
-   CDargPacsMismatch,
+   CDargSourceMismatch,       //destination where to move originals of source mismatch
+   CDargCdamwlMismatch,       //destination where to move originals of cdawl mismatch
+   CDargPacsMismatch,         //destination where to move originals of pacs mismatch
    
-   CDargCoercedicomFile,
-   CDargCdamwlDir,
-   CDargPacsSearchUrl,
+   CDargCoercedicomFile,      //json
+   CDargCdamwlDir,            //registry where to verify objects against cdawl
+   CDargPacsSearchUrl,        //DICOMweb url for pacs verifications
    
-   CDargAsyncMonitorLoopsWait
+   CDargUntilLastDispatch,    //max time in seconds before ending the execution
+   CDargCores,                //1 is sequential on one core
+   CDsinceLastSeriesModif     //min time in seconds without modification in series dir before processing
+                              //may be because of receiving
+                              //may be because of previous processing
+
 };
 
 
@@ -496,21 +514,21 @@ int main(int argc, const char * argv[]){
     NSError *error=nil;
     BOOL isDirectory=false;
 
+
     NSProcessInfo *processInfo=[NSProcessInfo processInfo];
     NSArray *args=[processInfo arguments];
-    unsigned int waitSeconds=0;//no GDCasync
-    NSInteger maxIperE=NSNotFound;
-    NSString *argAsync = args[CDargAsyncMonitorLoopsWait];
-    if (argAsync)
+    if (args.count != 14)
     {
-       NSArray *argAsyncxs=[argAsync componentsSeparatedByString:@"x"];
-       if (argAsyncxs.count==2)
-       {
-          maxIperE=[argAsyncxs[0] integerValue];
-          waitSeconds=(unsigned int)[[argAsyncxs[1] substringToIndex:[argAsyncxs[1] length] -1 ] integerValue];
-       }
-    }
-    
+         NSLog(@"bad args count: %@",[args description]);
+         exit(1);
+    };
+
+    NSDate *lastDispatchDate=[NSDate dateWithTimeIntervalSinceNow:[args[CDargUntilLastDispatch] intValue]];
+
+    int sinceLastSeriesModif=[args[CDsinceLastSeriesModif] intValue] * -1;
+      
+#pragma mark classified
+
     if (![fileManager fileExistsAtPath:args[CDargSpool] isDirectory:&isDirectory] || !isDirectory)
     {
          NSLog(@"CLASSIFIED directory not found: %@",args[CDargSpool]);
@@ -538,7 +556,9 @@ int main(int argc, const char * argv[]){
     }
 
     
-    
+
+
+      
 #pragma mark coercedicom json directives
     
     NSData *jsonData=[NSData dataWithContentsOfFile:args[CDargCoercedicomFile]];
@@ -554,12 +574,14 @@ int main(int argc, const char * argv[]){
         NSLog(@"bad coercedicom json file:%@ %@",args[CDargCoercedicomFile],[error description]);
         exit(1);
     }
+      
+    //array corresponding to prioridad
     NSMutableArray *sourcesToBeProcessed=[NSMutableArray array];
 /*
 format:
 [
 {
-  org:string (pacs aet)
+  org:string (destination pacs aet)
  
   regex:string (scu pattern)
   scu:string (scu matching)
@@ -638,17 +660,16 @@ The root is an array where items are clasified by priority of execution
       }
         
 #pragma mark sourcesToBeProcessed
-    NSMutableArray *studyTasks=[NSMutableArray array];
     if (sourcesToBeProcessed.count)
     {
-       NSDate *now=[NSDate date];
+       NSDate *refTime=[NSDate date];
        static NSISO8601DateFormatter *ISO8601yyyyMMdd;
        ISO8601yyyyMMdd=[[NSISO8601DateFormatter alloc]init];
        ISO8601yyyyMMdd.formatOptions=NSISO8601DateFormatWithFullDate;
-       NSString *todayDCMString=[ISO8601yyyyMMdd stringFromDate:now];
-       NSDateFormatter *DICMDT = [[NSDateFormatter alloc]init];
-       [DICMDT setDateFormat:@"yyyyMMddhhmmss"];
-       NSString *timeDCMString=[DICMDT stringFromDate:now];
+       NSString *todayDCMString=[ISO8601yyyyMMdd stringFromDate:refTime];
+       //NSDateFormatter *DICMDT = [[NSDateFormatter alloc]init];
+       //[DICMDT setDateFormat:@"yyyyMMddhhmmss"];
+       //NSString *timeDCMString=[DICMDT stringFromDate:refTime];
 
 #pragma mark cdawldicom init
        NSString *wltodayFolder=nil;
@@ -675,70 +696,52 @@ The root is an array where items are clasified by priority of execution
               wltodayEUIDkeys=[fileManager contentsOfDirectoryAtPath:wltodayEUIDFolder error:nil];
           }
            
-        }
+       }
        
-       dispatch_queue_attr_t attr=dispatch_queue_attr_make_with_autorelease_frequency(DISPATCH_QUEUE_CONCURRENT,DISPATCH_AUTORELEASE_FREQUENCY_WORK_ITEM);
-
-
-       dispatch_queue_t studyQueue = dispatch_queue_create("com.opendicom.coercedicom.studyqueue", attr);
+#pragma mark dispatch queue init ?
+       BOOL useDispatchQueue=false;
+       dispatch_queue_attr_t attr;
+       dispatch_queue_t seriesqueue;
+       int cores=[args[CDargCores] intValue];
+       if ((cores < 1) || (cores > 63)) cores=1;
+       if (cores > 1)
+       {
+          useDispatchQueue=true;
+          attr=dispatch_queue_attr_make_with_autorelease_frequency(DISPATCH_QUEUE_CONCURRENT,DISPATCH_AUTORELEASE_FREQUENCY_WORK_ITEM);
+          seriesqueue = dispatch_queue_create("com.opendicom.coercedicom.seriesqueue", attr);
+       }
 
 
 #pragma mark - source loop
+       seriesTODO=[NSMutableSet set];
+       seriesDONE=[NSMutableSet set];
        for (NSDictionary *sourceDict in sourcesToBeProcessed)
        {
-            NSString *sourceDir=[args[CDargSpool] stringByAppendingPathComponent:sourceDict[@"scu"]];
-            NSArray *Eiuids=[fileManager contentsOfDirectoryAtPath:sourceDir error:nil];
-
-          
+         NSString *sourceDir=[args[CDargSpool] stringByAppendingPathComponent:sourceDict[@"scu"]];
+         NSArray *Eiuids=[fileManager contentsOfDirectoryAtPath:sourceDir error:nil];
 #pragma mark · StudyUIDs loop
          for (NSString *Eiuid in Eiuids)
          {
-            
             // starting with dot ?
             NSString *studyPath=[sourceDir stringByAppendingPathComponent:Eiuid];
             if ([Eiuid hasPrefix:@"."])
             {
                 if (![fileManager removeItemAtPath:studyPath error:&error]) NSLog(@"can not remove %@. %@",studyPath,error.description);
                 continue;
-             }
-
-            //empty?
-            NSArray *StudyContents=[fileManager contentsOfDirectoryAtPath:studyPath error:nil];
-            NSUInteger StudyCount=StudyContents.count;
-            for (NSString *iName in StudyContents)
-            {
-                if ([iName hasPrefix:@"."]) StudyCount--;
-                if ([iName hasPrefix:@"#"]) StudyCount--;
             }
-            if (StudyCount==0) continue;
+            //does the study contain series directory?
+            NSMutableSet *Siuids=[NSMutableSet setWithArray:[fileManager contentsOfDirectoryAtPath:studyPath error:nil]];
+            for (NSString *Siuid in [Siuids allObjects] )
+            {
+                if ([Siuid hasPrefix:@"."]) [Siuids removeObject:Siuid];//case of invisible
+                if ([Siuid hasSuffix:@".log"])
+                    [Siuids removeObject:Siuid];
+            }
+            if (Siuids.count==0) continue;//does not contain series directory
 
-            
-            NSMutableDictionary *studyTaskDict=[NSMutableDictionary dictionaryWithDictionary:sourceDict];
-             
-             [studyTaskDict setObject:[NSNumber numberWithInteger:maxIperE] forKey:@"maxIperE"];
-            
-            [studyTaskDict setObject:studyPath forKey:@"spoolDirPath"];
-            [studyTaskDict setObject:[studyPath stringByAppendingFormat:@"/#%@.txt",timeDCMString] forKey:@"spoolDirLogPath"];
 
 
-            [studyTaskDict setObject:
-             [[[args[CDargSuccess]
-               stringByAppendingPathComponent:sourceDict[@"coerceDataset"][@"00000001_00080080-LO"][0]]
-               stringByAppendingPathComponent:sourceDict[@"scu"]]
-              stringByAppendingPathComponent:Eiuid
-              ] forKey:@"successDir"];
-            [studyTaskDict setObject:
-             [[args[CDargFailure]
-               stringByAppendingPathComponent:sourceDict[@"scu"]]
-              stringByAppendingPathComponent:Eiuid
-              ] forKey:@"failureDir"];
-            [studyTaskDict setObject:
-             [[args[CDargOriginals]
-               stringByAppendingPathComponent:sourceDict[@"scu"]]
-              stringByAppendingPathComponent:Eiuid
-              ] forKey:@"originalsDir"];
-
-#pragma mark (2) check with cdawldicom
+#pragma mark ·· check with cdawldicom (TODO)
 /*
             //add eventual additional coercion in correspondinng "coerceDataset" mutable dictionary of the study
             if (wltodayEUIDkeys)
@@ -913,35 +916,90 @@ The root is an array where items are clasified by priority of execution
 
             }
 */
-            
-            
-            [studyTasks addObject:studyTaskDict];
-            //dispatch_get_global_queue(QOS_CLASS_BACKGROUND, 0 ),
 
-            if (waitSeconds!=0) //multithread
+            
+#pragma mark ·· SeriesUIDs loop the set contains series dirs only
+            
+
+            
+            //time remains for a new series?
+            NSDate *now=[NSDate date];
+            while (Siuids.count && ([lastDispatchDate compare:now ] == NSOrderedDescending))
             {
-            dispatch_async_f(
-               studyQueue,
-               [NSDictionary dictionaryWithDictionary:studyTaskDict],
-               async_f_study_callback
-               );//(__bridge void * _Nullable)(studyTaskDict),
-            }
-            else
-            {
-               async_f_study_callback([NSDictionary dictionaryWithDictionary:studyTaskDict]);//run sequentially on one thread
-            }
-         } //NSLog(@"end of study loop");
-       } //NSLog(@"end of source loop");
+                NSString *Siuid=[Siuids anyObject];
+                [Siuids removeObject:Siuid];
+
+                NSDate *modificationDate=[fileManager attributesOfItemAtPath:[studyPath stringByAppendingPathComponent:Siuid] error:nil][NSFileModificationDate];
+                if ( [modificationDate timeIntervalSinceNow] > sinceLastSeriesModif) continue;
+                //log last modified less than one minute ago
+                //may be because of receiving
+                //may be because of previous processing
+                
+                //all cores already in use?
+                while (seriesTODO.count >= cores)
+                {
+                    [NSThread sleepForTimeInterval:1];//wait 1 second
+                    NSLog(@"TODO:%lu   DONE:%lu",(unsigned long)seriesTODO.count,(unsigned long)seriesDONE.count);
+
+                }
+                                
+                [seriesTODO addObject:Siuid];
+               
+                NSMutableDictionary *seriesTaskDict=[NSMutableDictionary dictionaryWithDictionary:sourceDict];
+
+                [seriesTaskDict setObject:Siuid forKey:@"Siuid"];
+                [seriesTaskDict setObject:
+                   [studyPath stringByAppendingPathComponent:Siuid]
+                   forKey:@"spoolDir"];
+                [seriesTaskDict setObject:
+                   [NSString stringWithFormat:@"%@/%@/%@/%@/%@",
+                      args[CDargSuccess],
+                      sourceDict[@"coerceDataset"][@"00000001_00080080-LO"][0],
+                      sourceDict[@"scu"],
+                      Eiuid,
+                      Siuid]
+                    forKey:@"successDir"];
+                [seriesTaskDict setObject:
+                    [NSString stringWithFormat:@"%@/%@/%@/%@",
+                       args[CDargFailure],
+                       sourceDict[@"scu"],
+                       Eiuid,
+                       Siuid]
+                    forKey:@"failureDir"];
+                [seriesTaskDict setObject:
+                   [NSString stringWithFormat:@"%@/%@/%@/%@",
+                      args[CDargOriginals],
+                      sourceDict[@"scu"],
+                      Eiuid,
+                      Siuid]
+                    forKey:@"originalsDir"];
+                [seriesTaskDict setObject:
+                   [studyPath stringByAppendingFormat:@"/%@.log",Siuid]
+                   forKey:@"spoolDirLogPath"];
+
+ 
+              
+                if (useDispatchQueue) //multithread
+                   dispatch_async_f( seriesqueue, [NSDictionary dictionaryWithDictionary:seriesTaskDict], series_callback );
+                else //run sequentially on the main thread
+                   series_callback([NSDictionary dictionaryWithDictionary:seriesTaskDict]);
+                
+              } //NSLog(@"end of series loop");
+           } //NSLog(@"end of study loop");
+        } //NSLog(@"end of source loop");
     } //NSLog(@"end of sources to be processed");
       
-      
-#pragma mark execution time for dispatch_asyncf before exiting
-   if (waitSeconds!=0)
-       [NSThread sleepForTimeInterval:(float)waitSeconds];
-   returnInt=(int)studyTasks.count;
+
+#pragma mark waiting for last series to complete
+   while (seriesTODO.count > 0)
+   {
+      [NSThread sleepForTimeInterval:5];//espera 5 segundos
+      NSLog(@"TODO:%lu",(unsigned long)seriesTODO.count);
+   }
 }//end autoreleaspool
   return returnInt;//returns the number studuies processed
 }
+
 
 
 

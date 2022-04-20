@@ -56,7 +56,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Volumes/IN/SEND"
+            argument = "/Volumes/IN/FORWARDING_AET/SEND"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
@@ -80,7 +80,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Users/Shared/coercedicom/coercedicom.json"
+            argument = "/Users/Shared/opendicom/coercedicom/RECEIVING_AET/coercedicom.json"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
@@ -92,7 +92,15 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "60x0s"
+            argument = "60"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "4"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "60"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
