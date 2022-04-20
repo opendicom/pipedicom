@@ -95,7 +95,8 @@ cfg:
       [doneSet setSet:[NSSet setWithArray:[fileManager contentsOfDirectoryAtPath:originalsDir error:&error]]];
    }
 
-   BOOL successDirExists=[fileManager fileExistsAtPath:thisContext[@"successDir"]];
+   NSString *branchSend=[NSString stringWithFormat:@"%@/%@/SEND",thisContext[@"successDir"],thisContext[@"branch"]];
+   BOOL successDirExists=[fileManager fileExistsAtPath:branchSend];
    
 #pragma mark loop
    for (NSString *iuid_time in iuid_times)
@@ -435,19 +436,19 @@ cfg:
                 else
                 {
     #pragma mark ··· success
-
+                   
                   if (!successDirExists)
                   {
-                     if (![fileManager createDirectoryAtPath:thisContext[@"successDir"] withIntermediateDirectories:YES attributes:nil error:&error])
+                     if (![fileManager createDirectoryAtPath:branchSend withIntermediateDirectories:YES attributes:nil error:&error])
                      {
-                         [logHandle writeData:[[NSString stringWithFormat:@"can not create %@\r\n",thisContext[@"successDir"]] dataUsingEncoding:NSUTF8StringEncoding]];
+                         [logHandle writeData:[[NSString stringWithFormat:@"can not create %@\r\n",branchSend] dataUsingEncoding:NSUTF8StringEncoding]];
                          break;
                      }
                      successDirExists=true;
                   }
                       
                   [outputData replaceBytesInRange:NSMakeRange(0,0) withBytes:headData.bytes length:51 ];
-                  [outputData writeToFile:[thisContext[@"successDir"] stringByAppendingPathComponent:[iuid stringByAppendingPathExtension:@"part"]] atomically:NO];
+                  [outputData writeToFile:[branchSend stringByAppendingPathComponent:[iuid stringByAppendingPathExtension:@"part"]] atomically:NO];
                    
                    
                    
