@@ -95,8 +95,7 @@ cfg:
       [doneSet setSet:[NSSet setWithArray:[fileManager contentsOfDirectoryAtPath:originalsDir error:&error]]];
    }
 
-   NSString *branchSend=[NSString stringWithFormat:@"%@/%@/SEND",thisContext[@"successDir"],thisContext[@"branch"]];
-   BOOL successDirExists=[fileManager fileExistsAtPath:branchSend];
+   BOOL successDirExists=[fileManager fileExistsAtPath:thisContext[@"successDir"]];
    
 #pragma mark loop
    for (NSString *iuid_time in iuid_times)
@@ -439,16 +438,16 @@ cfg:
                    
                   if (!successDirExists)
                   {
-                     if (![fileManager createDirectoryAtPath:branchSend withIntermediateDirectories:YES attributes:nil error:&error])
+                     if (![fileManager createDirectoryAtPath:thisContext[@"successDir"] withIntermediateDirectories:YES attributes:nil error:&error])
                      {
-                         [logHandle writeData:[[NSString stringWithFormat:@"can not create %@\r\n",branchSend] dataUsingEncoding:NSUTF8StringEncoding]];
+                         [logHandle writeData:[[NSString stringWithFormat:@"can not create %@\r\n",thisContext[@"successDir"]] dataUsingEncoding:NSUTF8StringEncoding]];
                          break;
                      }
                      successDirExists=true;
                   }
                       
                   [outputData replaceBytesInRange:NSMakeRange(0,0) withBytes:headData.bytes length:51 ];
-                  [outputData writeToFile:[branchSend stringByAppendingPathComponent:[iuid stringByAppendingPathExtension:@"part"]] atomically:NO];
+                  [outputData writeToFile:[thisContext[@"successDir"] stringByAppendingPathComponent:[iuid stringByAppendingPathExtension:@"part"]] atomically:NO];
                    
                    
                    
@@ -702,7 +701,7 @@ The root is an array where items are clasified by priority of execution
 #pragma mark dispatch queue init ?
        BOOL useDispatchQueue=false;
        dispatch_queue_attr_t attr;
-       dispatch_queue_t seriesqueue;
+       dispatch_queue_t seriesqueue=nil;
        int cores=[args[CDargCores] intValue];
        if ((cores < 1) || (cores > 63)) cores=1;
        if (cores > 1)
@@ -953,9 +952,9 @@ The root is an array where items are clasified by priority of execution
                    [studyPath stringByAppendingPathComponent:Siuid]
                    forKey:@"spoolDir"];
                 [seriesTaskDict setObject:
-                   [NSString stringWithFormat:@"%@/%@/%@/%@/%@",
+                   [NSString stringWithFormat:@"%@/%@/SEND/%@/%@/%@",
                       args[CDargSuccess],
-                      sourceDict[@"coerceDataset"][@"00000001_00080080-LO"][0],
+                      sourceDict[@"branch"],
                       sourceDict[@"scu"],
                       Eiuid,
                       Siuid]
