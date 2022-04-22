@@ -2,5 +2,6 @@
 "regex":"^.*",
 "coerceDataset":{ "00000001_00080080-LO" :[ "asseMALDONADO" ]},
 "removeFromDataset":[ "00000001_00081060-PN"],
-"branch":"DCM4CHEE"
+"branch":"asseMALDONADO",
+"pacsAET":"DCM4CHEE"
 }]

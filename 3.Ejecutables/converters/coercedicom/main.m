@@ -69,7 +69,6 @@ cfg:
    NSData *headData=[@"\r\n--myboundary\r\nContent-Type: application/dicom\r\n\r\n" dataUsingEncoding:NSASCIIStringEncoding];
    NSMutableData *inputData=[NSMutableData data];
 
-   
    //logHandle (always new because of date suffix)
    if (![fileManager fileExistsAtPath:thisContext[@"spoolDirLogPath"]])
        [fileManager createFileAtPath:thisContext[@"spoolDirLogPath"] contents:nil attributes:nil];
@@ -581,10 +580,11 @@ int main(int argc, const char * argv[]){
 format:
 [
 {
-  org:string (destination pacs aet)
- 
+  pacsAET:string (destination)
+  branch:string
   regex:string (scu pattern)
   scu:string (scu matching)
+  priority:%02ld
  
   coercePrefix:base64
   coerceBlobs:{}
@@ -614,12 +614,14 @@ The root is an array where items are clasified by priority of execution
 "success", "failure", "done" added for each study
 */
 
-    for (NSDictionary *matchDict in whiteList)
+    for (long matchIndex=0; matchIndex<whiteList.count; matchIndex++)
     {
+        NSDictionary *matchDict=whiteList[matchIndex];
         NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:matchDict[@"regex"] options:0 error:&error];
         if (!regex)
         {
             NSLog(@"bad coercedicom json file:%@ item:%@ %@",args[CDargCoercedicomFile],matchDict.description,[error description]);
+            exit(1);
         }
        
        //loop sourcesBeforeMapping for matching regex filter
@@ -641,7 +643,8 @@ The root is an array where items are clasified by priority of execution
              else
              {
                 [sourcesToBeProcessed addObject:[NSMutableDictionary dictionaryWithDictionary:matchDict]];
-                [sourcesToBeProcessed.lastObject setObject:sourcesBeforeMapping[i] forKey:@"scu"];
+                 [sourcesToBeProcessed.lastObject setObject:sourcesBeforeMapping[i] forKey:@"scu"];
+                 [sourcesToBeProcessed.lastObject setObject:[NSString stringWithFormat:@"%02ld=",matchIndex] forKey:@"priority"];
              }
              [sourcesBeforeMapping removeObjectAtIndex:i];
           }
@@ -952,9 +955,11 @@ The root is an array where items are clasified by priority of execution
                    [studyPath stringByAppendingPathComponent:Siuid]
                    forKey:@"spoolDir"];
                 [seriesTaskDict setObject:
-                   [NSString stringWithFormat:@"%@/%@/SEND/%@/%@/%@",
+                     [NSString stringWithFormat:@"%@/%@/SEND/%@/%@%@/%@/%@",
                       args[CDargSuccess],
+                      sourceDict[@"pacsAET"],
                       sourceDict[@"branch"],
+                      sourceDict[@"priority"],
                       sourceDict[@"scu"],
                       Eiuid,
                       Siuid]
