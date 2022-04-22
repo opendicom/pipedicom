@@ -17,7 +17,8 @@ const UInt16 _0002001_value=0x0001;
 
 static NSMutableSet *seriesTODO=nil;//for detached series processes monitoring
 static NSMutableSet *seriesDONE=nil;//for detached series processes monitoring
-
+static NSData *dotData=nil;
+static NSData *headData=nil;
 void series_callback(void *context){
    NSDictionary *thisContext = (NSDictionary*) context;
    /*
@@ -53,26 +54,28 @@ cfg:
    NSError *error=nil;
    NSArray *iuid_times=[fileManager contentsOfDirectoryAtPath:thisContext[@"spoolDir"] error:&error];
    NSUInteger iuidCount=iuid_times.count;
-   if (
+if (
           (iuidCount==0)
        ||((iuidCount==1) && [iuid_times[0] hasPrefix:@"."])
        )
-   {
+{
        if (![fileManager removeItemAtPath:thisContext[@"spoolDir"] error:&error]) NSLog(@"%@",error.description);
-   }
-   else
-   {
+}
+else
+{
     
 
    BOOL isDirectory=false;
-   NSData *dotData=[@"." dataUsingEncoding:NSASCIIStringEncoding];
-   NSData *headData=[@"\r\n--myboundary\r\nContent-Type: application/dicom\r\n\r\n" dataUsingEncoding:NSASCIIStringEncoding];
    NSMutableData *inputData=[NSMutableData data];
 
    //logHandle (always new because of date suffix)
    if (![fileManager fileExistsAtPath:thisContext[@"spoolDirLogPath"]])
        [fileManager createFileAtPath:thisContext[@"spoolDirLogPath"] contents:nil attributes:nil];
-   NSFileHandle *logHandle=[NSFileHandle fileHandleForWritingAtPath:thisContext[@"spoolDirLogPath"]];
+   NSFileHandle *logHandle=nil;
+      
+   @try {
+
+   logHandle=[NSFileHandle fileHandleForWritingAtPath:thisContext[@"spoolDirLogPath"]];
    if (!logHandle)
    {
       NSLog(@"can not create: %@",thisContext[@"spoolDirLogPath"]);
@@ -471,10 +474,15 @@ cfg:
        [logHandle writeData:dotData];
    }//end loop
 
-   [logHandle closeFile];
    [seriesDONE addObject:thisContext[@"Siuid"]];
-   }
-   [seriesTODO removeObject:thisContext[@"Siuid"]];
+  }@catch (NSException *exception) {
+      NSLog(@"%@", exception.reason);
+  }
+  @finally {
+   [logHandle closeFile];
+  }
+ }
+ [seriesTODO removeObject:thisContext[@"Siuid"]];
 }
 
 
@@ -507,6 +515,9 @@ enum CDargName{
 
 int main(int argc, const char * argv[]){
    int returnInt=0;
+   dotData=[@"." dataUsingEncoding:NSASCIIStringEncoding];
+   headData=[@"\r\n--myboundary\r\nContent-Type: application/dicom\r\n\r\n" dataUsingEncoding:NSASCIIStringEncoding];
+
    @autoreleasepool {
 
     NSFileManager *fileManager=[NSFileManager defaultManager];
