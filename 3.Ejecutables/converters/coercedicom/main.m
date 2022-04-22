@@ -68,13 +68,12 @@ else
    BOOL isDirectory=false;
    NSMutableData *inputData=[NSMutableData data];
 
-   //logHandle (always new because of date suffix)
-   if (![fileManager fileExistsAtPath:thisContext[@"spoolDirLogPath"]])
-       [fileManager createFileAtPath:thisContext[@"spoolDirLogPath"] contents:nil attributes:nil];
    NSFileHandle *logHandle=nil;
       
    @try {
-
+   //logHandle (always new because of date suffix)
+   if (![fileManager fileExistsAtPath:thisContext[@"spoolDirLogPath"]])
+       [fileManager createFileAtPath:thisContext[@"spoolDirLogPath"] contents:nil attributes:nil];
    logHandle=[NSFileHandle fileHandleForWritingAtPath:thisContext[@"spoolDirLogPath"]];
    if (!logHandle)
    {
@@ -82,7 +81,7 @@ else
       logHandle=[NSFileHandle fileHandleWithStandardError];
    }
    else [logHandle seekToEndOfFile];
-
+       
    //doneSet is used to avoid processing again instances already found in originals, that is already processed
    NSMutableSet *doneSet=[NSMutableSet set];
    //This is why OriginalsDir needs to exist
@@ -477,6 +476,7 @@ else
    [seriesDONE addObject:thisContext[@"Siuid"]];
   }@catch (NSException *exception) {
       NSLog(@"%@", exception.reason);
+      [logHandle writeData:[exception.reason  dataUsingEncoding:NSUTF8StringEncoding]];
   }
   @finally {
    [logHandle closeFile];
@@ -1010,7 +1010,7 @@ The root is an array where items are clasified by priority of execution
    while (seriesTODO.count > 0)
    {
       [NSThread sleepForTimeInterval:5];//espera 5 segundos
-      NSLog(@"TODO:%lu",(unsigned long)seriesTODO.count);
+       NSLog(@"TODO:%lu   DONE:%lu",(unsigned long)seriesTODO.count,(unsigned long)seriesDONE.count);
    }
 }//end autoreleaspool
   return returnInt;//returns the number studuies processed
