@@ -492,7 +492,7 @@ else
                   }
                       
                   [outputData replaceBytesInRange:NSMakeRange(0,0) withBytes:headData.bytes length:51 ];
-                  [outputData writeToFile:[thisContext[@"successDir"] stringByAppendingPathComponent:[iuid stringByAppendingPathExtension:@"part"]] atomically:NO];
+                  [outputData writeToFile:[thisContext[@"successDir"] stringByAppendingPathComponent:[iuid stringByAppendingPathExtension:@"part"]] atomically:YES];
                    
                    
                    
@@ -699,7 +699,7 @@ The root is an array where items are clasified by priority of execution
              {
                 [sourcesToBeProcessed addObject:[NSMutableDictionary dictionaryWithDictionary:matchDict]];
                  [sourcesToBeProcessed.lastObject setObject:sourcesBeforeMapping[i] forKey:@"scu"];
-                 [sourcesToBeProcessed.lastObject setObject:[NSString stringWithFormat:@"%02ld=",matchIndex] forKey:@"priority"];
+                 [sourcesToBeProcessed.lastObject setObject:[NSString stringWithFormat:@"%02ld^",matchIndex] forKey:@"priority"];
              }
              [sourcesBeforeMapping removeObjectAtIndex:i];
           }
@@ -905,7 +905,7 @@ The root is an array where items are clasified by priority of execution
                 while (seriesTODO.count >= cores)
                 {
                     [NSThread sleepForTimeInterval:1];//wait 1 second
-                    NSLog(@"TODO:%lu   DONE:%lu",(unsigned long)seriesTODO.count,(unsigned long)seriesDONE.count);
+#pragma mark        NSLog(@"TODO:%lu   DONE:%lu",(unsigned long)seriesTODO.count,(unsigned long)seriesDONE.count);
 
                 }
                                 
@@ -962,7 +962,7 @@ The root is an array where items are clasified by priority of execution
    while (seriesTODO.count > 0)
    {
       [NSThread sleepForTimeInterval:5];//espera 5 segundos
-       NSLog(@"TODO:%lu   DONE:%lu",(unsigned long)seriesTODO.count,(unsigned long)seriesDONE.count);
+#pragma mark NSLog(@"TODO:%lu   DONE:%lu",(unsigned long)seriesTODO.count,(unsigned long)seriesDONE.count);
    }
 }//end autoreleaspool
   return returnInt;//returns the number studuies processed
