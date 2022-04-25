@@ -265,7 +265,14 @@ else
                    else
                    {
                       [logHandle writeData:[[NSString stringWithFormat:@"could not compress %@%@\r\n",iuid_timePath,versionSuffix] dataUsingEncoding:NSUTF8StringEncoding]];
-#pragma mark TODO move to failed
+                      NSString *returnMsg=moveVersionedInstance(
+                                           fileManager,
+                                           iuid_timePath,                                         //srciPath
+                                           thisContext[@"failureDir"],                            //dstePath
+                                           iuid                                                   //iName
+                                           );
+                      if (returnMsg.length) [logHandle writeData:[returnMsg dataUsingEncoding:NSUTF8StringEncoding]];
+
                       continue;
                    }
                 }
@@ -286,8 +293,8 @@ else
 
     #pragma mark ···· removeFromFileMetainfo
 
-                
-                NSArray *datasetKeys=[parsedAttrs allKeys];
+ 
+                NSMutableArray *datasetKeys=[NSMutableArray arrayWithArray:[parsedAttrs allKeys] ];
                 
     #pragma mark ···· coerceDataset
                 NSArray *coerceKeys=[thisContext[@"coerceDataset"] allKeys];
@@ -306,9 +313,11 @@ else
                    if (keyFound)
                    {
                       [parsedAttrs removeObjectForKey:keyFound];
+                      [datasetKeys removeObject:keyFound];
                    }
                    //coerce
                    [parsedAttrs setObject:thisContext[@"coerceDataset"][coerceKey] forKey:coerceKey];
+                    [datasetKeys addObject:coerceKey];
                 }
 
     #pragma mark ···· replaceInDataset
@@ -329,7 +338,8 @@ else
                    {
                       //replace
                       [parsedAttrs removeObjectForKey:keyFound];
-                      [parsedAttrs setObject:thisContext[@"replaceInDataset"][replaceKey] forKey:replaceKey];
+                      [datasetKeys removeObject:keyFound];                  [parsedAttrs setObject:thisContext[@"replaceInDataset"][replaceKey] forKey:replaceKey];
+                       [datasetKeys addObject:replaceKey];
                    }
                 }
 
@@ -351,6 +361,7 @@ else
                    {
                       //supplement
                       [parsedAttrs setObject:thisContext[@"supplementToDataset"][supplementKey] forKey:supplementKey];
+                       [datasetKeys addObject:supplementKey];
                    }
                 }
 
@@ -373,10 +384,43 @@ else
                    {
                       //remove
                       [parsedAttrs removeObjectForKey:keyFound];
+                      [datasetKeys removeObject:keyFound];
                    }
                 }
 
-                
+   #pragma mark ···· removeFromEUIDprefixedDataset
+                if (thisContext[@"removeFromEUIDprefixedDataset"])
+                {
+                   NSString *EUID=parsedAttrs[@"00000001_0020000D-UI"][0];
+                   NSArray *EUIDprefixes=[thisContext[@"removeFromEUIDprefixedDataset"] allKeys];
+                   for (NSString *EUIDprefix in EUIDprefixes)
+                   {
+                      if ([EUID hasPrefix:EUIDprefix])
+                      {
+                         for (NSString *removeKey in thisContext[@"removeFromEUIDprefixedDataset"][EUIDprefix])
+                         {
+                            NSString *keyNoSuffix=[removeKey componentsSeparatedByString:@"-"][0];
+                            NSString *keyFound=nil;
+                            for (NSString *datasetKey in datasetKeys)
+                            {
+                               if ([datasetKey hasPrefix:keyNoSuffix])
+                               {
+                                  keyFound=datasetKey;
+                                  break;
+                               }
+                            }
+                            if (keyFound)
+                            {
+                               //remove
+                               [parsedAttrs removeObjectForKey:keyFound];
+                               [datasetKeys removeObject:keyFound];
+                            }
+                         }
+
+                      }
+                   }
+                }
+
                 
     #pragma mark ·· outputData init
                 NSMutableData *outputData;
@@ -673,7 +717,7 @@ The root is an array where items are clasified by priority of execution
          }
       }
         
-#pragma mark sourcesToBeProcessed
+#pragma mark - sourcesToBeProcessed
     if (sourcesToBeProcessed.count)
     {
        NSDate *refTime=[NSDate date];
@@ -687,15 +731,19 @@ The root is an array where items are clasified by priority of execution
 
 #pragma mark cdawldicom init
        NSString *wltodayFolder=nil;
+       
        NSString *wltodayEUIDFolder=nil;
        NSString *wltodayANFolder=nil;
        NSString *wltodayPIDFolder=nil;
+       
        NSArray  *wltodayEUIDkeys=nil;
        NSArray  *wltodayANkeys=nil;
        NSArray  *wltodayPIDkeys=nil;
+       
        NSString *wlpublished=nil;
        NSString *wlcompleted=nil;
        NSString *wlcancelled=nil;
+       
        if ([args[CDargCdamwlDir] length])
        {
           wltodayFolder=[args[CDargCdamwlDir] stringByAppendingPathComponent:todayDCMString
@@ -757,7 +805,8 @@ The root is an array where items are clasified by priority of execution
 
 #pragma mark ·· check with cdawldicom (TODO)
 /*
-            //add eventual additional coercion in correspondinng "coerceDataset" mutable dictionary of the study
+            // add eventual additional coercion
+            // in corresponding "coerceDataset" mutable dictionary of the study
             if (wltodayEUIDkeys)
             {
                 //depending on the results of cdawldicom, pacsTesting will be executed, or not
@@ -778,39 +827,40 @@ The root is an array where items are clasified by priority of execution
                   //no definitive StudyInstanceUID matching
 #pragma mark dependent on an instance metadata
 
-                  //read last instance (to avoid the case of reading a .DS_store file ... which is first)
+                  //read last instance of the last series (to avoid the case of reading a .DS_store file ... which is first)
                   //we already knwo there is one or more of them
-                  NSString *sopPath=[studyPath stringByAppendingPathComponent:StudyContents.lastObject];
+                  NSString *SiuidPath=[studyPath stringByAppendingPathComponent:[Siuids anyObject]];
+                  
+                  NSArray *SOPuids=[fileManager contentsOfDirectoryAtPath:SiuidPath error:nil];
+                  
+                  NSString *SOPuidPath=[SiuidPath stringByAppendingPathComponent:[SOPuids lastObject]];
+
+
                   NSMutableDictionary *sopDict=[NSMutableDictionary dictionary];
+                  NSMutableDictionary *blobDict=[NSMutableDictionary dictionary];
+
                   if (!D2dict(
-                             [NSData  dataWithContentsOfFile:sopPath],
-                             sopDict,
-                             sopPath,
-                             1000
+                              [NSData dataWithContentsOfFile:SOPuidPath],
+                              sopDict,
+                              0,//blob min size
+                              blobModeSource,
+                              @"",//prefix
+                              @"",//suffix
+                              blobDict
                              )
                       )
                   {
-                     NSLog(@"SOP not parsed %@",sopPath);
-                     break;
+                     NSLog(@"can not parse  %@",SOPuidPath);
+                     continue;
                   }
                   
-                  //Charset
-                  char eidx=0;//default encoding
-                  NSString *CS=sopDict[@"00000001_00080005-CS"];
-                  if (CS) eidx=encodingCSindex(CS);
-                  else LOG_VERBOSE(@"default encoding used");
-                  if (eidx==encodingTotal)
-                  {
-                     NSLog(@"unnknown encodinng '%@'. Default encoding used",CS);
-                     eidx=0;
-                  }
-
 #pragma mark (2.2) AccessionNumber match
                   if (!wltodayANFolder) wltodayANFolder=[wltodayFolder stringByAppendingPathComponent:@"AN"];
                   wltodayANkeys=[fileManager contentsOfDirectoryAtPath:wltodayANFolder error:nil];
                   
                   NSString *AN;
-                  NSArray *ANa=sopDict[[NSString stringWithFormat:@"00000001_00080050-%@SH",evr[eidx]]];
+                  NSArray *ANa=sopDict[@"00000001_00080050-SH"];
+                  if (!ANa) ANa=sopDict[@"00000001_00080050-1100SH"];
                   if (ANa && ANa.count) AN=ANa[0];
                   
 #pragma mark TODO AccessionNumber issuer
@@ -819,17 +869,10 @@ The root is an array where items are clasified by priority of execution
                   ANindex=[wltodayANkeys indexOfObject:AN];
                   if (ANindex!=NSNotFound)
                   {
-                     [fileManager destinationOfSymbolicLinkAtPath:[wltodayANFolder stringByAppendingPathComponent:wltodayANkeys[ANindex]] error:&error];
+                     EUIDpath=[fileManager destinationOfSymbolicLinkAtPath:[wltodayANFolder stringByAppendingPathComponent:wltodayANkeys[ANindex]] error:&error];
                   }
-                  else
+                  else //no definitive Accession Number matching
                   {
-                     
-                   //no definitive Accssion Number matching
-
-                   //read wldict
-                   NSDictionary *wldict=[NSJSONSerialization JSONObjectWithData:[NSData dataWithContentsOfFile:[[wltodayEUIDFolder stringByAppendingPathComponent:Eiuid]stringByAppendingPathComponent:@"wl.json"] options:0 error:&error] options:0 error:&error];
-                   
-                   
                  
 #pragma mark (2.3) PatientID match
                       if (!wltodayPIDFolder) wltodayPIDFolder=[wltodayFolder stringByAppendingPathComponent:@"PID"];
@@ -839,98 +882,7 @@ The root is an array where items are clasified by priority of execution
 
 
              }
-#pragma mark (3) PacsSearch
-
-             if (args[argPacsSearch] && [args[argPacsSearch] length])
-             {
-                 NSString *pacsURIString=[NSString stringWithFormat:args[argcoercedicom],institutionName];
-                 
-                 
-
-             }
-
-             //pacs already containing all the items of the study?
-             NSMutableData *sqlResponseData=[NSMutableData data];
-             if ([args count]>5)
-                execTask(
-                     environment,
-                     @"/bin/bash",
-                     @[@"-s"],
-                     [
-                         [args[argPacsSearch] stringByAppendingFormat:args[argcoercedicom],
-                          Eiuid]
-                         dataUsingEncoding:NSUTF8StringEncoding
-                     ],
-                     sqlResponseData
-                     );
-                
-             if (sqlResponseData.length)
-             {
-                 //(studyUID already exists in PACS?)
-                 //same institution name?
-                 [sqlResponseData
-                  getBytes:&lastByte
-                  range:NSMakeRange([sqlResponseData length]-1,1)
-                  ];
-                 NSString *sqlResponseString=nil;//remove eventual last space
-                 if (lastByte==0x20) sqlResponseString=
-                    [
-                     [NSString alloc]
-                     initWithData:sqlResponseData
-                     encoding:NSUTF8StringEncoding
-                     ];
-                 else sqlResponseString=
-                    [
-                     [NSString alloc]
-                     initWithData:[sqlResponseData subdataWithRange:NSMakeRange(0,[sqlResponseData length]-1)]
-                     encoding:NSUTF8StringEncoding
-                     ];
-                
-                 if (![sqlResponseString isEqualToString:institutionName])
-                 {
-                     LOG_WARNING(@"%@ discarded. Comes from %@. Was already registered for %@)",Eiuid,institutionName,sqlResponseString);
-                 
-                     [fileManager
-                      moveItemAtPath:studyPath
-                      toPath:[NSString stringWithFormat:@"%@/%@@%f",args[argDiscarded],CLASSIFIEDname,[[NSDate date]timeIntervalSinceReferenceDate
-                      ]]
-                      error:&error];
-                     continue;
-                 }
-             }
-                
-             NSURL *pacsURI=[NSURL URLWithString:[NSString stringWithFormat:@"%@/%@",pacsURIString,Eiuid]];
-             NSString *qidoRequest=[NSString stringWithFormat:@"%@?StudyInstanceUID=%@",pacsURIString,Eiuid];
-             NSURL *qidoRequestURL=[NSURL URLWithString:qidoRequest];
-                
-             NSDictionary *q=[NSDictionary studyAttributesForQidoURL:qidoRequestURL];
-             if (q[@"00100020"] && [q[@"00100020"] length])
-             {
-//JF                   LOG_INFO(@"%@ %@ (%@/%@) for patient %@ in PACS before STOW",
-//JF                      Eiuid,
-//JF                      q[@"00080061"],
-//JF                      q[@"00201206"],
-//JF                      q[@"00201208"],
-//JF                      q[@"00100020"]
-//JF                      );
-             }
-             else if (q[@"name"] && [q[@"name"] length])
-             {
-//JF                   LOG_WARNING(@"study %@ discarded. %@: %@",Eiuid,q[@"name"],q[@"reason"]);
-                NSString *DISCARDEDpath=[NSString stringWithFormat:@"%@/%@/%@@%f",DISCARDED,CLASSIFIEDname,Eiuid,[[NSDate date]timeIntervalSinceReferenceDate
-                ]];
-                [fileManager createDirectoryAtPath:[DISCARDED stringByAppendingPathComponent:CLASSIFIEDname] withIntermediateDirectories:YES attributes:nil error:&error];
-                [fileManager moveItemAtPath:studyPath
-                                     toPath:DISCARDEDpath
-                                      error:&error
-                 ];
-                continue;
-             }
-
-
-            }
 */
-
             
 #pragma mark ·· SeriesUIDs loop the set contains series dirs only
             
