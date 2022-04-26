@@ -294,100 +294,37 @@ else
     #pragma mark ···· removeFromFileMetainfo
 
  
-                NSMutableArray *datasetKeys=[NSMutableArray arrayWithArray:[parsedAttrs allKeys] ];
                 
     #pragma mark ···· coerceDataset
-                NSArray *coerceKeys=[thisContext[@"coerceDataset"] allKeys];
-                for (NSString *coerceKey in coerceKeys)
-                {
-                   NSString *keyNoSuffix=[coerceKey componentsSeparatedByString:@"-"][0];
-                   NSString *keyFound=nil;
-                   for (NSString *datasetKey in datasetKeys)
-                   {
-                      if ([datasetKey hasPrefix:keyNoSuffix])
-                      {
-                         keyFound=datasetKey;
-                         break;
-                      }
-                   }
-                   if (keyFound)
-                   {
-                      [parsedAttrs removeObjectForKey:keyFound];
-                      [datasetKeys removeObject:keyFound];
-                   }
-                   //coerce
-                   [parsedAttrs setObject:thisContext[@"coerceDataset"][coerceKey] forKey:coerceKey];
-                    [datasetKeys addObject:coerceKey];
-                }
+                if (thisContext[@"coerceDataset"])
+                   [parsedAttrs addEntriesFromDictionary:thisContext[@"coerceDataset"]];
 
+                
     #pragma mark ···· replaceInDataset
                 NSArray *replaceKeys=[thisContext[@"replaceInDataset"] allKeys];
                 for (NSString *replaceKey in replaceKeys)
                 {
-                   NSString *keyNoSuffix=[replaceKey componentsSeparatedByString:@"-"][0];
-                   NSString *keyFound=nil;
-                   for (NSString *datasetKey in datasetKeys)
-                   {
-                      if ([datasetKey hasPrefix:keyNoSuffix])
-                      {
-                         keyFound=datasetKey;
-                         break;
-                      }
-                   }
-                   if (keyFound)
-                   {
-                      //replace
-                      [parsedAttrs removeObjectForKey:keyFound];
-                      [datasetKeys removeObject:keyFound];                  [parsedAttrs setObject:thisContext[@"replaceInDataset"][replaceKey] forKey:replaceKey];
-                       [datasetKeys addObject:replaceKey];
-                   }
+                   if (parsedAttrs[replaceKey])
+                      [parsedAttrs setObject:thisContext[@"replaceInDataset"][replaceKey] forKey:replaceKey];
                 }
 
     #pragma mark ···· supplementToDataset
                 NSArray *supplementKeys=[thisContext[@"supplementToDataset"] allKeys];
                 for (NSString *supplementKey in supplementKeys)
                 {
-                   NSString *keyNoSuffix=[supplementKey componentsSeparatedByString:@"-"][0];
-                   NSString *keyFound=nil;
-                   for (NSString *datasetKey in datasetKeys)
-                   {
-                      if ([datasetKey hasPrefix:keyNoSuffix])
-                      {
-                         keyFound=datasetKey;
-                         break;
-                      }
-                   }
-                   if (!keyFound)
-                   {
-                      //supplement
+                   if (!parsedAttrs[supplementKey])
                       [parsedAttrs setObject:thisContext[@"supplementToDataset"][supplementKey] forKey:supplementKey];
-                       [datasetKeys addObject:supplementKey];
-                   }
                 }
 
                 
     #pragma mark ···· removeFromDataset
-
                 for (NSString *removeKey in thisContext[@"removeFromDataset"])
                 {
-                   NSString *keyNoSuffix=[removeKey componentsSeparatedByString:@"-"][0];
-                   NSString *keyFound=nil;
-                   for (NSString *datasetKey in datasetKeys)
-                   {
-                      if ([datasetKey hasPrefix:keyNoSuffix])
-                      {
-                         keyFound=datasetKey;
-                         break;
-                      }
-                   }
-                   if (keyFound)
-                   {
-                      //remove
-                      [parsedAttrs removeObjectForKey:keyFound];
-                      [datasetKeys removeObject:keyFound];
-                   }
+                   if (parsedAttrs[removeKey])
+                      [parsedAttrs removeObjectForKey:removeKey];
                 }
 
+                
    #pragma mark ···· removeFromEUIDprefixedDataset
                 if (thisContext[@"removeFromEUIDprefixedDataset"])
                 {
@@ -399,22 +336,8 @@ else
                       {
                          for (NSString *removeKey in thisContext[@"removeFromEUIDprefixedDataset"][EUIDprefix])
                          {
-                            NSString *keyNoSuffix=[removeKey componentsSeparatedByString:@"-"][0];
-                            NSString *keyFound=nil;
-                            for (NSString *datasetKey in datasetKeys)
-                            {
-                               if ([datasetKey hasPrefix:keyNoSuffix])
-                               {
-                                  keyFound=datasetKey;
-                                  break;
-                               }
-                            }
-                            if (keyFound)
-                            {
-                               //remove
-                               [parsedAttrs removeObjectForKey:keyFound];
-                               [datasetKeys removeObject:keyFound];
-                            }
+                            if (parsedAttrs[removeKey])
+                               [parsedAttrs removeObjectForKey:removeKey];
                          }
 
                       }
