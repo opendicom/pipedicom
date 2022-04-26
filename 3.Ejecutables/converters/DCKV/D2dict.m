@@ -61,6 +61,18 @@ NSString *keyPrefixed(
    NSString *p
 )
 {
+#pragma mark nullify prefixed vr
+   return [NSString
+                    stringWithFormat:@"%@_%08X-%c%c",
+                    branch,
+                     ((tag & 0xff000000)>>16)
+                    +((tag & 0x00ff0000)>>16)
+                    +((tag & 0x0000ff00)<<16)
+                    +((tag & 0x000000ff)<<16),
+                    vr & 0xff,
+                    vr >> 8
+   ];
+
   return [NSString
                    stringWithFormat:@"%@_%08X-%@%c%c",
                    branch,

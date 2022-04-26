@@ -120,7 +120,22 @@ int dict2D(
     if (attrs && attrs.count)
     {
        NSArray *keys=[[attrs allKeys] sortedArrayUsingSelector:@selector(compare:)];
-      
+       NSMutableArray *encodingsLIFO=[NSMutableArray arrayWithObject:@"ISO_IR 100"];
+       NSDictionary *CSNS=@{
+          @"ISO_IR 100":[NSNumber numberWithUnsignedInteger:NSISOLatin1StringEncoding],
+          @"ISO_IR 101":[NSNumber numberWithUnsignedInteger:NSISOLatin2StringEncoding],
+          @"ISO_IR 144":[NSNumber numberWithUnsignedInteger:NSWindowsCP1251StringEncoding],
+          @"ISO_IR 126":[NSNumber numberWithUnsignedInteger:NSWindowsCP1253StringEncoding],
+          @"ISO_IR 13":[NSNumber numberWithUnsignedInteger:NSISO2022JPStringEncoding],
+          @"ISO 2022 IR 6":[NSNumber numberWithUnsignedInteger:NSASCIIStringEncoding],
+          @"ISO 2022 IR 100":[NSNumber numberWithUnsignedInteger:NSISOLatin1StringEncoding],
+          @"ISO 2022 IR 101":[NSNumber numberWithUnsignedInteger:NSISOLatin2StringEncoding],
+          @"ISO 2022 IR 144":[NSNumber numberWithUnsignedInteger:NSWindowsCP1251StringEncoding],
+          @"ISO 2022 IR 126":[NSNumber numberWithUnsignedInteger:NSWindowsCP1253StringEncoding],
+          @"ISO 2022 IR 13":[NSNumber numberWithUnsignedInteger:NSISO2022JPStringEncoding],
+          @"ISO_IR 192":[NSNumber numberWithUnsignedInteger:NSUTF8StringEncoding]
+       };
+
        uint32 tag;
        uint16 vr;
        uint16 vl;
@@ -165,9 +180,30 @@ int dict2D(
                 break;
             }
 
-#pragma mark AE CS DT TM
-            case 0x4541://AE
+#pragma mark CS
             case 0x5343://CS
+            {
+               [data appendBytes:&tag length:4];
+               [data appendBytes:&vr length:2];
+               if ([attrs[key] count])
+               {
+                  if (tag==0x050008)
+                  {
+                     [encodingsLIFO replaceObjectAtIndex:encodingsLIFO.count-1 withObject:[attrs[key] componentsJoinedByString:@"\\"]];
+                  }
+                  NSData *stringData=[[attrs[key] componentsJoinedByString:@"\\"] dataUsingEncoding:NSISOLatin1StringEncoding];
+                  BOOL odd=stringData.length % 2;
+                  vl=stringData.length + odd;
+                  [data appendBytes:&vl length:2];
+                  [data appendData:stringData];
+                  if (odd) [data appendBytes:&paddingspace length:1];
+               }
+               else [data appendBytes:&vl0 length:2];
+               break;
+            }
+
+#pragma mark AE DT TM
+            case 0x4541://AE
             case 0x5444://DT
             case 0x4d54://TM
             {
@@ -185,7 +221,7 @@ int dict2D(
                else [data appendBytes:&vl0 length:2];
                break;
             }
-                 
+
 #pragma mark LO SH
             case 0x4f4c://LO
             case 0x4853://SH
@@ -195,7 +231,7 @@ int dict2D(
                if (![attrs[key] count]) [data appendBytes:&vl0 length:2];
                else
                 {
-                   NSData *stringData=[[attrs[key] componentsJoinedByString:@"\\"] dataUsingEncoding:encodingNS[charsetIndex4key(key)]];
+                   NSData *stringData=[[attrs[key] componentsJoinedByString:@"\\"] dataUsingEncoding:[CSNS[encodingsLIFO.lastObject] unsignedIntegerValue]];
                 
                    BOOL odd=stringData.length % 2;
                    vl=stringData.length + odd;
@@ -216,7 +252,7 @@ int dict2D(
                if (![attrs[key] count]) [data appendBytes:&vl0 length:2];
                else
                {
-                  NSData *stringData=[(attrs[key])[0]  dataUsingEncoding:encodingNS[charsetIndex4key(key)]];
+                  NSData *stringData=[(attrs[key])[0]  dataUsingEncoding:[CSNS[encodingsLIFO.lastObject] unsignedIntegerValue]];
                   BOOL odd=stringData.length % 2;
                   vl=stringData.length + odd;
                   [data appendBytes:&vl length:2];
@@ -244,7 +280,7 @@ int dict2D(
               }
               else
               {
-                 NSData *stringData=[[attrs[key] componentsJoinedByString:@"\\"] dataUsingEncoding:encodingNS[charsetIndex4key(key)]];
+                 NSData *stringData=[[attrs[key] componentsJoinedByString:@"\\"] dataUsingEncoding:[CSNS[encodingsLIFO.lastObject] unsignedIntegerValue]];
               
                  BOOL odd=stringData.length % 2;
                  vll=(uint32)(stringData.length + odd);
@@ -272,7 +308,7 @@ int dict2D(
                }
                else
                {
-                  NSData *stringData=[(attrs[key])[0] dataUsingEncoding:encodingNS[charsetIndex4key(key)]];
+                  NSData *stringData=[(attrs[key])[0] dataUsingEncoding:[CSNS[encodingsLIFO.lastObject] unsignedIntegerValue]];
                
                   BOOL odd=stringData.length % 2;
                   vll=(uint32)(stringData.length + odd);
@@ -305,9 +341,8 @@ int dict2D(
                {
                   NSData *stringData=
                   [
-                   [(attrs[key])[0]  stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]
-                   ]
-                   dataUsingEncoding:encodingNS[charsetIndex4key(key)]
+                   [attrs[key][0]  stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]
+                   dataUsingEncoding:[CSNS[encodingsLIFO.lastObject] unsignedIntegerValue]
                    ];
                
                   BOOL odd=stringData.length % 2;
@@ -329,23 +364,6 @@ int dict2D(
                if (!strings.count)[data appendBytes:&vl0 length:2];
                else
                {
-                  NSUInteger encodingIndexes[]={0,0,0};
-                  
-#pragma mark TODO does not work for vr without prefix
-                  /*
-
-                  NSString *eps=[[key componentsSeparatedByString:@"-"] lastObject ];//encoding prefixes
-                  for (int j=0; j < eps.length / 4; j++)
-                  {
-                     NSString *ep=[eps substringWithRange:NSMakeRange(j*4,4)];
-                     while (![evr[encodingIndexes[j]] isEqualToString:ep] && (encodingIndexes[j] < encodingTotal)) encodingIndexes[j]++;
-                     if (encodingIndexes[j] == encodingTotal)
-                     {
-                        LOG_ERROR(@"bad key encoding prefix '%@' in  %@",ep,key);
-                        return failure;
-                     }
-                  }
-                  */
                   NSMutableData *PNdata=[NSMutableData data];
                   for (NSUInteger l=0; l<strings.count; l++)
                   {
@@ -354,7 +372,7 @@ int dict2D(
                      for (NSUInteger k=0; k < PNreps.count; k++ )
                      {
                         if (k) [PNdata appendData:NSData.equal];
-                        [PNdata appendData:[PNreps[k] dataUsingEncoding:encodingNS[encodingIndexes[k]]]];
+                        [PNdata appendData:[PNreps[k] dataUsingEncoding:[CSNS[encodingsLIFO.lastObject] unsignedIntegerValue]]];
                      }
                   }
                   
@@ -396,6 +414,7 @@ int dict2D(
    #pragma mark IQ
                case 0x5149:
                {
+                  [encodingsLIFO addObject:encodingsLIFO.lastObject];
                   [data appendBytes:&itemstartundefined length:8];
                    break;
                }
@@ -403,6 +422,7 @@ int dict2D(
    #pragma mark IZ
                case 0x5A49:
                {
+                  [encodingsLIFO removeLastObject];
                   [data appendBytes:&itemend length:8];
                    break;
                }
