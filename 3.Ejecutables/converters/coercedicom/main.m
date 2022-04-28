@@ -882,9 +882,11 @@ The root is an array where items are clasified by priority of execution
       
 
 #pragma mark waiting for last series to complete
-   while (seriesTODO.count > 0)
+   NSUInteger timeout=12;//2 miutes
+   while ((timeout > 0) && (seriesTODO.count > 0))
    {
-      [NSThread sleepForTimeInterval:5];//espera 5 segundos
+      timeout--;
+      [NSThread sleepForTimeInterval:10];//wait 10 segundos
 #pragma mark NSLog(@"TODO:%lu   DONE:%lu",(unsigned long)seriesTODO.count,(unsigned long)seriesDONE.count);
    }
 }//end autoreleaspool
