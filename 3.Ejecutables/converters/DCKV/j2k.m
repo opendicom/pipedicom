@@ -12,6 +12,7 @@
 @implementation j2k
 @end
 
+static uint8 paddingByte=0;
 
 int compressBFHI(
              NSString *pixelUrl,
@@ -64,7 +65,7 @@ int compressBFHI(
    if (parsedAttrs[@"00000001_00280008-IS"]) frameTotal=[parsedAttrs[@"00000001_00280008-IS"][0] unsignedIntegerValue];
    NSUInteger frameLength=pixelTotalLength / frameTotal;
 
-   NSDate *start = [NSDate date];
+   //NSDate *start = [NSDate date];
    NSUInteger j2kTotalLength=0;
    for (NSUInteger frameNumber=0; frameNumber<frameTotal; frameNumber++)
    {
@@ -260,8 +261,8 @@ int compressJ2KR(
    if (parsedAttrs[@"00000001_00280008-IS"]) frameTotal=[parsedAttrs[@"00000001_00280008-IS"][0] unsignedIntegerValue];
    NSUInteger frameLength=pixelTotalLength / frameTotal;
 
-   NSDate *start = [NSDate date];
-   NSUInteger j2kTotalLength=0;
+   //NSDate *start = [NSDate date];
+   //NSUInteger j2kTotalLength=0;
    for (NSUInteger frameNumber=0; frameNumber<frameTotal; frameNumber++)
    {
       NSMutableArray *pixelAttrArray=[NSMutableArray array];
@@ -338,15 +339,30 @@ int compressJ2KR(
       }
       else
       {
-         NSUInteger j2kLength=j2kData.length;
+         unsigned long j2kLength=j2kData.length;
          NSRange j2kRange=NSMakeRange(0,j2kLength);
          //last tile-part (ended with EOC)
          NSRange EOCRange=[j2kData rangeOfData:NSData.EOC
                                            options:0
                                              range:j2kRange];
+         unsigned long j2kEOCLength=(unsigned long)(EOCRange.location + EOCRange.length);
+         if (j2kEOCLength & 1) //odd
+         {
+            if (j2kEOCLength==j2kLength)
+            {
+               [j2kData appendBytes:&paddingByte length:1];
+            }
+            else
+            {
+               [j2kData replaceBytesInRange:NSMakeRange(j2kEOCLength, 1)
+                                  withBytes:&paddingByte
+                                     length:1];
+            }
+            j2kEOCLength++;
+         }
          NSString *fragmentName=[NSString stringWithFormat:@"%@-%08lu.j2k",pixelUrl,frameNumber+1];
          [pixelAttrArray addObject:fragmentName];
-         [j2kBlobDict setObject:[j2kData subdataWithRange:NSMakeRange(0, EOCRange.location + EOCRange.length)] forKey:fragmentName];
+         [j2kBlobDict setObject:[j2kData subdataWithRange:NSMakeRange(0, j2kEOCLength)] forKey:fragmentName];
 
       }
       [frames addObject:[NSDictionary dictionaryWithObject:pixelAttrArray forKey:[NSString stringWithFormat:@"Frame#%08lu",frameNumber+1]]];

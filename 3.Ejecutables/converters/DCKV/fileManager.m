@@ -248,7 +248,7 @@ NSString *moveForD2ForD(NSFileManager *fileManager, NSString *srciPath, NSString
     
     //source is file or dir?
     BOOL srciIsDir=false;
-    BOOL srciExists=[fileManager fileExistsAtPath:srciPath isDirectory:&srciIsDir];
+    //BOOL srciExists=[fileManager fileExistsAtPath:srciPath isDirectory:&srciIsDir];
     if (srciIsDir) //source is a dir
     {
        NSArray *srciContents=[fileManager contentsOfDirectoryAtPath:srciPath error:nil];

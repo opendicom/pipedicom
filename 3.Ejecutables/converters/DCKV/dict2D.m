@@ -57,36 +57,26 @@ void appendFrame(NSMutableData *data, NSString *baseURLString, NSString *urlStri
    }
    
    [data appendBytes:&itemstart length:4];
-   uint32 l;
+   uint32 l=(uint32)fragmentData.length;
+   BOOL isOdd=(l & 1);
+   l+=isOdd;//+0 or +1 to make it even
    if (appendEOC)
    {
-      l=(uint32)fragmentData.length + 2;
+      l+=2;
       [data appendBytes:&l length:4];
       [data appendData:fragmentData];
       [data appendData:NSData.EOC];
+      if (isOdd==true) [data appendBytes:&paddingzero length:1];
    }
    else
    {
       l=(uint32)fragmentData.length;
       [data appendBytes:&l length:4];
       [data appendData:fragmentData];
+      if (isOdd==true) [data appendBytes:&paddingzero length:1];
    }
 }
 
-int charsetIndex4key(NSString *key)
-{
-   if (key.length % 9 < 3) return 1;
-   int i=0;//ascii
-   NSString *afterDash=[key componentsSeparatedByString:@"-"][1];
-   NSString *ep=[afterDash substringToIndex:afterDash.length-2];//encoding prefix
-   i=0;
-   while (![evr[i] isEqualToString:ep] && (i < encodingTotal)) i++;
-   if (i== encodingTotal)
-   {
-      LOG_ERROR(@"bad key encoding prefix '%@' in  %@",ep,key);
-   }
-   return i % encodingTotal;
-}
 
 uint32 shortshortFromFourByteHexaString(NSString *string)
 {
@@ -123,16 +113,16 @@ int dict2D(
        NSMutableArray *encodingsLIFO=[NSMutableArray arrayWithObject:@"ISO_IR 100"];
        NSDictionary *CSNS=@{
           @"ISO_IR 100":[NSNumber numberWithUnsignedInteger:NSISOLatin1StringEncoding],
-          @"ISO_IR 101":[NSNumber numberWithUnsignedInteger:NSISOLatin2StringEncoding],
-          @"ISO_IR 144":[NSNumber numberWithUnsignedInteger:NSWindowsCP1251StringEncoding],
-          @"ISO_IR 126":[NSNumber numberWithUnsignedInteger:NSWindowsCP1253StringEncoding],
-          @"ISO_IR 13":[NSNumber numberWithUnsignedInteger:NSISO2022JPStringEncoding],
+          //@"ISO_IR 101":[NSNumber numberWithUnsignedInteger:NSISOLatin2StringEncoding],
+          //@"ISO_IR 144":[NSNumber numberWithUnsignedInteger:NSWindowsCP1251StringEncoding],
+          //@"ISO_IR 126":[NSNumber numberWithUnsignedInteger:NSWindowsCP1253StringEncoding],
+          //@"ISO_IR 13":[NSNumber numberWithUnsignedInteger:NSISO2022JPStringEncoding],
           @"ISO 2022 IR 6":[NSNumber numberWithUnsignedInteger:NSASCIIStringEncoding],
           @"ISO 2022 IR 100":[NSNumber numberWithUnsignedInteger:NSISOLatin1StringEncoding],
-          @"ISO 2022 IR 101":[NSNumber numberWithUnsignedInteger:NSISOLatin2StringEncoding],
-          @"ISO 2022 IR 144":[NSNumber numberWithUnsignedInteger:NSWindowsCP1251StringEncoding],
-          @"ISO 2022 IR 126":[NSNumber numberWithUnsignedInteger:NSWindowsCP1253StringEncoding],
-          @"ISO 2022 IR 13":[NSNumber numberWithUnsignedInteger:NSISO2022JPStringEncoding],
+          //@"ISO 2022 IR 101":[NSNumber numberWithUnsignedInteger:NSISOLatin2StringEncoding],
+          //@"ISO 2022 IR 144":[NSNumber numberWithUnsignedInteger:NSWindowsCP1251StringEncoding],
+          //@"ISO 2022 IR 126":[NSNumber numberWithUnsignedInteger:NSWindowsCP1253StringEncoding],
+          //@"ISO 2022 IR 13":[NSNumber numberWithUnsignedInteger:NSISO2022JPStringEncoding],
           @"ISO_IR 192":[NSNumber numberWithUnsignedInteger:NSUTF8StringEncoding]
        };
 

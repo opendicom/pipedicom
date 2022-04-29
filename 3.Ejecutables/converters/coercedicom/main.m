@@ -357,7 +357,7 @@ else
                             @"",
                             fileMetainfoAttrs,
                             outputFileMetainfo,
-                            4, //dicomExplicitJ2kIdem
+                            6, //j2kr   !!! error with 4 j2kh
                             blobDict
                             ) == failure
                     )
@@ -656,12 +656,12 @@ The root is an array where items are clasified by priority of execution
        NSString *wltodayFolder=nil;
        
        NSString *wltodayEUIDFolder=nil;
-       NSString *wltodayANFolder=nil;
-       NSString *wltodayPIDFolder=nil;
+       //NSString *wltodayANFolder=nil;
+       //NSString *wltodayPIDFolder=nil;
        
        NSArray  *wltodayEUIDkeys=nil;
-       NSArray  *wltodayANkeys=nil;
-       NSArray  *wltodayPIDkeys=nil;
+       //NSArray  *wltodayANkeys=nil;
+       //NSArray  *wltodayPIDkeys=nil;
        
        NSString *wlpublished=nil;
        NSString *wlcompleted=nil;
@@ -889,6 +889,8 @@ The root is an array where items are clasified by priority of execution
       [NSThread sleepForTimeInterval:10];//wait 10 segundos
 #pragma mark NSLog(@"TODO:%lu   DONE:%lu",(unsigned long)seriesTODO.count,(unsigned long)seriesDONE.count);
    }
+   if (timeout==0) NSLog(@"(ended after timeout 2 minutes) TODO:%lu   DONE:%lu",(unsigned long)seriesTODO.count,(unsigned long)seriesDONE.count);
+
 }//end autoreleaspool
   return returnInt;//returns the number studuies processed
 }

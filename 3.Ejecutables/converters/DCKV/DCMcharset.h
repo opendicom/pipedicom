@@ -101,47 +101,4 @@ TIS 620-2533 (1990) Thai Characters Code for Information Interchange
  
  */
 
-#pragma mark macos relative constants
-
-
-extern const NSUInteger encodingTotal;
-extern NSString *evr[];
-extern NSString *encodingCS[];
-extern uint64 encodingPrefixuint64[];
-extern NSUInteger encodingNS[];
-
-
-
-#pragma mark simple functions
-
-char encodingCSindex(NSString *ecs);
-
-
-
-
-
-// ===============================================
-/*
-#pragma mark - stack
-
-struct uint64stack
-{
-    int maxsize;
-    int top;
-    uint64 *items;
-};
-
-struct uint64stack* newEncodingPrefixStack(void);
-
-NSUInteger size(struct uint64stack *pt);
-BOOL isEmpty(struct uint64stack *pt);
-BOOL isFull(struct uint64stack *pt);
-
-NSString *pushSpecificCharacterSetString(struct uint64stack *pt, NSString *scs);//returns prefix (eventually composed)
-
-uint64 peekUint64(struct uint64stack *pt);
-uint64 popUint64(struct uint64stack *pt);
-
-NSString *peekString(struct uint64stack *pt);
-NSString *popString(struct uint64stack *pt);
-*/
+NSUInteger stringEncoding(NSString *CS00080005);

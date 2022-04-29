@@ -54,38 +54,6 @@ NSString *key(
    ];
 }
 
-NSString *keyPrefixed(
-   NSString *branch,
-   uint32 tag,
-   uint16 vr,
-   NSString *p
-)
-{
-#pragma mark nullify prefixed vr
-   return [NSString
-                    stringWithFormat:@"%@_%08X-%c%c",
-                    branch,
-                     ((tag & 0xff000000)>>16)
-                    +((tag & 0x00ff0000)>>16)
-                    +((tag & 0x0000ff00)<<16)
-                    +((tag & 0x000000ff)<<16),
-                    vr & 0xff,
-                    vr >> 8
-   ];
-
-  return [NSString
-                   stringWithFormat:@"%@_%08X-%@%c%c",
-                   branch,
-                    ((tag & 0xff000000)>>16)
-                   +((tag & 0x00ff0000)>>16)
-                   +((tag & 0x0000ff00)<<16)
-                   +((tag & 0x000000ff)<<16),
-                   p,
-                   vr & 0xff,
-                   vr >> 8
-  ];
-}
-
 
 
 #pragma mark -
@@ -298,8 +266,7 @@ NSUInteger D2J(
                          unsigned long bip,
                          NSString *branch,
                          NSMutableDictionary *attr,
-                         NSString *vrCharsetPrefix,
-                         uint16 vrCharsetUint16,
+                         NSUInteger stringEncodingCurrent,
                          long long blobMinSize,
                          int blobMode,
                          NSString* blobRefPrefix,
@@ -310,8 +277,7 @@ NSUInteger D2J(
    UInt16 vr;//value representation
    UInt32 tag =   shortsBuffer[bi  ]
               + ( shortsBuffer[bi+1] << 16 );
-   NSMutableString *vrCharsetPrefixNew=[NSMutableString stringWithString:vrCharsetPrefix];
-   uint16 vrCharsetUint16New=vrCharsetUint16;
+   NSUInteger stringEncodingNew=stringEncodingCurrent;
     while (tag!=0xe00dfffe) //end item (for recursion). End of data is treated with a break at the end of the loop
    {
       UInt16 vl = shortsBuffer[bi+3];//for AE,AS,AT,CS,DA,DS,DT,FL,FD,IS,LO,LT,PN,SH,SL,SS,ST,TM,UI,UL,US
@@ -393,22 +359,8 @@ NSUInteger D2J(
                
                if (tag==0x050008)
                {
-                  [vrCharsetPrefixNew setString:@""];
-                  vrCharsetUint16New=0;
-                  
-                  int nextFiveBits=1;
-                  for (NSString *cs in values)
-                  {
-                     uint16 i=encodingCSindex(cs);
-                     if (i==encodingTotal)//=not in the array
-                     {
-                        LOG_WARNING(@"%@: bad encoding %@. Replaced by default charset",key(branch,tag,vr),cs);
-                        i=0;
-                     }
-                     vrCharsetUint16New += i * nextFiveBits;
-                     [vrCharsetPrefixNew appendString:evr[i]];
-                     nextFiveBits*=32;
-                  }
+                  stringEncodingNew=stringEncoding(values[0]);
+                  if ((stringEncodingNew==0)||(stringEncodingNew==NSUIntegerMax)) stringEncodingNew=stringEncodingCurrent;
                }
             }
             bi+=4+(vl/2);
@@ -424,11 +376,11 @@ NSUInteger D2J(
             //no CR (0D) LF (0A) TAB (09) FF (0B)
             if (!vl)
             {
-               [attr setObject:@[] forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
+               [attr setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
-               NSArray *arrayContents=[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange(bi+bi+8,vl)] encoding:encodingNS[vrCharsetUint16]]componentsSeparatedByString:@"\\"];
+               NSArray *arrayContents=[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange(bi+bi+8,vl)] encoding:stringEncodingNew]componentsSeparatedByString:@"\\"];
 
                NSMutableArray *values=[NSMutableArray array];
                for (NSString *value in arrayContents)
@@ -438,7 +390,7 @@ NSUInteger D2J(
                   trimTrailingSpaces(mutableString);
                   [values addObject:mutableString];
                }
-               [attr setObject:values forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
+               [attr setObject:values forKey:key(branch,tag,vr)];
             }
             bi+=4+(vl/2);
             break;
@@ -456,11 +408,11 @@ NSUInteger D2J(
 
             if (!vl)
             {
-               [attr setObject:@[] forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
+               [attr setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
-               NSArray *arrayContents=[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange(bi+bi+8,vl)] encoding:encodingNS[vrCharsetUint16]]componentsSeparatedByString:@"\\"];
+               NSArray *arrayContents=[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange(bi+bi+8,vl)] encoding:stringEncodingNew]componentsSeparatedByString:@"\\"];
 
                NSMutableArray *values=[NSMutableArray array];
                for (NSString *value in arrayContents)
@@ -474,7 +426,7 @@ NSUInteger D2J(
                   trimTrailingSpaces(mutableString);
                   [values addObject:mutableString];
                }
-               [attr setObject:values forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
+               [attr setObject:values forKey:key(branch,tag,vr)];
             }
             bi+=4+(vl/2);
             break;
@@ -487,78 +439,21 @@ NSUInteger D2J(
             //specific charset
             if (!vl)
             {
-               [attr setObject:@[] forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
+               [attr setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
-               NSData *contentsData=[data subdataWithRange:NSMakeRange(bi+bi+8,vl)];
-               
+               NSArray *arrayContents=[[[NSString alloc]initWithData:[data subdataWithRange:NSMakeRange(bi+bi+8,vl)] encoding:stringEncodingNew]componentsSeparatedByString:@"\\"];
+
                NSMutableArray *values=[NSMutableArray array];
-               if (contentsData.length)
+               for (NSString *value in arrayContents)
                {
-   #pragma mark for each name
-                  NSRange remainingContentsRange=NSMakeRange(0, contentsData.length);
-                  while (remainingContentsRange.location <= contentsData.length)
-                  {
-                     NSRange nameRange;
-                     if (remainingContentsRange.location == contentsData.length)
-                     {
-                        nameRange=NSMakeRange(0,0);
-                        remainingContentsRange.location +=1;
-                     }
-                     else
-                     {
-                        NSRange backslashRange=[contentsData rangeOfData:NSData.backslash options:0 range:remainingContentsRange];
-                        if (backslashRange.location==NSNotFound)
-                        {
-                           nameRange=NSMakeRange(remainingContentsRange.location, remainingContentsRange.length);
-                           remainingContentsRange.location=contentsData.length + 1;
-                        }
-                        else
-                        {
-                           nameRange=NSMakeRange(remainingContentsRange.location, backslashRange.location - remainingContentsRange.location);
-                           remainingContentsRange.location=backslashRange.location + 1;
-                           remainingContentsRange.length=contentsData.length - remainingContentsRange.location ;
-                        }
-                     }
-                     NSData *nameData=[contentsData subdataWithRange:nameRange];
-                     int compoundEncoding=vrCharsetUint16New;
-                     
-   #pragma mark for each representation
-                     NSRange remainingNameRange=NSMakeRange(0, nameData.length);
-                     while (remainingNameRange.location <= nameData.length)
-                     {
-                        NSRange representationRange;
-                        if (remainingNameRange.location == nameData.length)
-                        {
-                           representationRange=NSMakeRange(0,0);
-                           remainingNameRange.location +=1;
-                        }
-                        else
-                        {
-                           NSRange equalRange=[contentsData rangeOfData:NSData.equal options:0 range:remainingNameRange];
-                           if (equalRange.location==NSNotFound)
-                           {
-                              representationRange=NSMakeRange(remainingNameRange.location, remainingNameRange.length);
-                              remainingNameRange.location=nameData.length + 1;
-                           }
-                           else
-                           {
-                              representationRange=NSMakeRange(remainingNameRange.location, equalRange.location - remainingNameRange.location);
-                              remainingNameRange.location=equalRange.location + 1;
-                              remainingNameRange.length=nameData.length - remainingNameRange.location ;
-                           }
-                        }
-                        NSData *representationData=[contentsData subdataWithRange:representationRange];
-                        NSMutableString *representationString=[[NSMutableString alloc]initWithData:representationData encoding:encodingNS[compoundEncoding & 31]];
-                        trimLeadingSpaces(representationString);
-                        trimTrailingSpaces(representationString);
-                        [values addObject:representationString];
-                        compoundEncoding /= 32;
-                    }
-                  }
-                  [attr setObject:values forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
+                  NSMutableString *mutableString=[NSMutableString stringWithString:value];
+                  trimLeadingSpaces(mutableString);
+                  trimTrailingSpaces(mutableString);
+                  [values addObject:mutableString];
                }
+               [attr setObject:values forKey:key(branch,tag,vr)];
             }
             bi+=4+(vl/2);
             break;
@@ -591,17 +486,17 @@ NSUInteger D2J(
             ;
             if (!vll)
             {
-               [attr setObject:@[] forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
+               [attr setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
-               NSMutableString *mutableString=[[NSMutableString alloc]initWithData:[data subdataWithRange:NSMakeRange((bi+6)*2,vll)] encoding:encodingNS[vrCharsetUint16]];
+               NSMutableString *mutableString=[[NSMutableString alloc]initWithData:[data subdataWithRange:NSMakeRange((bi+6)*2,vll)] encoding:stringEncodingNew];
                [mutableString replaceOccurrencesOfString:@"\r" withString:@"\\r" options:0 range:NSMakeRange(0,mutableString.length)];
                [mutableString replaceOccurrencesOfString:@"\n" withString:@"\\n" options:0 range:NSMakeRange(0,mutableString.length)];
                [mutableString replaceOccurrencesOfString:@"\t" withString:@"\\t" options:0 range:NSMakeRange(0,mutableString.length)];
                [mutableString replaceOccurrencesOfString:@"\f" withString:@"\\f" options:0 range:NSMakeRange(0,mutableString.length)];
 
-               [attr setObject:@[[NSString stringWithString:mutableString]] forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
+               [attr setObject:@[[NSString stringWithString:mutableString]] forKey:key(branch,tag,vr)];
             }
             bi+=6+(vll/2);
             break;
@@ -619,7 +514,7 @@ NSUInteger D2J(
             ;
             if (!vll)
             {
-               [attr setObject:@[] forKey:keyPrefixed(branch,tag,vr,vrCharsetPrefixNew)];
+               [attr setObject:@[] forKey:key(branch,tag,vr)];
             }
             else
             {
@@ -719,8 +614,7 @@ NSUInteger D2J(
    bip,
    [branchTag stringByAppendingFormat:@".%08X",itemcounter],
    attr,
-   vrCharsetPrefixNew,
-   vrCharsetUint16New,
+   stringEncodingNew,
    blobMinSize,
    blobMode,
    blobRefPrefix,
@@ -1394,20 +1288,7 @@ int D2dict(
 
    unsigned short *shorts=(unsigned short*)[data bytes];
    NSUInteger datasetShortOffset=0;
-   NSString *vrCharsetPrefix=nil;
-   uint16 vrCharsetUint16;
-   //skip preambule?
-   if (data.length > 132 && shorts[64]==0x4944 && shorts[65]==0x4d43)
-   {
-      datasetShortOffset=66;
-      vrCharsetPrefix=@"2006";//default ISO 2022 IR 6 for part 10 files
-      vrCharsetUint16=0;
-   }
-   else
-   {
-      vrCharsetPrefix=@"1100";//default latin1 for datasets
-      vrCharsetUint16=1;
-   }
+   if (data.length > 132 && shorts[64]==0x4944 && shorts[65]==0x4d43) datasetShortOffset=66;//skip preambule?
 
    NSUInteger index=D2J(
                      data,
@@ -1416,8 +1297,7 @@ int D2dict(
                      (data.length -1) / 2,
                      @"00000001",
                      attr,
-                     vrCharsetPrefix,
-                     vrCharsetUint16,
+                     NSISOLatin1StringEncoding,
                      blobMinSize,
                      blobMode,
                      blobRefPrefix,
