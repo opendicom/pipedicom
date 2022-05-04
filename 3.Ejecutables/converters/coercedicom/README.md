@@ -209,7 +209,13 @@ enum CDargName{
    CDargCdamwlDir,               //cdawldicom dir path (if empty, no test2)
    CDargPacsSearch,             //DICOMweb search url (if empty, no test3)
 
-   CDargAsyncMonitorLoopsWait   // nxms (n=loops number, m=seconds wait) m=0 -> proceso sincrónico
+   CDargUntilLastDispatch,    //max time in seconds before ending the execution
+   CDargCores,                       //1 is sequential on one core
+   CDsinceLastSeriesModif    //min time in seconds without modification 
+                                               //in series dir before processing
+                                               //may be because of receiving
+                                               //may be because of previous processing
+
 };
 
 # Archivo de configuración coercedicom.json

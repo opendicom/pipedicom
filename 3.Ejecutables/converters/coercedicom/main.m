@@ -644,10 +644,13 @@ The root is an array where items are clasified by priority of execution
     if (sourcesToBeProcessed.count)
     {
        NSDate *refTime=[NSDate date];
-       static NSISO8601DateFormatter *ISO8601yyyyMMdd;
-       ISO8601yyyyMMdd=[[NSISO8601DateFormatter alloc]init];
-       ISO8601yyyyMMdd.formatOptions=NSISO8601DateFormatWithFullDate;
-       NSString *todayDCMString=[ISO8601yyyyMMdd stringFromDate:refTime];
+       NSDateFormatter *DICMDA = [[NSDateFormatter alloc]init];
+       [DICMDA setDateFormat:@"yyyyMMdd"];
+       NSString *todayDCMString=[DICMDA stringFromDate:refTime];
+       //static NSISO8601DateFormatter *ISO8601yyyyMMdd;
+       //ISO8601yyyyMMdd=[[NSISO8601DateFormatter alloc]init];
+       //ISO8601yyyyMMdd.formatOptions=NSISO8601DateFormatWithFullDate;
+       //NSString *todayDCMString=[ISO8601yyyyMMdd stringFromDate:refTime];
        //NSDateFormatter *DICMDT = [[NSDateFormatter alloc]init];
        //[DICMDT setDateFormat:@"yyyyMMddhhmmss"];
        //NSString *timeDCMString=[DICMDT stringFromDate:refTime];
@@ -692,7 +695,9 @@ The root is an array where items are clasified by priority of execution
        if (cores > 1)
        {
           useDispatchQueue=true;
-          attr=dispatch_queue_attr_make_with_autorelease_frequency(DISPATCH_QUEUE_CONCURRENT,DISPATCH_AUTORELEASE_FREQUENCY_WORK_ITEM);
+          attr=dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_BACKGROUND, QOS_MIN_RELATIVE_PRIORITY);
+          
+          //dispatch_queue_attr_make_with_autorelease_frequency(DISPATCH_QUEUE_CONCURRENT,DISPATCH_AUTORELEASE_FREQUENCY_WORK_ITEM);
           seriesqueue = dispatch_queue_create("com.opendicom.coercedicom.seriesqueue", attr);
        }
 
@@ -828,7 +833,7 @@ The root is an array where items are clasified by priority of execution
                 while (seriesTODO.count >= cores)
                 {
                     [NSThread sleepForTimeInterval:1];//wait 1 second
-#pragma mark        NSLog(@"TODO:%lu   DONE:%lu",(unsigned long)seriesTODO.count,(unsigned long)seriesDONE.count);
+#pragma mark NSLog(@"TODO:%lu   DONE:%lu",(unsigned long)seriesTODO.count,(unsigned long)seriesDONE.count);
 
                 }
                                 
@@ -890,6 +895,7 @@ The root is an array where items are clasified by priority of execution
 #pragma mark NSLog(@"TODO:%lu   DONE:%lu",(unsigned long)seriesTODO.count,(unsigned long)seriesDONE.count);
    }
    if (timeout==0) NSLog(@"(ended after timeout 2 minutes) TODO:%lu   DONE:%lu",(unsigned long)seriesTODO.count,(unsigned long)seriesDONE.count);
+   else NSLog(@"TODO:%lu   DONE:%lu",(unsigned long)seriesTODO.count,(unsigned long)seriesDONE.count);
 
 }//end autoreleaspool
   return returnInt;//returns the number studuies processed
