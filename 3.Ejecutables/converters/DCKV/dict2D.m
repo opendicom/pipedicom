@@ -598,7 +598,7 @@ int dict2D(
                   [data appendBytes:&vr length:2];
                   vl=[attrs[key] count]*8;
                   [data appendBytes:&vl length:2];
-                  float fd;
+                  double fd;
                   for (NSNumber *number in attrs[key])
                   {
                      fd=[number doubleValue];

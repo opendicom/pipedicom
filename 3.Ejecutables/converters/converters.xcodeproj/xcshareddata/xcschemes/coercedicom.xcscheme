@@ -56,7 +56,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Volumes/IN/FORWARDING_AET/SEND"
+            argument = "/Volumes/IN"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
@@ -81,6 +81,10 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Users/Shared/opendicom/coercedicom/RECEIVING_AET/coercedicom.json"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "/Volumes/GITHUB/pipedicomOpenjpeg/3.Ejecutables/converters/coercedicom/coercedicom.json"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
