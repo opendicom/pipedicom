@@ -6,6 +6,8 @@
 //
 #import <os/log.h>
 /*
+ //for 10.11 up
+ 
  https://developer.apple.com/documentation/os/logging/generating_log_messages_from_your_code?language=objc
  
  The 3 levels are registered and compressed. Older logs are destructed automatically.
@@ -191,7 +193,10 @@ else
                         error:&error]
            )
        {
-           os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_FAULT, "cannot create ORIGINAL series dir %@: %@", originalDir, error.description);
+          if (@available(macOS 10.11, *))
+             os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_FAULT, "cannot create ORIGINAL series dir %@: %@", originalDir, error.description);
+          else NSLog(@"cannot create ORIGINAL series dir %@: %@", originalDir, error.description);
+
            [seriesTODO removeObject:thisContext[@"Siuid"]];
            [seriesFAILED addObject:thisContext[@"Siuid"]];
            return;
@@ -199,7 +204,9 @@ else
     }
    else if (originalsIsDir==false)
    {
+      if (@available(macOS 10.11, *))
       os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_FAULT, "ORIGINAL series dir is not a dir !!! %@", originalDir);
+      else NSLog(@"ORIGINAL series dir is not a dir !!! %@", originalDir);
       [seriesTODO removeObject:thisContext[@"Siuid"]];
       [seriesFAILED addObject:thisContext[@"Siuid"]];
       return;
@@ -231,7 +238,9 @@ else
                   [seriesDUPLICATE addObject:thisContext[@"Siuid"]];
                   if (![fileManager removeItemAtPath:iuidPath error:nil])
                   {
+                     if (@available(macOS 10.11, *))
                      os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "could not remove duplicate %@", iuidPath);
+                     else NSLog(@"could not remove duplicate %@", iuidPath);
                      [seriesFAILED addObject:thisContext[@"Siuid"]];
                   }
                   continue;
@@ -567,7 +576,9 @@ else
       )
       [seriesDONE addObject:thisContext[@"Siuid"]];
   }@catch (NSException *exception) {
+     if (@available(macOS 10.11, *))
       os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_FAULT, "%@", exception.reason);
+     else NSLog(@"%@", exception.reason);
       [logMsg appendString:exception.reason];
   }
   @finally {
@@ -629,7 +640,9 @@ int main(int argc, const char * argv[]){
     NSArray *args=[processInfo arguments];
     if (args.count != 15)
     {
+       if (@available(macOS 10.11, *))
        os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_FAULT, "bad args count: %@",[args description]);
+       else NSLog(@"bad args count: %@",[args description]);
        exit(1);
     };
 
@@ -639,20 +652,26 @@ int main(int argc, const char * argv[]){
 
     if (![fileManager fileExistsAtPath:args[CDargSpool] isDirectory:&isDirectory] || !isDirectory)
     {
+       if (@available(macOS 10.11, *))
        os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_FAULT, "CLASSIFIED directory not found: %@",args[CDargSpool]);
+       else NSLog(@"CLASSIFIED directory not found: %@",args[CDargSpool]);
        exit(1);
     };
     
     NSArray *CLASSIFIEDarray=[fileManager contentsOfDirectoryAtPath:args[CDargSpool] error:&error];
     if (!CLASSIFIEDarray)
     {
-       os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_FAULT, "Can not open CLASSIFIED directory: %@. %@",args[CDargSpool], error.description);
+       if (@available(macOS 10.11, *))
+          os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_FAULT, "Can not open CLASSIFIED directory: %@. %@",args[CDargSpool], error.description);
+       else NSLog(@"Can not open CLASSIFIED directory: %@. %@",args[CDargSpool], error.description);
        exit(1);
     };
 
     if (!CLASSIFIEDarray.count)
     {
-       os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "no classified devices");
+       if (@available(macOS 10.11, *))
+          os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "no classified devices");
+       else NSLog(@"no classified devices");
        exit(0);
     }
     NSMutableArray *sourcesBeforeMapping=[NSMutableArray arrayWithArray:CLASSIFIEDarray];
@@ -664,7 +683,12 @@ int main(int argc, const char * argv[]){
           if (!sourcesBeforeMapping.count) exit(0);
 
        }
-       else os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "can not remove %@. %@",[args[CDargSpool] stringByAppendingPathComponent:sourcesBeforeMapping[0]],error.description);
+       else
+       {
+          if (@available(macOS 10.11, *))
+             os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "can not remove %@. %@",[args[CDargSpool] stringByAppendingPathComponent:sourcesBeforeMapping[0]],error.description);
+          else NSLog(@"can not remove %@. %@",[args[CDargSpool] stringByAppendingPathComponent:sourcesBeforeMapping[0]],error.description);
+       }
     }
 
     
@@ -676,14 +700,18 @@ int main(int argc, const char * argv[]){
     NSData *jsonData=[NSData dataWithContentsOfFile:args[CDargCoercedicomFile]];
     if (!jsonData)
     {
-       os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "no coercedicom json file at: %@",args[CDargCoercedicomFile]);
+       if (@available(macOS 10.11, *))
+          os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "no coercedicom json file at: %@",args[CDargCoercedicomFile]);
+       else NSLog(@"no coercedicom json file at: %@",args[CDargCoercedicomFile]);
        exit(1);
     };
     
     NSMutableArray *whiteList=[NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:&error];
     if (!whiteList)
     {
-       os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "bad coercedicom json file:%@ %@",args[CDargCoercedicomFile],[error description]);
+       if (@available(macOS 10.11, *))
+          os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "bad coercedicom json file:%@ %@",args[CDargCoercedicomFile],[error description]);
+       else NSLog(@"bad coercedicom json file:%@ %@",args[CDargCoercedicomFile],[error description]);
        exit(1);
     }
       
@@ -735,7 +763,9 @@ The root is an array where items are clasified by priority of execution
         NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:matchDict[@"regex"] options:0 error:&error];
         if (!regex)
         {
-           os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "bad coercedicom json file:%@ item:%@ %@",args[CDargCoercedicomFile],matchDict.description,[error description]);
+           if (@available(macOS 10.11, *))
+              os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "bad coercedicom json file:%@ item:%@ %@",args[CDargCoercedicomFile],matchDict.description,[error description]);
+           else NSLog(@"bad coercedicom json file:%@ item:%@ %@",args[CDargCoercedicomFile],matchDict.description,[error description]);
             exit(1);
         }
        
@@ -772,7 +802,9 @@ The root is an array where items are clasified by priority of execution
          NSString *errMsg=mergeDir(fileManager, [args[CDargSpool] stringByAppendingPathComponent:sourceName], [args[CDargSourceMismatch] stringByAppendingPathComponent:sourceName]);
          if (errMsg && errMsg.length)
          {
-            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "%@",errMsg);
+            if (@available(macOS 10.11, *))
+               os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "%@",errMsg);
+            else NSLog(@"%@",errMsg);
             return 1;
          }
       }
@@ -852,7 +884,12 @@ The root is an array where items are clasified by priority of execution
             NSString *studyPath=[sourceDir stringByAppendingPathComponent:Eiuid];
             if ([Eiuid hasPrefix:@"."])
             {
-                if (![fileManager removeItemAtPath:studyPath error:&error]) os_log(OS_LOG_DEFAULT, "can not remove %@. %@",studyPath,error.description);
+                if (![fileManager removeItemAtPath:studyPath error:&error])
+                {
+                   if (@available(macOS 10.11, *))
+                      os_log(OS_LOG_DEFAULT, "can not remove %@. %@",studyPath,error.description);
+                   else NSLog(@"can not remove %@. %@",studyPath,error.description);
+                }
                 continue;
             }
             //does the study contain series directory?
@@ -863,7 +900,12 @@ The root is an array where items are clasified by priority of execution
             }
             if (Siuids.count==0)
             {
-                if (![fileManager removeItemAtPath:studyPath error:&error]) os_log(OS_LOG_DEFAULT, "can not remove empty %@. %@",studyPath,error.description);
+                if (![fileManager removeItemAtPath:studyPath error:&error])
+                {
+                   if (@available(macOS 10.11, *))
+                      os_log(OS_LOG_DEFAULT, "can not remove empty %@. %@",studyPath,error.description);
+                   else NSLog(@"can not remove empty %@. %@",studyPath,error.description);
+               }
                 continue;
             }
             for (NSString *Siuid in [Siuids allObjects] )
@@ -1043,12 +1085,41 @@ The root is an array where items are clasified by priority of execution
       timeout-=5;
       [NSThread sleepForTimeInterval:5];//wait 5 segundos
    }
-   //if ((timeout==[args[CDargTimeout] intValue])&&(seriesTODO.count==0)) os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "NO JOB");
-   if (timeout<1) os_log(OS_LOG_DEFAULT, "ended after %d timeout seconds. Remaining series:\r\n%@",[args[CDargTimeout] intValue],[seriesTODO description]);
-   if (seriesDONE.count > 0) os_log(OS_LOG_DEFAULT, "COERCED %lu series",(unsigned long)seriesDONE.count);
-   if (seriesDUPLICATE.count > 0) os_log(OS_LOG_DEFAULT, "DUPLICATE %lu series",(unsigned long)seriesDUPLICATE.count);
-   if (seriesFAILED.count > 0) os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "FAILED series\r\n%@",seriesFAILED.description);
-   if (seriesINPACS.count > 0) os_log(OS_LOG_DEFAULT, "INPACS series\r\n%@",seriesINPACS.description);
+   /*
+    if ((timeout==[args[CDargTimeout] intValue])&&(seriesTODO.count==0))
+    {
+      if (@available(macOS 10.11, *))
+         os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "NO JOB");
+      else NSLog(@"NO JOB");
+    }
+    */
+   if (timeout<1)
+   {
+      if (@available(macOS 10.11, *))
+      os_log(OS_LOG_DEFAULT, "ended after %d timeout seconds. Remaining series:\r\n%@",[args[CDargTimeout] intValue],[seriesTODO description]);
+   }
+   if (seriesDONE.count > 0)
+   {
+      if (@available(macOS 10.11, *))
+      os_log(OS_LOG_DEFAULT, "COERCED %lu series",(unsigned long)seriesDONE.count);
+   }
+   if (seriesDUPLICATE.count > 0)
+   {
+      if (@available(macOS 10.11, *))
+      os_log(OS_LOG_DEFAULT, "DUPLICATE %lu series",(unsigned long)seriesDUPLICATE.count);
+   }
+   if (seriesFAILED.count > 0)
+   {
+      if (@available(macOS 10.11, *))
+         os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "FAILED series\r\n%@",seriesFAILED.description);
+      else NSLog(@"FAILED series\r\n%@",seriesFAILED.description);
+   }
+   if (seriesINPACS.count > 0)
+   {
+      if (@available(macOS 10.11, *))
+         os_log(OS_LOG_DEFAULT, "INPACS series\r\n%@",seriesINPACS.description);
+      else NSLog(@"INPACS series\r\n%@",seriesINPACS.description);
+   }
 
 }//end autoreleaspool
   return returnInt;//returns the number studuies processed
