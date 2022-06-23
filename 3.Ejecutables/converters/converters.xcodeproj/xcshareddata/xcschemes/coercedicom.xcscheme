@@ -68,6 +68,10 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "/Volumes/IN/asseMALDONADO/MISMATCH_ALTERNATES"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "/Volumes/IN/RECEIVING_AET/MISMATCH_SOURCE"
             isEnabled = "YES">
          </CommandLineArgument>
@@ -96,15 +100,15 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "60"
+            argument = "240"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "4"
+            argument = "10"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "60"
+            argument = "30"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

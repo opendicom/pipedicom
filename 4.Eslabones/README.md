@@ -10,6 +10,7 @@ Empiezan con el nombre corto de la institución
 - CUDIM (Centro Uruguayo de 
 - SA (Sanatorio Americano)
 - SUMMUM
+- ASESP (Asociación Española)
 
 
 
