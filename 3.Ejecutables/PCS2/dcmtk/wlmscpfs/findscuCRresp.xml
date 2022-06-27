@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<responses type="C-FIND">
+<data-set xfer="1.2.840.10008.1.2.1" name="Little Endian Explicit">
+<element tag="0008,0005" vr="CS" vm="1" len="10" name="SpecificCharacterSet">ISO_IR 192</element>
+<element tag="0010,0010" vr="PN" vm="1" len="36" name="PatientName">AAAAAAAAAAA AAAAAAAA^NNNNNNN NNNNNN</element>
+<sequence tag="0040,0100" vr="SQ" card="1" len="18" name="ScheduledProcedureStepSequence">
+<item card="1" len="10">
+<element tag="0008,0060" vr="CS" vm="1" len="2" name="Modality">CR</element>
+</item>
+</sequence>
+</data-set>
+</responses>
