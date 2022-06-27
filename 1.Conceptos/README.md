@@ -1,6 +1,6 @@
 # 1. Conceptos
 
-sh permite ejecutar comandos y visualizar el resultado de la ejecución dentro de una ventana de tipo terminal textual adónde se agregan nuevas lineas de texto al pie de las existentes a medida que se ingresan comandos y generan resultados.
+sh permite ejecutar comandos y visualizar el resultado de la ejecución dentro de una ventana de tipo terminal textual dónde se agregan nuevas lineas de texto al pie de las existentes a medida que se ingresan comandos y generan resultados.
 
 A esta ventana corresponde un entorno de ejecución con sus variables propias que persisten más alla de cada comando hasta que se cierre la ventana. En todo tiempo se puede listar las variables de entorno con el comando "printenv".
 

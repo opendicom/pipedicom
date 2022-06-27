@@ -1,52 +1,119 @@
-# Trigger (linux)
+# Cadena de procesamiento
 
-## Escrutinio de nuevo archivo
+## Encadenar eslabones
 
-Cron, con su inicio repetido de tareas, permite definir la frecuencia del escrutinio.
-
-La sintaxis 
-```
-m * * * * comando
-```
-define en que minuto m de cada hora se inicia el comando que sigue.
-
-Para repetir la tarea más de una vez cada hora, se puede duplicar la linea con un m diferente en cada copia.
-
-### Ejemplo con find
+Para recuperar la linea de información del stdin, el script necesita implementar la estructura siguiente:
 
 ```
-10 * * * * find `date "+/RAID5_sd4/DICOM/\%-Y/\%-m/\%-d/0"` -type f -perm 644 -exec chmod 464 {} \;
-40 * * * * find `date "+/RAID5_sd4/DICOM/\%-Y/\%-m/\%-d/0"` -type f -perm 644 -exec chmod 464 {} \;
+#!/bin/sh
 
-8 * * * * find `date "+/RAID5_sd4/DICOM/\%-Y/\%-m/\%-d/0"` -type f -perm 464 -exec /opt/dcm4che-2.0.24/bin/sr2img.sh {} \;
-38 * * * * find `date "+/RAID5_sd4/DICOM/\%-Y/\%-m/\%-d/0"` -type f -perm 464 -exec /opt/dcm4che-2.0.24/bin/sr2img.sh {} \;
+while read line; do
+
+echo "${line}"
+
+done 
+
+exit 0
+```
+
+la variable ${line} recibe stdin. 
+
+`echo` crea una linea en stdout. 
+
+Este script es apenas un proxy sin modificación del stream.
+
+Para hacer algo útil, colocar lineas de código entre do y done en base. Puden referirse a los argumentos del comando y al stdin. Se crea el stdout mediante uno o más comandos `echo`.
+
+
+## Eslabon particular de ejecutable genérico
+
+Definimos por separado el eslabón que contiene los detalles de configuración, del  ejecutable genérico que usa. 
+
+### Ejemplo de uso de función por un eslabón:
+
+eslabón:
 
 ```
-En este ejemplo, programamos dos comandos con una frecuencia de media hora.
-El propósito de esta configuración es de iniciar una action sobre un archivo que fue creado hace 29 a 58 minutos 
+#!/bin/sh
+# stdin: Ruta
+# stdout: Ruta
+# name: BCBSUpcs.sh
+# tool: stow.sh
 
-Usamos el comando find para encontrar los archivos. Usamos una modificación de permisos de los archivos para filtrar los archivos seleccionados:
+while read line; do
 
-- -rw-r--r-- (644) es el permiso original de un nuevo archivo
-- -r--rw-r-- (464) apenas detectado se cambia su permiso de tal forma que NO aparezca nuevamente en el filtro que busca nuevos archivos. Un scrutinio por archivos con permiso 464 encuentra los que se había etiquetados y aplica un comando a ellos. El comando incluye un nuevo cambio de permisos, para que el archivo NO vuelva a aparecer en el scrutinio y NO se vuelva a aplicar el comando a este archivo otra vez (veces)
-- -r--r-xr-- (454) permiso atribuido a archivos que ya fueron procesados y escaparán al scrutinio para nuevos archivos y para archivos a procesar.
+RESPONSE=$( echo ${line} | ./stow.sh http://10.10.21.65:8080/dcm4chee-arc/aets/BCBSU/rs )
 
-| creación | descubrimiento | procesamiento | latencia |
-|--|--|--|--|
-| 10-39 | 40 | 68 | 29-58 |
-| 40-09 | 10 | 38 | 29-58 |
-
-Limites de este funcionamiento... no procesa los archivos descubiertos a partir de las 23:10. Para solucionar eso agregar un cron comando a las  
-
-Explicación del comando:
+echo "${line}"
+done
+exit 0
 ```
-find `date "+/RAID5_sd4/DICOM/\%-Y/\%-m/\%-d/0"` -type f -perm 644 -exec chmod 464 {} \;
+
+Observamos que:
+- el script recibe ruta en stdin y la repite en stdout
+- se usa la función stow.sh para cada ruta de instancia recibida
+- se agrega como parámetro el url del servico específico con el cual se realizará la transacción en este eslabón
+- se captura una eventual respuesta de la función en la variable RESPONSE, por si se necesita más procesamiento en función de la respuesta.
+
+ejecutable:
+
 ```
-- find `date "+/RAID5_sd4/DICOM/\%-Y/\%-m/\%-d/0"` (buscar en la carpeta base. En nuestro caso, creamos la referencia a esta carpeta en forma dinámica, incluyendo componentes de tiempo
-- -type f (seleccionar los archivos)
-- -perm 644 (con permiso 644)
-- -exec /opt/dcm4che-2.0.24/bin/sr2img.sh {} \; (ruta completa del comando a ejecutar sobre la ruta indicada en $1 (primer argumento)
-    - `{} \;` (tratar cada ruta sucesivamente, con una nueva invocación al comando)
+#!/bin/sh
+# name: stow.sh
+# param $1: url dicomweb store (also called stow)
+# log: /var/log/stow.log
+# requires: mime.head and mime.tail in the same folder as the executable
+# tool: sistem curl
 
+while read line
+do
 
+STOWRESP=$( cat mime.head ${line} mime.tail | curl -s -k -H "Content-Type: multipart/related; type=application/dicom; boundary=myboundary" "$1"/studies --data-binary @- )
+if [[ -z $STOWRESP ]]; then
+    echo "<stow source=\"${line}\"><response contents=\"not received or empty\"/></stow>" >> /var/log/stow.log
+elif [[ $STOWRESP == *FailureReason* ]]; then 
 
+    FailureReason=$( echo $STOWRESP | sed -E -e 's/^(.*tag=\"00081197\" vr=\"US\"><Value number=\"1\">)([^<]*)(.*)$/\2/')
+    if [[ $FailureReason == "49442" ]]; then
+        echo "<stow source=\"${line}\"><response FailureReason=\"Referenced Transfer Syntax not supported\"/></stow>" >> /var/log/stow.log
+    elif [[ $FailureReason == "272" ]]; then
+            
+# Processing failure or was already stored
+        SOPUID=$( echo "${line}" | ./DICMpath2sopuid.sh )
+        QIDORESP=$(curl -s -k "$1"/instances?SOPInstanceUID="$SOPUID")
+        if [[ -z $QIDORESP ]]; then
+            echo "<stow source=\"${line}\" SOPInstanceUID=\"$SOPUID\"><response FailureReason=\"Processing failure\"/></stow>" >> /var/log/stow.log
+        else
+            echo "<stow source=\"${line}\"><response FailureReason=\"already stowed\"/></stow>" >> /var/log/stow.log
+        fi
+        
+    elif [[ $FailureReason == "290" ]]; then
+        echo "<stow source=\"${line}\"><response FailureReason=\"Referenced SOP Class not supported\"/></stow>" >> /var/log/stow.log
+    else
+        echo "<stow source=\"${line}\"><response FailureReason=\"$FailureReason\"/></stow>" >> /var/log/stow.log    
+    fi    
+elif [[ $STOWRESP == *WarningReason* ]]; then 
+    WarningReason=$( echo $STOWRESP | sed -E -e 's/^(.*tag=\"00081196\" vr=\"US\"><Value number=\"1\">)([^<]*)(.*)$/\2/')
+    if [[ $WarningReason == "45056" ]]; then
+        echo "<stow source=\"${line}\"><response WarningReason=\"Coercion of Data Elements\"/></stow>" >> /var/log/stow.log
+    elif [[ $WarningReason == "45062" ]]; then
+        echo "<stow source=\"${line}\"><response WarningReason=\"Elements Discarded\"/></stow>" >> /var/log/stow.log
+    elif [[ $WarningReason == "45063" ]]; then
+        echo "<stow source=\"${line}\"><response WarningReason=\"Data Set does not match SOP Class\"/></stow>" >> /var/log/stow.log
+    else
+        echo "<stow source=\"${line}\"><response WarningReason=\"$WarningReason\"/></stow>" >> /var/log/stow.log    
+    fi
+elif [[ $STOWRESP == *RetrieveURL* ]]; then
+    echo "<stow source=\"${line}\"><response RetrieveURL=\"$( echo $STOWRESP | sed -E -e 's/^(.*UR\"><Value number=\"1\">)([^<]*)(<\/Value><\/DicomAttribute><\/Item>.*)$/\2/')\"/></stow>" >> /var/log/stow.log
+else
+    echo "<stow source=\"${line}\"><response contents=\"not DICOM conformant\"></stow>" >> /var/log/stow.log
+fi
+
+echo "${line}"
+done 
+exit 0
+```
+
+## Fin de la cadena
+
+Para no generar correos a root, se termina la cadena con redirección del stdout a /dev/null

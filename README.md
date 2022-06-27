@@ -22,13 +22,4 @@ Intentamos limitar las dependencias externas. Con la excepción de la dependenci
    
 ## Limitationes
 
-Nos limitamos a la plataforma linux. Inicialmente Centos.
-
-
-## Capitulos del proyecto
-
-1. Conceptos
-2. Triggers
-3. Ejecutables
-4. Eslabones
-5. Cadenas
+Nos limitamos a la plataforma linux.
