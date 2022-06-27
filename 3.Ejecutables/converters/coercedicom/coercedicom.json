@@ -1,9 +1,0 @@
-[{
-"regex":"^.*",
-"coerceDataset":{ "00000001_00080080-LO" :[ "asseMALDONADO" ]},
-"removeFromDataset":["00000001_00101010-AS"],
-"supplementToDataset": { "00000001_00081060-PN": [ "asseMALDONADO^-^-"]},
-"removeFromEUIDprefixedDataset": { "1.2.840.113681.2229457174" :[ "00000001_00081060-PN",  "00000001_00081030-LO"]},
-"branch":"asseMALDONADO",
-"pacsAET":"DCM4CHEE"
-}]
