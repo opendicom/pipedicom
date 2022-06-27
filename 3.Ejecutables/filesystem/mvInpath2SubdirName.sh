@@ -1,16 +1,15 @@
 #!/bin/sh
-#A2subdirA.sh
+#mvInpath2SubdirName.sh
 #param $1: subdir name
-#stdin: A (original path)
-#stdout: B (new path in subdir)
+#stdin: inpath
+#stdout: newpath in subdir
 
-#comments: 
-#if no $1 is received A2subdirA.sh is a passthru
 #if subdir doesn´t exist, it is created
 
 while read line; do
 
 if [ "$#" -eq 0 ]; then
+    #if no $1 is received subdir.sh is a passthru
     echo ${line}
 else
     DIR=$(dirname ${line})

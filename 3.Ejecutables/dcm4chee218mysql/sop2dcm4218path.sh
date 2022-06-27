@@ -1,16 +1,12 @@
 #!/bin/sh
-#name: IB_dcm4chee218mysql.sh
+#name: sop2dcm4218path.sh
 #$1 user
 #$2 pass
 #$3 url
 #$4 database
 
-#stdin:  I
-#stdout: B
-
-# busca en pacs de CIP
-# devuelve la ruta completa del archivo correspondiente
-# o /dev/null si no existe.
+#stdin:  sop
+#stdout: ruta completa del archivo correspondiente o /dev/null si no existe.
 
 while read line; do
 
