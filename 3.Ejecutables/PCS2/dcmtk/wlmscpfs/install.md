@@ -2,14 +2,15 @@
 
 wlmscpfs publica items de worklist para el consumo por parte de los equipos imagenológicos. Para instalarlo, ejecutar dcmtk/wlmscpfs/install.sh con sudo y parametros:
 
-- org
+- admin
+- branch
 - puerto
-- aet
+- pacs
 
 Ejemplo:
 
 ```sh
-sudo /Users/Shared/dcmtk/wlmscpfs/install.sh asseSAINTBOIS 11112 DCM4CHEE
+sudo /Users/Shared/dcmtk/wlmscpfs/install.sh pcs2 asseSAINTBOIS 11112 DCM4CHEE
 ```
 
  

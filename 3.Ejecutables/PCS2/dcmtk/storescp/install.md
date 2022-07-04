@@ -4,14 +4,18 @@ storescp recibe objetos DICOM enviados por equipos imagenológicos y los clasifi
 
 Para instalarlo, ejecutar dcmtk/storescp/install.sh con sudo y parametros:
 
-- pcs aet
-- pcs port
 - admin user name
+
+- pcs aet
+
+- pcs port
+
+  
 
 Ejemplo:
 
 ```sh
-sudo /Users/Shared/dcmtk/storescp/install.sh asseSAINTBOIS 4096 pcs2
+sudo pcs2 /Users/Shared/dcmtk/storescp/install.sh asseSAINTBOIS 4096
 ```
 
 El usuario root dispara storescp. Aplicamos un cambio de propietario sobre los objetos DICOM recibidos para que sean accesibles por un usuario admin. En ASSE este usuario es "pcs2"

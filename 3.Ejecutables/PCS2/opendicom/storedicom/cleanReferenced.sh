@@ -1,70 +1,59 @@
 #!/bin/sh
-# $1 directorio de log
+# $1 directory LOG
+#                 /branch/device/euid/suid.sh
+#                 /branch/device/euid/date/suid.sh
+
+# uses logs only to determine if coerced files can be deleted
+# this is a process separate from sending so that deleting may be deferred in tim
 
 #color codes
 # 1 orange
-# 2 red        error
-# 3 yellow     recycled
-# 4 blue
+# 2 red        remote error (execute log)
+# 3 yellow
+# 4 blue       removed local
 # 5 purple
-# 6 green      found remote, removed local
-# 7 grey       no list
+# 6 green      not found local
+# 7 grey       not a opendicom signed log file
 
 DONEDIRNAME=$(date '+%Y%m%d%H%M%S')
 
-#LINE is an ABSOLUTE path (not a relative one)
-
-find "$1" -depth 3 -type f -name '*.sh' -Btime +1d -print0 | while read -d $'\0' LINE
+#SUIDLOGSHPATH is an ABSOLUTE path (not a relative one)
+find "$1" -depth 4 -type f -name '*.sh' -Btime +1d -print0 | while read -d $'\0' SUIDLOGSHPATH
 do
-    printf "$LINE"' : '
-    LOG=$(cat "$LINE")
-    if [[ $LOG == *#uy.asse.ridi.pcs.2.1.opendicom.storedicom.log* ]]; then
-
-        LINENAME=$(basename  "$LINE")
-
+    printf "$SUIDLOGSHPATH"' : '
+    LOG=$(cat "$SUIDLOGSHPATH")
+    
+    if [[ $LOG != *"#opendicom.storedicom"* ]]; then
+        echo 'NOT A SIGNED LOG FILE'
+        osascript -e "tell application \"Finder\" to set label index of alias POSIX file \"$SUIDLOGSHPATH\" to 7"
+    else
         if [[ $LOG == *FAILED* ]]; then
-            echo $( sh "$LINE" )
-            
+            echo $( sh "$SUIDLOGSHPATH" )
+            osascript -e "tell application \"Finder\" to set label index of alias POSIX file \"$SUIDLOGSHPATH\" to 2"
         elif [[ $LOG == *REFERENCED* ]]; then
-        
-            SRCBUCKET=$( sh "$LINE" )
-            
-            if  [[ $SRCBUCKET != '' ]]; then
-                if [ -d "$SRCBUCKET" ];then
-                    rm -Rf "$SRCBUCKET"
+
+            SERIESDIR=$( sh "$SUIDLOGSHPATH" )
+
+            if  [[ $SERIESDIR != '' ]]; then
+                if [ -d "$SERIESDIR" ];then
+                    rm -Rf "$SERIESDIR"
                     #blue
-                    osascript -e "tell application \"Finder\" to set label index of alias POSIX file \"$LINE\" to 4"
-                    LINEtxt=${LINE%.*}'.txt'
-                    if [ -f "$LINEtxt" ]; then
-                        osascript -e "tell application \"Finder\" to set label index of alias POSIX file \"$LINEtxt\" to 4"
-                    fi
-                else #[! -d "$SRCBUCKET" ]
+                    osascript -e "tell application \"Finder\" to set label index of alias POSIX file \"$SUIDLOGSHPATH\" to 4"
+                else #[! -d "$SERIESDIR" ]
                     #green
-                    osascript -e "tell application \"Finder\" to set label index of alias POSIX file \"$LINE\" to 6"
+                    osascript -e "tell application \"Finder\" to set label index of alias POSIX file \"$SUIDLOGSHPATH\" to 6"
                 fi
-            else #[[ $SRCBUCKET == '' ]]
-                #grey
-                osascript -e "tell application \"Finder\" to set label index of alias POSIX file \"$LINE\" to 7"
             fi
         else
-            # other kind of response
-            echo "$LINE"
-            echo "$LOG"
-            #grey
-            osascript -e "tell application \"Finder\" to set label index of alias POSIX file \"$LINE\" to 7"
+            osascript -e "tell application \"Finder\" to set label index of alias POSIX file \"$SUIDLOGSHPATH\" to 7"
         fi
-    else [[ $LOG != *#uy.asse.ridi.pcs.2.1.opendicom.storedicom.log* ]]
-        echo 'NOT SIGNED LOG FILE: '"$LINE"
-        echo "$LOG"
-        #grey
-        osascript -e "tell application \"Finder\" to set label index of alias POSIX file \"$LINE\" to 7"
     fi
 
 #DONE iN aaaammddhhmmss/
-    DONEDIRPATH="$(dirname "$LINE")"'/'"$DONEDIRNAME"
+    DONEDIRPATH="$(dirname "$SUIDLOGSHPATH")"'/'"$DONEDIRNAME"
     if [ ! -d "$DONEDIRPATH" ]; then
         mkdir -p "$DONEDIRPATH"
     fi
-    mv "$LINE" "$DONEDIRPATH"
+    mv "$SUIDLOGSHPATH" "$DONEDIRPATH"
 
 done

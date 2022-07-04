@@ -25,31 +25,32 @@
     >
     
     <xsl:output encoding="UTF-8" media-type="text/plain" omit-xml-declaration="yes"/>
-    
-    <xsl:param name="batch">batch</xsl:param><!--date-->
-    <xsl:param name="org">org</xsl:param>
-    <xsl:param name="dev">dev</xsl:param>
+    <xsl:param name="qido">qido</xsl:param>    
+    <xsl:param name="org">org</xsl:param>    
+    <xsl:param name="branch">branch</xsl:param>
+    <xsl:param name="device">device</xsl:param>
     <xsl:param name="euid">euid</xsl:param>
-    <xsl:param name="bucket">bucket</xsl:param>
+    <xsl:param name="suid">suid</xsl:param>
     <xsl:param name="logpath">logpath</xsl:param>
     <xsl:param name="logpathexists">FALSE</xsl:param>
     
     <xsl:template match="/NativeDicomModel">
         <xsl:if test="$logpathexists = 'FALSE'">
             <xsl:text>#!/bin/sh&#xA;</xsl:text>
-            <xsl:text>#uy.asse.ridi.pcs.2.1.opendicom.storedicom.log&#xA;</xsl:text>
+            <xsl:text>#opendicom.storedicom.log&#xA;</xsl:text>
         </xsl:if>
-        <xsl:variable name="RELATIVEURL" select="concat($org,'/',$dev,'/',$euid,'/',$bucket)"/>
-        <xsl:value-of select="concat('echo /Volumes/IN/DCM4CHEE/SENT/',$RELATIVEURL,'/&#xA;')"/>
+        <xsl:variable name="RELATIVEURL" select="concat($branch,'/',$device,'/',$euid,'/',$suid)"/>
+        <xsl:value-of select="concat('echo /Volumes/IN/',$org,'/SENT/',$RELATIVEURL,'/&#xA;')"/>
 
         <!-- 1. failed -->
         <xsl:variable name="failedCount" select="count(DicomAttribute[@keyword='FailedSOPSequence']/Item)"/>
         <xsl:if test="$failedCount > 0">
             
             <xsl:value-of select="concat('export LOGPATH=',$logpath,'/&#xA;')"/>
-            <xsl:value-of select="concat('export SRCBUCKET=/Volumes/IN/DCM4CHEE/SENT/',$RELATIVEURL,'/&#xA;')"/>
-            <xsl:value-of select="concat('export DSTBUCKET=/Volumes/IN/DCM4CHEE/SEND/',$RELATIVEURL,'/&#xA;')"/>
-
+            <xsl:value-of select="concat('export SENTSERIES=/Volumes/IN/',$org,'/SENT/',$RELATIVEURL,'/&#xA;')"/>
+            <xsl:value-of select="concat('export SENDSERIES=/Volumes/IN/',$org,'/SEND/',$RELATIVEURL,'/&#xA;')"/>
+            <xsl:value-of select="concat('export QIDOENDPOINT=',$qido,'/&#xA;')"/>
+            
             <xsl:variable name="keyword" select="normalize-space(//DicomAttribute[@keyword='FailureReason']/Value/text())"/>
             <xsl:choose>
                 <xsl:when test="( $keyword >= 42752 ) and ( $keyword &lt;= 43007 )" >
@@ -60,9 +61,7 @@
                 </xsl:when>
                 <xsl:when test="( $keyword >= 49152 ) and ( $keyword &lt;= 53247 )" >
                     <xsl:value-of select="concat('# ',$failedCount,' FAILED ',$keyword,': Error: Duplicate or Cannot understand&#xA;')"/>
-                    <!--<xsl:value-of select="concat(
-                        'if [ ! -d /Volumes/IN/DCM4CHEE/SEND/',$RELATIVEURL,' ]; then mkdir -p /Volumes/IN/DCM4CHEE/SEND/',$RELATIVEURL,'; fi&#xA;')"/>-->
-                    <xsl:text>/Users/Shared/opendicom/storedicom/recycle.sh \&#xA;</xsl:text>
+                    <xsl:text>/Users/Shared/opendicom/storedicom/recycle.sh /&#xA;</xsl:text>
                 </xsl:when>
                 <xsl:when test="$keyword = 49442" >
                     <xsl:value-of select="concat('# ',$failedCount,' FAILED ',$keyword,': Referenced Transfer Syntax not supported&#xA;')"/>

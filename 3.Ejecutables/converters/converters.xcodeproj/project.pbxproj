@@ -229,8 +229,6 @@
 		4ADA4F2C2672A90F008F98DB /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4ADA4F2D2672A91F008F98DB /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4ADA4F362672A930008F98DB /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		4ADA4F5F2672B81B008F98DB /* unused.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = unused.h; sourceTree = "<group>"; };
-		4ADA4F602672B81B008F98DB /* unused.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = unused.m; sourceTree = "<group>"; };
 		4ADA4FAF2677FD43008F98DB /* openjpeg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = openjpeg.h; sourceTree = "<group>"; };
 		4ADA4FBE2677FDBA008F98DB /* opj_compress */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = opj_compress; sourceTree = "<group>"; };
 		4ADA4FF426783D46008F98DB /* libopenjp2.2.5.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libopenjp2.2.5.0.dylib; sourceTree = "<group>"; };
@@ -410,8 +408,6 @@
 			isa = PBXGroup;
 			children = (
 				4ADA522E268CBA1F008F98DB /* installerPassword.sh */,
-				4ADA4F5F2672B81B008F98DB /* unused.h */,
-				4ADA4F602672B81B008F98DB /* unused.m */,
 				4A44193425EE53CE0091495B /* README.md */,
 				4ABDE91725B1A8FE00C8D33F /* XML */,
 				4A7B85D9258BC12800E62971 /* H2D */,
@@ -1630,7 +1626,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/cdamwldicom/lib/\"",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -1644,7 +1640,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/cdamwldicom/lib/\"",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

@@ -20,7 +20,7 @@ El procesamiento se realiza en base a las directivas que se encuentran en coerce
 
 ```
 [{
-"regex":".*(NXGENRAD).*",
+"regex":".*(NXGENRAD|NXMAMMO).*",
 "removeFromDataset":[ "00000001_00101010-AS" ],
 "coerceDataset":{ "00000001_00080080-LO" :[ "asseMALDONADO" ]},
 "supplementToDataset": { "00000001_00081060-PN": [ "asseMALDONADO^-^-"]},
@@ -155,18 +155,18 @@ Si la búsqueda no dió resultados, se considera que el estudio es independiente
 | Label                  | Descripción                                            |
 | ------------------------ | ------------------------------------------------------------ |
 | regex | expresión regular que matchea la identificación del source |
-| coercePrefix             | 128 bytes coded base64 to be placed as prefix of the dicom file |
-| coerceBlobs              | replaces or suplements blobs                                 |
-| coerceFileMetainfo:[{}]  | replaces or suplements attrs in fileMetainfo                 |
-| replaceInFileMetainfo:[{}] | only if attr already existed in fileMetainfo                 |
-| supplementToFileMetainfo:[{}] | only if attr did not exist in fileMetainfo                   |
-| removeFromFileMetainfo:[{}] | performed last (may undo a previous coercion)                |
-| removeFromEUIDprefixedFileMetainfo:[{ "UIDprefix":[atributeID]}] | EUIDprefixed permite seleccionar estudios para los cuales se usó EUID de la MWL |
-| coerceDataset:[{}]       | replaces or suplements attrs in dataset                      |
-| replaceInDataset:[{}]    | only if attr already existed in dataset                      |
-| supplementToDataset:[{}] | only if attr did not exist in dataset                        |
-| removeFromDataset:[atributeID] | performed last (may undo a previous coercion)                |
-| removeFromEUIDprefixedDataset:[{ "UIDprefix":[atributeID]}] | EUIDprefixed permite seleccionar estudios para los cuales se usó EUID de la MWL |
+| coercePrefix:            | 128 bytes coded base64 to be placed as prefix of the dicom file |
+| coerceBlobs:{}           | replaces or suplements blobs                                 |
+| removeFromFileMetainfo:[] | only if attr exists in fileMetainfo |
+| coerceFileMetainfo:{}  | replaces or suplements attrs in fileMetainfo                 |
+| replaceInFileMetainfo:{} | only if attr already existed in fileMetainfo                 |
+| supplementToFileMetainfo:{} | only if attr did not exist in fileMetainfo                   |
+| removeFromEUIDprefixedFileMetainfo:{ "UIDprefix":[atributeID]} | EUIDprefixed permite seleccionar estudios para los cuales se usó EUID de la MWL. Performed last (may undo a previous coercion) |
+| removeFromDataset:[atributeID] | only if attr exists in dataset                               |
+| coerceDataset:{}       | replaces or suplements attrs in dataset                      |
+| replaceInDataset:{}    | only if attr already existed in dataset                      |
+| supplementToDataset:{} | only if attr did not exist in dataset                        |
+| removeFromEUIDprefixedDataset:{ "UIDprefix":[atributeID]} | EUIDprefixed permite seleccionar estudios para los cuales se usó EUID de la MWL. Performed last (may undo a previous coercion) |
 | compression:                        | 0=natv (native sin compresión), 1=j2kr (1 fragmento), 4=bfhi (j2kr with four quality layers (base/fast/hres/idem)) |
 | branch: | AET branch origen |
 | pacsAET: | AET destino |

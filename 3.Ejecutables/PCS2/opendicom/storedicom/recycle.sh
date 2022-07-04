@@ -1,5 +1,10 @@
 #!/bin/sh
-# args: filenames of failed files to be recicled, removed or need investigation
+# used by log.sh
+
+#environment variables required
+if [[ $SENTSERIES == '' ]] || [[ $SENDSERIES == '' ]] || [[ $LOGPATH == '' ]] || [[ $QIDOENDPOINT == '' ]]; then
+    echo SENTSERIES, SENDSERIES, LOGPATH, QIDOENDPOINT environment variables required
+else
 
 #color codes
 
@@ -11,12 +16,8 @@
 # 2 red     NNLIST  found Neither remote    Nor local
 # 7 grey    no list empty bucket
 
-#params = list of parts
 
-if [[ $SRCBUCKET == '' ]] || [[ $DSTBUCKET == '' ]] || [[ $LOGPATH == '' ]]; then
-    echo SRCBUCKET, DSTBUCKET and LOGPATH required
-else
-
+#params = list of filenames of failed files to be recycled, removed or need investigation
     
 
     OKLIST=''
@@ -28,46 +29,45 @@ else
     BRLIST=''
     
     # loop iuid
-    for LINE in "$@"; do
-        QIDORESPONSE=$( curl -s -f 'https://serviciosridi.asse.uy/dcm4chee-arc/qido/DCM4CHEE/instances?SOPInstanceUID='"$LINE" )
+    for SOPIUID in "$@"; do
+        QIDORESPONSE=$( curl -s -f "$QIDOENDPOINT/instances?SOPInstanceUID=$SOPIUID" )
+#        QIDORESPONSE=$( curl -s -f 'https://serviciosridi.asse.uy/dcm4chee-arc/qido/DCM4CHEE/instances?SOPInstanceUID='"$SOPIUID" )
         
-        FILENAME=$(find "$SRCBUCKET" -name "$LINE"'*')
+        FILENAME=$(find "$SENTSERIES" -name "$SOPIUID"'*')
         if [[ $FILENAME == '' ]]; then
 # not found locally
             if [[ $QIDORESPONSE == "["* ]]; then
                 echo 'OK '
-                OKLIST="$OKLIST""$LINE"'\r\n'
+                OKLIST="$OKLIST""$SOPIUID"'\r\n'
             elif [[ $QIDORESPONSE == '' ]]; then
                 echo 'NN '
-                NNLIST="$NNLIST""$LINE"'\r\n'
+                NNLIST="$NNLIST""$SOPIUID"'\r\n'
             else
-                echo '\r\nER '"$LINE"'\r\n'
+                echo '\r\nER '"$SOPIUID"'\r\n'
                 echo "$QIDORESPONSE"'\r\n'
-                ERLIST="$ERLIST""$LINE"'\r\n'
+                ERLIST="$ERLIST""$SOPIUID"'\r\n'
             fi
         else
 # found locally
             if [[ $QIDORESPONSE == "["* ]]; then # found by qido request
                 echo 'RM '
                 rm -f "$FILENAME"
-                RMLIST="$RMLIST""$LINE"'\r\n'
+                RMLIST="$RMLIST""$SOPIUID"'\r\n'
             elif [[ $QIDORESPONSE == '' ]]; then
                 # recycle in SEND directory
                 echo 'MV '
-                if [ ! -d "$DSTBUCKET" ]; then
-                    mkdir -p "$DSTBUCKET"
+                if [ ! -d "$SENDSERIES" ]; then
+                    mkdir -p "$SENDSERIES"
                 fi
-                mv "$SRCBUCKET""$FILENAME" "$DSTBUCKET"
-                MVLIST="$MVLIST""$LINE"'\r\n'
+                mv "$SENTSERIES""$FILENAME" "$SENDSERIES"
+                MVLIST="$MVLIST""$SOPIUID"'\r\n'
             else # response not json
-                echo '\r\nBR '"$LINE"'\r\n'
+                echo '\r\nBR '"$SOPIUID"'\r\n'
                 echo "$QIDORESPONSE"'\r\n'
-                BRLIST="$BRLIST""$LINE"'\r\n'
+                BRLIST="$BRLIST""$SOPIUID"'\r\n'
             fi
         fi
     done
-
-    echo hola
 
     if [[ "$OKLIST" != '' ]]; then
         echo '\r\nALREADY SENT, NO ACCION REQUIRED'
@@ -116,7 +116,7 @@ else
 
 
     if [[ "$MVLIST" == '' ]] && [[ "$BRLIST" == '' ]] && [[ "$ERLIST" == '' ]] && [[ "$NNLIST" == '' ]]; then
-        rm -Rf "$SRCBUCKET"
+        rm -Rf "$SENTSERIES"
     fi
     
     if [[ "$OKLIST" == '' ]] && [[ "$RMLIST" == '' ]] && [[ "$MVLIST" == '' ]] && [[ "$BRLIST" == '' ]] && [[ "$ERLIST" == '' ]] && [[ "$NNLIST" == '' ]]; then

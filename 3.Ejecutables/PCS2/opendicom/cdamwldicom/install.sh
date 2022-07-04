@@ -1,99 +1,100 @@
 #!/bin/bash
-# $1= (org)
-# $2= (aet)
-# $3= (url)
+# $1= (admin)
+# $2= (org)
+# $3= (branch)
+# $4= (qido for branch OT)
 
-if  [ $1 != '' ] && [ $2 != '' ] && [ $3 != '' ]
+if  [ $1 != '' ] && [ $2 != '' ] && [ $3 != '' ] && [ $4 != '' ]
 then
 
-if [ ! -d "/Users/Shared/opendicom/cdamwldicom/$1" ]
+#admin
+su $1
+#logs
+if [ ! -d "/Users/$1/Documents/opendicom" ]
 then
-    mkdir -m 775 -p /Users/Shared/opendicom/cdamwldicom/$1
+    mkdir -m 775 -p /Users/$1/Documents/opendicom
+fi
+#spool
+if [ ! -d "/Users/Shared/opendicom/cdamwldicom/$3" ]
+then
+    mkdir -m 775 -p /Users/Shared/opendicom/cdamwldicom/$3
 fi
 
-cp /Users/Shared/opendicom/cdamwldicom/cda2mwl.xsl /Users/Shared/opendicom/cdamwldicom/$1/cda2mwl.xsl
-
-#log
-if [ ! -d "/Users/pcs2/Documents/opendicom" ]
-then
-    mkdir -m 775 -p /Users/pcs2/Documents/opendicom
-    chown -R pcs2:wheel /Users/pcs2/Documents/opendicom
-fi
-ln -s /Users/pcs2/Documents/opendicom /Users/Shared/opendicom/cdamwldicom/$1/log
+cp /Users/Shared/opendicom/cdamwldicom/cda2mwl.xsl /Users/Shared/opendicom/cdamwldicom/$3/cda2mwl.xsl
 
 
-plist='/Users/pcs2/Library/LaunchAgents/cdamwldicom.'"$1"'.'"$2"'.plist'
-echo '<?xml version="1.0" encoding="UTF-8"?>'                                             >  $plist
-echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">'                                    >> $plist
-echo '<plist version="1.0">'                                                              >> $plist
-echo '<dict>'                                                                             >> $plist
-echo '    <key>Label</key>'                                                               >> $plist
-echo '    <string>cdamwldicom.'"$1"'.'"$2"'.plist</string>'                               >> $plist
-echo '    <key>ProgramArguments</key>'                                                    >> $plist
-echo '    <array>'                                                                        >> $plist
-echo '        <string>/usr/local/bin/cdamwldicom</string>'                                >> $plist
-echo '        <string>/Users/Shared/opendicom/cdamwldicom/'"$1"'/cda2mwl.xsl</string>'    >> $plist
-echo '        <string>'"$3"'</string>'                                                    >> $plist
-echo '        <string>/Users/Shared/dcmtk/wlmscpfs/'"$1"'/aet</string>'                   >> $plist
-echo '        <string>'"$2"'</string>'                                                    >> $plist
-echo '    </array>'                                                                       >> $plist
-echo '    <key>StandardErrorPath</key>'                                                   >> $plist
-echo '    <string>/Users/pcs2/Documents/opendicom/cdamwldicom.'"$1"'.'"$2"'.error.log</string>'                                                                                             >> $plist
-echo '    <key>StandardOutPath</key>'                                                     >> $plist
-echo '    <string>/Users/pcs2/Documents/opendicom/cdamwldicom.'"$1"'.'"$2"'.log</string>' >> $plist
-echo '    <key>StartInterval</key>'                                                       >> $plist
-echo '    <integer>120</integer>'                                                         >> $plist
-echo '    <key>Umask</key>'                                                               >> $plist
-echo '    <integer>0</integer>'                                                           >> $plist
-echo '</dict>'                                                                            >> $plist
-echo '</plist>'                                                                           >> $plist
 
-ln -s $plist /Users/Shared/opendicom/cdamwldicom/$1/cdamwldicom.$1.$2.plist
+cdamwldicom='/Users/pcs2/Library/LaunchAgents/cdamwldicom.'"$3"'.'"$2"'.plist'
+echo '<?xml version="1.0" encoding="UTF-8"?>'                                                   >  $cdamwldicom
+echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">'                                 >> $cdamwldicom
+echo '<plist version="1.0">'                                                                    >> $cdamwldicom
+echo '<dict>'                                                                                   >> $cdamwldicom
+echo '    <key>Label</key>'                                                                     >> $cdamwldicom
+echo '    <string>cdamwldicom.'"$3"'.'"$2"'</string>'                                           >> $cdamwldicom
+echo '    <key>ProgramArguments</key>'                                                          >> $cdamwldicom
+echo '    <array>'                                                                              >> $cdamwldicom
+echo '        <string>/usr/local/bin/cdamwldicom</string>'                                      >> $cdamwldicom
+echo '        <string>/Users/Shared/opendicom/cdamwldicom/'"$3"'/cda2mwl.xsl</string>'          >> $cdamwldicom
+echo '        <string>'"$4"'</string>'                                                          >> $cdamwldicom
+echo '        <string>/Users/Shared/dcmtk/wlmscpfs/'"$3"'/aet</string>'                         >> $cdamwldicom
+echo '        <string>'"$2"'</string>'                                                          >> $cdamwldicom
+echo '    </array>'                                                                             >> $cdamwldicom
+echo '    <key>StandardErrorPath</key>'                                                         >> $cdamwldicom
+echo '    <string>/Users/pcs2/Documents/opendicom/cdamwldicom.'"$3"'.'"$2"'.error.log</string>' >> $cdamwldicom
+echo '    <key>StandardOutPath</key>'                                                           >> $cdamwldicom
+echo '    <string>/Users/pcs2/Documents/opendicom/cdamwldicom.'"$3"'.'"$2"'.log</string>'       >> $cdamwldicom
+echo '    <key>StartInterval</key>'                                                             >> $cdamwldicom
+echo '    <integer>120</integer>'                                                               >> $cdamwldicom
+echo '    <key>Umask</key>'                                                                     >> $cdamwldicom
+echo '    <integer>0</integer>'                                                                 >> $cdamwldicom
+echo '</dict>'                                                                                  >> $cdamwldicom
+echo '</plist>'                                                                                 >> $cdamwldicom
+
+ln -s $cdamwldicom /Users/Shared/opendicom/cdamwldicom/$1/cdamwldicom.$3.$2.plist
 
 
-plistold='/Users/pcs2/Library/LaunchAgents/olditems.'"$1"'.'"$2"'.plist'
-echo '<?xml version="1.0" encoding="UTF-8"?>'                                          >  $plistold
-echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">'                                 >> $plistold
-echo '<plist version="1.0">'                                                           >> $plistold
-echo '<dict>'                                                                          >> $plistold
-echo '    <key>Label</key>'                                                            >> $plistold
-echo '    <string>olditems.'"$1"'.'"$2"'.plist</string>'                               >> $plistold
-echo '    <key>ProgramArguments</key>'                                                 >> $plistold
-echo '    <array>'                                                                     >> $plistold
-echo '        <string>mv</string>'                                                     >> $plistold
-echo '        <string>/Users/Shared/dcmtk/wlmscpfs/'"$1"'/aet/published/DCM4CHEE/*</string>'                                                                                             >> $plistold
-echo '        <string>/Users/Shared/dcmtk/wlmscpfs/'"$1"'/aet/`date +%Y%m%d`</string>' >> $plistold
-echo '    </array>'                                                                    >> $plistold
-echo '    <key>StartCalendarInterval</key>'                                            >> $plistold
-echo '    <dict>'                                                                      >> $plistold
-echo '        <key>Hour</key>'                                                         >> $plistold
-echo '        <integer>23</integer>'                                                   >> $plistold
-echo '        <key>Minute</key>'                                                       >> $plistold
-echo '        <integer>50</integer>'                                                   >> $plistold
-echo '    </dict>'                                                                     >> $plistold
-echo '</dict>'                                                                         >> $plistold
-echo '</plist>'                                                                        >> $plistold
+mvPastWL='/Users/pcs2/Library/LaunchAgents/olditems.'"$3"'.'"$2"'.plist'
+echo '<?xml version="1.0" encoding="UTF-8"?>'                                          >  $mvPastWL
+echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">'                                 >> $mvPastWL
+echo '<plist version="1.0">'                                                           >> $mvPastWL
+echo '<dict>'                                                                          >> $mvPastWL
+echo '    <key>Label</key>'                                                            >> $mvPastWL
+echo '    <string>mvPastWL.'"$3"'.'"$2"'</string>'                                     >> $mvPastWL
+echo '    <key>ProgramArguments</key>'                                                 >> $mvPastWL
+echo '    <array>'                                                                     >> $mvPastWL
+echo '        <string>mv</string>'                                                     >> $mvPastWL
+echo '        <string>/Users/Shared/dcmtk/wlmscpfs/'"$3"'/aet/published/$2/*</string>' >> $mvPastWL
+echo '        <string>/Users/Shared/dcmtk/wlmscpfs/'"$3"'/aet/`date +%Y%m%d`</string>' >> $mvPastWL
+echo '    </array>'                                                                    >> $mvPastWL
+echo '    <key>StartCalendarInterval</key>'                                            >> $mvPastWL
+echo '    <dict>'                                                                      >> $mvPastWL
+echo '        <key>Hour</key>'                                                         >> $mvPastWL
+echo '        <integer>23</integer>'                                                   >> $mvPastWL
+echo '        <key>Minute</key>'                                                       >> $mvPastWL
+echo '        <integer>50</integer>'                                                   >> $mvPastWL
+echo '    </dict>'                                                                     >> $mvPastWL
+echo '</dict>'                                                                         >> $mvPastWL
+echo '</plist>'                                                                        >> $mvPastWL
 
-ln -s $plistold /Users/Shared/opendicom/cdamwldicom/$1/olditems.$1.$2.plist
+ln -s $mvPastWL /Users/Shared/opendicom/cdamwldicom/$3/mvPastWL.$3.$2.plist
 
 start='/Users/Shared/opendicom/cdamwldicom/'"$1"'/start.sh'
 echo '#!/bin/sh'                                     >  $start
 echo 'SUDO_ASKPASS=/Users/Shared/pass.sh'            >> $start
-echo 'launchctl load -w '"$plist"                    >> $start
-echo 'launchctl load -w '"$plistold"                 >> $start
+echo 'launchctl load -w '"$cdamwldicom"              >> $start
+echo 'launchctl load -w '"$mvPastWL"                 >> $start
 echo 'launchctl list | grep "cdamwldicom.'"$1"'"'    >> $start
 echo 'launchctl list | grep "olditems.'"$1"'"'       >> $start
 
 stop='/Users/Shared/opendicom/cdamwldicom/'"$1"'/stop.sh'
 echo '#!/bin/sh'                                     >  $stop
 echo 'SUDO_ASKPASS=/Users/Shared/pass.sh'            >> $stop
-echo 'launchctl unload -w '"$plist"                  >> $stop
-echo 'launchctl unload -w '"$plistold"               >> $stop
+echo 'launchctl unload -w '"$cdamwldicom"            >> $stop
+echo 'launchctl unload -w '"$mvPastWL"               >> $stop
 echo 'launchctl list | grep "cdamwldicom.'"$1"'"'    >> $stop
 echo 'launchctl list | grep "olditems.'"$1"'"'       >> $stop
 
 
-chown -R pcs2:wheel /Users/Shared/opendicom/cdamwldicom/$1
 chmod -R 775        /Users/Shared/opendicom/cdamwldicom/$1
 
 fi

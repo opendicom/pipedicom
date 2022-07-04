@@ -4,21 +4,22 @@ coercedicom verifica, comprime y aplica coerción sobre objetos dicom de un dire
 
 Para instalarlo:
 
-Requiere que dcmtk/storescp correspondiente ya fuese instalado.
+Requiere dcmtk y pipedicom instalados.
 Luego, ejecutar opendicom/coercedicom/install.sh con sudo y parametros:
 
-- pcs aet
-- pacs aet
-- user admin name
+- admin
+- org
+- branch
 
 
 Ejemplo:
 
 ```sh
-sudo /Users/Shared/opendicom/coercedicom/install.sh asseSAINTBOIS DCM4CHEE pcs2
+sudo /Users/Shared/opendicom/coercedicom/install.sh pcs2 DCM4CHEE asseSAINTBOIS
 ```
 
 Crea:
 
-- /Users/Shared/opendicom/coercedicom/[pcs aet]  y contenido
-- /Users/pcs2/Library/Launchagents/coercedicom.[pcs aet].plist
+- /Users/Shared/opendicom/coercedicom/[branch]  y contenido
+- /Users/pcs2/Library/Launchagents/coercedicom.[branch].plist
+- /Users/pcs2/Library/Launchagents/cleanOriginals.[branch].plist

@@ -1,27 +1,32 @@
 #!/bin/sh
+
+#$1 org path
+#           /spool/branch/dev/study/series/dcm.part
 SEND="$1/SEND"
 MISMATCHSERVICE="$1/MISMATCH_SERVICE"
 SENT="$1/SENT"
 LOG="$1/LOG"
-URL=${2%@*}$(basename $1)${2#*@}
-#echo $URL
-#'https://serviciosridi.preprod.asse.uy/dcm4chee-arc/stow/@/studies'
-# @ substituted
-XSLT=$3
-#used to format xml responses
-#$4 TIMOUT in seconds
+ORG=$(basename $1)
+
+STOWENDPOINT=$2
+#'https://serviciosridi.preprod.asse.uy/dcm4chee-arc/stow/DCM4CHEE'
+#URL=${2%@*}$(basename $1)${2#*@}
+QIDOENDPOINT=$3
+#'https://serviciosridi.preprod.asse.uy/dcm4chee-arc/qido/DCM4CHEE'
+TIMEOUT=$4
+
 
 if [ ! -d "$SEND" ]; then
    mkdir -p "$SEND"
 fi
 cd $SEND
-for ORG in `ls`; do
-   cd $ORG
-   for SOURCE in `ls`; do
-      cd $SOURCE
-      LOGSOURCE="$LOG"'/'"$ORG"'/'"$SOURCE"
-      if [ ! -d "$LOGSOURCE" ]; then
-          mkdir -p "$LOGSOURCE"
+for BRANCH in `ls`; do
+   cd $BRANCH
+   for DEVICE in `ls`; do
+      cd $DEVICE
+      LOGDEVICE="$LOG"'/'"$BRANCH"'/'"$DEVICE"
+      if [ ! -d "$LOGDEVICE" ]; then
+          mkdir -p "$LOGDEVICE"
       fi
 
       for STUDY in `ls`; do
@@ -36,14 +41,14 @@ for ORG in `ls`; do
              find . -depth 1 -type d  ! -empty -mtime +30s -print0 | while read -d $'\0' DOT_SERIES
              do
                 SERIES=${DOT_SERIES#*/}
-                STORERESP=$( cat $SERIES/* /Users/Shared/opendicom/storedicom/myboundary.tail | curl -k -s -X POST -H "Content-Type: multipart/related; type=\"application/dicom\"; boundary=myboundary" "$URL" --data-binary @- )
+                STORERESP=$( cat $SERIES/* /Users/Shared/opendicom/storedicom/myboundary.tail | curl -k -s -X POST -H "Content-Type: multipart/related; type=\"application/dicom\"; boundary=myboundary" "$STOWENDPOINT/studies" --data-binary @- )
 
                 if [[ -z $STORERESP ]] || [[ $"STORERESP" == '<html><head><title>Error</title></head><body>Internal Server Error</body></html>' ]]; then
-                   >&2 echo 'MISMATCH_SERVICE '"$ORG"'/'"$SOURCE"'/'"$STUDY"'/'"$SERIES"
+                   >&2 echo 'MISMATCH_SERVICE '"$BRANCH"'/'"$DEVICE"'/'"$STUDY"'/'"$SERIES"
                 else #response
-                   # echo 'RESPONSE '"$ORG"'/'"$SOURCE"'/'"$STUDY"'/'"$SERIES" #log to stdout
+                   # echo 'RESPONSE '"$BRANCH"'/'"$DEVICE"'/'"$STUDY"'/'"$SERIES" #log to stdout
 
-                   LOGPATHDIR="$LOGSOURCE"'/'"$STUDY"
+                   LOGPATHDIR="$LOGDEVICE"'/'"$STUDY"
                    if [ ! -d "$LOGPATHDIR" ]; then
                       mkdir -p "$LOGPATHDIR"
                    fi
@@ -54,13 +59,13 @@ for ORG in `ls`; do
                           LOGPATHEXISTS=TRUE
                       fi
 
-                      echo $STORERESP | xsltproc --stringparam org "$ORG" --stringparam dev "$SOURCE" --stringparam euid "$STUDY" --stringparam bucket "$SERIES" --stringparam logpath "$LOGPATH" /Users/Shared/opendicom/storedicom/respParsing.xsl - >> "$LOGPATH"
+                      echo $STORERESP | xsltproc --stringparam qido "$QIDOENDPOINT" --stringparam org "$ORG" --stringparam branch "$BRANCH" --stringparam device "$DEVICE" --stringparam euid "$STUDY" --stringparam suid "$SERIES" --stringparam logpath "$LOGPATH" /Users/Shared/opendicom/storedicom/respParsing.xsl - >> "$LOGPATH"
                       chmod 744 "$LOGPATH"
-                      DEST="$SENT"'/'"$ORG"'/'"$SOURCE"'/'"$STUDY"'/'"$SERIES"
+                      DEST="$SENT"'/'"$BRANCH"'/'"$DEVICE"'/'"$STUDY"'/'"$SERIES"
                    else
                       # other kind of response
                       echo $STORERESP  >> "$LOGPATHDIR"'/'"$SERIES"'.txt'
-                      DEST="$MISMATCHSERVICE"'/'"$ORG"'/'"$SOURCE"'/'"$STUDY"'/'"$SERIES"
+                      DEST="$MISMATCHSERVICE"'/'"$BRANCH"'/'"$DEVICE"'/'"$STUDY"'/'"$SERIES"
                    fi
                    if [ ! -d "$DEST" ]; then
                       mkdir -p "$DEST"
@@ -79,6 +84,6 @@ for ORG in `ls`; do
       fi
       done #STUDY
       cd ..
-   done #SOURCE
+   done #DEVICE
    cd ..
-done #ORG
+done #BRANCH

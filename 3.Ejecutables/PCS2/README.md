@@ -36,7 +36,7 @@ Cada uno de estos 7 servicios puede estar publicado varias veces (para pipelines
 
 ## Location
 
-Configuración y administración de los servicios se encuentran en /Users/Shared
+Configuración y administración de los servicios se encuentran en **/Users/Shared/**
 
 - **dcmtk** contiene los archivos relativos a storescp y a wlmscpfs
 - **opendicom** contiene los archivos relativos a coercedicom, storedicom y cdamwldicom
