@@ -47,21 +47,7 @@ opendicom1.sh instala coercedicom y cdamwldicom, y además storedicom.
 /Users/Shared/start_all.sh 
 ```
 
-```
--	0	cdamwldicom.asseHOSPOJOS.DCM4CHEE.plist
--	0	cdamwldicom.asseHOSPOJOS.DCM4CHEE
--	0	olditems.asseHOSPOJOS.DCM4CHEE.plist
--	0	cdamwldicom.asseSAINTBOIS.DCM4CHEE.plist
--	0	olditems.asseSAINTBOIS.DCM4CHEE.plist
--	0	storedicom.DCM4CHEE.plist
--	0	coercedicom.asseHOSPOJOS.plist
--	0	coercedicom.asseSAINTBOIS.plist
--	0	coercedicom.asseHOSPOJOS.plist
-7448	0	storescp.asseHOSPOJOS.4097.plist
-7455	0	storescp.asseSAINTBOIS.4096.plist
-7462	0	wlmscpfs.asseHOSPOJOS.DCM4CHEE.11113.plist
-7469	0	wlmscpfs.asseSAINTBOIS.DCM4CHEE.11112.plist
-```
+Como resultado, lista los servicios iniciados, los que ya estaban corriendo y los eventuales problemas de arranque.
 
 Storescp y wlmscpfs tienen un nro de proceso porque están abiertos en forma permanente para escuchar sus puertos respectivos.
 
@@ -77,21 +63,7 @@ Se puede comprobar la apertura de los puertos usando el programa "utilidad de re
 /Users/Shared/stop_all.sh 
 ```
 
-```
--	0	cdamwldicom.asseHOSPOJOS.DCM4CHEE.plist
--	0	cdamwldicom.asseHOSPOJOS.DCM4CHEE
--	0	olditems.asseHOSPOJOS.DCM4CHEE.plist
--	0	cdamwldicom.asseSAINTBOIS.DCM4CHEE.plist
--	0	olditems.asseSAINTBOIS.DCM4CHEE.plist
--	0	storedicom.DCM4CHEE.plist
--	0	coercedicom.asseHOSPOJOS.plist
--	0	coercedicom.asseSAINTBOIS.plist
--	0	coercedicom.asseHOSPOJOS.plist
-7448	0	storescp.asseHOSPOJOS.4097.plist
-7455	0	storescp.asseSAINTBOIS.4096.plist
-7462	0	wlmscpfs.asseHOSPOJOS.DCM4CHEE.11113.plist
-7469	0	wlmscpfs.asseSAINTBOIS.DCM4CHEE.11112.plist
-```
+
 
 
 
