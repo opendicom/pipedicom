@@ -124,16 +124,16 @@ fi
 
 
 start='/Users/Shared/dcmtk/storescp/'"$AET"'/start.sh'
-echo '#!/bin/sh'                                                   >  $start
-echo 'SUDO_ASKPASS=/Users/Shared/pass.sh'                          >> $start
-echo 'sudo -A launchctl load -w '"storescp"                        >> $start
-echo 'sudo -A launchctl list | grep "storescp.'"$AET"'.'"$PORT"'"' >> $start
+echo '#!/bin/sh'                                               >  $start
+echo 'SUDO_ASKPASS=/Users/Shared/pass.sh'                      >> $start
+echo 'sudo -A launchctl load -w '"$storescp"                   >> $start
+echo 'sudo -A launchctl list | grep storescp.'"$AET"'.'"$PORT" >> $start
 
 stop='/Users/Shared/dcmtk/storescp/'"$AET"'/stop.sh'
-echo '#!/bin/sh'                                                   >  $stop
-echo 'SUDO_ASKPASS=/Users/Shared/pass.sh'                          >> $stop
-echo 'sudo -A launchctl unload -w '"storescp"                      >> $stop
-echo 'sudo -A launchctl list | grep "storescp.'"$AET"'.'"$PORT"'"' >> $stop
+echo '#!/bin/sh'                                               >  $stop
+echo 'SUDO_ASKPASS=/Users/Shared/pass.sh'                      >> $stop
+echo 'sudo -A launchctl unload -w '"$storescp"                 >> $stop
+echo 'sudo -A launchctl list | grep storescp.'"$AET"'.'"$PORT" >> $stop
 
 
 #permisos /Users/Shared/dcmtk/storescp/$AET

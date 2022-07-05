@@ -4,15 +4,6 @@ ADMIN=$1
 ORG=$2
 BRANCH=$3
 
-# system
-
-echo "/Users/Shared/dcmtk/storescp/install.sh $ADMIN $BRANCH 4096"
-/Users/Shared/dcmtk/storescp/install.sh "$ADMIN" "$BRANCH" 4098
-
-echo "/Users/Shared/dcmtk/wlmscpfs/install.sh $ADMIN $BRANCH 11112 $ORG"
-/Users/Shared/dcmtk/wlmscpfs/install.sh "$ADMIN" "$BRANCH" 11114 "$ORG"
-
-
 # user
 
 su $ADMIN
@@ -24,3 +15,7 @@ echo '/Users/Shared/opendicom/cdamwldicom/install.sh' "$ADMIN" "$ORG" "$BRANCH" 
 # opendicom/coercedicom/install.sh'
 echo '/Users/Shared/opendicom/coercedicom/install.sh' "$ADMIN" "$ORG" "$BRANCH"
 /Users/Shared/opendicom/coercedicom/install.sh "$ADMIN" "$ORG" "$BRANCH"
+
+
+echo '/Users/Shared/opendicom/storedicom/install.sh' "$ADMIN" "$ORG" 'https://serviciosridi.asse.uy/dcm4chee-arc/stow/'"$ORG"'/studies' 'https://serviciosridi.asse.uy/dcm4chee-arc/qido/'"$ORG"'/studies'
+/Users/Shared/opendicom/storedicom/install.sh "$ADMIN" "$ORG"  'https://serviciosridi.asse.uy/dcm4chee-arc/stow/'"$ORG"'/studies' 'https://serviciosridi.asse.uy/dcm4chee-arc/qido/'"$ORG"'/studies'

@@ -63,16 +63,16 @@ echo '</plist>'                                                                 
 ln -s "$plist" "/Users/Shared/dcmtk/wlmscpfs/$BRANCH/wlmscpfs.$BRANCH.$ORG.$PORT.plist"
 
 start='/Users/Shared/dcmtk/wlmscpfs/'"$BRANCH"'/start.sh'
-echo '#!/bin/sh'                                                                >  $start
-echo 'SUDO_ASKPASS=/Users/Shared/pass.sh'                                       >> $start
-echo 'sudo -A launchctl load -w '"$plist"                                       >> $start
-echo 'sudo -A launchctl list | grep "wlmscpfs.'"$BRANCH"'.'"$ORG"'.'"$PORT"'"'  >> $start
+echo '#!/bin/sh'                                                            >  $start
+echo 'SUDO_ASKPASS=/Users/Shared/pass.sh'                                   >> $start
+echo 'sudo -A launchctl load -w '"$plist"                                   >> $start
+echo 'sudo -A launchctl list | grep wlmscpfs.'"$BRANCH"'.'"$ORG"'.'"$PORT"  >> $start
 
 stop='/Users/Shared/dcmtk/wlmscpfs/'"$BRANCH"'/stop.sh'
-echo '#!/bin/sh'                                                                >  $stop
-echo 'SUDO_ASKPASS=/Users/Shared/pass.sh'                                       >> $stop
-echo 'sudo -A launchctl unload -w '"$plist"                                     >> $stop
-echo 'sudo -A launchctl list | grep "wlmscpfs.'"$BRANCH"'.'"$ORG"'.'"$PORT"'"'  >> $stop
+echo '#!/bin/sh'                                                            >  $stop
+echo 'SUDO_ASKPASS=/Users/Shared/pass.sh'                                   >> $stop
+echo 'sudo -A launchctl unload -w '"$plist"                                 >> $stop
+echo 'sudo -A launchctl list | grep wlmscpfs.'"$BRANCH"'.'"$ORG"'.'"$PORT"  >> $stop
 
 
 chown -R "$ADMIN":wheel "/Users/Shared/dcmtk/wlmscpfs/$BRANCH"

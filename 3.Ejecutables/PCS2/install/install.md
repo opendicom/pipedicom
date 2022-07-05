@@ -1,21 +1,43 @@
 # Instalación PCS2
 
-Se dedican puertos distintos para distintos branchs, empezando en 4096 para el servicio storescp y en 11112 para el servicio findscp:
+Todos los instaladores tienen parametros admin org branch.
 
-Dos opciones:
+**admin** es el nombre del usuario administrador. "**pcs2**" en ASSE.
 
-## Opción rápida
+**org** es el nombre del pacs centralizado. "**DCM4CHEE**". en ASSE.
+
+**branch** es el nombre del hospital. Por ejemplo asseRIVERA.
+
+
+
+## instaladores dcmtk
+
+Se dedican puertos distintos para branch distintos, empezando en 4096 para el servicio storescp y en 11112 para el servicio findscp de mwl. 
 
 ```
-sudo /Users/Shared/install/install1.sh asseSAINTBOIS
-sudo /Users/Shared/install/install2.sh asseHOSPOJOS
+sudo ./dcmtk1.sh pcs2 DCM4CHEE [branch1]
+sudo ./dcmtk2.sh pcs2 DCM4CHEE [branch2]
+sudo ./dcmtk3.sh pcs2 DCM4CHEE [branch3]
 ```
 
-install1 reserva los puertos 4096 y 11112 e instala tambien storedicom
+dcmtk1.sh, dcmtk2.sh dcmtk2.sh son instaladores para branch distintos con puertos (4096,11112) ,  (4097,11113), (4098,11118) respectivame.
 
-install2 reserva los puertos 4097 y 11113
+Se requiere la instalación desde root para garantizar la apertura de los puertos. Por eso el sudo.
 
-Es sencillo duplicar install2 como install[n] y cambiar los puertos dentro de los duplicados, para realizar instalaciones de más de dos organizaciones dentro del mismo pcs2.
+## 
+
+## instaladores opendicom
+
+Se insatala desde el usuario admin. No instalar con sudo.
+
+```
+./opendicom1.sh pcs2 DCM4CHEE [branch1]
+./opendicom2.sh pcs2 DCM4CHEE [branch2]
+```
+
+opendicom2.sh instala coercedicom y cdamwldicom. Se puede usar también para la tercera y las branch siguiente(s).
+
+opendicom1.sh instala coercedicom y cdamwldicom, y además storedicom.
 
 # Verificación de la instalación
 
