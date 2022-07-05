@@ -1,49 +1,44 @@
 #!/bin/bash
-if [ "$#" -ne 4 ]; then
-   echo 'dcmtk/storescp/install.sh'
-   echo '$1 (admin)'
-   echo '$2 (aet)'
-   echo '$3 (port)'
-else
-admin=$1
-aet=$2
-port=$3
+
+ADMIN=$1
+AET=$2
+PORT=$3
 
 
 
-if [ ! -d "/Volumes/IN/$aet" ]
+if [ ! -d "/Volumes/IN/$AET" ]
 then
-    mkdir -m 775 -p /Volumes/IN/$aet/{ARRIVED,CLASSIFIED,FAILURE,ORIGINALS,MISMATCH_ALTERNATES,MISMATCH_SOURCE,MISMATCH_CDAMWL,MISMATCH_PACS}
-    chown -R $admin:wheel /Volumes/IN/$aet
+    mkdir -m 775 -p "/Volumes/IN/$AET/{ARRIVED,CLASSIFIED,FAILURE,ORIGINALS,MISMATCH_ALTERNATES,MISMATCH_SOURCE,MISMATCH_CDAMWL,MISMATCH_PACS}"
+    chown -R "$ADMIN":wheel "/Volumes/IN/$AET"
 fi
 
 
 
 #log
-if [ ! -d "/Users/$admin/Documents/dcmtk" ]
+if [ ! -d "/Users/$ADMIN/Documents/dcmtk" ]
 then
-    mkdir -m 775 -p     /Users/$admin/Documents/dcmtk
-    chown -R $admin:wheel /Users/$admin/Documents/dcmtk
+    mkdir -m 775 -p     "/Users/$ADMIN/Documents/dcmtk"
+    chown -R "$ADMIN":wheel "/Users/$ADMIN/Documents/dcmtk"
 fi
 
 
 
-if [ ! -d "/Users/Shared/dcmtk/storescp/$aet" ]
+if [ ! -d "/Users/Shared/dcmtk/storescp/$AET" ]
 then
-    mkdir -m 775 -p /Users/Shared/dcmtk/storescp/$aet
+    mkdir -m 775 -p "/Users/Shared/dcmtk/storescp/$AET"
 fi
 
 
-classifier="/Users/Shared/dcmtk/storescp/$aet/classifier.sh"
+classifier="/Users/Shared/dcmtk/storescp/$AET/classifier.sh"
 echo '#!/bin/sh'                                                    >  $classifier
 
-echo '# $1=#a (calling aet)'                                        >> $classifier
+echo '# $1=#a (calling AET)'                                        >> $classifier
 echo '# $2=#r (calling presentation address)'                       >> $classifier
 echo '# $3=#p (path/studyiuid)'                                     >> $classifier
 echo '# $4=#f file name'                                            >> $classifier
-echo '# $5=#c called aet'                                           >> $classifier
+echo '# $5=#c called AET'                                           >> $classifier
 
-echo 'base=/Volumes/IN/'"$aet"'/CLASSIFIED'                         >> $classifier
+echo 'base=/Volumes/IN/'"$AET"'/CLASSIFIED'                         >> $classifier
 echo 'device="$1@$2^$5"'                                            >> $classifier
 echo 'euid="${3##*/}"'                                              >> $classifier
 
@@ -59,21 +54,21 @@ echo '    then'                                                     >> $classifi
 echo '        if [ ! -d "$base/$device" ]'                          >> $classifier
 echo '        then'                                                 >> $classifier
 echo '            mkdir -m 775 $base/$device'                       >> $classifier
-echo '            chown '"$admin"':wheel $base/$device'             >> $classifier
+echo '            chown '"$ADMIN"':wheel $base/$device'             >> $classifier
 echo '        fi'                                                   >> $classifier
 echo '        mkdir -m 775 $base/$device/$euid'                     >> $classifier
-echo '        chown '"$admin"':wheel $base/$device/$euid'           >> $classifier
+echo '        chown '"$ADMIN"':wheel $base/$device/$euid'           >> $classifier
 echo '    fi'                                                       >> $classifier
 echo '    mkdir -m 775 $base/$device/$euid/$suid'                   >> $classifier
-echo '    chown '"$admin"':wheel $base/$device/$euid/$suid'         >> $classifier
+echo '    chown '"$ADMIN"':wheel $base/$device/$euid/$suid'         >> $classifier
 echo 'fi'                                                           >> $classifier
 
 echo 'mv    $3/$4            $base/$device/$euid/$suid/${4#*.}.dcm' >> $classifier
 echo 'chmod 775              $base/$device/$euid/$suid/${4#*.}.dcm' >> $classifier
-echo 'chown '"$admin"':wheel $base/$device/$euid/$suid/${4#*.}.dcm' >> $classifier
+echo 'chown '"$ADMIN"':wheel $base/$device/$euid/$suid/${4#*.}.dcm' >> $classifier
 
 
-storescp='/Library/LaunchDaemons/storescp.'"$aet"'.'"$port"'.plist'
+storescp='/Library/LaunchDaemons/storescp.'"$AET"'.'"$PORT"'.plist'
 echo '<?xml version="1.0" encoding="UTF-8"?>'                                                       >  $storescp
 echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">'                           >> $storescp
 echo '<plist version="1.0">'                                                                        >> $storescp
@@ -88,7 +83,7 @@ echo '    </dict>'                                                              
 echo '    <key>KeepAlive</key>'                                                                     >> $storescp
 echo '    <true/>'                                                                                  >> $storescp
 echo '    <key>Label</key>'                                                                         >> $storescp
-echo '    <string>storescp.'"$aet"'.'"$port"'</string>'                                             >> $storescp
+echo '    <string>storescp.'"$AET"'.'"$PORT"'</string>'                                             >> $storescp
 echo '    <key>ProgramArguments</key>'                                                              >> $storescp
 echo '    <array>'                                                                                  >> $storescp
 echo '        <string>/usr/local/bin/storescp</string>'                                             >> $storescp
@@ -99,7 +94,7 @@ echo '        <string>+xe</string>'                                             
 echo '        <string>-pm</string>'                                                                 >> $storescp
 echo '        <string>+te</string>'                                                                 >> $storescp
 echo '        <string>-aet</string>'                                                                >> $storescp
-echo '        <string>'"$aet"'</string>'                                                            >> $storescp
+echo '        <string>'"$AET"'</string>'                                                            >> $storescp
 echo '        <string>-pdu</string>'                                                                >> $storescp
 echo '        <string>131072</string>'                                                              >> $storescp
 echo '        <string>-dhl</string>'                                                                >> $storescp
@@ -107,40 +102,40 @@ echo '        <string>-up</string>'                                             
 echo '        <string>-g</string>'                                                                  >> $storescp
 echo '        <string>-e</string>'                                                                  >> $storescp
 echo '        <string>-od</string>'                                                                 >> $storescp
-echo '        <string>/Volumes/IN/'"$aet"'/ARRIVED</string>'                                        >> $storescp
+echo '        <string>/Volumes/IN/'"$AET"'/ARRIVED</string>'                                        >> $storescp
 echo '        <string>-su</string>'                                                                 >> $storescp
 echo '        <string></string>'                                                                    >> $storescp
 echo '        <string>-uf</string>'                                                                 >> $storescp
 echo '        <string>-xcr</string>'                                                                >> $storescp
-echo '        <string>/Users/Shared/dcmtk/storescp/'"$aet"'/classifier.sh #a #r #p #f #c</string>'  >> $storescp
-echo '        <string>'"$port"'</string>'                                                           >> $storescp
+echo '        <string>/Users/Shared/dcmtk/storescp/'"$AET"'/classifier.sh #a #r #p #f #c</string>'  >> $storescp
+echo '        <string>'"$PORT"'</string>'                                                           >> $storescp
 echo '    </array>'                                                                                 >> $storescp
 echo '    <key>StandardErrorPath</key>'                                                             >> $storescp
-echo '    <string>/Users/'"$admin"'/Documents/dcmtk/storescp.'"$aet"'.'"$port"'.error.log</string>' >> $storescp
+echo '    <string>/Users/'"$ADMIN"'/Documents/dcmtk/storescp.'"$AET"'.'"$PORT"'.error.log</string>' >> $storescp
 echo '    <key>StandardOutPath</key>'                                                               >> $storescp
-echo '    <string>/Users/'"$admin"'/Documents/dcmtk/storescp.'"$aet"'.'"$port"'.log</string>'       >> $storescp
+echo '    <string>/Users/'"$ADMIN"'/Documents/dcmtk/storescp.'"$AET"'.'"$PORT"'.log</string>'       >> $storescp
 echo '</dict>'                                                                                      >> $storescp
 echo '</plist>'                                                                                     >> $storescp
 
-ln -s $storescp /Users/Shared/dcmtk/storescp/$aet/storescp.$aet.$port.plist
+if [ ! -d "/Users/Shared/dcmtk/storescp/$AET/storescp.$AET.$PORT.plist" ]
+then
+   ln -s "$storescp" "/Users/Shared/dcmtk/storescp/$AET/storescp.$AET.$PORT.plist"
+fi
 
 
-
-start='/Users/Shared/dcmtk/storescp/'"$aet"'/start.sh'
+start='/Users/Shared/dcmtk/storescp/'"$AET"'/start.sh'
 echo '#!/bin/sh'                                                   >  $start
 echo 'SUDO_ASKPASS=/Users/Shared/pass.sh'                          >> $start
-echo 'sudo -A launchctl load -w '"storescp"                       >> $start
-echo 'sudo -A launchctl list | grep "storescp.'"$aet"'.'"$port"'"' >> $start
+echo 'sudo -A launchctl load -w '"storescp"                        >> $start
+echo 'sudo -A launchctl list | grep "storescp.'"$AET"'.'"$PORT"'"' >> $start
 
-stop='/Users/Shared/dcmtk/storescp/'"$aet"'/stop.sh'
+stop='/Users/Shared/dcmtk/storescp/'"$AET"'/stop.sh'
 echo '#!/bin/sh'                                                   >  $stop
 echo 'SUDO_ASKPASS=/Users/Shared/pass.sh'                          >> $stop
-echo 'sudo -A launchctl unload -w '"storescp"                     >> $stop
-echo 'sudo -A launchctl list | grep "storescp.'"$aet"'.'"$port"'"' >> $stop
+echo 'sudo -A launchctl unload -w '"storescp"                      >> $stop
+echo 'sudo -A launchctl list | grep "storescp.'"$AET"'.'"$PORT"'"' >> $stop
 
 
-#permisos /Users/Shared/dcmtk/storescp/$aet
-chown -R $admin:wheel /Users/Shared/dcmtk/storescp/$aet
-chmod -R 775 /Users/Shared/dcmtk/storescp/$aet
-
-fi
+#permisos /Users/Shared/dcmtk/storescp/$AET
+chown -R "$ADMIN":wheel "/Users/Shared/dcmtk/storescp/$AET"
+chmod -R 775 "/Users/Shared/dcmtk/storescp/$AET"
