@@ -6,30 +6,30 @@ PORT=$3
 
 
 
-if [ ! -d "/Volumes/IN/$AET" ]
+if [ ! -d '/Volumes/IN/'"$AET" ]
 then
-    mkdir -m 775 -p "/Volumes/IN/$AET/{ARRIVED,CLASSIFIED,FAILURE,ORIGINALS,MISMATCH_ALTERNATES,MISMATCH_SOURCE,MISMATCH_CDAMWL,MISMATCH_PACS}"
-    chown -R "$ADMIN":wheel "/Volumes/IN/$AET"
+    mkdir -m 775 -p '/Volumes/IN/'"$AET"'/{ARRIVED,CLASSIFIED,FAILURE,ORIGINALS,MISMATCH_ALTERNATES,MISMATCH_SOURCE,MISMATCH_CDAMWL,MISMATCH_PACS}'
+    chown -R "$ADMIN":wheel '/Volumes/IN/'"$AET"
 fi
 
 
 
 #log
-if [ ! -d "/Users/$ADMIN/Documents/dcmtk" ]
+if [ ! -d '/Users/'"$ADMIN"'/Documents/dcmtk' ]
 then
-    mkdir -m 775 -p     "/Users/$ADMIN/Documents/dcmtk"
-    chown -R "$ADMIN":wheel "/Users/$ADMIN/Documents/dcmtk"
+    mkdir -m 775 -p     '/Users/'"$ADMIN"'/Documents/dcmtk'
+    chown -R "$ADMIN":wheel '/Users/'"$ADMIN"'/Documents/dcmtk'
 fi
 
 
 
-if [ ! -d "/Users/Shared/dcmtk/storescp/$AET" ]
+if [ ! -d '/Users/Shared/dcmtk/storescp/'"$AET" ]
 then
-    mkdir -m 775 -p "/Users/Shared/dcmtk/storescp/$AET"
+    mkdir -m 775 -p '/Users/Shared/dcmtk/storescp/'"$AET"
 fi
 
 
-classifier="/Users/Shared/dcmtk/storescp/$AET/classifier.sh"
+classifier='/Users/Shared/dcmtk/storescp/'"$AET"'/classifier.sh'
 echo '#!/bin/sh'                                                    >  $classifier
 
 echo '# $1=#a (calling AET)'                                        >> $classifier
@@ -117,9 +117,9 @@ echo '    <string>/Users/'"$ADMIN"'/Documents/dcmtk/storescp.'"$AET"'.'"$PORT"'.
 echo '</dict>'                                                                                      >> $storescp
 echo '</plist>'                                                                                     >> $storescp
 
-if [ ! -d "/Users/Shared/dcmtk/storescp/$AET/storescp.$AET.$PORT.plist" ]
+if [ ! -d '/Users/Shared/dcmtk/storescp/'"$AET"'/storescp.'"$AET"'.'"$PORT"'.plist' ]
 then
-   ln -s "$storescp" "/Users/Shared/dcmtk/storescp/$AET/storescp.$AET.$PORT.plist"
+   ln -s "$storescp" '/Users/Shared/dcmtk/storescp/'"$AET"'/storescp.'"$AET"'.'"$PORT"'.plist'
 fi
 
 
@@ -137,5 +137,5 @@ echo 'sudo -A launchctl list | grep "storescp.'"$AET"'.'"$PORT"'"' >> $stop
 
 
 #permisos /Users/Shared/dcmtk/storescp/$AET
-chown -R "$ADMIN":wheel "/Users/Shared/dcmtk/storescp/$AET"
-chmod -R 775 "/Users/Shared/dcmtk/storescp/$AET"
+chown -R "$ADMIN":wheel '/Users/Shared/dcmtk/storescp/'"$AET"
+chmod -R 775 '/Users/Shared/dcmtk/storescp/'"$AET"
