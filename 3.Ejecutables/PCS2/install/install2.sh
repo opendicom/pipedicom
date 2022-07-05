@@ -15,7 +15,7 @@ echo "/Users/Shared/dcmtk/wlmscpfs/install.sh $ADMIN $BRANCH 11112 $ORG"
 
 # user
 
-su "$ADMIN"
+su $ADMIN
 
 # opendicom/cdamwldicom/install.sh
 echo '/Users/Shared/opendicom/cdamwldicom/install.sh' "$ADMIN" "$ORG" "$BRANCH" 'https://serviciosridi.asse.uy/dcm4chee-arc/qido/DCM4CHEE/instances?Modality=OT&amp;00080080='"$BRANCH"'&amp;SeriesDescription=solicitud&amp;NumberOfStudyRelatedInstances=1&amp;StudyDate='

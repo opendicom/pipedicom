@@ -10,14 +10,14 @@ QIDO=$4
 
 
 #logs
-if [ ! -d "/Users/$ADMIN/Documents/opendicom" ]
+if [ ! -d '/Users/'"$ADMIN"'/Documents/opendicom' ]
 then
-    mkdir -m 775 "/Users/$ADMIN/Documents/opendicom"
+    mkdir -m 775 '/Users/'"$ADMIN"'/Documents/opendicom'
 fi
 #spool
-if [ ! -d "/Volumes/IN/$ORG" ]
+if [ ! -d '/Volumes/IN/'"$ORG" ]
 then
-    mkdir -m 775 -p "/Volumes/IN/$ORG/{SEND,MISMATCH_SERVICE,SENT,LOG}"
+    mkdir -m 775 -p /Volumes/IN/$ORG/{SEND,MISMATCH_SERVICE,SENT,LOG}
 fi
 
 
@@ -53,7 +53,7 @@ echo '</plist>'                                                                 
 
 
 
-recycleMismatchService='/Users/pcs2/Library/LaunchAgents/recycleMismatchService.'"$ORG"'.plist'
+recycleMismatchService='/Users/'"$ADMIN"'/Library/LaunchAgents/recycleMismatchService.'"$ORG"'.plist'
 echo '<?xml version="1.0" encoding="UTF-8"?>'                                                         >  $recycleMismatchService
 echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' >> $recycleMismatchService
 echo '<plist version="1.0">'                                                                          >> $recycleMismatchService
@@ -78,7 +78,7 @@ echo '</dict>'                                                                  
 echo '</plist>'                                                                                       >> $recycleMismatchService
 
 
-cleanReferenced='/Users/pcs2/Library/LaunchAgents/cleanReferenced.'"$ORG"'.plist'
+cleanReferenced='/Users/'"$ADMIN"'/Library/LaunchAgents/cleanReferenced.'"$ORG"'.plist'
 echo '<?xml version="1.0" encoding="UTF-8"?>'                                            >  $cleanReferenced
 echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' >> $cleanReferenced
 echo '<plist version="1.0">'                                                              >> $cleanReferenced
