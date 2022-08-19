@@ -3,11 +3,13 @@
 PCS2 install
 ===========
 
+Versión 2.4
+
 PCS2 incluye 5 servicios principales:
 
 - **dcmtk/storescp** (recepción imágenes)
 - **dcmtk/wlmscpfs** (publicación worklist)
-- **opendicom/coercedicom** (coerción imágenes)
+- **opendicom/coercedicom** (coerción + compresión j2kr imágenes)
 - **opendicom/storedicom** (reenvio imágenes)
 - **opendicom/cdamwldicom** (creación items worklist)
 
@@ -29,7 +31,7 @@ Cada uno de estos 7 servicios puede estar publicado varias veces (para pipelines
 
 ## Prerequisitos
 
-- dcmtk 3.6.6 installed
+- dcmtk 3.6.7  opendicom modified branch installed
 - opendicom pipedicom installed
 
 
@@ -40,7 +42,6 @@ Configuración y administración de los servicios se encuentran en **/Users/Shar
 
 - **dcmtk** contiene los archivos relativos a storescp y a wlmscpfs
 - **opendicom** contiene los archivos relativos a coercedicom, storedicom y cdamwldicom
-- **install** contiene utilitarios de instalación
 - **pass.sh** permite automatizar sudo
 - **start_all.sh** distribuye el orden de iniciar cada servicio instalado
 - **stop_all.sh** distribuye el orden de parar cada servicio instalado

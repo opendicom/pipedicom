@@ -1,6 +1,6 @@
 # dcmtk/storescp/install.sh
 
-storescp recibe objetos DICOM enviados por equipos imagenológicos y los clasifica por origen y estudio.
+storescp recibe objetos DICOM enviados por equipos imagenológicos y los clasifica por origen, estudio  y serie.
 
 Para instalarlo, ejecutar dcmtk/storescp/install.sh con sudo y parametros:
 
