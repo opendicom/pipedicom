@@ -1,21 +1,13 @@
 #!/bin/bash
 
-ADMIN=$1
-ORG=$2
-BRANCH=$3
+admin=$1
+org=$2
+branch=$3
 
-# user
+cd "$(dirname $0)"
 
-su $ADMIN
+./opendicom/cdamwldicom/install.sh "$admin" "$org" "$branch" 'https://serviciosridi.asse.uy/dcm4chee-arc/qido/DCM4CHEE/instances?Modality=OT&amp;00080080='"$branch"'&amp;SeriesDescription=solicitud&amp;NumberOfStudyRelatedInstances=1&amp;StudyDate='
 
-# opendicom/cdamwldicom/install.sh
-echo '/Users/Shared/opendicom/cdamwldicom/install.sh' "$ADMIN" "$ORG" "$BRANCH" 'https://serviciosridi.asse.uy/dcm4chee-arc/qido/DCM4CHEE/instances?Modality=OT&amp;00080080='"$BRANCH"'&amp;SeriesDescription=solicitud&amp;NumberOfStudyRelatedInstances=1&amp;StudyDate='
-/Users/Shared/opendicom/cdamwldicom/install.sh "$ADMIN" "$ORG" "$BRANCH" 'https://serviciosridi.asse.uy/dcm4chee-arc/qido/DCM4CHEE/instances?Modality=OT&amp;00080080='"$BRANCH"'&amp;SeriesDescription=solicitud&amp;NumberOfStudyRelatedInstances=1&amp;StudyDate='
+./opendicom/coercedicom/install.sh "$admin" "$org" "$branch"
 
-# opendicom/coercedicom/install.sh'
-echo '/Users/Shared/opendicom/coercedicom/install.sh' "$ADMIN" "$ORG" "$BRANCH"
-/Users/Shared/opendicom/coercedicom/install.sh "$ADMIN" "$ORG" "$BRANCH"
-
-
-echo '/Users/Shared/opendicom/storedicom/install.sh' "$ADMIN" "$ORG" 'https://serviciosridi.asse.uy/dcm4chee-arc/stow/'"$ORG"'/studies' 'https://serviciosridi.asse.uy/dcm4chee-arc/qido/'"$ORG"'/studies'
-/Users/Shared/opendicom/storedicom/install.sh "$ADMIN" "$ORG"  'https://serviciosridi.asse.uy/dcm4chee-arc/stow/'"$ORG"'/studies' 'https://serviciosridi.asse.uy/dcm4chee-arc/qido/'"$ORG"'/studies'
+./opendicom/storedicom/install.sh "$admin" "$org"  'https://serviciosridi.asse.uy/dcm4chee-arc/stow/'"$org"'/studies' 'https://serviciosridi.asse.uy/dcm4chee-arc/qido/'"$org"'/studies'

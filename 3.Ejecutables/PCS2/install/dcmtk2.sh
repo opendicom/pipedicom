@@ -1,13 +1,8 @@
 #!/bin/bash
+admin=$1
+org=$2
+branch=$3
 
-ADMIN=$1
-ORG=$2
-BRANCH=$3
-
-# system
-
-echo "/Users/Shared/dcmtk/storescp/install.sh $ADMIN $BRANCH 4096"
-/Users/Shared/dcmtk/storescp/install.sh "$ADMIN" "$BRANCH" 4097
-
-echo "/Users/Shared/dcmtk/wlmscpfs/install.sh $ADMIN $BRANCH 11112 $ORG"
-/Users/Shared/dcmtk/wlmscpfs/install.sh "$ADMIN" "$BRANCH" 11113 "$ORG"
+cd "$(dirname $0)"
+./dcmtk/storescp/install.sh "$admin" "$branch" 4097
+./dcmtk/wlmscpfs/install.sh "$admin" "$branch" 11113 "$ORG"
