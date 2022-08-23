@@ -1,21 +1,19 @@
 #!/bin/sh
 # $1 MISMATCH_SERVICE path
 
-find "$1" -depth 3 -type d ! -empty -mtime +300s -print0 | while read -d $'\0' STUDY
+find "$1" -depth 3 -type d ! -empty -mtime +300s -print0 | while read -d $'\0' MISMATCHSTUDY
 do
-    SEND=$(echo "$STUDY" | sed -e 's/MISMATCH_SERVICE/SEND/')
-    SENDDIR=$( dirname "$SEND" )
-    if [ ! -d "$SENDDIR" ]; then
-        mkdir -p "$SENDDIR"
-    fi
-    if [ -d "$SEND" ]; then
-        cd "$STUDY"
+    SENDSTUDY=$(echo "$MISMATCHSTUDY" | sed -e 's/MISMATCH_SERVICE/SEND/')
+    SENDDIR=$( dirname "$SENDSTUDY" )
+    mkdir -p "$SENDDIR"
+    if [ -d "$SENDSTUDY" ]; then
+        cd "$MISMATCHSTUDY"
         for SERIES in `ls`; do
-            mv "$STUDY"'/'"$SERIES" "$SEND"
+            mv "$MISMATCHSTUDY"'/'"$SERIES" "$SENDSTUDY"
         done
         #rm -Rf "$STUDY"
     else
-        mv "$STUDY" "$SEND"
+        mv "$MISMATCHSTUDY" "$SENDSTUDY"
     fi
 done
 

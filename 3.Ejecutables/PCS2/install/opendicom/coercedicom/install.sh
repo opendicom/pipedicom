@@ -16,7 +16,7 @@ echo '    <key>ProgramArguments</key>'                                          
 echo '    <array>'                                                                                            >> $coercedicom
 echo '        <string>/usr/local/bin/coercedicom</string>'                                                    >> $coercedicom
 echo '        <string>/Volumes/IN/'"$BRANCH"'/CLASSIFIED</string>'                                            >> $coercedicom
-echo '        <string>/Volumes/IN/'"$ORG"'</string>'                                                          >> $coercedicom
+echo '        <string>/Volumes/IN</string>'                                                                   >> $coercedicom
 echo '        <string>/Volumes/IN/'"$BRANCH"'/FAILURE</string>'                                               >> $coercedicom
 echo '        <string>/Volumes/IN/'"$BRANCH"'/ORIGINALS</string>'                                             >> $coercedicom
 echo '        <string>/Volumes/IN/'"$BRANCH"'/MISMATCH_ALTERNATES</string>'                                   >> $coercedicom

@@ -8,41 +8,39 @@ mkdir -m 775 -p /Volumes/IN/$branch/{ARRIVED,CLASSIFIED,FAILURE,ORIGINALS,MISMAT
 mkdir -m 775 -p '/Users/'"$admin"'/Documents/dcmtk'
 mkdir -m 775 -p '/Users/Shared/dcmtk/storescp/'"$branch"
 
-
+#x #a #r #p #f #c #d #t #h #e #n #s #i #k #m #y
 classifier='/Users/Shared/dcmtk/storescp/'"$branch"'/classifier.sh'
 echo '#!/bin/sh'                                       >  $classifier
-echo 'callingaet=${1}  ;#a'                            >> $classifier
-echo 'callingip=${2}   ;#r'                            >> $classifier
-echo 'dirpath=${3}     ;#p'                            >> $classifier
-echo 'filename=${4}    ;#f'                            >> $classifier
-echo 'calledaet=${5}   ;#c'                            >> $classifier
-echo 'syntax=${6}      ;#x'                            >> $classifier
-echo 'Edate=${7}       ;#d'                            >> $classifier
-echo 'Etime=${8}       ;#t'                            >> $classifier
-echo 'Pid=${9}         ;#h'                            >> $classifier
-echo 'Euid=${10}       ;#e'                            >> $classifier
-echo 'Ean=${11}        ;#n'                            >> $classifier
-echo 'Suid=${12}       ;#s'                            >> $classifier
-echo 'Iuid=${13}       ;#i'                            >> $classifier
-echo 'Iclass=${14}     ;#k'                            >> $classifier
-echo 'multiframe=${15} ;#m'                            >> $classifier
-echo 'charset=${16}    ;#y'                            >> $classifier
+echo 'syntax=${1}  ;#x'                                >> $classifier
+echo 'scu=${2}     ;#a'                                >> $classifier
+echo 'scuip=${3}   ;#r'                                >> $classifier
+echo 'dir=${4}     ;#p'                                >> $classifier
+echo 'file=${5}    ;#f'                                >> $classifier
+echo 'scp=${6}     ;#c'                                >> $classifier
+echo 'Edate=${7}   ;#d'                                >> $classifier
+echo 'Etime=${8}   ;#t'                                >> $classifier
+echo 'Pid=${9}     ;#h'                                >> $classifier
+echo 'Euid=${10}   ;#e'                                >> $classifier
+echo 'Ean=${11}    ;#n'                                >> $classifier
+echo 'Suid=${12}   ;#s'                                >> $classifier
+echo 'Iuid=${13}   ;#i'                                >> $classifier
+echo 'Iclass=${14} ;#k'                                >> $classifier
+echo 'frames=${15} ;#m'                                >> $classifier
+echo 'chars=${16}  ;#y'                                >> $classifier
 
 echo 'if [[ syntax == "1.2.840.10008.1.2" ]];then'     >> $classifier
-echo '   EIC="I"'                                      >> $classifier
+echo '   eic="I"'                                      >> $classifier
 echo 'elif [[ syntax == "1.2.840.10008.1.2.1" ]];then' >> $classifier
-echo '   EIC="E"'                                      >> $classifier
+echo '   eic="E"'                                      >> $classifier
 echo 'else'                                            >> $classifier
-echo '   EIC="C"'                                      >> $classifier
+echo '   eic="C"'                                      >> $classifier
 echo 'fi'                                              >> $classifier
-echo 'base=/Volumes/IN/'"$branch"'/CLASSIFIED/$Edate/$callingaet@$callingip-$EIC->$calledaet/$Pid@$Ean^$Euid/$Suid' >> $classifier
-
-echo 'mkdir -m 775 -p $base'           >> $classifier
-echo 'Ipath=$base/$Iuid.dcm'           >> $classifier
-echo 'mv    $dirpath/$filename $Ipath' >> $classifier
-echo 'chmod 775                $Ipath' >> $classifier
-echo 'chown '"$admin"':wheel   $Ipath' >> $classifier
-
+echo 'base=/Volumes/IN/'"$branch"'/CLASSIFIED/$scu@$scuip^$eic^$scp/$Pid@$Ean^$Euid/$Suid' >> $classifier
+echo 'mkdir -m 775 -p $base'                           >> $classifier
+echo 'newpath=$base/$file'                             >> $classifier
+echo 'mv $dir/$file $newpath'                          >> $classifier
+echo 'chown $admin:wheel $newpath'                     >> $classifier
+chmod 700 $classifier
 
 storescp='/Users/Shared/dcmtk/storescp/'"$branch"'/storescp.'"$branch"'.'"$port"'.plist'
 echo '<?xml version="1.0" encoding="UTF-8"?>'                                                          >  $storescp
@@ -80,6 +78,8 @@ echo '        <string>-e</string>'                                              
 echo '        <string>+uc</string>'                                                                    >> $storescp
 echo '        <string>-od</string>'                                                                    >> $storescp
 echo '        <string>/Volumes/IN/'"$branch"'/ARRIVED</string>'                                        >> $storescp
+echo '        <string>-fe</string>'                                                                    >> $storescp
+echo '        <string>'.dcm'</string>'                                                                 >> $storescp
 echo '        <string>-su</string>'                                                                    >> $storescp
 echo '        <string></string>'                                                                       >> $storescp
 echo '        <string>-uf</string>'                                                                    >> $storescp

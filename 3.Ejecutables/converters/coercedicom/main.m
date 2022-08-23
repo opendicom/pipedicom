@@ -654,17 +654,15 @@ int main(int argc, const char * argv[]){
     NSString *todayDCMString=[DICMDA stringFromDate:refTime];
 
 #pragma mark classified
-    //if there is no date folder within clasified, exits
-    NSString *classifiedTodayPath=[args[CDargSpool] stringByAppendingPathComponent:todayDCMString];
-    if (![fileManager fileExistsAtPath:classifiedTodayPath isDirectory:&isDirectory] || !isDirectory) exit(0);
+    if (![fileManager fileExistsAtPath:args[CDargSpool] isDirectory:&isDirectory] || !isDirectory) exit(0);
 
     
-    NSArray *CLASSIFIEDarray=[fileManager contentsOfDirectoryAtPath:classifiedTodayPath error:&error];
+    NSArray *CLASSIFIEDarray=[fileManager contentsOfDirectoryAtPath:args[CDargSpool] error:&error];
     if (!CLASSIFIEDarray)
     {
        if (@available(macOS 10.11, *))
-          os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_FAULT, "Can not open CLASSIFIED directory: %@. %@",classifiedTodayPath, error.description);
-       else NSLog(@"Can not open CLASSIFIED directory: %@. %@",classifiedTodayPath, error.description);
+          os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_FAULT, "Can not open CLASSIFIED directory: %@. %@",args[CDargSpool], error.description);
+       else NSLog(@"Can not open CLASSIFIED directory: %@. %@",args[CDargSpool], error.description);
        exit(1);
     };
 
@@ -678,7 +676,7 @@ int main(int argc, const char * argv[]){
     NSMutableArray *sourcesBeforeMapping=[NSMutableArray arrayWithArray:CLASSIFIEDarray];
     if ([sourcesBeforeMapping[0] hasPrefix:@"."])
     {
-       if([fileManager removeItemAtPath:[classifiedTodayPath stringByAppendingPathComponent:sourcesBeforeMapping[0]] error:&error])
+       if([fileManager removeItemAtPath:[args[CDargSpool] stringByAppendingPathComponent:sourcesBeforeMapping[0]] error:&error])
        {
           [sourcesBeforeMapping removeObjectAtIndex:0];
           if (!sourcesBeforeMapping.count) exit(0);
@@ -687,8 +685,8 @@ int main(int argc, const char * argv[]){
        else
        {
           if (@available(macOS 10.11, *))
-             os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "can not remove %@. %@",[classifiedTodayPath stringByAppendingPathComponent:sourcesBeforeMapping[0]],error.description);
-          else NSLog(@"can not remove %@. %@",[classifiedTodayPath stringByAppendingPathComponent:sourcesBeforeMapping[0]],error.description);
+             os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "can not remove %@. %@",[args[CDargSpool] stringByAppendingPathComponent:sourcesBeforeMapping[0]],error.description);
+          else NSLog(@"can not remove %@. %@",[args[CDargSpool] stringByAppendingPathComponent:sourcesBeforeMapping[0]],error.description);
        }
     }
 
@@ -775,7 +773,7 @@ The root is an array where items are clasified by priority of execution
        {
           if ([regex numberOfMatchesInString:sourcesBeforeMapping[i] options:0 range:NSMakeRange(0,[sourcesBeforeMapping[i] length])])
           {
-             NSArray *Eiuids=[fileManager contentsOfDirectoryAtPath:[classifiedTodayPath stringByAppendingPathComponent:sourcesBeforeMapping[i]] error:&error];
+             NSArray *Eiuids=[fileManager contentsOfDirectoryAtPath:[args[CDargSpool] stringByAppendingPathComponent:sourcesBeforeMapping[i]] error:&error];
              if (  !Eiuids
                  || (Eiuids.count==0)
                  ||(
@@ -800,7 +798,7 @@ The root is an array where items are clasified by priority of execution
 #pragma mark sourceMismatch To Be discarded
       for (NSString *sourceName in sourcesBeforeMapping)
       {
-         NSString *errMsg=mergeDir(fileManager, [classifiedTodayPath stringByAppendingPathComponent:sourceName], [args[CDargSourceMismatch] stringByAppendingPathComponent:sourceName]);
+         NSString *errMsg=mergeDir(fileManager, [args[CDargSpool] stringByAppendingPathComponent:sourceName], [args[CDargSourceMismatch] stringByAppendingPathComponent:sourceName]);
          if (errMsg && errMsg.length)
          {
             if (@available(macOS 10.11, *))
@@ -871,7 +869,7 @@ The root is an array where items are clasified by priority of execution
        for (NSDictionary *sourceDict in sourcesToBeProcessed)
        {
          if (maxSeries >0) {
-         NSString *sourceDir=[classifiedTodayPath stringByAppendingPathComponent:sourceDict[@"scu"]];
+         NSString *sourceDir=[args[CDargSpool] stringByAppendingPathComponent:sourceDict[@"scu"]];
          NSArray *Eiuids=[fileManager contentsOfDirectoryAtPath:sourceDir error:nil];
 #pragma mark · StudyUIDs loop
          for (NSString *Eiuid in Eiuids)
@@ -1013,12 +1011,14 @@ The root is an array where items are clasified by priority of execution
                 NSMutableDictionary *seriesTaskDict=[NSMutableDictionary dictionaryWithDictionary:sourceDict];
 
                 [seriesTaskDict setObject:Siuid forKey:@"Siuid"];
+                
                 [seriesTaskDict setObject:
                    [studyPath stringByAppendingPathComponent:Siuid]
                    forKey:@"spoolDir"];
+                
                 [seriesTaskDict setObject:
                      [NSString stringWithFormat:@"%@/%@/SEND/%@/%@%@/%@/%@",
-                      [args[CDargSuccess] stringByAppendingPathComponent:todayDCMString],
+                      args[CDargSuccess],
                       sourceDict[@"pacsAET"],
                       sourceDict[@"branch"],
                       sourceDict[@"priority"],
@@ -1026,9 +1026,10 @@ The root is an array where items are clasified by priority of execution
                       Eiuid,
                       Siuid]
                     forKey:@"sendDir"];
+                
                 [seriesTaskDict setObject:
                      [NSString stringWithFormat:@"%@/%@/SENT/%@/%@%@/%@/%@",
-                      [args[CDargSuccess] stringByAppendingPathComponent:todayDCMString],
+                      args[CDargSuccess],
                       sourceDict[@"pacsAET"],
                       sourceDict[@"branch"],
                       sourceDict[@"priority"],
@@ -1036,27 +1037,31 @@ The root is an array where items are clasified by priority of execution
                       Eiuid,
                       Siuid]
                     forKey:@"sentDir"];
+                
                 [seriesTaskDict setObject:
                     [NSString stringWithFormat:@"%@/%@/%@/%@",
-                       [args[CDargFailure] stringByAppendingPathComponent:todayDCMString],
+                       args[CDargFailure],
                        sourceDict[@"scu"],
                        Eiuid,
                        Siuid]
                     forKey:@"failureDir"];
+                
                 [seriesTaskDict setObject:
                    [NSString stringWithFormat:@"%@/%@/%@/%@",
-                      [args[CDargOriginal] stringByAppendingPathComponent:todayDCMString],
+                      args[CDargOriginal],
                       sourceDict[@"scu"],
                       Eiuid,
                       Siuid]
                     forKey:@"originalDir"];
+                
                 [seriesTaskDict setObject:
                    [NSString stringWithFormat:@"%@/%@/%@/%@",
-                      [args[CDargAlternates] stringByAppendingPathComponent:todayDCMString],
+                      args[CDargAlternates],
                       sourceDict[@"scu"],
                       Eiuid,
                       Siuid]
                     forKey:@"alternatesDir"];
+                
                 [seriesTaskDict setObject:
                    [studyPath stringByAppendingFormat:@"/%@.log",Siuid]
                    forKey:@"spoolDirLogPath"];

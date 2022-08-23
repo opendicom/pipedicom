@@ -67,12 +67,12 @@ start='/Users/Shared/opendicom/cdamwldicom/'"$branch"'/start.sh'
 echo '#!/bin/sh'                                                 >  $start
 echo 'launchctl load -w '"$cdamwldicom"                          >> $start
 echo 'launchctl load -w '"$cdamwldicomrm"                        >> $start
-echo 'launchctl list | grep "cdamwldicom.'"$branch"'.'"$org"     >> $start
+echo 'launchctl list | grep cdamwldicom.'"$branch"'.'"$org"      >> $start
 chmod -R 775 "$start"
 
 stop='/Users/Shared/opendicom/cdamwldicom/'"$branch"'/stop.sh'
 echo '#!/bin/sh'                                                 >  $stop
 echo 'launchctl unload -w '"$cdamwldicom"                        >> $stop
 echo 'launchctl unload -w '"$cdamwldicomrm"                      >> $stop
-echo 'launchctl list | grep "cdamwldicom.'"$branch"'.'"$org"     >> $stop
+echo 'launchctl list | grep cdamwldicom.'"$branch"'.'"$org"      >> $stop
 chmod -R 775 "$stop"

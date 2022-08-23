@@ -59,18 +59,25 @@ for BRANCH in `ls`; do
                           LOGPATHEXISTS=TRUE
                       fi
 
-                      echo $STORERESP | xsltproc --stringparam qido "$QIDOENDPOINT" --stringparam org "$ORG" --stringparam branch "$BRANCH" --stringparam device "$DEVICE" --stringparam euid "$STUDY" --stringparam suid "$SERIES" --stringparam logpath "$LOGPATH" /Users/Shared/opendicom/storedicom/respParsing.xsl - >> "$LOGPATH"
-                      chmod 744 "$LOGPATH"
-                      DEST="$SENT"'/'"$BRANCH"'/'"$DEVICE"'/'"$STUDY"'/'"$SERIES"
+                      dicomResp=$(echo $STORERESP | xsltproc --stringparam qido "$QIDOENDPOINT" --stringparam org "$ORG" --stringparam branch "$BRANCH" --stringparam device "$DEVICE" --stringparam euid "$STUDY" --stringparam suid "$SERIES" --stringparam logpath "$LOGPATH" /Users/Shared/opendicom/storedicom/respParsing.xsl -)
+
+#when everything's OK, do not keep log and remove series
+                       if [[ $dicomResp != *FAILED* ]] && [[ $dicomResp == *REFERENCED* ]]; then
+                           rm -Rf $SERIES
+                       else
+                           echo $dicomResp >> "$LOGPATH"
+                           DEST="$SENT"'/'"$ORG"'/'"$SOURCE"'/'"$STUDY"'/'"$SERIES"
+                           mkdir -p "$DEST"
+                           mv $SERIES/* $DEST
+                       fi
                    else
                       # other kind of response
                       echo $STORERESP  >> "$LOGPATHDIR"'/'"$SERIES"'.txt'
                       DEST="$MISMATCHSERVICE"'/'"$BRANCH"'/'"$DEVICE"'/'"$STUDY"'/'"$SERIES"
-                   fi
-                   if [ ! -d "$DEST" ]; then
                       mkdir -p "$DEST"
+                      mv $SERIES/* $DEST
                    fi
-                   mv $SERIES/* $DEST
+                   
                 fi #RESPONSE
                 
                 #timeout ?
