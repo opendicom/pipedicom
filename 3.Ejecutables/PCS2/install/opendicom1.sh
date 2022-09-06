@@ -10,4 +10,4 @@ cd "$(dirname $0)"
 
 ./opendicom/coercedicom/install.sh "$admin" "$org" "$branch"
 
-./opendicom/storedicom/install.sh "$admin" "$org"  'https://serviciosridi.asse.uy/dcm4chee-arc/stow/'"$org"'/studies' 'https://serviciosridi.asse.uy/dcm4chee-arc/qido/'"$org"'/studies'
+./opendicom/storedicom/install.sh "$admin" "$org"  'https://serviciosridi.asse.uy/dcm4chee-arc/stow/'"$org" 'https://serviciosridi.asse.uy/dcm4chee-arc/qido/'"$org"

@@ -37,9 +37,10 @@ echo '   eic="C"'                                      >> $classifier
 echo 'fi'                                              >> $classifier
 echo 'base=/Volumes/IN/'"$branch"'/CLASSIFIED/$scu@$scuip^$eic^$scp/$Pid@$Ean^$Euid/$Suid' >> $classifier
 echo 'mkdir -m 775 -p $base'                           >> $classifier
+echo 'chown '"$admin"':wheel $base'                    >> $classifier
 echo 'newpath=$base/$file'                             >> $classifier
 echo 'mv $dir/$file $newpath'                          >> $classifier
-echo 'chown $admin:wheel $newpath'                     >> $classifier
+echo 'chown '"$admin"':wheel $newpath'                 >> $classifier
 chmod 700 $classifier
 
 storescp='/Users/Shared/dcmtk/storescp/'"$branch"'/storescp.'"$branch"'.'"$port"'.plist'
