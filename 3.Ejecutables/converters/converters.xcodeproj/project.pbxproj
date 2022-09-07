@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		071F04B626D4F081001F655A /* DCKV.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A025F3B25E5C455005AA1A3 /* DCKV.framework */; };
 		4A025F5C25E60BBA005AA1A3 /* DCMcharset.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A025E5E25E418E5005AA1A3 /* DCMcharset.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A025F6325E60BE0005AA1A3 /* ODLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A7B85A125824EAE00E62971 /* ODLog.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4A025F8625E60CCA005AA1A3 /* DCMcharset.m in Sources */ = {isa = PBXBuildFile; fileRef = 4ABF584125CECD4700EB725E /* DCMcharset.m */; };
@@ -54,13 +53,6 @@
 		4ADB50B826F2A394001C4F96 /* ODLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 4A7B85A125824EAE00E62971 /* ODLog.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4ADB50C326F2A3B3001C4F96 /* ODLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 4A7B85A025824EAE00E62971 /* ODLog.m */; };
 		4AE010A026D433DD00D5A91B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4AE0109F26D433DD00D5A91B /* main.m */; };
-		4AE0115326D43E1500D5A91B /* ZZArchive.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AE010B126D4371D00D5A91B /* ZZArchive.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4AE0115E26D43E1B00D5A91B /* ZZArchiveEntry.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AE010B326D4371D00D5A91B /* ZZArchiveEntry.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4AE0116926D43E1F00D5A91B /* ZZChannel.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AE010B226D4371D00D5A91B /* ZZChannel.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4AE0117426D43E2400D5A91B /* ZZConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AE010B426D4371D00D5A91B /* ZZConstants.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4AE0117F26D43E2800D5A91B /* ZZError.h in Headers */ = {isa = PBXBuildFile; fileRef = 4AE010B526D4371D00D5A91B /* ZZError.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		4AE0128126D7F01700D5A91B /* libzipzap.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4AE0128026D7F01700D5A91B /* libzipzap.a */; };
-		4AE0128326D7F03500D5A91B /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 4AE0128226D7F03500D5A91B /* libz.a */; };
 		4AE7CEB725E7CBE0004942E3 /* M.xsd in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE92125B1A8FE00C8D33F /* M.xsd */; };
 		4AE7CEB825E7CBE0004942E3 /* M1N.xsl in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE91E25B1A8FE00C8D33F /* M1N.xsl */; };
 		4AE7CEB925E7CBE0004942E3 /* N1M.xsl in Resources */ = {isa = PBXBuildFile; fileRef = 4ABDE92025B1A8FE00C8D33F /* N1M.xsl */; };
@@ -170,7 +162,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		071F04B426D4F071001F655A /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libz.a; sourceTree = "<group>"; };
 		4A025E5E25E418E5005AA1A3 /* DCMcharset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DCMcharset.h; sourceTree = "<group>"; };
 		4A025EA625E593E0005AA1A3 /* D2dict.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = D2dict.m; sourceTree = "<group>"; };
 		4A025EAF25E5944E005AA1A3 /* D2dict.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = D2dict.h; sourceTree = "<group>"; };
@@ -250,12 +241,6 @@
 		4AE0109D26D433DD00D5A91B /* cdamwldicom */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = cdamwldicom; sourceTree = BUILT_PRODUCTS_DIR; };
 		4AE0109F26D433DD00D5A91B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4AE010AE26D4341D00D5A91B /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		4AE010B126D4371D00D5A91B /* ZZArchive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZZArchive.h; sourceTree = "<group>"; };
-		4AE010B226D4371D00D5A91B /* ZZChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZZChannel.h; sourceTree = "<group>"; };
-		4AE010B326D4371D00D5A91B /* ZZArchiveEntry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZZArchiveEntry.h; sourceTree = "<group>"; };
-		4AE010B426D4371D00D5A91B /* ZZConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZZConstants.h; sourceTree = "<group>"; };
-		4AE010B526D4371D00D5A91B /* ZZError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZZError.h; sourceTree = "<group>"; };
-		4AE010B626D4372C00D5A91B /* libzipzap.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libzipzap.a; sourceTree = "<group>"; };
 		4AE010C326D4390D00D5A91B /* solicitud.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = solicitud.xml; sourceTree = "<group>"; };
 		4AE010C426D4390D00D5A91B /* com.opendicom.cdawldicom.asseMaldonado.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = com.opendicom.cdawldicom.asseMaldonado.plist; sourceTree = "<group>"; };
 		4AE010C626D4390E00D5A91B /* org.dcmtk.wlmscpfs.asseMALDONADO.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = org.dcmtk.wlmscpfs.asseMALDONADO.plist; sourceTree = "<group>"; };
@@ -341,9 +326,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4AE0128326D7F03500D5A91B /* libz.a in Frameworks */,
-				4AE0128126D7F01700D5A91B /* libzipzap.a in Frameworks */,
-				071F04B626D4F081001F655A /* DCKV.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -402,6 +384,15 @@
 				4AAE865C25C0AABB00117D26 /* schema-for-json.xsd */,
 			);
 			path = xsd;
+			sourceTree = "<group>";
+		};
+		4A5D0B0128C8D85E004FF5F0 /* doc */ = {
+			isa = PBXGroup;
+			children = (
+				4AE0118B26D4519A00D5A91B /* wlmscpfs.md */,
+				4AE010AE26D4341D00D5A91B /* README.md */,
+			);
+			path = doc;
 			sourceTree = "<group>";
 		};
 		4A7B8569258002A100E62971 = {
@@ -568,36 +559,12 @@
 		4AE0109E26D433DD00D5A91B /* cdamwldicom */ = {
 			isa = PBXGroup;
 			children = (
+				4A5D0B0128C8D85E004FF5F0 /* doc */,
 				4AE0118A26D4519A00D5A91B /* cda2mwl.xsl */,
-				4AE0118B26D4519A00D5A91B /* wlmscpfs.md */,
 				4AE010C226D4386800D5A91B /* test */,
-				4AE010B026D4352600D5A91B /* lib */,
-				4AE010AF26D4350A00D5A91B /* include */,
-				4AE010AE26D4341D00D5A91B /* README.md */,
 				4AE0109F26D433DD00D5A91B /* main.m */,
 			);
 			path = cdamwldicom;
-			sourceTree = "<group>";
-		};
-		4AE010AF26D4350A00D5A91B /* include */ = {
-			isa = PBXGroup;
-			children = (
-				4AE010B126D4371D00D5A91B /* ZZArchive.h */,
-				4AE010B326D4371D00D5A91B /* ZZArchiveEntry.h */,
-				4AE010B226D4371D00D5A91B /* ZZChannel.h */,
-				4AE010B426D4371D00D5A91B /* ZZConstants.h */,
-				4AE010B526D4371D00D5A91B /* ZZError.h */,
-			);
-			path = include;
-			sourceTree = "<group>";
-		};
-		4AE010B026D4352600D5A91B /* lib */ = {
-			isa = PBXGroup;
-			children = (
-				071F04B426D4F071001F655A /* libz.a */,
-				4AE010B626D4372C00D5A91B /* libzipzap.a */,
-			);
-			path = lib;
 			sourceTree = "<group>";
 		};
 		4AE010C226D4386800D5A91B /* test */ = {
@@ -654,11 +621,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4AE0115326D43E1500D5A91B /* ZZArchive.h in Headers */,
-				4AE0115E26D43E1B00D5A91B /* ZZArchiveEntry.h in Headers */,
-				4AE0116926D43E1F00D5A91B /* ZZChannel.h in Headers */,
-				4AE0117426D43E2400D5A91B /* ZZConstants.h in Headers */,
-				4AE0117F26D43E2800D5A91B /* ZZError.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1077,7 +1039,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\n\nif [ ! -d /usr/local/lib ]; then\n   sudo -A mkdir ~/usr/local/lib;\nfi\ncd /usr/local/lib\nif [ ! -f libz.a ]; then\n   sudo -A cp -R $PROJECT_DIR/cdamwldicom/lib/libz.a  libz.a\nfi\nif [ ! -f libzipzap.a ]; then\n   sudo -A cp -R $PROJECT_DIR/cdamwldicom/lib/libzipzap.a  libzipzap.a\nfi\nsudo -A cp $BUILD_ROOT/Debug/cdamwldicom /usr/local/bin/cdamwldicom\n";
+			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\n\nif [ ! -d /usr/local/lib ]; then\n   sudo -A mkdir ~/usr/local/lib;\nfi\ncd /usr/local/lib\nsudo -A cp $BUILD_ROOT/Debug/cdamwldicom /usr/local/bin/cdamwldicom\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
