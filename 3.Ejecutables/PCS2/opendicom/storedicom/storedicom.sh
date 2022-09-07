@@ -4,7 +4,7 @@
 #           /spool/branch/dev/study/series/dcm.part
 SEND="$1/SEND"
 MISMATCHSERVICE="$1/MISMATCH_SERVICE"
-SENT="$1/SENT"
+MISMATCH_PACS="$1/MISMATCH_PACS"
 LOG="$1/LOG"
 ORG=$(basename $1)
 
@@ -66,7 +66,7 @@ for BRANCH in `ls`; do
                            rm -Rf $SERIES
                        else
                            echo $dicomResp >> "$LOGPATH"
-                           DEST="$SENT"'/'"$ORG"'/'"$SOURCE"'/'"$STUDY"'/'"$SERIES"
+                           DEST="$MISMATCH_PACS"'/'"$ORG"'/'"$SOURCE"'/'"$STUDY"'/'"$SERIES"
                            mkdir -p "$DEST"
                            mv $SERIES/* $DEST
                        fi

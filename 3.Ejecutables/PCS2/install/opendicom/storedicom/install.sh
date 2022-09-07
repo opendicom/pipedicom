@@ -9,7 +9,7 @@ qido=$4
 # "https://serviciosridi.asse.uy/dcm4chee-arc/qido"
 
 #mkdir -m 775 "/Users/$admin/Documents/opendicom"
-mkdir -m 775 -p /Volumes/IN/$org/{SEND,MISMATCH_SERVICE,SENT,LOG}
+mkdir -m 775 -p /Volumes/IN/$org/{SEND,MISMATCH_SERVICE,MISMATCH_PACS,LOG}
 
 storedicom="/Users/$admin/Library/LaunchAgents/storedicom.$org.plist"
 echo '<?xml version="1.0" encoding="UTF-8"?>'                                                                 >  $storedicom
