@@ -1,96 +1,109 @@
-#!/bin/sh
+#!/bin/bash
 
-#$1 org path
+org=$(basename $1)
+#$1=org path
 #           /spool/branch/dev/study/series/dcm.part
-SEND="$1/SEND"
-MISMATCHSERVICE="$1/MISMATCH_SERVICE"
-MISMATCH_PACS="$1/MISMATCH_PACS"
-LOG="$1/LOG"
-ORG=$(basename $1)
+send="$1/SEND"                          #spool in
+mismatch_service="$1/MISMATCH_SERVICE"  #spool out not NativeDicomModel response
+mismatch_pacs="$1/MISMATCH_PACS"        #spool out     NativeDicomModel response
 
-STOWENDPOINT=$2
-#'https://serviciosridi.preprod.asse.uy/dcm4chee-arc/stow/DCM4CHEE'
-#URL=${2%@*}$(basename $1)${2#*@}
-QIDOENDPOINT=$3
-#'https://serviciosridi.preprod.asse.uy/dcm4chee-arc/qido/DCM4CHEE'
-TIMEOUT=$4
+stowEndpoint=$2
+#'https://serviciosridi.asse.uy/dcm4chee-arc/stow/DCM4CHEE'
+qidoEndpoint=$3
+#'https://serviciosridi.asse.uy/dcm4chee-arc/qido/DCM4CHEE'
+timeout=$4
 
-
-if [ ! -d "$SEND" ]; then
-   mkdir -p "$SEND"
+if [ ! -d "$send" ]; then
+   mkdir -p "$send"
 fi
-cd $SEND
-for BRANCH in `ls`; do
-   cd $BRANCH
-   for DEVICE in `ls`; do
-      cd $DEVICE
-      LOGDEVICE="$LOG"'/'"$BRANCH"'/'"$DEVICE"
-      if [ ! -d "$LOGDEVICE" ]; then
-          mkdir -p "$LOGDEVICE"
-      fi
-
-      for STUDY in `ls`; do
-      if [ -d $STUDY ]; then
+cd $send
+for branch in `ls`; do
+   cd $branch
+   for device in `ls`; do
+      cd $device
+      for study in `ls`; do
+      if [ -d $study ]; then
          #cleaning done at study level.
-         #If coercedicom has a new bucket for the study, it will recreate it
-         if [ `du -sk "$STUDY" | cut -f1` -le 15 ]; then
-            rm -Rf "$STUDY"
+         #If coercedicom has a new SERIES for the study, it will recreate it
+         if [ `du -sk "$study" | cut -f1` -le 15 ]; then
+            rm -Rf "$study"
          else
-             cd $STUDY
+             cd $study
+             isoDate=$(date +%Y/%m/%d_%H:%M:%S)
+             echo "[$isoDate] $branch/$device/$study"
 
-             find . -depth 1 -type d  ! -empty -mtime +30s -print0 | while read -d $'\0' DOT_SERIES
-             do
-                SERIES=${DOT_SERIES#*/}
-                STORERESP=$( cat $SERIES/* /Users/Shared/opendicom/storedicom/myboundary.tail | curl -k -s -X POST -H "Content-Type: multipart/related; type=\"application/dicom\"; boundary=myboundary" "$STOWENDPOINT/studies" --data-binary @- )
+             find . -depth 1 -type d  ! -empty -mtime +30s -print0 | while read -d $'\0' dot_series; do
+             
+                series=${dot_series#*/}  # removes ./ prefix of the find return value
+                storeResponse=$( cat $series/* /Users/Shared/opendicom/storedicom/myboundary.tail | curl -k -s -H "Content-Type: multipart/related; type=\"application/dicom\"; boundary=myboundary" "$stowEndpoint/studies" --data-binary @- )
 
-                if [[ -z $STORERESP ]] || [[ $"STORERESP" == '<html><head><title>Error</title></head><body>Internal Server Error</body></html>' ]]; then
-                   >&2 echo 'MISMATCH_SERVICE '"$BRANCH"'/'"$DEVICE"'/'"$STUDY"'/'"$SERIES"
-                else #response
-                   # echo 'RESPONSE '"$BRANCH"'/'"$DEVICE"'/'"$STUDY"'/'"$SERIES" #log to stdout
+                if [[ -z $storeResponse ]] || [[ $"storeResponse" == '<html><head><title>Error</title></head><body>Internal Server Error</body></html>' ]]; then
+                   #pacs not available. Leave series in send
+                   >&2 echo "[$isoDate] PACS NOT AVAILABLE"
+                   
+                else #pacs response
 
-                   LOGPATHDIR="$LOGDEVICE"'/'"$STUDY"
-                   if [ ! -d "$LOGPATHDIR" ]; then
-                      mkdir -p "$LOGPATHDIR"
-                   fi
-                   if [[ $STORERESP == *"NativeDicomModel"* ]]; then
-                      LOGPATH="$LOGPATHDIR"'/'"$SERIES"'.sh'
-                      LOGPATHEXISTS=FALSE
-                      if [ -f "$LOGPATH" ]; then
-                          LOGPATHEXISTS=TRUE
-                      fi
+                   if [[ $storeResponse != *"NativeDicomModel"* ]]; then
+                       # response does NOT come from DICOMweb store service
+                       >&2 echo "[$isoDate] strange store response\r $storeResponse"
+                       mv $series "$mismatch_service/$branch/$device/$study"
+                      
+                   else #DICOM response
+                       echo "$series"
 
-                      dicomResp=$(echo $STORERESP | xsltproc --stringparam qido "$QIDOENDPOINT" --stringparam org "$ORG" --stringparam branch "$BRANCH" --stringparam device "$DEVICE" --stringparam euid "$STUDY" --stringparam suid "$SERIES" --stringparam logpath "$LOGPATH" /Users/Shared/opendicom/storedicom/respParsing.xsl -)
+                        if [[ $storeResponse != *FailedSOPSequence* ]]; then
+                           # everything is OK
+                           rm -Rf $series
+                           echo "   stored"
+                        else # some instances failed
+                           cd $series
+                           referenced=$(echo $storeResponse | xsltproc  /Users/Shared/opendicom/storedicom/listReferenced.xsl -)
+                           declare -a referencedArray=( $referenced )
+                           #list files that can be removed
+                           for sopiuid in "${referencedArray[@]}"; do
+                              rm -f *"$sopiuid"*
+                              echo "   stored    $sopiuid"
+                           done
 
-#when everything's OK, do not keep log and remove series
-                       if [[ $dicomResp != *FAILED* ]] && [[ $dicomResp == *REFERENCED* ]]; then
-                           rm -Rf $SERIES
-                       else
-                           echo $dicomResp >> "$LOGPATH"
-                           DEST="$MISMATCH_PACS"'/'"$ORG"'/'"$SOURCE"'/'"$STUDY"'/'"$SERIES"
-                           mkdir -p "$DEST"
-                           mv $SERIES/* $DEST
-                       fi
-                   else
-                      # other kind of response
-                      echo $STORERESP  >> "$LOGPATHDIR"'/'"$SERIES"'.txt'
-                      DEST="$MISMATCHSERVICE"'/'"$BRANCH"'/'"$DEVICE"'/'"$STUDY"'/'"$SERIES"
-                      mkdir -p "$DEST"
-                      mv $SERIES/* $DEST
-                   fi
+                           #check if failure(s) are due to duplication
+                           failed=$( echo $storeResponse | xsltproc  /Users/Shared/opendicom/storedicom/listFailed.xsl - )
+                           declare -a failedArray=( $failed )
+                           #remove file if sopiuid exists in pacs
+                           mismatch_series="$mismatch_pacs/$branch/$device/$study/$series"
+                           for sopiuid in "${failedArray[@]}";do
+                              qidoResponse=$( curl -s -f "$qidoEndpoint/instances?SOPInstanceUID=$sopiuid" )
+                              if [[ $qidoResponse == "["* ]]; then #exists
+                                 rm -f *"$sopiuid"*
+                                 echo "   duplicate $sopiuid"
+                              else
+                                 mkdir -p $mismatch_series
+                                 mv *"$sopiuid"* $mismatch_series
+                                 echo "   error     $sopiuid"
+                              fi
+                           done
+                           cd ..
+                        fi #
+
+                        if [[ $storeResponse == *WarningReason* ]]; then
+                           #echo first warning of the sequence
+                           firstWarning=$(echo $storeResponse | xsltproc /Users/Shared/opendicom/storedicom/firstWarning.xsl -)
+                           echo "$firstWarning"
+                        fi
+                    fi #DICOM RESPONSE
                    
                 fi #RESPONSE
                 
                 #timeout ?
-                if (( "$SECONDS" > $4 )); then
+                if (( "$SECONDS" > $timeout )); then
                    exit 0
                 fi
 
-             done #SERIES
+             done #series
              cd ..
           fi
       fi
-      done #STUDY
+      done #study
       cd ..
-   done #DEVICE
+   done #device
    cd ..
-done #BRANCH
+done #branch

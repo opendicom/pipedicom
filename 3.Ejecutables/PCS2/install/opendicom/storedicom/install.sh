@@ -9,7 +9,7 @@ qido=$4
 # "https://serviciosridi.asse.uy/dcm4chee-arc/qido"
 
 #mkdir -m 775 "/Users/$admin/Documents/opendicom"
-mkdir -m 775 -p /Volumes/IN/$org/{SEND,MISMATCH_SERVICE,MISMATCH_PACS,LOG}
+mkdir -m 775 -p /Volumes/IN/$org/{SEND,MISMATCH_SERVICE,MISMATCH_PACS}
 
 storedicom="/Users/$admin/Library/LaunchAgents/storedicom.$org.plist"
 echo '<?xml version="1.0" encoding="UTF-8"?>'                                                                 >  $storedicom
@@ -66,56 +66,22 @@ echo '</dict>'                                                                  
 echo '</plist>'                                                                                             >> $recycleMismatchService
 
 
-cleanReferenced='/Users/'"$admin"'/Library/LaunchAgents/cleanReferenced.'"$org"'.plist'
-echo '<?xml version="1.0" encoding="UTF-8"?>'                                                                 >  $cleanReferenced
-echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' >> $cleanReferenced
-echo '<plist version="1.0">'                                                                                  >> $cleanReferenced
-echo '<dict>'                                                                                                 >> $cleanReferenced
-echo '    <key>Label</key>'                                                                                   >> $cleanReferenced
-echo '    <string>cleanReferenced.'"$org"'</string>'                                                          >> $cleanReferenced
-echo '    <key>ProgramArguments</key>'                                                                        >> $cleanReferenced
-echo '    <array>'                                                                                            >> $cleanReferenced
-echo '        <string>sh</string>'                                                                            >> $cleanReferenced
-echo '        <string>/Users/Shared/opendicom/storedicom/cleanReferenced.sh</string>'                         >> $cleanReferenced
-echo '        <string>/Volumes/IN/'"$org"'/LOG</string>'                                                      >> $cleanReferenced
-echo '    </array>'                                                                                           >> $cleanReferenced
-echo '    <key>StandardErrorPath</key>'                                                                       >> $cleanReferenced
-echo '    <string>/Users/'"$admin"'/Documents/opendicom/storedicom.'"$org"'.error.log</string>'               >> $cleanReferenced
-echo '    <key>StandardOutPath</key>'                                                                         >> $cleanReferenced
-echo '    <string>/Users/'"$admin"'/Documents/opendicom/storedicom.'"$org"'.log</string>'                     >> $cleanReferenced
-echo '    <key>StartCalendarInterval</key>'                                                                   >> $cleanReferenced
-echo '    <dict>'                                                                                             >> $cleanReferenced
-echo '        <key>Hour</key>'                                                                                >> $cleanReferenced
-echo '        <integer>2</integer>'                                                                           >> $cleanReferenced
-echo '        <key>Minute</key>'                                                                              >> $cleanReferenced
-echo '        <integer>0</integer>'                                                                           >> $cleanReferenced
-echo '    </dict>'                                                                                            >> $cleanReferenced
-echo '    <key>Umask</key>'                                                                                   >> $cleanReferenced
-echo '    <integer>0</integer>'                                                                               >> $cleanReferenced
-echo '</dict>'                                                                                                >> $cleanReferenced
-echo '</plist>'                                                                                               >> $cleanReferenced
-
 mkdir -m 775 -p "/Users/Shared/opendicom/storedicom/$org"
 ln -s "$storedicom" "/Users/Shared/opendicom/storedicom/$org/storedicom.$org.plist"
 ln -s "$recycleMismatchService" "/Users/Shared/opendicom/storedicom/$org/recycleMismatchService.$org.plist"
-ln -s "$cleanReferenced" "/Users/Shared/opendicom/storedicom/$org/cleanReferenced.$org.plist"
 
 start='/Users/Shared/opendicom/storedicom/'"$org"'/start.sh'
 echo '#!/bin/sh'                                               >  $start
 echo 'launchctl load -w '"$storedicom"                         >> $start
 echo 'launchctl load -w '"$recycleMismatchService"             >> $start
-echo 'launchctl load -w '"$cleanReferenced"                    >> $start
 echo 'launchctl list | grep "storedicom.'"$org"'"'             >> $start
 echo 'launchctl list | grep "recycleMismatchService.'"$org"'"' >> $start
-echo 'launchctl list | grep "cleanReferenced.'"$org"'"'        >> $start
 chmod -R 775 "$start"
 
 stop='/Users/Shared/opendicom/storedicom/'"$org"'/stop.sh'
 echo '#!/bin/sh'                                               >  $stop
 echo 'launchctl unload -w '"$storedicom"                       >> $stop
 echo 'launchctl unload -w '"$recycleMismatchService"           >> $stop
-echo 'launchctl unload -w '"$cleanReferenced"                  >> $stop
 echo 'launchctl list | grep "storedicom.'"$org"'"'             >> $stop
 echo 'launchctl list | grep "recycleMismatchService.'"$org"'"' >> $stop
-echo 'launchctl list | grep "cleanReferenced.'"$org"'"'        >> $stop
 chmod -R 775 "$stop"
