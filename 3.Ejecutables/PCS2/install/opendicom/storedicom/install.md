@@ -20,7 +20,5 @@ Crea:
 
 - /Volumes/IN/[org] y contenido
 - /Users/Shared/opendicom/storedicom/[org]  y contenido
-- /Users/pcs2/Library/LaunchAgents/storedicom.[org].plist
-- /Users/pcs2/Library/LaunchAgents/recycleMismatchService.[org].plist
-- /Users/pcs2/Library/LaunchAgents/cleanReferenced.[org].plist
-
+- /Users/[admin]/Library/LaunchAgents/storedicom.[org].plist
+- /Users/[admin]/Library/LaunchAgents/recycleMismatchService.[org].plist

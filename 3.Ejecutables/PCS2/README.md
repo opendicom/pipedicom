@@ -3,7 +3,7 @@
 PCS2 install
 ===========
 
-Versión 2.4
+Versión 2.5
 
 PCS2 incluye 5 servicios principales:
 
@@ -36,7 +36,7 @@ Cada uno de estos 7 servicios puede estar publicado varias veces (para pipelines
 
 
 
-## Location
+## Ubicación
 
 Configuración y administración de los servicios se encuentran en **/Users/Shared/**
 

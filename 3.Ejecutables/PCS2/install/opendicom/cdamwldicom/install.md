@@ -18,6 +18,6 @@ Ejemplo:
 Crea:
 
 - /Users/Shared/opendicom/cdamwldicom/[branch]  y contenido
-- /Users/pcs2/Library/Launchagents/cdamwldicom.[branch].[org].plist
-- /Users/pcs2/Documents/opendicom/cdamwldicom.[branch].[org].log
-- /Users/pcs2/Documents/opendicom/cdamwldicom.[branch].[org].error.log
+- /Users/[admin]/Library/Launchagents/cdamwldicom.[branch].[org].plist
+- /Users/[admin]/Documents/opendicom/cdamwldicom.[branch].[org].log
+- /Users/[admin]/Documents/opendicom/cdamwldicom.[branch].[org].error.log

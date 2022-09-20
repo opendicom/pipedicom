@@ -21,5 +21,5 @@ sudo /Users/Shared/opendicom/coercedicom/install.sh pcs2 DCM4CHEE asseSAINTBOIS
 Crea:
 
 - /Users/Shared/opendicom/coercedicom/[branch]  y contenido
-- /Users/pcs2/Library/Launchagents/coercedicom.[branch].plist
-- /Users/pcs2/Library/Launchagents/cleanOriginals.[branch].plist
+- /Users/[admin]/Library/Launchagents/coercedicom.[branch].plist
+- /Users/[admin]/Library/Launchagents/cleanOriginals.[branch].plist
