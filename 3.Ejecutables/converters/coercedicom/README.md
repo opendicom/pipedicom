@@ -3,7 +3,7 @@ coercedicom
 
 Procesa los directorios y archivos DICOM encontrados en subdirectorios del suddirectorio RECEIVED de un directorio spool. Dentro de RECEIVED, las nuevas imágenes están clasificadas en una estructura a tres niveles:
 
-- SOURCE: La primera subdivisión indica el origen de dónde viene la imagen. Por ejemplo: la carpeta llamada "NXGENRAD@192.168.4.16^1.2^IRP" indica que un equipo identificado por el AET "NXGENRAD" desde el IP local "192.168.4.16" envia por syntaxis 1.2.840.10008.1.2 (implicit endian) al AET "IRP".
+- DEVICE: La primera subdivisión indica el origen de dónde viene la imagen. Por ejemplo: la carpeta llamada "NXGENRAD@192.168.4.16^1.2^IRP" indica que un equipo identificado por el AET "NXGENRAD" desde el IP local "192.168.4.16" envia por syntaxis 1.2.840.10008.1.2 (implicit endian) al AET "IRP".
 - STUDY: La segunda subdivisión está constituida por carpetas con el identificador único de un estudio (EUID) como nombre.
 - SERIES: La tercera subdivisión está constituida por carpetas con el identificador único de una serie(SUID) como nombre.
 - instance: El tercer nivel, o sea dentro de una carpeta de estudio, son las imágenes que correspondena este estudio, identificadas por su SOPUID.
@@ -17,7 +17,7 @@ El procesamiento se realiza en base a las directivas que se encuentran en coerce
 "coerceDataset":{ "00000001_00080080-LO" :[ "asseMALDONADO" ]},
 "supplementToDataset": { "00000001_00081060-PN": [ "asseMALDONADO^-^-"]},
 "removeFromEUIDprefixedDataset": { "2.16.858.2" :[ "00000001_00081060-PN",  "00000001_00081030-LO"]},
-"sendingAET":"asseMALDONADO",
+"sourceAET":"asseMALDONADO",
 "receivingAET":"DCM4CHEE",
 "storeMode":"DICMhttp11",
 "j2kLayers":1
@@ -28,7 +28,7 @@ El procesamiento se realiza en base a las directivas que se encuentran en coerce
 "coerceDataset":{ "00000001_00080080-LO" :[ "asseMALDONADO" ]},
 "supplementToDataset": { "00000001_00081060-PN": [ "asseMALDONADO^-^-"]},
 "removeFromEUIDprefixedDataset": { "2.16.858.2" :[ "00000001_00081060-PN",  "00000001_00081030-LO"]},
-"sendingAET":"asseMALDONADO",
+"sourceAET":"asseMALDONADO",
 "receivingAET":"DCM4CHEE",
 "storeMode":"DICMhttp11",
 "j2kLayers":1
@@ -64,7 +64,7 @@ Un subdirectorio de SUCCESS recibe las imágenes creadas como resultado de la co
 - pacsAET (definido en el json de coercedicom) 
 - "SEND" 
 - branch (definido en el json de coercedicom)
-- SOURCE: Las dos primeras  cifras indican la prioridad. 00 es  la prioridad máxima. Indica el rango del regex interceptor en el archivo coercedicom.json. Las subdivisiones siguientes corresponden al nombre de carpeta recibida en source.
+- DEVICE: Las dos primeras  cifras indican la prioridad. 00 es  la prioridad máxima. Indica el rango del regex interceptor en el archivo coercedicom.json. Las subdivisiones siguientes corresponden al nombre de carpeta recibida en source.
 - STUDY: La segunda subdivisión está constituida por carpetas con el identificador único de un estudio (EUID) como nombre.
 - SERIES: La tercera subdivisión está constituida por carpetas con el identificador único de una serie(SUID) como nombre.
 - instance: El tercer nivel, o sea dentro de una carpeta de estudio, son las imágenes que correspondena este estudio, identificadas por su SOPUID.
@@ -162,6 +162,6 @@ Toda esta información accesible localmente permite realizar multiples tests, qu
 | supplementToDataset:{}                                         | only if attr did not exist in dataset                                                                                                                                                                                                                                                                                                                         |
 | removeFromEUIDprefixedDataset:{ "UIDprefix":[atributeID]}      | EUIDprefixed permite seleccionar estudios para los cuales se usó EUID de la MWL. Performed last (may undo a previous coercion)                                                                                                                                                                                                                                |
 | j2kLayers:                                                     | (num) 0=natv (native sin compresión), 1=j2kr (1 fragmento), 4=bfhi (j2kr with four quality layers (base/fast/hres/idem))                                                                                                                                                                                                                                      |
-| sendingAET:                                                    | AET branch origen (0002,0017)                                                                                                                                                                                                                                                                                                                                 |
+| sourceAET:                                                     | AET branch origen (0002,0016)                                                                                                                                                                                                                                                                                                                                 |
 | receivingAET:                                                  | AET destino (0002,0018)                                                                                                                                                                                                                                                                                                                                       |
 | storeMode:                                                     | DICMhttp1,DICMhttp2,DICMhttp3,-xv,-xs,-xe,-xi                                                                                                                                                                                                                                                                                                                 |

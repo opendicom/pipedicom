@@ -141,7 +141,7 @@ void series_callback(void *context){
    NSDictionary *thisContext = (NSDictionary*) context;
    /*
     Siuid
-    SendingAET
+    deviceAET
     ReceivingAET
     j2kLayers
     spoolDir
@@ -159,7 +159,7 @@ NEW
 cfg:
     Siuid
     regex
-    sourceAET
+    sendingAET
     coerceBlobs
     coerceFileMetainfo
     replaceInFileMetainfo
@@ -412,7 +412,7 @@ else
 
     #pragma mark ···· fileMetainfo
                 
-                //JF add SourceAET, SendingAET, ReceivingAET
+                //JF add sourceAET, sendingAET, receivingAET
                 [fileMetainfoAttrs setObject:@[thisContext[@"sourceAET"]] forKey:@"00000001_00020016-AE"];
                 [fileMetainfoAttrs setObject:@[thisContext[@"sendingAET"]] forKey:@"00000001_00020017-AE"];
                 [fileMetainfoAttrs setObject:@[thisContext[@"receivingAET"]] forKey:@"00000001_00020018-AE"];
@@ -729,7 +729,7 @@ int main(int argc, const char * argv[]){
     }
       
     //array corresponding to prioridad
-    NSMutableArray *sourcesToBeProcessed=[NSMutableArray array];
+    NSMutableArray *devicesToBeProcessed=[NSMutableArray array];
 /*
 format:
 [
@@ -737,7 +737,7 @@ format:
 from JSON
   regex:string (pattern)
   j2kLayers:int
-  sendingAET:string ( 0002,0017)
+  sourceAET:string ( 0002,0016)
   receivingAET:string (destination  0002,0018 )
   storeMode (DICMhttp11,DICMhttp2,DICMhttp3,-xv,-xs,-xe,-xi)
 
@@ -802,9 +802,9 @@ The root is an array where items are clasified by priority of execution
              }
              else
              {
-                [sourcesToBeProcessed addObject:[NSMutableDictionary dictionaryWithDictionary:matchDict]];
-                [sourcesToBeProcessed.lastObject setObject:sourcesBeforeMapping[i] forKey:@"sourceAET"];
-                [sourcesToBeProcessed.lastObject setObject:[NSString stringWithFormat:@"%02ld^",matchIndex] forKey:@"priority"];
+                [devicesToBeProcessed addObject:[NSMutableDictionary dictionaryWithDictionary:matchDict]];
+                [devicesToBeProcessed.lastObject setObject:sourcesBeforeMapping[i] forKey:@"sendingAET"];
+                [devicesToBeProcessed.lastObject setObject:[NSString stringWithFormat:@"%02ld^",matchIndex] forKey:@"priority"];
              }
              [sourcesBeforeMapping removeObjectAtIndex:i];
           }
@@ -824,8 +824,8 @@ The root is an array where items are clasified by priority of execution
          }
       }
         
-#pragma mark - sourcesToBeProcessed
-    if (sourcesToBeProcessed.count)
+#pragma mark - devicesToBeProcessed
+    if (devicesToBeProcessed.count)
     {
        
 #pragma mark cdawldicom init
@@ -882,10 +882,10 @@ The root is an array where items are clasified by priority of execution
        seriesFAILED=[NSMutableSet set];
        seriesDUPLICATE=[NSMutableSet set];
        seriesINPACS=[NSMutableSet set];
-       for (NSDictionary *sourceDict in sourcesToBeProcessed)
+       for (NSDictionary *deviceDict in devicesToBeProcessed)
        {
          if (maxSeries >0) {
-         NSString *sourceDir=[args[CDargSpool] stringByAppendingPathComponent:sourceDict[@"sourceAET"]];
+         NSString *sourceDir=[args[CDargSpool] stringByAppendingPathComponent:deviceDict[@"sendingAET"]];
          NSArray *Eiuids=[fileManager contentsOfDirectoryAtPath:sourceDir error:nil];
 #pragma mark · StudyUIDs loop
          for (NSString *Eiuid in Eiuids)
@@ -1024,7 +1024,7 @@ The root is an array where items are clasified by priority of execution
                                                 
                 [seriesTODO addObject:Siuid];
                
-                NSMutableDictionary *seriesTaskDict=[NSMutableDictionary dictionaryWithDictionary:sourceDict];
+                NSMutableDictionary *seriesTaskDict=[NSMutableDictionary dictionaryWithDictionary:deviceDict];
 
                 [seriesTaskDict setObject:Siuid forKey:@"Siuid"];
                
@@ -1032,10 +1032,10 @@ The root is an array where items are clasified by priority of execution
                 //SourceAET, SendingAET, ReceivingAET
                 //sourceAET@sourceIP^${syntax:14}^calledAET
                 //${syntax:14} = transfer syntax trunkated of the initial "1.2.840.10008." (which is the DICOM arc)
-                NSArray *sourceAETCircumflex=[sourceDict[@"sourceAET"] componentsSeparatedByString:@"^"];
+                NSArray *sourceAETCircumflex=[deviceDict[@"sendingAET"] componentsSeparatedByString:@"^"];
                 if (sourceAETCircumflex.count > 2) [seriesTaskDict setObject:sourceAETCircumflex[1] forKey:@"transferSyntaxSuffix"];
                 NSArray *sourceAETArroba=[sourceAETCircumflex[0] componentsSeparatedByString:@"@"];
-                [seriesTaskDict setObject:sourceAETArroba[0] forKey:@"sourceAET"];
+                [seriesTaskDict setObject:sourceAETArroba[0] forKey:@"sendingAET"];
 
                 
                 [seriesTaskDict setObject:
@@ -1045,11 +1045,11 @@ The root is an array where items are clasified by priority of execution
                 [seriesTaskDict setObject:
                      [NSString stringWithFormat:@"%@/STORE/%@/%@/SEND/%@/%@%@/%@/%@",
                       args[CDargSuccess],
-                      sourceDict[@"storeMode"],
-                      sourceDict[@"receivingAET"],
-                      sourceDict[@"sendingAET"],
-                      sourceDict[@"priority"],
-                      sourceDict[@"sourceAET"],
+                      deviceDict[@"storeMode"],
+                      deviceDict[@"receivingAET"],
+                      deviceDict[@"sendingAET"],
+                      deviceDict[@"priority"],
+                      deviceDict[@"sendingAET"],
                       Eiuid,
                       Siuid]
                     forKey:@"sendDir"];
@@ -1057,7 +1057,7 @@ The root is an array where items are clasified by priority of execution
                 [seriesTaskDict setObject:
                     [NSString stringWithFormat:@"%@/%@/%@/%@",
                        args[CDargFailure],
-                       sourceDict[@"sourceAET"],
+                       deviceDict[@"sendingAET"],
                        Eiuid,
                        Siuid]
                     forKey:@"failureDir"];
@@ -1065,7 +1065,7 @@ The root is an array where items are clasified by priority of execution
                 [seriesTaskDict setObject:
                    [NSString stringWithFormat:@"%@/%@/%@/%@",
                       args[CDargOriginal],
-                      sourceDict[@"sourceAET"],
+                      deviceDict[@"sendingAET"],
                       Eiuid,
                       Siuid]
                     forKey:@"originalDir"];
@@ -1073,7 +1073,7 @@ The root is an array where items are clasified by priority of execution
                 [seriesTaskDict setObject:
                    [NSString stringWithFormat:@"%@/%@/%@/%@",
                       args[CDargAlternates],
-                      sourceDict[@"sourceAET"],
+                      deviceDict[@"sendingAET"],
                       Eiuid,
                       Siuid]
                     forKey:@"alternatesDir"];
