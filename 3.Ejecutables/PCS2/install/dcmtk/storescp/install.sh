@@ -27,17 +27,8 @@ echo 'Iuid=${13}   ;#i'                                       >> $classifier
 echo 'Iclass=${14} ;#k'                                       >> $classifier
 echo 'frames=${15} ;#m'                                       >> $classifier
 echo 'chars=${16}  ;#y'                                       >> $classifier
-
-echo 'if [[ syntax == "1.2.840.10008.1.2" ]];then'            >> $classifier
-echo '   eic="I"'                                             >> $classifier
-echo 'elif [[ syntax == "1.2.840.10008.1.2.1" ]];then'        >> $classifier
-echo '   eic="E"'                                             >> $classifier
-echo 'else'                                                   >> $classifier
-echo '   eic="C"'                                             >> $classifier
-echo 'fi'                                                     >> $classifier
-
 echo 'base=/Volumes/IN/'"$branch"'/CLASSIFIED'                >> $classifier
-echo 'device="$scu@$scuip^$eic^$scp"'                         >> $classifier
+echo 'device="$scu@$scuip^${syntax:14}^$scp"'                 >> $classifier
 echo 'euid="$Pid@$Ean^$Euid"'                                 >> $classifier
 echo 'suid="$Suid"'                                           >> $classifier
 

@@ -140,23 +140,26 @@ static NSData *headData=nil;
 void series_callback(void *context){
    NSDictionary *thisContext = (NSDictionary*) context;
    /*
-app:
+    Siuid
+    SendingAET
+    ReceivingAET
+    j2kLayers
     spoolDir
-    spoolDirLogPath
-    
+    sendDir
+    failureDir
     originalDir
     alternatesDir
-    failureDir
+    spoolDirLogPath
+NEW
+    TransferSyntaxSuffix
 
-    sendDir
-    sentDir
-
-    coercePrefix
+    
+    coercePreamble
 
 cfg:
     Siuid
     regex
-    scu
+    sourceAET
     coerceBlobs
     coerceFileMetainfo
     replaceInFileMetainfo
@@ -167,7 +170,8 @@ cfg:
     replaceInDataset
     supplementToDataset
     removeFromDataset
-    
+NEW
+    j2kLayers
     */
    
    NSFileManager *fileManager=[NSFileManager defaultManager];
@@ -222,7 +226,11 @@ else
    NSMutableSet *doneSet=[NSMutableSet setWithArray:[fileManager contentsOfDirectoryAtPath:originalDir error:&error]];
 
    BOOL sendDirExists=[fileManager fileExistsAtPath:thisContext[@"sendDir"]];
-   
+
+   int j2kLayers;
+   if (thisContext[@"j2kLayers"]) j2kLayers=[thisContext[@"j2kLayers"] intValue];
+   else j2kLayers=1;
+
 #pragma mark loop
    for (NSString *iuid in iuids)
    {
@@ -246,21 +254,6 @@ else
                   continue;
                }
            }
-
-           if ([fileManager fileExistsAtPath:[thisContext[@"sentDir"] stringByAppendingPathComponent:[iuid stringByAppendingPathExtension:@"part"]]])
-           {
-#pragma mark · already exists in SENT
-               [seriesINPACS addObject:thisContext[@"Siuid"]];
-               NSString *returnMsg=removeInstanceFromSpool(
-                                    fileManager,
-                                    iuidPath,
-                                    thisContext[@"originalDir"],
-                                    false,
-                                    thisContext[@"alternatesDir"]
-                                    );
-               if (returnMsg.length) [logMsg appendString:returnMsg];
-               continue;
-            }
 
                
 #pragma mark · parse
@@ -350,6 +343,10 @@ else
     #pragma mark ·· parsed
                 
     #pragma mark ··· compress ?
+           
+                switch (j2kLayers) {
+                   case 1://J2KR
+                   {
                 NSString *pixelKey=nil;
                 if (parsedAttrs[@"00000001_7FE00010-OB"])pixelKey=@"00000001_7FE00010-OB";
                 else if (parsedAttrs[@"00000001_7FE00010-OW"])pixelKey=@"00000001_7FE00010-OW";
@@ -363,6 +360,7 @@ else
                    NSData *pixelData=nil;
                    if ([parsedAttrs[pixelKey][0] isKindOfClass:[NSDictionary class]])  pixelData=blobDict[parsedAttrs[pixelKey][0][@"Native"][0]];
                    else pixelData=dataWithB64String(blobDict[pixelKey]);
+                   
                    NSMutableString *response=[NSMutableString string];
                    if (compressJ2KR(
                                 [nativeUrlString substringToIndex:nativeUrlString.length-3],
@@ -400,10 +398,25 @@ else
                       continue;
                    }
                 }
+                   }
+                   break;
+                      
+//TODO case 4 BFMI
+                  
+                   default://no compression
+                      break;
+                }
 
-    #pragma mark ··· coerce
                 
+    #pragma mark ··· coerce
+
     #pragma mark ···· fileMetainfo
+                
+                //JF add SourceAET, SendingAET, ReceivingAET
+                [fileMetainfoAttrs setObject:@[thisContext[@"sourceAET"]] forKey:@"00000001_00020016-AE"];
+                [fileMetainfoAttrs setObject:@[thisContext[@"sendingAET"]] forKey:@"00000001_00020017-AE"];
+                [fileMetainfoAttrs setObject:@[thisContext[@"receivingAET"]] forKey:@"00000001_00020018-AE"];
+
                 if (thisContext[@"coerceFileMetainfo"]) [fileMetainfoAttrs addEntriesFromDictionary:thisContext[@"coerceFileMetainfo"]];
 
     #pragma mark ···· blobs
@@ -471,9 +484,10 @@ else
                 
     #pragma mark ·· outputData init
                 NSMutableData *outputData;
-    //prefix
-                if (!thisContext[@"coercePrefix"]) outputData=[NSMutableData dataWithLength:128];
-                else outputData=[NSMutableData dataWithLength:128];
+    //preamble
+                if (!thisContext[@"coercePreamble"]) outputData=[NSMutableData dataWithLength:128];
+                else outputData=[[NSMutableData alloc] initWithBase64EncodedString:thisContext[@"coercePreamble"] options:0] ;
+
                 [outputData appendBytes:&DICM length:4];
     //fileMetainfo
                 NSMutableData *outputFileMetainfo=[NSMutableData data];
@@ -546,8 +560,8 @@ else
                      }
                      sendDirExists=true;
                   }
-                      
-                  [outputData replaceBytesInRange:NSMakeRange(0,0) withBytes:headData.bytes length:51 ];
+
+                   
                   [outputData writeToFile:[thisContext[@"sendDir"] stringByAppendingPathComponent:[iuid stringByAppendingPathExtension:@"part"]] atomically:YES];
                    
                    
@@ -720,30 +734,32 @@ int main(int argc, const char * argv[]){
 format:
 [
 {
-  pacsAET:string (destination)
-  branch:string
-  regex:string (scu pattern)
-  scu:string (scu matching)
-  priority:%02ld
+from JSON
+  regex:string (pattern)
+  j2kLayers:int
+  sendingAET:string ( 0002,0017)
+  receivingAET:string (destination  0002,0018 )
+  storeMode (DICMhttp11,DICMhttp2,DICMhttp3,-xv,-xs,-xe,-xi)
+
+  coercePreamble:base64
  
-  coercePrefix:base64
   coerceBlobs:{}
+ 
+  removeFromFileMetainfo:[]
   coerceFileMetainfo:{}
-  replaceInMetainfo:{}
-  supplementToMetainfo:{}
-  removeFromMetainfo:[]
+  replaceInFileMetainfo:{}
+  supplementToFileMetainfo:{}
+  removeFromEUIDprefixedFileMetainfo:{ "UIDprefix":[atributeID]}
+
   coerceDataset:{}
   replaceInDataset:{}
   supplementToDataset:{}
   removeFromDataset:[]
-  ...
- 
-  sendDir
-  sentDir
-  failureDir
-  originalDir
-  alternatesDir
-  storeBucketSize (subdir max size for storedicom operation)
+  removeFromEUIDprefixedDataset:{ "UIDprefix":[atributeID]}
+
+ADDED
+  TransferSyntaxSuffix
+  priority:%02ld
 }
 ...
 ]
@@ -787,8 +803,8 @@ The root is an array where items are clasified by priority of execution
              else
              {
                 [sourcesToBeProcessed addObject:[NSMutableDictionary dictionaryWithDictionary:matchDict]];
-                 [sourcesToBeProcessed.lastObject setObject:sourcesBeforeMapping[i] forKey:@"scu"];
-                 [sourcesToBeProcessed.lastObject setObject:[NSString stringWithFormat:@"%02ld^",matchIndex] forKey:@"priority"];
+                [sourcesToBeProcessed.lastObject setObject:sourcesBeforeMapping[i] forKey:@"sourceAET"];
+                [sourcesToBeProcessed.lastObject setObject:[NSString stringWithFormat:@"%02ld^",matchIndex] forKey:@"priority"];
              }
              [sourcesBeforeMapping removeObjectAtIndex:i];
           }
@@ -869,7 +885,7 @@ The root is an array where items are clasified by priority of execution
        for (NSDictionary *sourceDict in sourcesToBeProcessed)
        {
          if (maxSeries >0) {
-         NSString *sourceDir=[args[CDargSpool] stringByAppendingPathComponent:sourceDict[@"scu"]];
+         NSString *sourceDir=[args[CDargSpool] stringByAppendingPathComponent:sourceDict[@"sourceAET"]];
          NSArray *Eiuids=[fileManager contentsOfDirectoryAtPath:sourceDir error:nil];
 #pragma mark · StudyUIDs loop
          for (NSString *Eiuid in Eiuids)
@@ -1011,37 +1027,37 @@ The root is an array where items are clasified by priority of execution
                 NSMutableDictionary *seriesTaskDict=[NSMutableDictionary dictionaryWithDictionary:sourceDict];
 
                 [seriesTaskDict setObject:Siuid forKey:@"Siuid"];
+               
+               
+                //SourceAET, SendingAET, ReceivingAET
+                //sourceAET@sourceIP^${syntax:14}^calledAET
+                //${syntax:14} = transfer syntax trunkated of the initial "1.2.840.10008." (which is the DICOM arc)
+                NSArray *sourceAETCircumflex=[sourceDict[@"sourceAET"] componentsSeparatedByString:@"^"];
+                if (sourceAETCircumflex.count > 2) [seriesTaskDict setObject:sourceAETCircumflex[1] forKey:@"transferSyntaxSuffix"];
+                NSArray *sourceAETArroba=[sourceAETCircumflex[0] componentsSeparatedByString:@"@"];
+                [seriesTaskDict setObject:sourceAETArroba[0] forKey:@"sourceAET"];
+
                 
                 [seriesTaskDict setObject:
                    [studyPath stringByAppendingPathComponent:Siuid]
                    forKey:@"spoolDir"];
                 
                 [seriesTaskDict setObject:
-                     [NSString stringWithFormat:@"%@/%@/SEND/%@/%@%@/%@/%@",
+                     [NSString stringWithFormat:@"%@/STORE/%@/%@/SEND/%@/%@%@/%@/%@",
                       args[CDargSuccess],
-                      sourceDict[@"pacsAET"],
-                      sourceDict[@"branch"],
+                      sourceDict[@"storeMode"],
+                      sourceDict[@"receivingAET"],
+                      sourceDict[@"sendingAET"],
                       sourceDict[@"priority"],
-                      sourceDict[@"scu"],
+                      sourceDict[@"sourceAET"],
                       Eiuid,
                       Siuid]
                     forKey:@"sendDir"];
-                
-                [seriesTaskDict setObject:
-                     [NSString stringWithFormat:@"%@/%@/SENT/%@/%@%@/%@/%@",
-                      args[CDargSuccess],
-                      sourceDict[@"pacsAET"],
-                      sourceDict[@"branch"],
-                      sourceDict[@"priority"],
-                      sourceDict[@"scu"],
-                      Eiuid,
-                      Siuid]
-                    forKey:@"sentDir"];
-                
+                                
                 [seriesTaskDict setObject:
                     [NSString stringWithFormat:@"%@/%@/%@/%@",
                        args[CDargFailure],
-                       sourceDict[@"scu"],
+                       sourceDict[@"sourceAET"],
                        Eiuid,
                        Siuid]
                     forKey:@"failureDir"];
@@ -1049,7 +1065,7 @@ The root is an array where items are clasified by priority of execution
                 [seriesTaskDict setObject:
                    [NSString stringWithFormat:@"%@/%@/%@/%@",
                       args[CDargOriginal],
-                      sourceDict[@"scu"],
+                      sourceDict[@"sourceAET"],
                       Eiuid,
                       Siuid]
                     forKey:@"originalDir"];
@@ -1057,7 +1073,7 @@ The root is an array where items are clasified by priority of execution
                 [seriesTaskDict setObject:
                    [NSString stringWithFormat:@"%@/%@/%@/%@",
                       args[CDargAlternates],
-                      sourceDict[@"scu"],
+                      sourceDict[@"sourceAET"],
                       Eiuid,
                       Siuid]
                     forKey:@"alternatesDir"];

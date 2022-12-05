@@ -204,12 +204,12 @@
 		4AC7BE5826694A2700C14265 /* NSData+MD5.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSData+MD5.h"; sourceTree = "<group>"; };
 		4AC7BE5926694A2700C14265 /* NSData+MD5.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSData+MD5.m"; sourceTree = "<group>"; };
 		4AC7BE62266A724A00C14265 /* DCKV.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = DCKV.md; sourceTree = "<group>"; };
+		4AC84C29293A6EC8004C42E2 /* coercedicom.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = coercedicom.json; path = ../../../../pipedicom/3.Ejecutables/converters/coercedicom/coercedicom.json; sourceTree = "<group>"; };
 		4AD03B9E2696430400855F3F /* fileManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fileManager.h; sourceTree = "<group>"; };
 		4AD03B9F2696430400855F3F /* fileManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = fileManager.m; sourceTree = "<group>"; };
 		4AD03BE026973FEE00855F3F /* coercedicom */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = coercedicom; sourceTree = BUILT_PRODUCTS_DIR; };
 		4AD03BE226973FEE00855F3F /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4AD03BF22697402B00855F3F /* DCKV.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DCKV.framework; path = ../../../../../Library/Frameworks/DCKV.framework; sourceTree = "<group>"; };
-		4AD03C46269782CB00855F3F /* coercedicom.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = coercedicom.json; sourceTree = "<group>"; };
 		4AD03C47269782CB00855F3F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4ADA4ED62672A778008F98DB /* DsourceJ */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DsourceJ; sourceTree = BUILT_PRODUCTS_DIR; };
 		4ADA4ED82672A778008F98DB /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -485,7 +485,7 @@
 		4AD03BE126973FEE00855F3F /* coercedicom */ = {
 			isa = PBXGroup;
 			children = (
-				4AD03C46269782CB00855F3F /* coercedicom.json */,
+				4AC84C29293A6EC8004C42E2 /* coercedicom.json */,
 				4AD03C47269782CB00855F3F /* README.md */,
 				4AD03BE226973FEE00855F3F /* main.m */,
 			);

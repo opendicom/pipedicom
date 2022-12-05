@@ -86,7 +86,8 @@ echo '"coerceDataset":{ "00000001_00080080-LO":[ "'"$BRANCH"'" ]}, '            
 echo '"supplementToDataset":{ "00000001_00081060-PN":[ "'"$BRANCH"'" ]}, '                                  >> $json
 echo '"removeFromEUIDprefixedDataset":{ "2.16.858.2":[ "00000001_00081060-PN", "00000001_00081030-LO" ]}, ' >> $json
 echo '"branch":"'"$BRANCH"'", '                                                                             >> $json
-echo '"pacsAET":"'"$ORG"'" '                                                                                >> $json
+echo '"pacsAET":"'"$ORG"'", '                                                                               >> $json
+echo '"j2kLayers":1 '                                                                                       >> $json
 echo '}]'                                                                                                   >> $json
 
 start='/Users/Shared/opendicom/coercedicom/'"$BRANCH"'/start.sh'

@@ -1,3 +1,0 @@
-# CSTOREDICOM
-
-Escrutina
