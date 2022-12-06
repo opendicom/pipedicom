@@ -230,6 +230,8 @@ else
    int j2kLayers;
    if (thisContext[@"j2kLayers"]) j2kLayers=[thisContext[@"j2kLayers"] intValue];
    else j2kLayers=1;
+      
+   BOOL isPart=![thisContext[@"storeMode"] hasPrefix:@"-"];
 
 #pragma mark loop
    for (NSString *iuid in iuids)
@@ -561,8 +563,11 @@ else
                      sendDirExists=true;
                   }
 
-                   
-                  [outputData writeToFile:[thisContext[@"sendDir"] stringByAppendingPathComponent:[iuid stringByAppendingPathExtension:@"part"]] atomically:YES];
+                  if (isPart)
+                     [outputData writeToFile:[thisContext[@"sendDir"] stringByAppendingPathComponent:[iuid stringByAppendingPathExtension:@"part"]] atomically:YES];
+                  else
+                     [outputData writeToFile:[thisContext[@"sendDir"] stringByAppendingPathComponent:iuid] atomically:YES];
+
                    
                    
                    
