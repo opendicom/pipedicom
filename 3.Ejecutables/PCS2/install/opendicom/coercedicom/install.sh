@@ -20,14 +20,14 @@ echo '        <string>/Volumes/IN</string>'                                     
 echo '        <string>/Volumes/IN/'"$BRANCH"'/FAILURE</string>'                                               >> $coercedicom
 echo '        <string>/Volumes/IN/'"$BRANCH"'/ORIGINALS</string>'                                             >> $coercedicom
 echo '        <string>/Volumes/IN/'"$BRANCH"'/MISMATCH_ALTERNATES</string>'                                   >> $coercedicom
-echo '        <string>/Volumes/IN/'"$BRANCH"'/MISMATCH_SOURCE</string>'                                       >> $coercedicom
+echo '        <string>/Volumes/IN/'"$BRANCH"'/MISMATCH_SENDING</string>'                                       >> $coercedicom
 echo '        <string>/Volumes/IN/'"$BRANCH"'/MISMATCH_CDAMWL</string>'                                       >> $coercedicom
 echo '        <string>/Volumes/IN/'"$BRANCH"'/MISMATCH_PACS</string>'                                         >> $coercedicom
 echo '        <string>/Users/Shared/opendicom/coercedicom/'"$BRANCH"'/coercedicom.json</string>'              >> $coercedicom
 echo '        <string>&quot;&quot;</string>'                                                                  >> $coercedicom
 echo '        <string>&quot;&quot;</string>'                                                                  >> $coercedicom
 echo '        <string>90</string>'                                                                            >> $coercedicom
-echo '        <string>3</string>'                                                                             >> $coercedicom
+echo '        <string>10</string>'                                                                             >> $coercedicom
 echo '        <string>30</string>'                                                                            >> $coercedicom
 echo '    </array>'                                                                                           >> $coercedicom
 echo '    <key>StandardErrorPath</key>'                                                                       >> $coercedicom

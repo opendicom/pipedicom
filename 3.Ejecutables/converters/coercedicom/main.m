@@ -623,7 +623,7 @@ enum CDargName{
    CDargOriginal,            //destination where to move originals of successfull coertion
    CDargAlternates, //destination where to move diferent alternates of original
 
-   CDargSourceMismatch,       //destination where to move originals of source mismatch
+   CDargSending,              //destination where to move originals of sending mismatch
    CDargCdamwlMismatch,       //destination where to move originals of cdawl mismatch
    CDargPacsMismatch,         //destination where to move originals of pacs mismatch,
    CDargCoercedicomFile,      //json
@@ -811,10 +811,10 @@ The root is an array where items are clasified by priority of execution
        }
     }
       
-#pragma mark sourceMismatch To Be discarded
+#pragma mark sendingMismatch To Be discarded
       for (NSString *sourceName in sourcesBeforeMapping)
       {
-         NSString *errMsg=mergeDir(fileManager, [args[CDargSpool] stringByAppendingPathComponent:sourceName], [args[CDargSourceMismatch] stringByAppendingPathComponent:sourceName]);
+         NSString *errMsg=mergeDir(fileManager, [args[CDargSpool] stringByAppendingPathComponent:sourceName], [args[CDargSending] stringByAppendingPathComponent:sourceName]);
          if (errMsg && errMsg.length)
          {
             if (@available(macOS 10.11, *))
