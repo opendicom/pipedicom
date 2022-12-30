@@ -3,15 +3,20 @@
 org=$(basename $1)
 #$1=org path
 #           /spool/branch/dev/study/series/dcm.part
-send="$1/SEND"                          #spool in
-mismatch_service="$1/MISMATCH_SERVICE"  #spool out not NativeDicomModel response
-mismatch_pacs="$1/MISMATCH_PACS"        #spool out     NativeDicomModel response
+send="$1/SEND"                            #spool in
+mismatch_internal="$1/MISMATCH_INTERNAL"  #spool out server internal error response
+mkdir -p $mismatch_internal
+mismatch_endpoint="$1/MISMATCH_ENDPOINT"  #spool out not responsed by pacs
+mkdir -p $mismatch_endpoint
+mismatch_instance="$1/MISMATCH_INSTANCE"  #spool out NativeDicomModel response, instance error
+mkdir -p $mismatch_instance
 
 stowEndpoint=$2
 #'https://serviciosridi.asse.uy/dcm4chee-arc/stow/DCM4CHEE'
 qidoEndpoint=$3
 #'https://serviciosridi.asse.uy/dcm4chee-arc/qido/DCM4CHEE'
 timeout=$4
+partMax=$5
 
 if [ ! -d "$send" ]; then
    mkdir -p "$send"
@@ -35,18 +40,24 @@ for branch in `ls`; do
              find . -depth 1 -type d  ! -empty -mtime +30s -print0 | while read -d $'\0' dot_series; do
              
                 series=${dot_series#*/}  # removes ./ prefix of the find return value
-                storeResponse=$( cat $series/* /Users/Shared/opendicom/storedicom/myboundary.tail | curl -k -s -H "Content-Type: multipart/related; type=\"application/dicom\"; boundary=myboundary" "$stowEndpoint/studies" --data-binary @- )
-
-                if [[ -z $storeResponse ]] || [[ $"storeResponse" == '<html><head><title>Error</title></head><body>Internal Server Error</body></html>' ]]; then
-                   #pacs not available. Leave series in send
-                   >&2 echo "[$isoDate] PACS NOT AVAILABLE"
+                cd $series
+                storeResponse=$( cat $(ls | head -n $5) /Users/Shared/opendicom/storedicom/myboundary.tail | curl -k -s -H "Content-Type: multipart/related; type=\"application/dicom\"; boundary=myboundary" "$stowEndpoint/studies" --data-binary @- )
+                cd ..
+                if [[ -z $storeResponse ]];then
+                   #Leave series in send
+                   >&2 echo "[$isoDate] PACS UNREACHABLE"
+                elif [[ $storeResponse == '<html><head><title>Error</title></head><body>Internal Server Error</body></html>' ]]; then
+                   #pacs internal server error
+                   mkdir -p   "$mismatch_internal/$branch/$device/$study"
+                   mv $series "$mismatch_internal/$branch/$device/$study"
                    
                 else #pacs response
 
                    if [[ $storeResponse != *"NativeDicomModel"* ]]; then
                        # response does NOT come from DICOMweb store service
                        >&2 echo "[$isoDate] strange store response\r $storeResponse"
-                       mv $series "$mismatch_service/$branch/$device/$study"
+                       mkdir -p   "$mismatch_endpoint/$branch/$device/$study"
+                       mv $series "$mismatch_endpoint/$branch/$device/$study"
                       
                    else #DICOM response
                        echo "$series"
@@ -70,9 +81,12 @@ for branch in `ls`; do
                            declare -a failedArray=( $failed )
                            #remove file if sopiuid exists in pacs
                            mismatch_series="$mismatch_pacs/$branch/$device/$study/$series"
+                           
+                           #list instances available of the series in the pacs
+                           qidoResponse=$( curl -s -f "$qidoEndpoint/instances?SeriesInstanceUID=$eries" )
+                           
                            for sopiuid in "${failedArray[@]}";do
-                              qidoResponse=$( curl -s -f "$qidoEndpoint/instances?SOPInstanceUID=$sopiuid" )
-                              if [[ $qidoResponse == "["* ]]; then #exists
+                              if [[ $qidoResponse == *"$sopiuid"* ]]; then #exists
                                  rm -f *"$sopiuid"*
                                  echo "   duplicate $sopiuid"
                               else
