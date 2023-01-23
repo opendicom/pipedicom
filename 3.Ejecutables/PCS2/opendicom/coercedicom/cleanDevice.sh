@@ -8,16 +8,20 @@
 # - exists remotely, removed locally
 # · exists remotely, could not removedslocally
 
-echo START
-#STUDY is an ABSOLUTE path (not a relative one)
-#  -depth 2
-#  -Btime +"$2"d
 device=$( pwd )
+echo 'START CLEANING '"$device"
+
+#remove empty study dir
+find . -depth 2 -type d -empty -delete
+find . -depth 1 -type d -empty -delete
+
+#  -Btime +"$1"d
 find . -depth 2 -type d -print0 | while read -d $'\0' SERIESPATH
 do
     cd "$SERIESPATH"
     ORIGINALSCOUNT=$(find . -type f -name "*.dcm" | wc -l )
     if (( $ORIGINALSCOUNT == 0 )); then
+        cd "$device"
         echo'RM EMPTY '"$SERIESPATH"
         rm -Rf $SERIESPATH
     else
@@ -61,5 +65,7 @@ do
     fi # non empty folder
     cd "$device"
 done #while SEREISPATH
-echo END
+
+
+echo 'END CLEANING '"$device"
 
