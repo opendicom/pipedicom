@@ -16,7 +16,8 @@ find . -depth 2 -type d -empty -delete
 find . -depth 1 -type d -empty -delete
 
 #  -Btime +"$1"d
-find . -depth 2 -type d -print0 | while read -d $'\0' SERIESPATH
+# argumentos adicionales de find listed in the comand line
+find . -depth 2 -type d "$@" -print0 | while read -d $'\0' SERIESPATH
 do
     cd "$SERIESPATH"
     ORIGINALSCOUNT=$(find . -type f -name "*.dcm" | wc -l )
