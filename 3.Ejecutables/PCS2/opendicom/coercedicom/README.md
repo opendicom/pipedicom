@@ -20,6 +20,8 @@ DICOMweb stow, por lo menos en conjunto con dcm4chee-arc es un protocolo que no 
 
 ## Log
 
+- NOT IN PACS ./study/series
+
 - REMOVE instancesNumber ./study/series
 
 - ./study/series
