@@ -3,7 +3,7 @@
 
 find "$1" -depth 3 -type d ! -empty -mtime +300s -print0 | while read -d $'\0' MISMATCHSTUDY
 do
-    SENDSTUDY=$(echo "$MISMATCHSTUDY" | sed -e 's/MISMATCH_SERVICE/SEND/')
+    SENDSTUDY=$(echo "$MISMATCHSTUDY" | sed -e 's/MISMATCH_INTERNAL/SEND/')
     SENDDIR=$( dirname "$SENDSTUDY" )
     mkdir -p "$SENDDIR"
     if [ -d "$SENDSTUDY" ]; then
