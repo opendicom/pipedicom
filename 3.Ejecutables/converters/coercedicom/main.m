@@ -1147,10 +1147,3 @@ The root is an array where items are clasified by priority of execution
 }//end autoreleaspool
   return returnInt;//returns the number studuies processed
 }
-
-
-
-
-
-
-

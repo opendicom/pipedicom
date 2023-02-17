@@ -50,7 +50,7 @@ cd $study
                   series=${dot_series#*/}  # removes ./ prefix of the find return value
                   
                   batch=$(ls "$series" | head -n "$batchSize" | tr '\n' ' ' )
-echo "$series"': '${#batch}
+#echo "$series"': '${#batch}
                   if (( ${#batch} < 2)); then
                      echo "$series"' empty & deleted'
                      rm -Rf "$series"
@@ -81,7 +81,7 @@ cd ..
 #echo $storeResponse
                         if [[ $storeResponse != *"NativeDicomModel"* ]]; then
                            # response does NOT come from DICOMweb store service
-                           >&2 echo "strange store response\r $storeResponse"
+                           >&2 echo "NOT NativeDicomModel RESPONSE\r $storeResponse"
                            echo 'mkdir '"$mismatch_endpoint/$branch/$device/$study"
                            mkdir -p   "$mismatch_endpoint/$branch/$device/$study"
                            mv $series "$mismatch_endpoint/$branch/$device/$study"

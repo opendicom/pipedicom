@@ -1,12 +1,12 @@
 # Storedicom
 
-"store" es el nombre DICOMweb  de la función de envio de instancias de objetos DICOM por protocolo http:// POST. Contrastamos "**store**" con "**cstore**" (C-STORE),  que es la antigua versión binaria de esta función por protocolo ACSE (adoptado y especializado por DICOM bajo el nombre DIMSE).
+"store" es el nombre DICOMweb  de la función de envio de instancias de objetos DICOM por protocolo http:// POST. Contrastamos "**store**" con "**cstore**" (C-STORE,  que es la antigua versión binaria de esta función por protocolo ACSE adoptado y especializado por DICOM bajo el nombre DIMSE).
 
 "store" es el protocolo de envio que usa nuestro gestor "storedicom"  de objetos a enviar desde un repositorio hacía un PACS. El gestor envia objetos y los elimina del repositorio una vez comprobado que fueron recibidos exitosamente. El diseño de la función soporta que paralelamente otros procesos rellenen dinamicamente el repositorio.  Es decir que el **repositorio** es una zona de garaje temporario local que permite acumular los objetos antes de su envio a otra máquina por red.
 
 ## Prerequisitos
 
-- storedicom.sh es un script bash que usa estructuras de tipo array, por lo cual se requiere una versión reciente. Esta  probado con bash obtenido por brew sobre macos 10.15.7 Catalina
+- storedicom.sh es un script bash que usa estructuras de tipo array, por lo cual se requiere una versión reciente. Esta  probado con bash obtenido por brew.sh sobre macos 10.15.7 Catalina
   
   ```
   GNU bash, version 5.1.16(1)-release (x86_64-apple-darwin19.6.0)
@@ -61,35 +61,69 @@ branch   = aet de destino
 
 El script **storedicom.sh** requiere los parametros posicionales siguientes:
 
-1. **mimePart** ...path to file containing parts separator
+1.  stowEndpoint ... por ejemplo: 'https://serviciosridi.asse.uy/dcm4chee-arc/stow/DCM4CHEE'
 
-2. **mimePartsTail** ...path to file containing last part tail
+2. qidoEndpoint ... por ejemplo: 'https://serviciosridi.asse.uy/dcm4chee-arc/qido/DCM4CHEE'
 
-3. **stowEndpoint** ... por ejemplo: 'https://serviciosridi.asse.uy/dcm4chee-arc/stow/DCM4CHEE'
+3. timeout ...por ejemplo: 60 (máx seconds from start of the process to start of processing another series)
 
-4. **qidoEndpoint** ... por ejemplo: 'https://serviciosridi.asse.uy/dcm4chee-arc/qido/DCM4CHEE'
+4. batchSize ... por ejemplo: 40 (number of files of a series treated in one pass)
 
-5. **timeout** ...por ejemplo: 60 (máx seconds from start of the process to start of processing another series)
+5. repository path to repository
 
-6. **batchSize** ... por ejemplo: 40 (number of files of a series treated in one pass)
 
-7. **repository** path to repository
+
+## Log
+
+Para cada estudio
+
+```
+[aaaa/mm/dd] branch/prioridad^aetSCU@IP^syntax^aetSCP/PID@AN^EUID
+```
+
+- aaaa =año
+
+- mm =mes
+
+- dd =day
+
+- branch (tal como definida en el json de configuración para el device de origen)
+
+- prioridad (tal como definida en el json de configuración para el device de origen 00 a NN)
+
+- aetSCU (del equipo imagenológico)
+
+- IP (del equipo imagenológico)
+
+- syntax  (del equipo imagenológico)
+
+- aetSCP (configurado en el equipo imagenológico)
+
+- PID (PatientID)
+
+- AN (accession number)
+
+- EUID (Study Instance UID)
+
+
+
+Para cada serie
+
+```
+? SUID
+```
+
+- ? puede ser
+  
+  - >
+  
+  - ·
+  
+  - 
 
 ## Detalles técnicos
 
-El script encapsula loops para visitar los  varios niveles de la estructura del repositorio hasta los estudios. Se usa recursivamente la sintaxis 
-
-```bash
-for item in `ls`;do
-  cd $item
-  ...
-  cd ..
-done
-```
-
-### POST series
-
-Llegado a nivel estudio se cambia `ls` por `find` para poder agregar parametros de selección adicionales. Por ejemplo:
+El script encapsula loops para visitar los  varios niveles de la estructura del repositorio hasta los estudios.  Llegado a nivel estudio se usa `find` para poder agregar parametros de selección adicionales. Por ejemplo:
 
 - **-type d** que selecciona exclusivamente los directorioes
 
@@ -100,20 +134,21 @@ find . -depth 1 -type d -print0 | while read -d $'\0' dot_series; do
 
    series=${dot_series#*/}  # removes ./ prefix of the find return value
    batch=$(ls "$series" | head -n "$batchSize" | tr '\n' ' ' )
-   if [[ batch == " " ]]; then
+   if (( ${#batch} < 2)); then
+      echo "$series"' empty & deleted'
       rm -Rf "$series"
    else
       cd $series
       declare -a batchArray=( $batch )
       filelist=$( for item in "${batchArray[@]}"; do \
-                     echo -n $item $mimepart;        \
+                     echo -n ' '$1/mimepart $item;   \
                   done;                              \
-                  echo -n $mimepartstail             \
+                  echo -n ' '$1/mimepartstail        \
                  )
        storeResponse=$( cat $filelist | curl -k -s           \
                         -H "Content-Type: multipart/related; \
                         type=\"application/dicom\";          \
-                        boundary=myboundary"                 \
+                        boundary=\"$studyDescriptor\""       \
                         "$stowEndpoint/studies"              \
                         --data-binary @-                     \
                        )
@@ -123,13 +158,13 @@ Notas:
 
 - **find .** devuelve caminos relativos empezando por **./**  (por eso el nombre  **dot_series** punto serie). 
 
-- La linea siguiente usa la magia de bash para recortar strings, para conservar exclusivamente el **SeriesInstanceUID**.
+- La linea siguiente usa la magia de bash para conservar exclusivamente el **SeriesInstanceUID**.
 
 - batch lista  los "$batchSize" primeros objetos de la serie, separandolos con un espacio
 
 - si batch es vacío, se elimina la serie
 
-- sino, se transforma el string lista  de nombre de objetos en array, intercalando siempre referencias  al archivo que contiene el separador **mimePart** (parametro 1) , y al final agrega referencia al  archivo que contiene el  marcador de fin de  multipart **mimePartsTail** (parametro 2).
+- sino, se transforma el string lista  de nombre de objetos en array, intercalando siempre referencias  al archivo que contiene el separador y al final agrega referencia al  archivo que contiene el  marcador de fin de  multipart.
 
 - El motor de request es curl, sin log `-s` y sin verificación de certificado `-k`
 
@@ -166,9 +201,9 @@ Examinamos sucesivamente los casos de respuesta siguientes:
 
 - **PACS UNREACHABLE** (no response). No se hacer nada
 
-- **pacs busy** (error de jboss). Se mueve la serie a MISMATCH_INTERNAL
+- **INTERNAL SERVER ERROR** (error de jboss). Se mueve la serie a MISMATCH_INTERNAL
 
-- **strange store response** (respuesta no <NativeDicomModel>). Se mueve la serie a MISMATCH_ENDPOINT
+- **NOT NativeDicomModel RESPONSE** (respuesta no <NativeDicomModel>). Se mueve la serie a MISMATCH_ENDPOINT
 
 - análysis de los 3 elementos de <NativeDicomModel> :
   
@@ -185,5 +220,3 @@ Examinamos sucesivamente los casos de respuesta siguientes:
     - se mueven a MISMATCH_INSTANCE
   
   - En caso que había un warning, se le copia al log
-
-
