@@ -4,8 +4,6 @@ admin=$1
 branch=$2
 port=$3
 
-mkdir -m 775 -p /Volumes/IN/$branch/{ARRIVED,CLASSIFIED,FAILURE,ORIGINALS,MISMATCH_ALTERNATES,MISMATCH_SOURCE,MISMATCH_CDAMWL,MISMATCH_PACS}
-mkdir -m 775 -p '/Users/'"$admin"'/Documents/dcmtk'
 mkdir -m 775 -p '/Users/Shared/dcmtk/storescp/'"$branch"
 
 #x #a #r #p #f #c #d #t #h #e #n #s #i #k #m #y
@@ -27,8 +25,17 @@ echo 'Iuid=${13}   ;#i'                                       >> $classifier
 echo 'Iclass=${14} ;#k'                                       >> $classifier
 echo 'frames=${15} ;#m'                                       >> $classifier
 echo 'chars=${16}  ;#y'                                       >> $classifier
+
+echo 'if [[ syntax == "1.2.840.10008.1.2" ]];then'            >> $classifier
+echo '   eic="I"'                                             >> $classifier
+echo 'elif [[ syntax == "1.2.840.10008.1.2.1" ]];then'        >> $classifier
+echo '   eic="E"'                                             >> $classifier
+echo 'else'                                                   >> $classifier
+echo '   eic="C"'                                             >> $classifier
+echo 'fi'                                                     >> $classifier
+
 echo 'base=/Volumes/IN/'"$branch"'/CLASSIFIED'                >> $classifier
-echo 'device="$scu@$scuip^${syntax:14}^$scp"'                 >> $classifier
+echo 'device="$scu@$scuip^$eic^$scp"'                         >> $classifier
 echo 'euid="$Pid@$Ean^$Euid"'                                 >> $classifier
 echo 'suid="$Suid"'                                           >> $classifier
 

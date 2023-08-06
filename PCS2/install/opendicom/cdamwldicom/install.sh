@@ -6,7 +6,6 @@ org=$2
 branch=$3
 qido=$4
 
-#mkdir -m 775 -p "/Users/$admin/Documents/opendicom"
 mkdir -m 775 -p "/Users/Shared/opendicom/cdamwldicom/$branch"
 
 

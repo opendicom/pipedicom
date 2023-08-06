@@ -10,4 +10,4 @@ cd "$(dirname $0)"
 
 ./opendicom/coercedicom/install.sh "$admin" "$org" "$branch"
 
-//no se installa storedicom (already installed in 1)
+# no se installa storedicom (already installed in 1)

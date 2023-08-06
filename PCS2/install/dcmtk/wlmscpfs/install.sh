@@ -6,7 +6,6 @@ port=$3
 org=$4
 
 mkdir -m 775 -p "/Users/Shared/dcmtk/wlmscpfs/$branch/aet/published/$org"
-mkdir -m 775 -p "/Users/$admin/Documents/dcmtk"
 
 
 plist="/Users/Shared/dcmtk/wlmscpfs/$branch/wlmscpfs.$branch.$org.$port.plist"

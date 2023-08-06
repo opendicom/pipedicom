@@ -3,7 +3,6 @@ ADMIN=$1
 ORG=$2
 BRANCH=$3
 
-mkdir -m 775 -p "/Users/$ADMIN/Documents/opendicom"
 
 coercedicom='/Users/'"$ADMIN"'/Library/LaunchAgents/coercedicom.'"$BRANCH"'.plist'
 echo '<?xml version="1.0" encoding="UTF-8"?>'                                                                 >  $coercedicom
@@ -16,18 +15,18 @@ echo '    <key>ProgramArguments</key>'                                          
 echo '    <array>'                                                                                            >> $coercedicom
 echo '        <string>/usr/local/bin/coercedicom</string>'                                                    >> $coercedicom
 echo '        <string>/Volumes/IN/'"$BRANCH"'/CLASSIFIED</string>'                                            >> $coercedicom
-echo '        <string>/Volumes/IN</string>'                                                                   >> $coercedicom
+echo '        <string>/Users/Shared</string>'                                                                 >> $coercedicom
 echo '        <string>/Volumes/IN/'"$BRANCH"'/FAILURE</string>'                                               >> $coercedicom
 echo '        <string>/Volumes/IN/'"$BRANCH"'/ORIGINALS</string>'                                             >> $coercedicom
 echo '        <string>/Volumes/IN/'"$BRANCH"'/MISMATCH_ALTERNATES</string>'                                   >> $coercedicom
-echo '        <string>/Volumes/IN/'"$BRANCH"'/MISMATCH_SENDING</string>'                                       >> $coercedicom
+echo '        <string>/Volumes/IN/'"$BRANCH"'/MISMATCH_SOURCE</string>'                                       >> $coercedicom
 echo '        <string>/Volumes/IN/'"$BRANCH"'/MISMATCH_CDAMWL</string>'                                       >> $coercedicom
 echo '        <string>/Volumes/IN/'"$BRANCH"'/MISMATCH_PACS</string>'                                         >> $coercedicom
 echo '        <string>/Users/Shared/opendicom/coercedicom/'"$BRANCH"'/coercedicom.json</string>'              >> $coercedicom
 echo '        <string>&quot;&quot;</string>'                                                                  >> $coercedicom
 echo '        <string>&quot;&quot;</string>'                                                                  >> $coercedicom
-echo '        <string>90</string>'                                                                            >> $coercedicom
-echo '        <string>10</string>'                                                                             >> $coercedicom
+echo '        <string>180</string>'                                                                           >> $coercedicom
+echo '        <string>10</string>'                                                                            >> $coercedicom
 echo '        <string>30</string>'                                                                            >> $coercedicom
 echo '    </array>'                                                                                           >> $coercedicom
 echo '    <key>StandardErrorPath</key>'                                                                       >> $coercedicom
@@ -35,7 +34,7 @@ echo '    <string>/Users/pcs2/Documents/opendicom/coercedicom.'"$BRANCH"'.error.
 echo '    <key>StandardOutPath</key>'                                                                         >> $coercedicom
 echo '    <string>/Users/pcs2/Documents/opendicom/coercedicom.'"$BRANCH"'.log</string>'                       >> $coercedicom
 echo '    <key>StartInterval</key>'                                                                           >> $coercedicom
-echo '    <integer>120</integer>'                                                                             >> $coercedicom
+echo '    <integer>5</integer>'                                                                               >> $coercedicom
 echo '    <key>Umask</key>'                                                                                   >> $coercedicom
 echo '    <integer>0</integer>'                                                                               >> $coercedicom
 echo '</dict>'                                                                                                >> $coercedicom
@@ -85,9 +84,11 @@ echo '"removeFromDataset":[ "00000001_00101010-AS" ], '                         
 echo '"coerceDataset":{ "00000001_00080080-LO":[ "'"$BRANCH"'" ]}, '                                        >> $json
 echo '"supplementToDataset":{ "00000001_00081060-PN":[ "'"$BRANCH"'" ]}, '                                  >> $json
 echo '"removeFromEUIDprefixedDataset":{ "2.16.858.2":[ "00000001_00081060-PN", "00000001_00081030-LO" ]}, ' >> $json
-echo '"branch":"'"$BRANCH"'", '                                                                             >> $json
-echo '"pacsAET":"'"$ORG"'", '                                                                               >> $json
-echo '"j2kLayers":1 '                                                                                       >> $json
+echo '"j2kLayers": 1,'                                                                                      >> $json
+echo '"sourceAET":"'"$BRANCH"'", '                                                                          >> $json
+echo '"receivingAET":"'"$ORG"'", '                                                                          >> $json
+echo '"storeMode": "DICMhttp11",'                                                                           >> $json
+echo '"coercePreamble": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABESUNN"' >> $json
 echo '}]'                                                                                                   >> $json
 
 start='/Users/Shared/opendicom/coercedicom/'"$BRANCH"'/start.sh'
