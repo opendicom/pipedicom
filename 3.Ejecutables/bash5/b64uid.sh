@@ -15,6 +15,8 @@ function b642hb {
     [[ ${#1} -gt 48 ]] && exit -1 #is aproximate (because of x. optimizations)
 
     let "b64Count=${#1}-2"
+    
+    #first pairs of bytes
     for (( j=0; j<$b64Count; j+=2 ))
     do
       # "00aaaabb""00bbcccc"
@@ -22,9 +24,14 @@ function b642hb {
       echo -n "${hb2char[ $(( (( ${b64[${1:$j:1}]} & 0x03) << 2)+( ${b64[${1:$j+1:1}]} >> 4) )) ]}"
       echo -n "${hb2char[ $(( ${b64[${1:$j+1:1}]} & 0x0F )) ]}"
     done
+    
+    #last 2 bytes
+    # aaaa always meaningfull, but may be sufixed with a dot
     echo -n ${hb2char[ $(( ${b64[${1:$j:1}]} >> 2 )) ]}
+    
     b="${hb2char[ $(( (( ${b64[${1:$j:1}]} & 0x03) << 2)+( ${b64[${1:$j+1:1}]} >> 4) )) ]}"
     c="${hb2char[ $(( ${b64[${1:$j+1:1}]} & 0x0F )) ]}"
+    # bbbb and cccc are meaningfull only if not .
     if [[ $c == . ]];then
       if [[ $b != . ]];then
         echo -n $b
