@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>qwprefetch.asseROYOL.DCM4CHEE</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/usr/local/bin/storescu</string>
+		<string>-d</string>
+		<string>+sd</string>
+		<string>+r</string>
+		<string>+sp</string>
+		<string>*.dcm</string>
+		<string>+rn</string>
+		<string>-R</string>
+		<string>+C</string>
+		<string>-xe</string>
+		<string>-aet</string>
+		<string>RIVERA</string>
+		<string>-aec</string>
+		<string>wsriveraFIR</string>
+		<string>10.252.25.20</string>
+		<string>2104</string>
+		<string>/Volumes/IN/asseROYOL/ORIGINALS/CR-MAMO@10.10.89.21^asseROYOL</string>
+	</array>
+	<key>StandardErrorPath</key>
+	<string>/Users/pcs2/Documents/opendicom/qwprefetch.asseROYOL.DCM4CHEE.error.log</string>
+	<key>StandardOutPath</key>
+	<string>/Users/pcs2/Documents/opendicom/qwprefetch.asseROYOL.DCM4CHEE.log</string>
+	<key>StartInterval</key>
+	<integer>120</integer>
+	<key>Umask</key>
+	<integer>0</integer>
+</dict>
+</plist>
