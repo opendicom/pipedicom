@@ -181,6 +181,24 @@
 		4A7B85FA258CD7A700E62971 /* M2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = M2; sourceTree = BUILT_PRODUCTS_DIR; };
 		4A95E3CC26063E9800224363 /* dckRangeVecs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dckRangeVecs.h; sourceTree = "<group>"; };
 		4A95E3CD26063E9800224363 /* dckRangeVecs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = dckRangeVecs.m; sourceTree = "<group>"; };
+		4AAAAC932AA9212D009D818B /* coercedicomIRP.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = coercedicomIRP.json; sourceTree = "<group>"; };
+		4AAAACA22AB1DAE5009D818B /* dcmecho */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = dcmecho; sourceTree = "<group>"; };
+		4AAAACA32AB1DAE5009D818B /* dcmsnd */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = dcmsnd; sourceTree = "<group>"; };
+		4AAAACA62AB1DAE5009D818B /* log4j.properties */ = {isa = PBXFileReference; lastKnownFileType = text; path = log4j.properties; sourceTree = "<group>"; };
+		4AAAACA72AB1DAE5009D818B /* log4j.properties */ = {isa = PBXFileReference; lastKnownFileType = text; path = log4j.properties; sourceTree = "<group>"; };
+		4AAAACA92AB1DAE5009D818B /* uids.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = uids.xml; sourceTree = "<group>"; };
+		4AAAACAA2AB1DAE5009D818B /* dictionary.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = dictionary.xml; sourceTree = "<group>"; };
+		4AAAACAC2AB1DAE5009D818B /* dicomobject.dtd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = dicomobject.dtd; sourceTree = "<group>"; };
+		4AAAACAD2AB1DAE5009D818B /* dictionary.dtd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = dictionary.dtd; sourceTree = "<group>"; };
+		4AAAACAF2AB1DAE5009D818B /* slf4j-api-1.6.1.jar */ = {isa = PBXFileReference; lastKnownFileType = archive.jar; path = "slf4j-api-1.6.1.jar"; sourceTree = "<group>"; };
+		4AAAACB02AB1DAE5009D818B /* slf4j-log4j12-1.6.1.jar */ = {isa = PBXFileReference; lastKnownFileType = archive.jar; path = "slf4j-log4j12-1.6.1.jar"; sourceTree = "<group>"; };
+		4AAAACB12AB1DAE5009D818B /* commons-cli-1.2.jar */ = {isa = PBXFileReference; lastKnownFileType = archive.jar; path = "commons-cli-1.2.jar"; sourceTree = "<group>"; };
+		4AAAACB22AB1DAE5009D818B /* log4j-1.2.16.jar */ = {isa = PBXFileReference; lastKnownFileType = archive.jar; path = "log4j-1.2.16.jar"; sourceTree = "<group>"; };
+		4AAAACB32AB1DAE5009D818B /* dcm4che-tool-dcmsnd-2.0.29.jar */ = {isa = PBXFileReference; lastKnownFileType = archive.jar; path = "dcm4che-tool-dcmsnd-2.0.29.jar"; sourceTree = "<group>"; };
+		4AAAACB42AB1DAE5009D818B /* dcm4che-core-2.0.29.jar */ = {isa = PBXFileReference; lastKnownFileType = archive.jar; path = "dcm4che-core-2.0.29.jar"; sourceTree = "<group>"; };
+		4AAAACB52AB1DAE5009D818B /* dcm4che-net-2.0.29.jar */ = {isa = PBXFileReference; lastKnownFileType = archive.jar; path = "dcm4che-net-2.0.29.jar"; sourceTree = "<group>"; };
+		4AAAACB62AB1DAE5009D818B /* dcm4che-tool-dcmecho-2.0.29.jar */ = {isa = PBXFileReference; lastKnownFileType = archive.jar; path = "dcm4che-tool-dcmecho-2.0.29.jar"; sourceTree = "<group>"; };
+		4AAAACB72AB1DCF0009D818B /* coercedicom_dcmsnd-fileref.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = "coercedicom_dcmsnd-fileref.md"; sourceTree = "<group>"; };
 		4AAE862C25C0253500117D26 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4AAE863A25C029A500117D26 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4AAE863D25C029DC00117D26 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -443,6 +461,77 @@
 			path = H2D;
 			sourceTree = "<group>";
 		};
+		4AAAACA02AB1DAE5009D818B /* dcm4che-2.0.29 */ = {
+			isa = PBXGroup;
+			children = (
+				4AAAACA12AB1DAE5009D818B /* bin */,
+				4AAAACA42AB1DAE5009D818B /* etc */,
+				4AAAACA82AB1DAE5009D818B /* xml */,
+				4AAAACAB2AB1DAE5009D818B /* dtd */,
+				4AAAACAE2AB1DAE5009D818B /* lib */,
+			);
+			path = "dcm4che-2.0.29";
+			sourceTree = "<group>";
+		};
+		4AAAACA12AB1DAE5009D818B /* bin */ = {
+			isa = PBXGroup;
+			children = (
+				4AAAACA22AB1DAE5009D818B /* dcmecho */,
+				4AAAACA32AB1DAE5009D818B /* dcmsnd */,
+			);
+			path = bin;
+			sourceTree = "<group>";
+		};
+		4AAAACA42AB1DAE5009D818B /* etc */ = {
+			isa = PBXGroup;
+			children = (
+				4AAAACA52AB1DAE5009D818B /* logger */,
+				4AAAACA72AB1DAE5009D818B /* log4j.properties */,
+			);
+			path = etc;
+			sourceTree = "<group>";
+		};
+		4AAAACA52AB1DAE5009D818B /* logger */ = {
+			isa = PBXGroup;
+			children = (
+				4AAAACA62AB1DAE5009D818B /* log4j.properties */,
+			);
+			path = logger;
+			sourceTree = "<group>";
+		};
+		4AAAACA82AB1DAE5009D818B /* xml */ = {
+			isa = PBXGroup;
+			children = (
+				4AAAACA92AB1DAE5009D818B /* uids.xml */,
+				4AAAACAA2AB1DAE5009D818B /* dictionary.xml */,
+			);
+			path = xml;
+			sourceTree = "<group>";
+		};
+		4AAAACAB2AB1DAE5009D818B /* dtd */ = {
+			isa = PBXGroup;
+			children = (
+				4AAAACAC2AB1DAE5009D818B /* dicomobject.dtd */,
+				4AAAACAD2AB1DAE5009D818B /* dictionary.dtd */,
+			);
+			path = dtd;
+			sourceTree = "<group>";
+		};
+		4AAAACAE2AB1DAE5009D818B /* lib */ = {
+			isa = PBXGroup;
+			children = (
+				4AAAACAF2AB1DAE5009D818B /* slf4j-api-1.6.1.jar */,
+				4AAAACB02AB1DAE5009D818B /* slf4j-log4j12-1.6.1.jar */,
+				4AAAACB12AB1DAE5009D818B /* commons-cli-1.2.jar */,
+				4AAAACB22AB1DAE5009D818B /* log4j-1.2.16.jar */,
+				4AAAACB32AB1DAE5009D818B /* dcm4che-tool-dcmsnd-2.0.29.jar */,
+				4AAAACB42AB1DAE5009D818B /* dcm4che-core-2.0.29.jar */,
+				4AAAACB52AB1DAE5009D818B /* dcm4che-net-2.0.29.jar */,
+				4AAAACB62AB1DAE5009D818B /* dcm4che-tool-dcmecho-2.0.29.jar */,
+			);
+			path = lib;
+			sourceTree = "<group>";
+		};
 		4AAE862B25C0253500117D26 /* M2 */ = {
 			isa = PBXGroup;
 			children = (
@@ -485,6 +574,9 @@
 		4AD03BE126973FEE00855F3F /* coercedicom */ = {
 			isa = PBXGroup;
 			children = (
+				4AAAACB72AB1DCF0009D818B /* coercedicom_dcmsnd-fileref.md */,
+				4AAAACA02AB1DAE5009D818B /* dcm4che-2.0.29 */,
+				4AAAAC932AA9212D009D818B /* coercedicomIRP.json */,
 				4AC84C29293A6EC8004C42E2 /* coercedicom.json */,
 				4AD03C47269782CB00855F3F /* README.md */,
 				4AD03BE226973FEE00855F3F /* main.m */,

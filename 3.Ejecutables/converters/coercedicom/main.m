@@ -26,6 +26,33 @@ const UInt64 _0002001_tag_vr=0x0000424F00010002;
 const UInt32 _0002001_length=0x00000002;
 const UInt16 _0002001_value=0x0001;
 
+int task(NSString *launchPath, NSArray *launchArgs, NSMutableData *readData)
+{
+    NSTask *task=[[NSTask alloc]init];
+    [task setLaunchPath:launchPath];
+    [task setArguments:launchArgs];
+
+    NSPipe* readPipe = [NSPipe pipe];
+    NSFileHandle *readingFileHandle=[readPipe fileHandleForReading];
+    [task setStandardOutput:readPipe];
+    [task setStandardError:readPipe];
+    
+    [task launch];
+    
+    NSData *dataPiped = nil;
+    while((dataPiped = [readingFileHandle availableData]) && [dataPiped length])
+    {
+        [readData appendData:dataPiped];
+    }
+    //while( [task isRunning]) [NSThread sleepForTimeInterval: 0.1];
+    //[task waitUntilExit];      // <- This is VERY DANGEROUS : the main runloop is continuing...
+    //[aTask interrupt];
+    
+    [task waitUntilExit];
+    int terminationStatus = [task terminationStatus];
+    if (terminationStatus!=0) LOG_INFO(@"ERROR task terminationStatus: %d",terminationStatus);
+    return terminationStatus;
+}
 
 NSString *removeInstanceFromSpool(
                         NSFileManager *fileManager,
@@ -120,14 +147,6 @@ NSString *removeInstanceFromSpool(
 
 
 
-
-
-
-
-
-
-
-
 static NSMutableSet *seriesTODO=nil;
 static NSMutableSet *seriesDONE=nil;
 static NSMutableSet *seriesFAILED=nil;
@@ -145,16 +164,16 @@ void series_callback(void *context){
     ReceivingAET
     j2kLayers
     spoolDir
-    sendDir
     failureDir
     originalDir
     alternatesDir
-    spoolDirLogPath
-NEW
+    coercePreamble
+    sendDir
+    
     TransferSyntaxSuffix
+    suffix
 
     
-    coercePreamble
 
 cfg:
     Siuid
@@ -172,6 +191,7 @@ cfg:
     removeFromDataset
 NEW
     j2kLayers
+    storeMode
     */
    
    NSFileManager *fileManager=[NSFileManager defaultManager];
@@ -183,7 +203,12 @@ if (
        ||((iuidCount==1) && [iuids[0] hasPrefix:@"."])
    )
 {
-       if (![fileManager removeItemAtPath:thisContext[@"spoolDir"] error:&error]) NSLog(@"%@",error.description);
+       if (![fileManager removeItemAtPath:thisContext[@"spoolDir"] error:&error])
+       {
+          if (@available(macOS 10.11, *))
+             os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "%@",error.description);
+          NSLog(@"%@",error.description);
+       }
 }
 else
 {
@@ -216,9 +241,10 @@ else
       return;
    }
 
-   NSMutableString *logMsg=[NSMutableString string];
-      
-   @try {
+//spool -> originals is possible
+//start processing
+   @try
+   {
        
    NSMutableData *inputData=[NSMutableData data];
 
@@ -227,16 +253,21 @@ else
 
    BOOL sendDirExists=[fileManager fileExistsAtPath:thisContext[@"sendDir"]];
 
+   BOOL cesiB64=[thisContext[@"storeMode"] isEqualToString:@"cesiB64"];
+   BOOL dcmsnd=false;
+   //iuidsWritten nil means the whole sendDir shall be sent by dcmsnd in case of cesiB64 storeMode
+   //else it means that destination folder already exists (with files in it) so in case of cesiB64 storeMode, dcmsnd shall be performed only for iuidsWritten
+   NSMutableArray *iuidsWritten;
+   if (sendDirExists) iuidsWritten=[NSMutableArray array];
+
    int j2kLayers;
    if (thisContext[@"j2kLayers"]) j2kLayers=[thisContext[@"j2kLayers"] intValue];
    else j2kLayers=1;
       
-   BOOL isPart=![thisContext[@"storeMode"] hasPrefix:@"-"];
 
 #pragma mark loop
    for (NSString *iuid in iuids)
-   {
-       @autoreleasepool {
+   { @autoreleasepool {
            
           if ([iuid hasPrefix:@"."]) continue;
           NSString *iuidPath=[thisContext[@"spoolDir"] stringByAppendingPathComponent:iuid];
@@ -260,145 +291,171 @@ else
                
 #pragma mark · parse
 
-             [inputData appendData:[NSData dataWithContentsOfFile:iuidPath ]];
-             
-             uint32 inputFileMetainfoLength=0;
-             if (inputData.length > 144) [inputData getBytes:&inputFileMetainfoLength range:NSMakeRange(140,4)];
-             
-             NSData *inputFileMetainfo=nil;
-             if (   ( inputFileMetainfoLength > 100 )
-                 && ( inputData.length >= 144 + inputFileMetainfoLength )
-                 )
-                inputFileMetainfo=[inputData subdataWithRange:NSMakeRange(158,inputFileMetainfoLength-14)];
-             else
+          [inputData appendData:[NSData dataWithContentsOfFile:iuidPath ]];
+          
+          uint32 inputFileMetainfoLength=0;
+          if (inputData.length > 144) [inputData getBytes:&inputFileMetainfoLength range:NSMakeRange(140,4)];
+          
+          NSData *inputFileMetainfo=nil;
+          if (   ( inputFileMetainfoLength > 100 )
+              && ( inputData.length >= 144 + inputFileMetainfoLength )
+              )
+             inputFileMetainfo=[inputData subdataWithRange:NSMakeRange(158,inputFileMetainfoLength-14)];
+          else
+          {
+ #pragma mark ·· failed
+             [seriesFAILED addObject:thisContext[@"Siuid"]];
+             NSString *returnMsg=removeInstanceFromSpool(
+                                  fileManager,
+                                  iuidPath,
+                                  thisContext[@"failureDir"],
+                                  true,
+                                  thisContext[@"failureDir"]
+                                  );
+             if (returnMsg.length)
              {
-    #pragma mark ·· failed
-                [seriesFAILED addObject:thisContext[@"Siuid"]];
-                NSString *returnMsg=removeInstanceFromSpool(
-                                     fileManager,
-                                     iuidPath,
-                                     thisContext[@"failureDir"],
-                                     true,
-                                     thisContext[@"failureDir"]
-                                     );
-                if (returnMsg.length) [logMsg appendString:returnMsg];
-                continue;
-             }
-             
-             NSMutableDictionary *parsedAttrs=[NSMutableDictionary dictionary];
-             NSMutableDictionary *blobDict=[NSMutableDictionary dictionary];
-             NSMutableDictionary *j2kAttrs=[NSMutableDictionary dictionary];
-             NSMutableDictionary *j2kBlobDict=[NSMutableDictionary dictionary];
-             
-             NSMutableDictionary *fileMetainfoAttrs=[NSMutableDictionary dictionary];
-             if (!D2dict(
-                        inputFileMetainfo,
-                        fileMetainfoAttrs,
-                        0,//blob min size
-                        blobModeResources,
-                        @"",//prefix
-                        @"",//suffix
-                        blobDict
-                        )
-                 )
-             {
-                [logMsg appendFormat:@"could not parse fileMetainfo %@\r\n",iuidPath];
-                 [seriesFAILED addObject:thisContext[@"Siuid"]];
-                 NSString *returnMsg=removeInstanceFromSpool(
-                                      fileManager,
-                                      iuidPath,
-                                      thisContext[@"failureDir"],
-                                      true,
-                                      thisContext[@"failureDir"]
-                                      );
-
-                if (returnMsg.length) [logMsg appendString:returnMsg];
-                continue;
+                if (@available(macOS 10.11, *))
+                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "%@", returnMsg);
+                else NSLog(@"%@", returnMsg);
              }
 
+             continue;
+          }
+          
+          NSMutableDictionary *parsedAttrs=[NSMutableDictionary dictionary];
+          NSMutableDictionary *blobDict=[NSMutableDictionary dictionary];
+          NSMutableDictionary *j2kAttrs=[NSMutableDictionary dictionary];
+          NSMutableDictionary *j2kBlobDict=[NSMutableDictionary dictionary];
+          
+          NSMutableDictionary *fileMetainfoAttrs=[NSMutableDictionary dictionary];
+          if (!D2dict(
+                     inputFileMetainfo,
+                     fileMetainfoAttrs,
+                     0,//blob min size
+                     blobModeResources,
+                     @"",//prefix
+                     @"",//suffix
+                     blobDict
+                     )
+              )
+          {
+             if (@available(macOS 10.11, *))
+             os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "could not parse fileMetainfo %@\r\n",iuidPath);
+             else NSLog(@"could not parse fileMetainfo %@\r\n",iuidPath);
 
-             if (!D2dict(
-                         [inputData subdataWithRange:NSMakeRange(144+inputFileMetainfoLength,inputData.length-144-inputFileMetainfoLength)],
-                        parsedAttrs,
-                        0,//blob min size
-                        blobModeResources,
-                        @"",//prefix
-                        @"",//suffix
-                        blobDict
-                        )
+              [seriesFAILED addObject:thisContext[@"Siuid"]];
+              NSString *returnMsg=removeInstanceFromSpool(
+                                   fileManager,
+                                   iuidPath,
+                                   thisContext[@"failureDir"],
+                                   true,
+                                   thisContext[@"failureDir"]
+                                   );
+
+             if (returnMsg.length)
+             {
+                if (@available(macOS 10.11, *))
+                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "%@",returnMsg);
+                else NSLog(@"%@",returnMsg);
+
+             }
+             continue;
+          }
+
+
+          if (!D2dict(
+                      [inputData subdataWithRange:NSMakeRange(144+inputFileMetainfoLength,inputData.length-144-inputFileMetainfoLength)],
+                     parsedAttrs,
+                     0,//blob min size
+                     blobModeResources,
+                     @"",//prefix
+                     @"",//suffix
+                     blobDict
+                     )
+              )
+          {
+              [seriesFAILED addObject:thisContext[@"Siuid"]];
+              NSString *returnMsg=removeInstanceFromSpool(
+                                   fileManager,
+                                   iuidPath,
+                                   thisContext[@"failureDir"],
+                                   true,
+                                   thisContext[@"failureDir"]
+                                   );
+
+              if (returnMsg.length)
+              {
+                 if (@available(macOS 10.11, *))
+                 os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "%@",returnMsg);
+                 else NSLog(@"%@",returnMsg);
+
+              }
+             continue;
+          }
+          else
+          {
+ #pragma mark ·· parsed
+             
+ #pragma mark ··· compress ?
+        
+             switch (j2kLayers) {
+                case 1://J2KR
+                {
+             NSString *pixelKey=nil;
+             if (parsedAttrs[@"00000001_7FE00010-OB"])pixelKey=@"00000001_7FE00010-OB";
+             else if (parsedAttrs[@"00000001_7FE00010-OW"])pixelKey=@"00000001_7FE00010-OW";
+             
+             if (   pixelKey
+                 && ([parsedAttrs[@"00000001_00280100-US"][0] intValue] != 1)
+                 && [fileMetainfoAttrs[@"00000001_00020010-UI"][0] isEqualToString:@"1.2.840.10008.1.2.1"]
                  )
              {
-                 [seriesFAILED addObject:thisContext[@"Siuid"]];
-                 NSString *returnMsg=removeInstanceFromSpool(
-                                      fileManager,
-                                      iuidPath,
-                                      thisContext[@"failureDir"],
-                                      true,
-                                      thisContext[@"failureDir"]
-                                      );
-
-                 if (returnMsg.length) [logMsg appendString:returnMsg];
-                continue;
-             }
-             else
-             {
-    #pragma mark ·· parsed
+                NSString *nativeUrlString=parsedAttrs[pixelKey][0][@"Native"][0];
+                NSData *pixelData=nil;
+                if ([parsedAttrs[pixelKey][0] isKindOfClass:[NSDictionary class]])  pixelData=blobDict[parsedAttrs[pixelKey][0][@"Native"][0]];
+                else pixelData=dataWithB64String(blobDict[pixelKey]);
                 
-    #pragma mark ··· compress ?
-           
-                switch (j2kLayers) {
-                   case 1://J2KR
-                   {
-                NSString *pixelKey=nil;
-                if (parsedAttrs[@"00000001_7FE00010-OB"])pixelKey=@"00000001_7FE00010-OB";
-                else if (parsedAttrs[@"00000001_7FE00010-OW"])pixelKey=@"00000001_7FE00010-OW";
-                
-                if (   pixelKey
-                    && ([parsedAttrs[@"00000001_00280100-US"][0] intValue] != 1)
-                    && [fileMetainfoAttrs[@"00000001_00020010-UI"][0] isEqualToString:@"1.2.840.10008.1.2.1"]
+                NSMutableString *response=[NSMutableString string];
+                if (compressJ2KR(
+                             [nativeUrlString substringToIndex:nativeUrlString.length-3],
+                             pixelData,
+                             parsedAttrs,
+                             j2kBlobDict,
+                             j2kAttrs,
+                             response
+                             )==success
                     )
                 {
-                   NSString *nativeUrlString=parsedAttrs[pixelKey][0][@"Native"][0];
-                   NSData *pixelData=nil;
-                   if ([parsedAttrs[pixelKey][0] isKindOfClass:[NSDictionary class]])  pixelData=blobDict[parsedAttrs[pixelKey][0][@"Native"][0]];
-                   else pixelData=dataWithB64String(blobDict[pixelKey]);
+                   //remove native pixel blob and corresponding attribute
                    
-                   NSMutableString *response=[NSMutableString string];
-                   if (compressJ2KR(
-                                [nativeUrlString substringToIndex:nativeUrlString.length-3],
-                                pixelData,
-                                parsedAttrs,
-                                j2kBlobDict,
-                                j2kAttrs,
-                                response
-                                )==success
-                       )
-                   {
-                      //remove native pixel blob and corresponding attribute
-                      
-                      //include j2k blobs
-                      [blobDict addEntriesFromDictionary:j2kBlobDict];
-                      
-                      //remove native attributes
-                      [parsedAttrs removeObjectForKey:pixelKey];
-                      [parsedAttrs addEntriesFromDictionary:j2kAttrs];
+                   //include j2k blobs
+                   [blobDict addEntriesFromDictionary:j2kBlobDict];
+                   
+                   //remove native attributes
+                   [parsedAttrs removeObjectForKey:pixelKey];
+                   [parsedAttrs addEntriesFromDictionary:j2kAttrs];
 
-                      [fileMetainfoAttrs setObject:@[@"1.2.840.10008.1.2.4.90"] forKey:@"00000001_00020010-UI"];
-                   }
-                   else
-                   {
-                       [seriesFAILED addObject:thisContext[@"Siuid"]];
-                       NSString *returnMsg=removeInstanceFromSpool(
-                                            fileManager,
-                                            iuidPath,
-                                            thisContext[@"failureDir"],
-                                            true,
-                                            thisContext[@"failureDir"]
-                                            );
+                   [fileMetainfoAttrs setObject:@[@"1.2.840.10008.1.2.4.90"] forKey:@"00000001_00020010-UI"];
+                }
+                else
+                {
+                    [seriesFAILED addObject:thisContext[@"Siuid"]];
+                    NSString *returnMsg=removeInstanceFromSpool(
+                                         fileManager,
+                                         iuidPath,
+                                         thisContext[@"failureDir"],
+                                         true,
+                                         thisContext[@"failureDir"]
+                                         );
 
-                       if (returnMsg.length) [logMsg appendString:returnMsg];
-                      continue;
+                    if (returnMsg.length)
+                   {
+                      if (@available(macOS 10.11, *))
+                      os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "%@",returnMsg);
+                      else NSLog(@"%@",returnMsg);
                    }
+                   continue;
+                }
                 }
                    }
                    break;
@@ -414,10 +471,12 @@ else
 
     #pragma mark ···· fileMetainfo
                 
-                //JF add sourceAET, sendingAET, receivingAET
-                [fileMetainfoAttrs setObject:@[thisContext[@"sourceAET"]] forKey:@"00000001_00020016-AE"];
-                [fileMetainfoAttrs setObject:@[thisContext[@"sendingAET"]] forKey:@"00000001_00020017-AE"];
-                [fileMetainfoAttrs setObject:@[thisContext[@"receivingAET"]] forKey:@"00000001_00020018-AE"];
+                //sourceAET (branch aet)
+                //sendingAET (device aet)
+                //receivingAET (pacs aet)
+                if (thisContext[@"sourceAET"])[fileMetainfoAttrs setObject:@[thisContext[@"sourceAET"]] forKey:@"00000001_00020016-AE"];
+                if (thisContext[@"sendingAET"])[fileMetainfoAttrs setObject:@[thisContext[@"sendingAET"]] forKey:@"00000001_00020017-AE"];
+                if (thisContext[@"receivingAET"])[fileMetainfoAttrs setObject:@[thisContext[@"receivingAET"]] forKey:@"00000001_00020018-AE"];
 
                 if (thisContext[@"coerceFileMetainfo"]) [fileMetainfoAttrs addEntriesFromDictionary:thisContext[@"coerceFileMetainfo"]];
 
@@ -487,10 +546,14 @@ else
     #pragma mark ·· outputData init
                 NSMutableData *outputData;
     //preamble
-                if (!thisContext[@"coercePreamble"]) outputData=[NSMutableData dataWithLength:128];
+                if (!thisContext[@"coercePreamble"])
+                {
+                   outputData=[NSMutableData dataWithLength:128];
+                   [outputData appendBytes:&DICM length:4];
+                }
                 else outputData=[[NSMutableData alloc] initWithBase64EncodedString:thisContext[@"coercePreamble"] options:0] ;
 
-                [outputData appendBytes:&DICM length:4];
+                
     //fileMetainfo
                 NSMutableData *outputFileMetainfo=[NSMutableData data];
                 if (dict2D(
@@ -502,16 +565,24 @@ else
                             ) == failure
                     )
                 {
-                    [logMsg appendFormat:@"could not serialize group 0002. %@",fileMetainfoAttrs.description];
-                    [seriesFAILED addObject:thisContext[@"Siuid"]];
-                    NSString *returnMsg=removeInstanceFromSpool(
+                   if (@available(macOS 10.11, *))
+                   os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "error outputFileMetainfo: %@",fileMetainfoAttrs.description);
+                   else NSLog(@"error outputFileMetainfo: %@",fileMetainfoAttrs.description);
+
+                   [seriesFAILED addObject:thisContext[@"Siuid"]];
+                  NSString *returnMsg=removeInstanceFromSpool(
                                          fileManager,
                                          iuidPath,
                                          thisContext[@"failureDir"],
                                          true,
                                          thisContext[@"failureDir"]
                                          );
-                    if (returnMsg.length) [logMsg appendString:returnMsg];
+                    if (returnMsg.length)
+                    {
+                       if (@available(macOS 10.11, *))
+                       os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "%@",returnMsg);
+                       else NSLog(@"%@",returnMsg);
+                    }
                    continue;
                 }
                 
@@ -535,7 +606,10 @@ else
                     )
     #pragma mark ··· failure
                 {
-                   [logMsg appendFormat:@"could not serialize dataset. %@",parsedAttrs];
+                   if (@available(macOS 10.11, *))
+                   os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "could not serialize dataset. %@",parsedAttrs);
+                   else NSLog(@"could not serialize dataset. %@",parsedAttrs);
+
                    [seriesFAILED addObject:thisContext[@"Siuid"]];
                    NSString *returnMsg=removeInstanceFromSpool(
                                          fileManager,
@@ -546,7 +620,13 @@ else
                                          );
 
                    
-                    if (returnMsg.length) [logMsg appendString:returnMsg];
+                    if (returnMsg.length)
+                    {
+                       if (@available(macOS 10.11, *))
+                       os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "%@",returnMsg);
+                       else NSLog(@"%@",returnMsg);
+
+                    }
                     continue;
                 }
                 else
@@ -557,21 +637,37 @@ else
                   {
                      if (![fileManager createDirectoryAtPath:thisContext[@"sendDir"] withIntermediateDirectories:YES attributes:nil error:&error])
                      {
-                         [logMsg appendFormat:@"can not create %@\r\n",thisContext[@"sendDir"]];
-                         break;
+                        if (@available(macOS 10.11, *))
+                        os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "can not create  %@",thisContext[@"sendDir"]);
+                        else NSLog(@"can not create  %@",thisContext[@"sendDir"]);
+                        break;
                      }
                      sendDirExists=true;
                   }
 
-                  if (isPart)
-                     [outputData writeToFile:[thisContext[@"sendDir"] stringByAppendingPathComponent:[iuid stringByAppendingPathExtension:@"part"]] atomically:YES];
-                  else
-                     [outputData writeToFile:[thisContext[@"sendDir"] stringByAppendingPathComponent:iuid] atomically:YES];
+                  BOOL written;
 
+                  if (cesiB64)
+                  {
+                     //write without cesi without extension
+                     unsigned short ext0=[[iuid pathExtension] characterAtIndex:0];
+                     
+                     NSString *iuidPath;
+                     if ( (ext0 > 47) && (ext0 < 58)) iuidPath=[thisContext[@"sendDir"] stringByAppendingPathComponent:b64ui(iuid)];
+                     else iuidPath=[thisContext[@"sendDir"] stringByAppendingPathComponent:b64ui([iuid stringByDeletingPathExtension])];
+                     written=[outputData writeToFile:iuidPath atomically:NO];
+
+                     if (iuidsWritten && written) [iuidsWritten addObject:iuidPath];
+                  }
+                  else
+                  {
+                     written=[outputData writeToFile:[thisContext[@"sendDir"] stringByAppendingPathComponent:iuid] atomically:YES];
+                  }
                    
-                   
-                   
-    #pragma mark ···· original to originalDir (or alternatesDir
+                  if (written)
+                  {
+                    dcmsnd=true;
+    #pragma mark ···· original to originalDir (or alternatesDir)
                     NSString *returnMsg=removeInstanceFromSpool(
                                          fileManager,
                                          iuidPath,
@@ -579,16 +675,43 @@ else
                                          false,
                                          thisContext[@"alternatesDir"]
                                          );
-                    if (returnMsg.length) [logMsg appendString:returnMsg];
-                   
-                    [doneSet addObject:iuid];
+                     if (returnMsg.length)
+                     {
+                        if (@available(macOS 10.11, *))
+                        os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "%@",returnMsg);
+                        else NSLog(@"%@",returnMsg);
+                     }
+                     [doneSet addObject:iuid];
+                  }
+                  
                 }//end parsed
                 [inputData setLength:0];
              }
           
-       }
-   }//end loop
+       }}//end autorelease end loop
 
+   if (cesiB64 && dcmsnd)
+   {
+      NSString *PACS=[NSString stringWithFormat:@"%@@%@:%@",thisContext[@"receivingAET"],thisContext[@"receivingIP"],thisContext[@"receivingPort"]];
+      NSMutableData *logData=[NSMutableData data];
+      
+      if (iuidsWritten)
+      {
+         NSMutableArray *args=[NSMutableArray arrayWithArray:@[@"-fileref",@"-L",thisContext[@"sourceAET"],PACS]];
+         for (NSString *iuidWritten in iuidsWritten)
+         {
+            [args addObject:[thisContext[@"sendDir"] stringByAppendingPathComponent:iuidWritten]];
+         }
+         if (task(@"/Users/Shared/dcm4che-2.0.29/bin/dcmsnd",args,logData))
+            LOG_ERROR(@"%@",[[NSString alloc]initWithData:logData encoding:NSUTF8StringEncoding]);
+      }
+      else //complete series
+      {
+         if (task(@"/Users/Shared/dcm4che-2.0.29/bin/dcmsnd",@[@"-fileref",@"-L",thisContext[@"sourceAET"],PACS,thisContext[@"sendDir"]],logData))
+            LOG_ERROR(@"%@",[[NSString alloc]initWithData:logData encoding:NSUTF8StringEncoding]);
+      }
+   }
+      
    if (   ![seriesFAILED    containsObject:thisContext[@"Siuid"]]
        && ![seriesDUPLICATE containsObject:thisContext[@"Siuid"]]
        && ![seriesINPACS    containsObject:thisContext[@"Siuid"]]
@@ -598,19 +721,8 @@ else
      if (@available(macOS 10.11, *))
       os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_FAULT, "%@", exception.reason);
      else NSLog(@"%@", exception.reason);
-      [logMsg appendString:exception.reason];
   }
   @finally {
-   if (logMsg.length > 0)
-   {
-       if ([fileManager fileExistsAtPath:thisContext[@"spoolDirLogPath"]])
-       {
-           NSString *previousLog=[NSString stringWithContentsOfFile:thisContext[@"spoolDirLogPath"] encoding:NSUTF8StringEncoding error:nil];
-           if (previousLog)
-               [logMsg insertString:previousLog atIndex:0];
-       }
-       [logMsg writeToFile:thisContext[@"spoolDirLogPath"] atomically:NO encoding:NSUTF8StringEncoding error:nil];
-   }
   }
  }
  [seriesTODO removeObject:thisContext[@"Siuid"]];
@@ -622,25 +734,23 @@ else
 enum CDargName{
    CDargCmd=0,
    
-   CDargSpool,                //receive
-   CDargSuccess,              //send
-   CDargFailure,              //coerce error
-   CDargOriginal,            //destination where to move originals of successfull coertion
-   CDargAlternates, //destination where to move diferent alternates of original
+   CDargSpool,                //1 receive
+   CDargSuccess,              //2 send
+   CDargFailure,              //3 coerce error
+   CDargOriginal,             //4 destination where to move originals of successfull coertion
+   CDargAlternates,           //5 destination where to move diferent alternates of original
 
-   CDargSending,              //destination where to move originals of sending mismatch
-   CDargCdamwlMismatch,       //destination where to move originals of cdawl mismatch
-   CDargPacsMismatch,         //destination where to move originals of pacs mismatch,
-   CDargCoercedicomFile,      //json
-   CDargCdamwlDir,            //registry where to verify objects against cdawl
-   CDargPacsSearchUrl,        //DICOMweb url for pacs verifications
+   CDargSending,              //6 destination where to move originals of sending mismatch
+   CDargCdamwlMismatch,       //7 destination where to move originals of cdawl mismatch
+   CDargPacsMismatch,         //8 destination where to move originals of pacs mismatch,
+   CDargCoercedicomFile,      //9 json
+   CDargCdamwlDir,            //10 registry where to verify objects against cdawl
+   CDargPacsSearchUrl,        //11 DICOMweb url for pacs verifications
    
-   CDargTimeout,              //max time in seconds before ending the execution
-   CDargMaxSeries,            //max series (negative is monothread)
-   CDsinceLastSeriesModif     //min time in seconds without modification in series dir before processing
-                              //may be because of receiving
-                              //may be because of previous processing
-
+   CDargTimeout,              //12 max time in seconds before ending the execution
+   CDargMaxSeries,            //13 max series (negative is monothread)
+   CDsinceLastSeriesModif     //14 min time in seconds without modification in series dir before
+                              // processing (may be because of receiving or previous processing)
 };
 
 
@@ -744,7 +854,7 @@ from JSON
   j2kLayers:int
   sourceAET:string ( 0002,0016)
   receivingAET:string (destination  0002,0018 )
-  storeMode (DICMhttp11,DICMhttp2,DICMhttp3,-xv,-xs,-xe,-xi)
+  storeMode (DICMhttp11,DICMhttp2,DICMhttp3,storescu,cesiB64)
 
   coercePreamble:base64
  
@@ -763,8 +873,8 @@ from JSON
   removeFromEUIDprefixedDataset:{ "UIDprefix":[atributeID]}
 
 ADDED
-  TransferSyntaxSuffix
-  priority:%02ld
+  suffix
+  devicePriority:%02ld
 }
 ...
 ]
@@ -794,12 +904,12 @@ The root is an array where items are clasified by priority of execution
        {
           if ([regex numberOfMatchesInString:sourcesBeforeMapping[i] options:0 range:NSMakeRange(0,[sourcesBeforeMapping[i] length])])
           {
-             NSArray *Eiuids=[fileManager contentsOfDirectoryAtPath:[args[CDargSpool] stringByAppendingPathComponent:sourcesBeforeMapping[i]] error:&error];
-             if (  !Eiuids
-                 || (Eiuids.count==0)
+             NSArray *ePCAUs=[fileManager contentsOfDirectoryAtPath:[args[CDargSpool] stringByAppendingPathComponent:sourcesBeforeMapping[i]] error:&error];
+             if (  !ePCAUs
+                 || (ePCAUs.count==0)
                  ||(
-                       (Eiuids.count==1)
-                    && [Eiuids[0] hasPrefix:@"."]
+                       (ePCAUs.count==1)
+                    && [ePCAUs[0] hasPrefix:@"."]
                     )
                  )
              {
@@ -809,7 +919,7 @@ The root is an array where items are clasified by priority of execution
              {
                 [devicesToBeProcessed addObject:[NSMutableDictionary dictionaryWithDictionary:matchDict]];
                 [devicesToBeProcessed.lastObject setObject:sourcesBeforeMapping[i] forKey:@"sendingAET"];
-                [devicesToBeProcessed.lastObject setObject:[NSString stringWithFormat:@"%02ld^",matchIndex] forKey:@"priority"];
+                [devicesToBeProcessed.lastObject setObject:[NSString stringWithFormat:@"%02ld^",matchIndex] forKey:@"devicePriority"];
              }
              [sourcesBeforeMapping removeObjectAtIndex:i];
           }
@@ -891,14 +1001,14 @@ The root is an array where items are clasified by priority of execution
        {
          if (maxSeries >0) {
          NSString *sourceDir=[args[CDargSpool] stringByAppendingPathComponent:deviceDict[@"sendingAET"]];
-         NSArray *Eiuids=[fileManager contentsOfDirectoryAtPath:sourceDir error:nil];
+         NSArray *ePCAUs=[fileManager contentsOfDirectoryAtPath:sourceDir error:nil];
 #pragma mark · StudyUIDs loop
-         for (NSString *Eiuid in Eiuids)
+         for (NSString *ePCAU in ePCAUs)
          {
             if (maxSeries >0) {
             // starting with dot ?
-            NSString *studyPath=[sourceDir stringByAppendingPathComponent:Eiuid];
-            if ([Eiuid hasPrefix:@"."])
+            NSString *studyPath=[sourceDir stringByAppendingPathComponent:ePCAU];
+            if ([ePCAU hasPrefix:@"."])
             {
                 if (![fileManager removeItemAtPath:studyPath error:&error])
                 {
@@ -947,7 +1057,7 @@ The root is an array where items are clasified by priority of execution
                NSUInteger ANindex=NSNotFound;
                NSUInteger PIDindex=NSNotFound;
 #pragma mark (2.1) StudyInstanceUID match
-               NSUInteger EUIDindex=[wltodayEUIDkeys indexOfObject:Eiuid];
+               NSUInteger EUIDindex=[wltodayEUIDkeys indexOfObject:ePCAU];
                if (EUIDindex!=NSNotFound)
                {
                   EUIDpath=[wltodayEUIDFolder stringByAppendingPathComponent:wltodayEUIDkeys[EUIDindex] ];
@@ -1028,34 +1138,53 @@ The root is an array where items are clasified by priority of execution
                 //may be because of previous processing
                                                 
                 [seriesTODO addObject:Siuid];
+                
                
+#pragma mark seriesTaskDict
+                //replicates deviceDict
                 NSMutableDictionary *seriesTaskDict=[NSMutableDictionary dictionaryWithDictionary:deviceDict];
 
+                //+series iuid
                 [seriesTaskDict setObject:Siuid forKey:@"Siuid"];
                
-               
-                //SourceAET, SendingAET, ReceivingAET
-                //sourceAET@sourceIP^${syntax:14}^calledAET
-                //${syntax:14} = transfer syntax trunkated of the initial "1.2.840.10008." (which is the DICOM arc)
+                //sourceAET is defined from the json dictionary
+                //receivingAET is defined from the json dictionary
+
+               //+transferSyntaxSuffix
+               //+sendingAET (with value of sourceAET from Classified sourceAET@sourceIP^${syntax:14}^calledAET
+               //${syntax:14} = transfer syntax trunkated of the initial "1.2.840.10008." (which is the DICOM arc)
                 NSArray *sourceAETCircumflex=[deviceDict[@"sendingAET"] componentsSeparatedByString:@"^"];
                 if (sourceAETCircumflex.count > 2) [seriesTaskDict setObject:sourceAETCircumflex[1] forKey:@"transferSyntaxSuffix"];
                 NSArray *sourceAETArroba=[sourceAETCircumflex[0] componentsSeparatedByString:@"@"];
                 [seriesTaskDict setObject:sourceAETArroba[0] forKey:@"sendingAET"];
 
-                
+                //+spoolDir (series path)
                 [seriesTaskDict setObject:
                    [studyPath stringByAppendingPathComponent:Siuid]
                    forKey:@"spoolDir"];
                 
+                if ([deviceDict[@"storeMode"] isEqualToString:@"cesiB64"])
+                {
+                   
+                   [seriesTaskDict setObject:
+                        [NSString stringWithFormat:@"%@/%@/%@/%@",
+                         args[CDargSuccess],
+                         b64ui([ePCAU componentsSeparatedByString:@"@"][1]),
+                         b64ui([ePCAU componentsSeparatedByString:@"@"][3]),
+                         b64ui(Siuid)
+                         ]
+                       forKey:@"sendDir"];
+                }
+                else
                 [seriesTaskDict setObject:
                      [NSString stringWithFormat:@"%@/STORE/%@/%@/SEND/%@/%@%@/%@/%@",
                       args[CDargSuccess],
                       deviceDict[@"storeMode"],
                       deviceDict[@"receivingAET"],
                       deviceDict[@"sendingAET"],
-                      deviceDict[@"priority"],
+                      deviceDict[@"devicePriority"],
                       deviceDict[@"sendingAET"],
-                      Eiuid,
+                      ePCAU,
                       Siuid]
                     forKey:@"sendDir"];
                                 
@@ -1063,7 +1192,7 @@ The root is an array where items are clasified by priority of execution
                     [NSString stringWithFormat:@"%@/%@/%@/%@",
                        args[CDargFailure],
                        deviceDict[@"sendingAET"],
-                       Eiuid,
+                       ePCAU,
                        Siuid]
                     forKey:@"failureDir"];
                 
@@ -1071,7 +1200,7 @@ The root is an array where items are clasified by priority of execution
                    [NSString stringWithFormat:@"%@/%@/%@/%@",
                       args[CDargOriginal],
                       deviceDict[@"sendingAET"],
-                      Eiuid,
+                      ePCAU,
                       Siuid]
                     forKey:@"originalDir"];
                 
@@ -1079,7 +1208,7 @@ The root is an array where items are clasified by priority of execution
                    [NSString stringWithFormat:@"%@/%@/%@/%@",
                       args[CDargAlternates],
                       deviceDict[@"sendingAET"],
-                      Eiuid,
+                      ePCAU,
                       Siuid]
                     forKey:@"alternatesDir"];
                 

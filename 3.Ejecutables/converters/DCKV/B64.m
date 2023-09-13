@@ -180,3 +180,123 @@ NSData* dataWithB64String(NSString *base64NSString)
 	
 	return [NSData dataWithData:decodedData];
 }
+
+
+#pragma mark -
+
+NSString *B64CHAR[]={
+@"-", @"0", @"1", @"2", @"3", @"4", @"5", @"6", @"7", @"8",
+@"9", @"A", @"B", @"C", @"D", @"E", @"F", @"G", @"H", @"I",
+@"J", @"K", @"L", @"M", @"N", @"O", @"P", @"Q", @"R", @"S",
+@"T", @"U", @"V", @"W", @"X", @"Y", @"Z", @"_", @"a", @"b",
+@"c", @"d", @"e", @"f", @"g", @"h", @"i", @"j", @"k", @"l",
+@"m", @"n", @"o", @"p", @"q", @"r", @"s", @"t", @"u", @"v",
+@"w", @"x", @"y", @"z"
+};
+
+char u8u4( const char *byte_array, NSUInteger *idx) {
+    // returns half_byte
+    // updates idx
+    
+    // u4=half byte (0-15)
+    // 0x0   1.2.840.10008.
+    // 0x1   .
+    // 0x2   0.
+    // 0x3   0
+    // 0x4   1.
+    // 0x5   1
+    // 0x6   2.
+    // 0x7   2
+    // 0x8   3.
+    // 0x9   3
+    // 0xA   4
+    // 0xB   5
+    // 0xC   6
+    // 0xD   7
+    // 0xE   8
+    // 0xF   9
+    
+    char cur_byte = byte_array[*idx];
+    switch (cur_byte) {
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+            *idx += 1;
+            return cur_byte - 0x2A;
+        case '.':
+            *idx += 1;
+            return 0x01;
+        case '0':
+        case '2':
+        case '3': {
+            if (byte_array[*idx+1] == '.')  {
+                *idx += 2;
+                return cur_byte + cur_byte - 0x5E;
+            } else {
+                *idx += 1;
+                return cur_byte + cur_byte - 0x5D;
+            }
+        }
+        case '1': {
+            if (byte_array[*idx+1] == '.') {
+                if (   sizeof(byte_array) - *idx > 14
+                    && byte_array[*idx+2]  == '2'
+                    && byte_array[*idx+3]  == '.'
+                    && byte_array[*idx+4]  == '8'
+                    && byte_array[*idx+5]  == '4'
+                    && byte_array[*idx+6]  == '0'
+                    && byte_array[*idx+7]  == '.'
+                    && byte_array[*idx+8]  == '1'
+                    && byte_array[*idx+9]  == '0'
+                    && byte_array[*idx+10] == '0'
+                    && byte_array[*idx+11] == '0'
+                    && byte_array[*idx+12] == '8'
+                    && byte_array[*idx+13] == '.'
+                    )
+                {
+                    *idx += 14;
+                    return 0x0;
+                }
+                else
+                {
+                    *idx += 2;
+                    return 0x4;
+                }
+            } else {
+                *idx += 1;
+                return cur_byte + cur_byte - 0x5D;
+            }
+        }
+       case ' ':
+          *idx += 1;
+          return 0x01;
+
+        default:
+            return 0xFF;
+    }
+}
+
+NSString* b64ui(NSString* uidString){
+    if (!uidString) return nil;
+    NSUInteger length=uidString.length;
+    if (length==0) return @"";
+    const char *array=[[uidString stringByAppendingString:@"  "] cStringUsingEncoding:NSUTF8StringEncoding];
+    NSUInteger index=0;
+    unsigned char u4a,u4b,u4c;
+    NSMutableString *b64String=[NSMutableString stringWithCapacity:(length+1)/2];
+    while (index < length)
+    {
+        u4a=u8u4(array,&index);
+        if (u4a > 0x10) return nil;
+        u4b=u8u4(array,&index);
+        if (u4b > 0x10) return nil;
+        u4c=u8u4(array,&index);
+        if (u4c > 0x10) return nil;
+        [b64String appendString:B64CHAR[(u4a<<2) + (u4b>>2)]];
+        [b64String appendString:B64CHAR[((u4b & 0x03) << 4) + u4c]];
+    }
+    return [NSString stringWithString:b64String];
+}

@@ -8,53 +8,53 @@ mkdir -m 775 -p '/Users/Shared/dcmtk/storescp/'"$branch"
 
 #x #a #r #p #f #c #d #t #h #e #n #s #i #k #m #y
 classifier='/Users/Shared/dcmtk/storescp/'"$branch"'/classifier.sh'
-echo '#!/bin/sh'                                              >  $classifier 
-echo 'syntax=${1}  ;#x'                                       >> $classifier
-echo 'scu=${2}     ;#a'                                       >> $classifier
-echo 'scuip=${3}   ;#r'                                       >> $classifier
-echo 'dir=${4}     ;#p'                                       >> $classifier
-echo 'file=${5}    ;#f'                                       >> $classifier
-echo 'scp=${6}     ;#c'                                       >> $classifier
-echo 'Edate=${7}   ;#d'                                       >> $classifier
-echo 'Etime=${8}   ;#t'                                       >> $classifier
-echo 'Pid=${9}     ;#h'                                       >> $classifier
-echo 'Euid=${10}   ;#e'                                       >> $classifier
-echo 'Ean=${11}    ;#n'                                       >> $classifier
-echo 'Suid=${12}   ;#s'                                       >> $classifier
-echo 'Iuid=${13}   ;#i'                                       >> $classifier
-echo 'Iclass=${14} ;#k'                                       >> $classifier
-echo 'frames=${15} ;#m'                                       >> $classifier
-echo 'chars=${16}  ;#y'                                       >> $classifier
+echo '#!/bin/sh'                                               >  $classifier 
+echo 'syntax=${1}  ;#x'                                        >> $classifier
+echo 'scu=${2}     ;#a'                                        >> $classifier
+echo 'scuip=${3}   ;#r'                                        >> $classifier
+echo 'dir=${4}     ;#p'                                        >> $classifier
+echo 'file=${5}    ;#f'                                        >> $classifier
+echo 'scp=${6}     ;#c'                                        >> $classifier
+echo 'Edate=${7}   ;#d'                                        >> $classifier
+echo 'Etime=${8}   ;#t'                                        >> $classifier
+echo 'Pid=${9}     ;#h'                                        >> $classifier
+echo 'Euid=${10}   ;#e'                                        >> $classifier
+echo 'Ean=${11}    ;#n'                                        >> $classifier
+echo 'Suid=${12}   ;#s'                                        >> $classifier
+echo 'Iuid=${13}   ;#i'                                        >> $classifier
+echo 'Iclass=${14} ;#k'                                        >> $classifier
+echo 'frames=${15} ;#m'                                        >> $classifier
+echo 'chars=${16}  ;#y'                                        >> $classifier
 
-echo 'if [[ syntax == "1.2.840.10008.1.2" ]];then'            >> $classifier
-echo '   eic="I"'                                             >> $classifier
-echo 'elif [[ syntax == "1.2.840.10008.1.2.1" ]];then'        >> $classifier
-echo '   eic="E"'                                             >> $classifier
-echo 'else'                                                   >> $classifier
-echo '   eic="C"'                                             >> $classifier
-echo 'fi'                                                     >> $classifier
+echo 'if [[ syntax == "1.2.840.10008.1.2" ]];then'             >> $classifier
+echo '   eic="I"'                                              >> $classifier
+echo 'elif [[ syntax == "1.2.840.10008.1.2.1" ]];then'         >> $classifier
+echo '   eic="E"'                                              >> $classifier
+echo 'else'                                                    >> $classifier
+echo '   eic="C"'                                              >> $classifier
+echo 'fi'                                                      >> $classifier
 
-echo 'base=/Volumes/IN/'"$branch"'/CLASSIFIED'                >> $classifier
-echo 'device="$scu@$scuip^$eic^$scp"'                         >> $classifier
-echo 'euid="$Pid@$Ean^$Euid"'                                 >> $classifier
-echo 'suid="$Suid"'                                           >> $classifier
+echo 'base=/Volumes/IN/'"$branch"'/CLASSIFIED'                 >> $classifier
+echo 'device="$scu@$scuip^$eic^$scp"'                          >> $classifier
+echo 'ePCAU="$Pid@$Edate@$Ean@$Euid"'                          >> $classifier
+echo 'suid="$Suid"'                                            >> $classifier
 
-echo 'if [ ! -d "$base/$device/$euid/$suid" ];then '          >> $classifier
-echo '   if [ ! -d "$base/$device/$euid" ];then '             >> $classifier
-echo '       if [ ! -d "$base/$device/" ];then '              >> $classifier
-echo '           mkdir -m 775 $base/$device'                  >> $classifier
-echo '           chown '"$admin"':wheel $base/$device'        >> $classifier
-echo '       fi'                                              >> $classifier
-echo '       mkdir -m 775 $base/$device/$euid'                >> $classifier
-echo '       chown '"$admin"':wheel $base/$device/$euid'      >> $classifier
+echo 'if [ ! -d "$base/$device/$ePCAU/$suid" ];then '          >> $classifier
+echo '   if [ ! -d "$base/$device/$ePCAU" ];then '             >> $classifier
+echo '       if [ ! -d "$base/$device/" ];then '               >> $classifier
+echo '           mkdir -m 775 $base/$device'                   >> $classifier
+echo '           chown '"$admin"':wheel $base/$device'         >> $classifier
+echo '       fi'                                               >> $classifier
+echo '       mkdir -m 775 $base/$device/$ePCAU'                >> $classifier
+echo '       chown '"$admin"':wheel $base/$device/$ePCAU'      >> $classifier
 echo '   fi' >> $classifier
-echo '    mkdir -m 775 $base/$device/$euid/$suid'             >> $classifier
-echo '    chown '"$admin"':wheel $base/$device/$euid/$suid'   >> $classifier
-echo 'fi'                                                     >> $classifier
+echo '    mkdir -m 775 $base/$device/$ePCAU/$suid'             >> $classifier
+echo '    chown '"$admin"':wheel $base/$device/$ePCAU/$suid'   >> $classifier
+echo 'fi'                                                      >> $classifier
 
-echo 'mv    $dir/$file $base/$device/$euid/$suid/$file'       >> $classifier
-echo 'chmod 775        $base/$device/$euid/$suid/$file'       >> $classifier
-echo 'chown '"$admin"':wheel $base/$device/$euid/$suid/$file' >> $classifier
+echo 'mv    $dir/$file $base/$device/$ePCAU/$suid/$file'       >> $classifier
+echo 'chmod 775        $base/$device/$ePCAU/$suid/$file'       >> $classifier
+echo 'chown '"$admin"':wheel $base/$device/$ePCAU/$suid/$file' >> $classifier
 chmod 755 $classifier
 
 storescp='/Users/Shared/dcmtk/storescp/'"$branch"'/storescp.'"$branch"'.'"$port"'.plist'
