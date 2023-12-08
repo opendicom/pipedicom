@@ -1,13 +1,12 @@
 coercedicom
 ===========
 
-Procesa los directorios y archivos DICOM encontrados en subdirectorios del suddirectorio RECEIVED de un directorio spool. Dentro de RECEIVED, las nuevas imágenes están clasificadas en una estructura a cuatro (desi) o cinco (dcesi) niveles:
+Procesa los directorios y archivos DICOM encontrados en subdirectorios de RECEIVED. Dentro de RECEIVED, las nuevas imágenes están clasificadas en una estructura a cuatro niveles:
 
-- [d] DEVICE: La primera subdivisión indica el origen de dónde viene la imagen. Por ejemplo: la carpeta llamada "NXGENRAD@192.168.4.16^1.2^IRP" indica que un equipo identificado por el AET "NXGENRAD" desde el IP local "192.168.4.16" envia por syntaxis 1.2.840.10008.1.2 (implicit endian) al AET "IRP".
-- [c] (opcional) calendar date aaaammdd
-- [e] STUDY: La segunda subdivisión está constituida por carpetas con el identificador único de un estudio (EUID) como nombre.
-- [s] SERIES: La tercera subdivisión está constituida por carpetas con el identificador único de una serie(SUID) como nombre.
-- [i] instance: El tercer nivel, o sea dentro de una carpeta de estudio, son las imágenes que correspondena este estudio, identificadas por su SOPUID.
+- [D] DEVICE: La primera subdivisión indica el origen de dónde viene la imagen. 
+- [E] STUDY
+- [S] SERIES
+- [I] instance
 
 El procesamiento se realiza en base a las directivas que se encuentran en coercedicom.json.
 
@@ -36,21 +35,19 @@ El procesamiento se realiza en base a las directivas que se encuentran en coerce
 }]
 ```
 
-Coercedicom.json es un array de objetos. Cada uno de ellos contiene un regex que permite matchear el [SOURCE] de las imágenes recibidas. El orden de los objetos corresponde a la prioridad acordada a cada uno de ellos. Las directivas incluidas en el objeto aplican a los estudios provenientes de las [SOURCE] que satisfacen el regex.
+Coercedicom.json es un array de objetos. Cada uno de ellos contiene un regex que permite matchear la ruta D/E. El orden de los objetos corresponde a la prioridad acordada a cada uno de ellos.
 
-## MISMATCH_SOURCE, MISMATCH_CDAMWL, MISMATCH_PACS
+## MISMATCH_REGEXES, MISMATCH_CDAMWL, MISMATCH_PACS
 
-Cuando aparece un SOURCE que no satisface ningún regex, coercedicom lo mueve a un subdirectorio del  directorio MISMATCH_SOURCE. 
+Cuando aparece un D/E que no satisface ningún regex, coercedicom lo mueve a un subdirectorio del  directorio MISMATCH_REGEXES. 
 
 Cuando coercedicom está acoplado a cdamwl, un estudio que demuestra incompatibilidades con el item de MWL correspondiente va a MISMATCH_CDAMWL.
 
 Lo mismo cuando coercedicom está configurado para verificar los datos patronímicos con un pacs de destino, pero esta vez los estudios que generan ambiguëdad a nivel de la identificación del paciente están apartados dentro  de un directorio MISMATCH_PACS
 
-## ORIGINALS, MISMATCH_ALTERNATE y FAILURE
+## ORIGINALS y FAILURE
 
-Cuando aparece una imagen de un SOURCE válido, se realizan las operaciones de coerción correspondientes. Tienen por resultado la creación de una nueva imagen, en caso que las operaciones fuesen exitosas. Luego de las operaciones, el original sin modificar está trasladado a una de las carpetas ORIGINALS (si la operación fue exitosa y esta instancia no está ya presente en ORIGINALS) o MISMTATCH_ALTERNATES (si la operación fue exitosa y a instancia lya existe en ORIGINALS) o FAILURE (si no se pudo crear la nueva imagen).
-
-En MISMATCH_ALTERNATE y FAILURE, el nombre está compuesto de SOP instance guión bajo unix time. Permite guardar todas las copias de una instancia.
+Cuando aparece una imagen de una serie de REGEX válido, se realizan las operaciones de coerción correspondientes. Tienen por resultado la creación de una nueva imagen, en caso que las operaciones fuesen exitosas. Luego de las operaciones, el original sin modificar está trasladado a una de las carpetas ORIGINALS o FAILURE (si no se pudo crear la nueva imagen).
 
 ## SUCCESS
 
@@ -130,12 +127,12 @@ Toda esta información accesible localmente permite realizar multiples tests, qu
 # Argumentos del comando
 
 - CDargCmd
-- CDargSpool
+- CDargClassified
 - CDargSuccess
 - CDargFailure
-- CDargOriginals
-- CDargMismatchAlternates
-- CDargMismatchSources
+- CDargOriginal
+- CDargSeriesPostscript(modified, for cesiB64)
+- CDargNoRegex (modified, was source)
 - CDargMismatchCdawl
 - CDargMismatchPacs
 - CDargcoercedicom,            //archivo json de configuración de las coerciones
@@ -143,7 +140,7 @@ Toda esta información accesible localmente permite realizar multiples tests, qu
 - CDargPacsSearch,              //DICOMweb search url (if empty, no test3)
 - CDargTimeout,                    //max time in seconds before ending the execution
 - CDargMaxSeries,                //max series (negative is monothread)
-- CDsinceLastSeriesModif    //min time in seconds without modification in series dir before processing
+- CDsinceLastSeriesModif    //min seconds without series modif before processing
 
 # coercedicom.json
 
@@ -164,6 +161,7 @@ Toda esta información accesible localmente permite realizar multiples tests, qu
 | removeFromEUIDprefixedDataset:{ "UIDprefix":[atributeID]}      | EUIDprefixed permite seleccionar estudios para los cuales se usó EUID de la MWL. Performed last (may undo a previous coercion)                                                                                                                                                                                                                                    |
 | j2kLayers:                                                     | (num) 0=natv (native sin compresión explicit little endian), 1=j2kr (1 fragmento), 4=bfhi (j2kr with four quality layers (base/fast/hres/idem))                                                                                                                                                                                                                   |
 | sourceAET:                                                     | AET branch origen (0002,0016)                                                                                                                                                                                                                                                                                                                                     |
+| (ELIMINADO) sendingAET:                                        | AET del equipo que produjo el objeto (0002,0017)                                                                                                                                                                                                                                                                                                                  |
 | receivingAET:                                                  | AET destino (0002,0018)                                                                                                                                                                                                                                                                                                                                           |
 | storeMode:                                                     | DICMhttp[11\|2\|3], -x[v\|s\|x\|i], cesiB64                                                                                                                                                                                                                                                                                                                       |
-| devicePriority:                                                | para DICMhttp[x]                                                                                                                                                                                                                                                                                                                                                  |
+| suffix:                                                        | opcional .dcm u otro                                                                                                                                                                                                                                                                                                                                              |

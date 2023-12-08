@@ -4,10 +4,10 @@
 //
 //  Created by jacquesfauquex on 2021-07-08.
 //
+
+//required 10.11+
 #import <os/log.h>
 /*
- //for 10.11 up
- 
  https://developer.apple.com/documentation/os/logging/generating_log_messages_from_your_code?language=objc
  
  The 3 levels are registered and compressed. Older logs are destructed automatically.
@@ -26,825 +26,7 @@ const UInt64 _0002001_tag_vr=0x0000424F00010002;
 const UInt32 _0002001_length=0x00000002;
 const UInt16 _0002001_value=0x0001;
 
-int task(NSString *launchPath, NSArray *launchArgs, NSMutableData *readData)
-{
-    NSTask *task=[[NSTask alloc]init];
-    [task setLaunchPath:launchPath];
-    [task setArguments:launchArgs];
-
-    NSPipe* readPipe = [NSPipe pipe];
-    NSFileHandle *readingFileHandle=[readPipe fileHandleForReading];
-    [task setStandardOutput:readPipe];
-    [task setStandardError:readPipe];
-    
-    [task launch];
-    
-    NSData *dataPiped = nil;
-    while((dataPiped = [readingFileHandle availableData]) && [dataPiped length])
-    {
-        [readData appendData:dataPiped];
-    }
-    //while( [task isRunning]) [NSThread sleepForTimeInterval: 0.1];
-    //[task waitUntilExit];      // <- This is VERY DANGEROUS : the main runloop is continuing...
-    //[aTask interrupt];
-    
-    [task waitUntilExit];
-    int terminationStatus = [task terminationStatus];
-    if (terminationStatus!=0) LOG_INFO(@"ERROR task terminationStatus: %d",terminationStatus);
-    return terminationStatus;
-}
-
-NSString *removeInstanceFromSpool(
-                        NSFileManager *fileManager,
-                        NSString *iSrcPath,
-                        NSString *sDstPath,
-                        BOOL sDstPathVerify,
-                        NSString *sDstAltPath
-                        )
-{
-   /*
-    s = series
-    i = instance
-    paths are absolute paths
-    
-    sDstPath contains only the first version of the instance
-    sDstAltPath contains the other version with secondsFrom2000.dcm suffix
-    
-    returns @"" if OK
-    else errMsg
-    */
-
-   NSError *error=nil;
-   BOOL isDir=false;
-   
-   if (sDstPathVerify==true)
-   {
-       if (![fileManager fileExistsAtPath:sDstPath isDirectory:&isDir])
-       {
-           if (![fileManager createDirectoryAtPath:sDstPath
-                        withIntermediateDirectories:YES
-                        attributes:nil
-                        error:&error]
-           )
-           {
-               return [NSString stringWithFormat:@"cannot create series dir %@:\r\n%@",
-                 sDstPath,
-                 error.description];
-           }
-       }
-       else if (isDir==false)
-       {
-           return [NSString stringWithFormat:@"series dir is not a dir !!! %@", sDstPath];
-       }
-   }
-
-    
-   NSString *iName=[iSrcPath lastPathComponent];
-   NSString *iDstPath=[sDstPath stringByAppendingPathComponent:iName];
-   if (![fileManager fileExistsAtPath:iDstPath])
-   {
-# pragma mark ·· mv iSrcPath to iOriginalPath
-       if (![fileManager moveItemAtPath:iSrcPath toPath:iDstPath error:&error])
-           return [NSString stringWithFormat:@"cannot move %@ to  %@:\r\n%@",iSrcPath,iDstPath,error.description];
-       else return  @"";
-   }
-   else //iOriginalPath already exists
-   {
-# pragma mark ·· else to sDstAltPath ?
-       
-       if (![fileManager fileExistsAtPath:sDstAltPath isDirectory:&isDir])
-       {
-           if (![fileManager createDirectoryAtPath:sDstAltPath
-                   withIntermediateDirectories:YES
-                                    attributes:nil
-                                          error:&error])
-               return [NSString stringWithFormat:@"cannot create dst alt series dir %@:\r\n%@",sDstAltPath,error.description];
-       }
-       else if (isDir==false)
-           return [NSString stringWithFormat:@"dst alt series dir is not dir !!! %@:\r\n%@",sDstAltPath,error.description];
-
-       
-       NSString *iDstAltPath;
-       if ([iName hasSuffix:@"dcm"])
-           iDstAltPath=[NSString stringWithFormat:@"%@/%@_%f.dcm",
-                     sDstAltPath,
-                     [iName stringByDeletingPathExtension],
-                     [[NSDate date] timeIntervalSinceReferenceDate]
-                     ];
-       else
-           iDstAltPath=[NSString stringWithFormat:@"%@/%@_%f",
-                     sDstAltPath,
-                     iName,
-                     [[NSDate date] timeIntervalSinceReferenceDate]
-                     ];
-
-       
-       if (![fileManager moveItemAtPath:iSrcPath toPath:iDstAltPath error:&error])
-           return [NSString stringWithFormat:@"cannot move instance %@ to alt dst %@:\r\n%@",iSrcPath,iDstAltPath,error.description];
-   }
-   return @"";
-}
-
-
-
-static NSMutableSet *seriesTODO=nil;
-static NSMutableSet *seriesDONE=nil;
-static NSMutableSet *seriesFAILED=nil;
-static NSMutableSet *seriesDUPLICATE=nil;
-static NSMutableSet *seriesINPACS=nil;
-
-static NSData *headData=nil;
-
-
-void series_callback(void *context){
-   NSDictionary *thisContext = (NSDictionary*) context;
-   /*
-    Siuid
-    deviceAET
-    ReceivingAET
-    j2kLayers
-    spoolDir
-    failureDir
-    originalDir
-    alternatesDir
-    coercePreamble
-    sendDir
-    
-    TransferSyntaxSuffix
-    suffix
-
-    
-
-cfg:
-    Siuid
-    regex
-    sendingAET
-    coerceBlobs
-    coerceFileMetainfo
-    replaceInFileMetainfo
-    supplementToFileMetainfo
-    removeFromFileMetainfo
-    
-    coerceDataset
-    replaceInDataset
-    supplementToDataset
-    removeFromDataset
-NEW
-    j2kLayers
-    storeMode
-    */
-   
-   NSFileManager *fileManager=[NSFileManager defaultManager];
-   NSError *error=nil;
-   NSArray *iuids=[fileManager contentsOfDirectoryAtPath:thisContext[@"spoolDir"] error:&error];
-   NSUInteger iuidCount=iuids.count;
-if (
-          (iuidCount==0)
-       ||((iuidCount==1) && [iuids[0] hasPrefix:@"."])
-   )
-{
-       if (![fileManager removeItemAtPath:thisContext[@"spoolDir"] error:&error])
-       {
-          if (@available(macOS 10.11, *))
-             os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "%@",error.description);
-          NSLog(@"%@",error.description);
-       }
-}
-else
-{
-   NSString *originalDir=thisContext[@"originalDir"];
-   BOOL originalsIsDir=false;
-   if (![fileManager fileExistsAtPath:originalDir isDirectory:&originalsIsDir])
-   {
-       if (![fileManager createDirectoryAtPath:originalDir
-                        withIntermediateDirectories:YES
-                        attributes:nil
-                        error:&error]
-           )
-       {
-          if (@available(macOS 10.11, *))
-             os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_FAULT, "cannot create ORIGINAL series dir %@: %@", originalDir, error.description);
-          else NSLog(@"cannot create ORIGINAL series dir %@: %@", originalDir, error.description);
-
-           [seriesTODO removeObject:thisContext[@"Siuid"]];
-           [seriesFAILED addObject:thisContext[@"Siuid"]];
-           return;
-       }
-    }
-   else if (originalsIsDir==false)
-   {
-      if (@available(macOS 10.11, *))
-      os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_FAULT, "ORIGINAL series dir is not a dir !!! %@", originalDir);
-      else NSLog(@"ORIGINAL series dir is not a dir !!! %@", originalDir);
-      [seriesTODO removeObject:thisContext[@"Siuid"]];
-      [seriesFAILED addObject:thisContext[@"Siuid"]];
-      return;
-   }
-
-//spool -> originals is possible
-//start processing
-   @try
-   {
-       
-   NSMutableData *inputData=[NSMutableData data];
-
-   //doneSet is used to avoid processing again instances already found in original, that is already processed
-   NSMutableSet *doneSet=[NSMutableSet setWithArray:[fileManager contentsOfDirectoryAtPath:originalDir error:&error]];
-
-   BOOL sendDirExists=[fileManager fileExistsAtPath:thisContext[@"sendDir"]];
-
-   BOOL cesiB64=[thisContext[@"storeMode"] isEqualToString:@"cesiB64"];
-   BOOL dcmsnd=false;
-   //iuidsWritten nil means the whole sendDir shall be sent by dcmsnd in case of cesiB64 storeMode
-   //else it means that destination folder already exists (with files in it) so in case of cesiB64 storeMode, dcmsnd shall be performed only for iuidsWritten
-   NSMutableArray *iuidsWritten;
-   if (sendDirExists) iuidsWritten=[NSMutableArray array];
-
-   int j2kLayers;
-   if (thisContext[@"j2kLayers"]) j2kLayers=[thisContext[@"j2kLayers"] intValue];
-   else j2kLayers=1;
-      
-
-#pragma mark loop
-   for (NSString *iuid in iuids)
-   { @autoreleasepool {
-           
-          if ([iuid hasPrefix:@"."]) continue;
-          NSString *iuidPath=[thisContext[@"spoolDir"] stringByAppendingPathComponent:iuid];
-          if ([doneSet containsObject:iuid])
-          {
-#pragma mark · remove duplicate
-              if ([fileManager contentsEqualAtPath:iuidPath andPath:[originalDir stringByAppendingPathComponent:iuid]])
-              {
-                  [seriesDUPLICATE addObject:thisContext[@"Siuid"]];
-                  if (![fileManager removeItemAtPath:iuidPath error:nil])
-                  {
-                     if (@available(macOS 10.11, *))
-                     os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "could not remove duplicate %@", iuidPath);
-                     else NSLog(@"could not remove duplicate %@", iuidPath);
-                     [seriesFAILED addObject:thisContext[@"Siuid"]];
-                  }
-                  continue;
-               }
-           }
-
-               
-#pragma mark · parse
-
-          [inputData appendData:[NSData dataWithContentsOfFile:iuidPath ]];
-          
-          uint32 inputFileMetainfoLength=0;
-          if (inputData.length > 144) [inputData getBytes:&inputFileMetainfoLength range:NSMakeRange(140,4)];
-          
-          NSData *inputFileMetainfo=nil;
-          if (   ( inputFileMetainfoLength > 100 )
-              && ( inputData.length >= 144 + inputFileMetainfoLength )
-              )
-             inputFileMetainfo=[inputData subdataWithRange:NSMakeRange(158,inputFileMetainfoLength-14)];
-          else
-          {
- #pragma mark ·· failed
-             [seriesFAILED addObject:thisContext[@"Siuid"]];
-             NSString *returnMsg=removeInstanceFromSpool(
-                                  fileManager,
-                                  iuidPath,
-                                  thisContext[@"failureDir"],
-                                  true,
-                                  thisContext[@"failureDir"]
-                                  );
-             if (returnMsg.length)
-             {
-                if (@available(macOS 10.11, *))
-                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "%@", returnMsg);
-                else NSLog(@"%@", returnMsg);
-             }
-
-             continue;
-          }
-          
-          NSMutableDictionary *parsedAttrs=[NSMutableDictionary dictionary];
-          NSMutableDictionary *blobDict=[NSMutableDictionary dictionary];
-          NSMutableDictionary *j2kAttrs=[NSMutableDictionary dictionary];
-          NSMutableDictionary *j2kBlobDict=[NSMutableDictionary dictionary];
-          
-          NSMutableDictionary *fileMetainfoAttrs=[NSMutableDictionary dictionary];
-          if (!D2dict(
-                     inputFileMetainfo,
-                     fileMetainfoAttrs,
-                     0,//blob min size
-                     blobModeResources,
-                     @"",//prefix
-                     @"",//suffix
-                     blobDict
-                     )
-              )
-          {
-             if (@available(macOS 10.11, *))
-             os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "could not parse fileMetainfo %@\r\n",iuidPath);
-             else NSLog(@"could not parse fileMetainfo %@\r\n",iuidPath);
-
-              [seriesFAILED addObject:thisContext[@"Siuid"]];
-              NSString *returnMsg=removeInstanceFromSpool(
-                                   fileManager,
-                                   iuidPath,
-                                   thisContext[@"failureDir"],
-                                   true,
-                                   thisContext[@"failureDir"]
-                                   );
-
-             if (returnMsg.length)
-             {
-                if (@available(macOS 10.11, *))
-                os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "%@",returnMsg);
-                else NSLog(@"%@",returnMsg);
-
-             }
-             continue;
-          }
-
-
-          if (!D2dict(
-                      [inputData subdataWithRange:NSMakeRange(144+inputFileMetainfoLength,inputData.length-144-inputFileMetainfoLength)],
-                     parsedAttrs,
-                     0,//blob min size
-                     blobModeResources,
-                     @"",//prefix
-                     @"",//suffix
-                     blobDict
-                     )
-              )
-          {
-              [seriesFAILED addObject:thisContext[@"Siuid"]];
-              NSString *returnMsg=removeInstanceFromSpool(
-                                   fileManager,
-                                   iuidPath,
-                                   thisContext[@"failureDir"],
-                                   true,
-                                   thisContext[@"failureDir"]
-                                   );
-
-              if (returnMsg.length)
-              {
-                 if (@available(macOS 10.11, *))
-                 os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "%@",returnMsg);
-                 else NSLog(@"%@",returnMsg);
-
-              }
-             continue;
-          }
-          else
-          {
- #pragma mark ·· parsed
-             
- #pragma mark ··· compress ?
-        
-             switch (j2kLayers) {
-                case 1://J2KR
-                {
-             NSString *pixelKey=nil;
-             if (parsedAttrs[@"00000001_7FE00010-OB"])pixelKey=@"00000001_7FE00010-OB";
-             else if (parsedAttrs[@"00000001_7FE00010-OW"])pixelKey=@"00000001_7FE00010-OW";
-             
-             if (   pixelKey
-                 && ([parsedAttrs[@"00000001_00280100-US"][0] intValue] != 1)
-                 && [fileMetainfoAttrs[@"00000001_00020010-UI"][0] isEqualToString:@"1.2.840.10008.1.2.1"]
-                 )
-             {
-                NSString *nativeUrlString=parsedAttrs[pixelKey][0][@"Native"][0];
-                NSData *pixelData=nil;
-                if ([parsedAttrs[pixelKey][0] isKindOfClass:[NSDictionary class]])  pixelData=blobDict[parsedAttrs[pixelKey][0][@"Native"][0]];
-                else pixelData=dataWithB64String(blobDict[pixelKey]);
-                
-                NSMutableString *response=[NSMutableString string];
-                if (compressJ2KR(
-                             [nativeUrlString substringToIndex:nativeUrlString.length-3],
-                             pixelData,
-                             parsedAttrs,
-                             j2kBlobDict,
-                             j2kAttrs,
-                             response
-                             )==success
-                    )
-                {
-                   //remove native pixel blob and corresponding attribute
-                   
-                   //include j2k blobs
-                   [blobDict addEntriesFromDictionary:j2kBlobDict];
-                   
-                   //remove native attributes
-                   [parsedAttrs removeObjectForKey:pixelKey];
-                   [parsedAttrs addEntriesFromDictionary:j2kAttrs];
-
-                   [fileMetainfoAttrs setObject:@[@"1.2.840.10008.1.2.4.90"] forKey:@"00000001_00020010-UI"];
-                }
-                else
-                {
-                    [seriesFAILED addObject:thisContext[@"Siuid"]];
-                    NSString *returnMsg=removeInstanceFromSpool(
-                                         fileManager,
-                                         iuidPath,
-                                         thisContext[@"failureDir"],
-                                         true,
-                                         thisContext[@"failureDir"]
-                                         );
-
-                    if (returnMsg.length)
-                   {
-                      if (@available(macOS 10.11, *))
-                      os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "%@",returnMsg);
-                      else NSLog(@"%@",returnMsg);
-                   }
-                   continue;
-                }
-                }
-                   }
-                   break;
-                      
-//TODO case 4 BFMI
-                  
-                   default://no compression
-                      break;
-                }
-
-                
-    #pragma mark ··· coerce
-
-    #pragma mark ···· fileMetainfo
-                
-                //sourceAET (branch aet)
-                //sendingAET (device aet)
-                //receivingAET (pacs aet)
-                if (thisContext[@"sourceAET"])[fileMetainfoAttrs setObject:@[thisContext[@"sourceAET"]] forKey:@"00000001_00020016-AE"];
-                if (thisContext[@"sendingAET"])[fileMetainfoAttrs setObject:@[thisContext[@"sendingAET"]] forKey:@"00000001_00020017-AE"];
-                if (thisContext[@"receivingAET"])[fileMetainfoAttrs setObject:@[thisContext[@"receivingAET"]] forKey:@"00000001_00020018-AE"];
-
-                if (thisContext[@"coerceFileMetainfo"]) [fileMetainfoAttrs addEntriesFromDictionary:thisContext[@"coerceFileMetainfo"]];
-
-    #pragma mark ···· blobs
-                if (thisContext[@"coerceBlobs"]) [blobDict addEntriesFromDictionary:thisContext[@"coerceBlobs"]];
-
-    #pragma mark ···· coerceFileMetainfo
-
-    #pragma mark ···· replaceInFileMetainfo
-
-    #pragma mark ···· supplementToFileMetainfo
-
-    #pragma mark ···· removeFromFileMetainfo
-
- 
-                
-    #pragma mark ···· coerceDataset
-                if (thisContext[@"coerceDataset"])
-                   [parsedAttrs addEntriesFromDictionary:thisContext[@"coerceDataset"]];
-
-                
-    #pragma mark ···· replaceInDataset
-                NSArray *replaceKeys=[thisContext[@"replaceInDataset"] allKeys];
-                for (NSString *replaceKey in replaceKeys)
-                {
-                   if (parsedAttrs[replaceKey])
-                      [parsedAttrs setObject:thisContext[@"replaceInDataset"][replaceKey] forKey:replaceKey];
-                }
-
-    #pragma mark ···· supplementToDataset
-                NSArray *supplementKeys=[thisContext[@"supplementToDataset"] allKeys];
-                for (NSString *supplementKey in supplementKeys)
-                {
-                   if (!parsedAttrs[supplementKey])
-                      [parsedAttrs setObject:thisContext[@"supplementToDataset"][supplementKey] forKey:supplementKey];
-                }
-
-                
-    #pragma mark ···· removeFromDataset
-                for (NSString *removeKey in thisContext[@"removeFromDataset"])
-                {
-                   if (parsedAttrs[removeKey])
-                      [parsedAttrs removeObjectForKey:removeKey];
-                }
-
-                
-   #pragma mark ···· removeFromEUIDprefixedDataset
-                if (thisContext[@"removeFromEUIDprefixedDataset"])
-                {
-                   NSString *EUID=parsedAttrs[@"00000001_0020000D-UI"][0];
-                   NSArray *EUIDprefixes=[thisContext[@"removeFromEUIDprefixedDataset"] allKeys];
-                   for (NSString *EUIDprefix in EUIDprefixes)
-                   {
-                      if ([EUID hasPrefix:EUIDprefix])
-                      {
-                         for (NSString *removeKey in thisContext[@"removeFromEUIDprefixedDataset"][EUIDprefix])
-                         {
-                            if (parsedAttrs[removeKey])
-                               [parsedAttrs removeObjectForKey:removeKey];
-                         }
-
-                      }
-                   }
-                }
-
-                
-    #pragma mark ·· outputData init
-                NSMutableData *outputData;
-    //preamble
-                if (!thisContext[@"coercePreamble"])
-                {
-                   outputData=[NSMutableData dataWithLength:128];
-                   [outputData appendBytes:&DICM length:4];
-                }
-                else outputData=[[NSMutableData alloc] initWithBase64EncodedString:thisContext[@"coercePreamble"] options:0] ;
-
-                
-    //fileMetainfo
-                NSMutableData *outputFileMetainfo=[NSMutableData data];
-                if (dict2D(
-                            @"",
-                            fileMetainfoAttrs,
-                            outputFileMetainfo,
-                            6, //j2kr   !!! error with 4 j2kh
-                            blobDict
-                            ) == failure
-                    )
-                {
-                   if (@available(macOS 10.11, *))
-                   os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "error outputFileMetainfo: %@",fileMetainfoAttrs.description);
-                   else NSLog(@"error outputFileMetainfo: %@",fileMetainfoAttrs.description);
-
-                   [seriesFAILED addObject:thisContext[@"Siuid"]];
-                  NSString *returnMsg=removeInstanceFromSpool(
-                                         fileManager,
-                                         iuidPath,
-                                         thisContext[@"failureDir"],
-                                         true,
-                                         thisContext[@"failureDir"]
-                                         );
-                    if (returnMsg.length)
-                    {
-                       if (@available(macOS 10.11, *))
-                       os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "%@",returnMsg);
-                       else NSLog(@"%@",returnMsg);
-                    }
-                   continue;
-                }
-                
-                [outputData appendBytes:&_0002000_tag_vr length:8];
-                UInt32 fileMetainfoLength=(UInt32)outputFileMetainfo.length+14;//00020001
-                [outputData appendBytes:&fileMetainfoLength length:4];
-                [outputData appendBytes:&_0002001_tag_vr length:8];
-                [outputData appendBytes:&_0002001_length length:4];
-                [outputData appendBytes:&_0002001_value length:2];
-                [outputData appendData:outputFileMetainfo];
-
-
-    // dataset
-                if (dict2D(
-                            @"",
-                            parsedAttrs,
-                            outputData,
-                            4, //dicomExplicitJ2kIdem
-                            blobDict
-                            )==failure
-                    )
-    #pragma mark ··· failure
-                {
-                   if (@available(macOS 10.11, *))
-                   os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "could not serialize dataset. %@",parsedAttrs);
-                   else NSLog(@"could not serialize dataset. %@",parsedAttrs);
-
-                   [seriesFAILED addObject:thisContext[@"Siuid"]];
-                   NSString *returnMsg=removeInstanceFromSpool(
-                                         fileManager,
-                                         iuidPath,
-                                         thisContext[@"failureDir"],
-                                         true,
-                                         thisContext[@"failureDir"]
-                                         );
-
-                   
-                    if (returnMsg.length)
-                    {
-                       if (@available(macOS 10.11, *))
-                       os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "%@",returnMsg);
-                       else NSLog(@"%@",returnMsg);
-
-                    }
-                    continue;
-                }
-                else
-                {
-    #pragma mark ··· success
-                   
-                  if (!sendDirExists)
-                  {
-                     if (![fileManager createDirectoryAtPath:thisContext[@"sendDir"] withIntermediateDirectories:YES attributes:nil error:&error])
-                     {
-                        if (@available(macOS 10.11, *))
-                        os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "can not create  %@",thisContext[@"sendDir"]);
-                        else NSLog(@"can not create  %@",thisContext[@"sendDir"]);
-                        break;
-                     }
-                     sendDirExists=true;
-                  }
-
-                  BOOL written;
-
-                  if (cesiB64)
-                  {
-                     //write without cesi without extension
-                     unsigned short ext0=[[iuid pathExtension] characterAtIndex:0];
-                     
-                     NSString *iuidPath;
-                     if ( (ext0 > 47) && (ext0 < 58)) iuidPath=[thisContext[@"sendDir"] stringByAppendingPathComponent:b64ui(iuid)];
-                     else iuidPath=[thisContext[@"sendDir"] stringByAppendingPathComponent:b64ui([iuid stringByDeletingPathExtension])];
-                     written=[outputData writeToFile:iuidPath atomically:NO];
-
-                     if (iuidsWritten && written) [iuidsWritten addObject:iuidPath];
-                  }
-                  else
-                  {
-                     written=[outputData writeToFile:[thisContext[@"sendDir"] stringByAppendingPathComponent:iuid] atomically:YES];
-                  }
-                   
-                  if (written)
-                  {
-                    dcmsnd=true;
-    #pragma mark ···· original to originalDir (or alternatesDir)
-                    NSString *returnMsg=removeInstanceFromSpool(
-                                         fileManager,
-                                         iuidPath,
-                                         thisContext[@"originalDir"],
-                                         false,
-                                         thisContext[@"alternatesDir"]
-                                         );
-                     if (returnMsg.length)
-                     {
-                        if (@available(macOS 10.11, *))
-                        os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "%@",returnMsg);
-                        else NSLog(@"%@",returnMsg);
-                     }
-                     [doneSet addObject:iuid];
-                  }
-                  
-                }//end parsed
-                [inputData setLength:0];
-             }
-          
-       }}//end autorelease end loop
-
-   if (cesiB64 && dcmsnd)
-   {
-      NSString *PACS=[NSString stringWithFormat:@"%@@%@:%@",thisContext[@"receivingAET"],thisContext[@"receivingIP"],thisContext[@"receivingPort"]];
-      NSMutableData *logData=[NSMutableData data];
-      
-      if (iuidsWritten)
-      {
-         NSMutableArray *args=[NSMutableArray arrayWithArray:@[@"-fileref",@"-L",thisContext[@"sourceAET"],PACS]];
-         for (NSString *iuidWritten in iuidsWritten)
-         {
-            [args addObject:[thisContext[@"sendDir"] stringByAppendingPathComponent:iuidWritten]];
-         }
-         if (task(@"/Users/Shared/dcm4che-2.0.29/bin/dcmsnd",args,logData))
-            LOG_ERROR(@"%@",[[NSString alloc]initWithData:logData encoding:NSUTF8StringEncoding]);
-      }
-      else //complete series
-      {
-         if (task(@"/Users/Shared/dcm4che-2.0.29/bin/dcmsnd",@[@"-fileref",@"-L",thisContext[@"sourceAET"],PACS,thisContext[@"sendDir"]],logData))
-            LOG_ERROR(@"%@",[[NSString alloc]initWithData:logData encoding:NSUTF8StringEncoding]);
-      }
-   }
-      
-   if (   ![seriesFAILED    containsObject:thisContext[@"Siuid"]]
-       && ![seriesDUPLICATE containsObject:thisContext[@"Siuid"]]
-       && ![seriesINPACS    containsObject:thisContext[@"Siuid"]]
-      )
-      [seriesDONE addObject:thisContext[@"Siuid"]];
-  }@catch (NSException *exception) {
-     if (@available(macOS 10.11, *))
-      os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_FAULT, "%@", exception.reason);
-     else NSLog(@"%@", exception.reason);
-  }
-  @finally {
-  }
- }
- [seriesTODO removeObject:thisContext[@"Siuid"]];
-}
-
-
-
-
-enum CDargName{
-   CDargCmd=0,
-   
-   CDargSpool,                //1 receive
-   CDargSuccess,              //2 send
-   CDargFailure,              //3 coerce error
-   CDargOriginal,             //4 destination where to move originals of successfull coertion
-   CDargAlternates,           //5 destination where to move diferent alternates of original
-
-   CDargSending,              //6 destination where to move originals of sending mismatch
-   CDargCdamwlMismatch,       //7 destination where to move originals of cdawl mismatch
-   CDargPacsMismatch,         //8 destination where to move originals of pacs mismatch,
-   CDargCoercedicomFile,      //9 json
-   CDargCdamwlDir,            //10 registry where to verify objects against cdawl
-   CDargPacsSearchUrl,        //11 DICOMweb url for pacs verifications
-   
-   CDargTimeout,              //12 max time in seconds before ending the execution
-   CDargMaxSeries,            //13 max series (negative is monothread)
-   CDsinceLastSeriesModif     //14 min time in seconds without modification in series dir before
-                              // processing (may be because of receiving or previous processing)
-};
-
-
-int main(int argc, const char * argv[]){
-   int returnInt=0;
-   headData=[@"\r\n--myboundary\r\nContent-Type: application/dicom\r\n\r\n" dataUsingEncoding:NSASCIIStringEncoding];
-
-   @autoreleasepool {
-
-    NSFileManager *fileManager=[NSFileManager defaultManager];
-    NSError *error=nil;
-    BOOL isDirectory=false;
-
-
-    NSProcessInfo *processInfo=[NSProcessInfo processInfo];
-    NSArray *args=[processInfo arguments];
-    if (args.count != 15)
-    {
-       if (@available(macOS 10.11, *))
-       os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_FAULT, "bad args count: %@",[args description]);
-       else NSLog(@"bad args count: %@",[args description]);
-       exit(1);
-    };
-
-    int sinceLastSeriesModif=[args[CDsinceLastSeriesModif] intValue] * -1;
-
-    NSDate *refTime=[NSDate date];
-    NSDateFormatter *DICMDA = [[NSDateFormatter alloc]init];
-    [DICMDA setDateFormat:@"yyyyMMdd"];
-    NSString *todayDCMString=[DICMDA stringFromDate:refTime];
-
-#pragma mark classified
-    if (![fileManager fileExistsAtPath:args[CDargSpool] isDirectory:&isDirectory] || !isDirectory) exit(0);
-
-    
-    NSArray *CLASSIFIEDarray=[fileManager contentsOfDirectoryAtPath:args[CDargSpool] error:&error];
-    if (!CLASSIFIEDarray)
-    {
-       if (@available(macOS 10.11, *))
-          os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_FAULT, "Can not open CLASSIFIED directory: %@. %@",args[CDargSpool], error.description);
-       else NSLog(@"Can not open CLASSIFIED directory: %@. %@",args[CDargSpool], error.description);
-       exit(1);
-    };
-
-    if (!CLASSIFIEDarray.count)
-    {
-       if (@available(macOS 10.11, *))
-          os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "no classified devices");
-       else NSLog(@"no classified devices");
-       exit(0);
-    }
-    NSMutableArray *sourcesBeforeMapping=[NSMutableArray arrayWithArray:CLASSIFIEDarray];
-    if ([sourcesBeforeMapping[0] hasPrefix:@"."])
-    {
-       if([fileManager removeItemAtPath:[args[CDargSpool] stringByAppendingPathComponent:sourcesBeforeMapping[0]] error:&error])
-       {
-          [sourcesBeforeMapping removeObjectAtIndex:0];
-          if (!sourcesBeforeMapping.count) exit(0);
-
-       }
-       else
-       {
-          if (@available(macOS 10.11, *))
-             os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "can not remove %@. %@",[args[CDargSpool] stringByAppendingPathComponent:sourcesBeforeMapping[0]],error.description);
-          else NSLog(@"can not remove %@. %@",[args[CDargSpool] stringByAppendingPathComponent:sourcesBeforeMapping[0]],error.description);
-       }
-    }
-
-    
-
-
-      
-#pragma mark coercedicom json directives
-    
-    NSData *jsonData=[NSData dataWithContentsOfFile:args[CDargCoercedicomFile]];
-    if (!jsonData)
-    {
-       if (@available(macOS 10.11, *))
-          os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "no coercedicom json file at: %@",args[CDargCoercedicomFile]);
-       else NSLog(@"no coercedicom json file at: %@",args[CDargCoercedicomFile]);
-       exit(1);
-    };
-    
-    NSMutableArray *whiteList=[NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:&error];
-    if (!whiteList)
-    {
-       if (@available(macOS 10.11, *))
-          os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "bad coercedicom json file:%@ %@",args[CDargCoercedicomFile],[error description]);
-       else NSLog(@"bad coercedicom json file:%@ %@",args[CDargCoercedicomFile],[error description]);
-       exit(1);
-    }
-      
-    //array corresponding to prioridad
-    NSMutableArray *devicesToBeProcessed=[NSMutableArray array];
+static NSMutableArray *whiteList=nil;
 /*
 format:
 [
@@ -887,392 +69,844 @@ The root is an array where items are clasified by priority of execution
 "success", "failure", "done" added for each study
 */
 
-    for (long matchIndex=0; matchIndex<whiteList.count; matchIndex++)
+static NSArray *CDargs=nil;
+enum CDargName{
+   CDargCmd=0,
+   
+   CDargClassified,           //1 spool in
+   CDargSuccess,              //2 coercion success
+   CDargFailure,              //3 original of failed coercion
+   CDargOriginal,             //4 original of success coecion
+   CDargSeriesPostscript,          //5 dcmsnd -fileref scripts
+   CDargNoRegex,              //6 no regex match
+
+   CDargCdamwlMismatch,       //7 (NOT USED) destination where to move originals of cdawl mismatch
+   CDargPacsMismatch,         //8 (NOT USED) destination where to move originals of pacs mismatch,
+
+   CDargCoercedicomFile,      //9 json
+   CDargCdamwlDir,            //10 registry where to verify objects against cdawl
+   CDargPacsSearchUrl,        //11 DICOMweb url for pacs verifications
+   
+   CDargTimeout,              //12 max time in seconds before ending the execution
+   CDargMaxSeries,            //13 max series (negative is monothread)
+   CDargSinceLastSeriesModif     //14 min time in seconds without modification in series dir before
+                              // processing (may be because of receiving or previous processing)
+};
+static NSRegularExpression *UIRegex=nil;
+static NSData *headData=nil;
+static NSFileManager *fs=nil;
+static NSString *_yyMMddhhmm=nil;
+static NSString *sinceLastSeriesModif;
+static NSDate *timeoutDate;
+
+static NSMutableSet *seriesFAILED=nil;
+static NSMutableSet *seriesPostscript=nil;
+static NSMutableSet *seriesDONE=nil;
+
+int task(NSString *launchPath, NSArray *launchArgs, NSMutableData *readData, NSString *currentDirectoryPath)
+{
+    NSTask *task=[[NSTask alloc]init];
+    [task setLaunchPath:launchPath];
+    [task setArguments:launchArgs];
+    if (currentDirectoryPath) [task setCurrentDirectoryPath:currentDirectoryPath];
+
+    NSPipe* readPipe = [NSPipe pipe];
+    NSFileHandle *readingFileHandle=[readPipe fileHandleForReading];
+    [task setStandardOutput:readPipe];
+    [task setStandardError:readPipe];
+    
+    [task launch];
+    
+    NSData *dataPiped = nil;
+    while((dataPiped = [readingFileHandle availableData]) && [dataPiped length])
     {
-        NSDictionary *matchDict=whiteList[matchIndex];
-        NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:matchDict[@"regex"] options:0 error:&error];
-        if (!regex)
-        {
-           if (@available(macOS 10.11, *))
-              os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "bad coercedicom json file:%@ item:%@ %@",args[CDargCoercedicomFile],matchDict.description,[error description]);
-           else NSLog(@"bad coercedicom json file:%@ item:%@ %@",args[CDargCoercedicomFile],matchDict.description,[error description]);
-            exit(1);
-        }
-       
-       //loop sourcesBeforeMapping for matching regex filter
-       for ( long i=sourcesBeforeMapping.count-1; i>=0; i--)
-       {
-          if ([regex numberOfMatchesInString:sourcesBeforeMapping[i] options:0 range:NSMakeRange(0,[sourcesBeforeMapping[i] length])])
-          {
-             NSArray *ePCAUs=[fileManager contentsOfDirectoryAtPath:[args[CDargSpool] stringByAppendingPathComponent:sourcesBeforeMapping[i]] error:&error];
-             if (  !ePCAUs
-                 || (ePCAUs.count==0)
-                 ||(
-                       (ePCAUs.count==1)
-                    && [ePCAUs[0] hasPrefix:@"."]
-                    )
-                 )
-             {
-                 //empty source
-             }
-             else
-             {
-                [devicesToBeProcessed addObject:[NSMutableDictionary dictionaryWithDictionary:matchDict]];
-                [devicesToBeProcessed.lastObject setObject:sourcesBeforeMapping[i] forKey:@"sendingAET"];
-                [devicesToBeProcessed.lastObject setObject:[NSString stringWithFormat:@"%02ld^",matchIndex] forKey:@"devicePriority"];
-             }
-             [sourcesBeforeMapping removeObjectAtIndex:i];
-          }
-       }
+        [readData appendData:dataPiped];
     }
-      
-#pragma mark sendingMismatch To Be discarded
-      for (NSString *sourceName in sourcesBeforeMapping)
+    [task waitUntilExit];
+    int terminationStatus = [task terminationStatus];
+    if (terminationStatus!=0) LOG_INFO(@"ERROR task terminationStatus: %d",terminationStatus);
+    return terminationStatus;
+}
+
+int moveCLASSIFIEDobject(NSString *fullPath,int destContainerInt)
+{
+   if ((destContainerInt < 2)||(destContainerInt > 8))
+   {
+      os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "bad moveCLASSIFIEDobject dest %d",destContainerInt);
+      exit(3);
+   }
+   NSArray *beforeAfter=[fullPath componentsSeparatedByString:@"/CLASSIFIED/"];
+   if (beforeAfter.count != 2)
+   {
+      os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "moveCLASSIFIEDobject src not within CLASSIFIED %@",fullPath);
+      exit(4);
+   }
+   
+   //prepare destSubdir
+   NSString *destSubdir=[CDargs[destContainerInt] stringByAppendingPathComponent:[beforeAfter[1] stringByDeletingLastPathComponent]];
+   BOOL isDir;
+   if (![fs fileExistsAtPath:destSubdir isDirectory:&isDir])
+   {
+      //create destSubdir
+      NSError *createDirError;
+      if (![fs createDirectoryAtPath:destSubdir withIntermediateDirectories:YES attributes:nil error:&createDirError])
       {
-         NSString *errMsg=mergeDir(fileManager, [args[CDargSpool] stringByAppendingPathComponent:sourceName], [args[CDargSending] stringByAppendingPathComponent:sourceName]);
-         if (errMsg && errMsg.length)
-         {
-            if (@available(macOS 10.11, *))
-               os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "%@",errMsg);
-            else NSLog(@"%@",errMsg);
-            return 1;
-         }
+         os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "could not create %@: %@",destSubdir,createDirError.description);
+         return 5;
       }
-        
-#pragma mark - devicesToBeProcessed
-    if (devicesToBeProcessed.count)
-    {
-       
-#pragma mark cdawldicom init
-       NSString *wltodayFolder=nil;
-       
-       NSString *wltodayEUIDFolder=nil;
-       //NSString *wltodayANFolder=nil;
-       //NSString *wltodayPIDFolder=nil;
-       
-       NSArray  *wltodayEUIDkeys=nil;
-       //NSArray  *wltodayANkeys=nil;
-       //NSArray  *wltodayPIDkeys=nil;
-       
-       NSString *wlpublished=nil;
-       NSString *wlcompleted=nil;
-       NSString *wlcancelled=nil;
-       
-       if ([args[CDargCdamwlDir] length])
-       {
-          wltodayFolder=[args[CDargCdamwlDir] stringByAppendingPathComponent:todayDCMString
-             ];
-          if ([fileManager fileExistsAtPath:wltodayFolder])
-          {
-              wlpublished=[args[CDargCdamwlDir] stringByAppendingPathComponent:@"published"];
-              wlcompleted=[args[CDargCdamwlDir] stringByAppendingPathComponent:@"completed"];
-              wlcancelled=[args[CDargCdamwlDir] stringByAppendingPathComponent:@"cancelled"];
+   }
+   else if (!isDir)
+   {
+      os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "could not create:%@ %@",destSubdir);
+      return 6;
+   }
 
-              wltodayEUIDFolder=[wltodayFolder stringByAppendingPathComponent:@"EUID"];
-              wltodayEUIDkeys=[fileManager contentsOfDirectoryAtPath:wltodayEUIDFolder error:nil];
-          }
+   //move object
+   NSString *destObject=[CDargs[destContainerInt] stringByAppendingPathComponent:beforeAfter[1]];
+   NSError *moveError;
+   if (![fs fileExistsAtPath:destObject])
+   {
+      if (![fs moveItemAtPath:fullPath toPath:destObject error:&moveError])
+      {
+         os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "%@",moveError.description);
+         return 7;
+      }
+      return 0;
+   }
+   if (![fs moveItemAtPath:fullPath toPath:[destObject stringByAppendingString:_yyMMddhhmm] error:&moveError])
+   {
+      os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "%@",moveError.description);
+      return 8;
+   }
+   return 0;
+}
+
+
+
+void series_callback(void *context){
+   NSDictionary *thisContext = (NSDictionary*) context;
+   NSString *DESdir=thisContext[@"DESdir"];
+   int matchInt=[thisContext[@"matchNumber"] intValue];
+   BOOL cesiB64=[whiteList[matchInt][@"storeMode"] isEqualToString:@"cesiB64"];
+   int j2kLayers;
+   if (whiteList[matchInt][@"j2kLayers"]) j2kLayers=[whiteList[matchInt][@"j2kLayers"] intValue];
+   else j2kLayers=1;
+   //can be inferred from j2kLayres(0=nati 1=j2kr 4=bfhi) but not used yet
+   BOOL toJ2KR=true;
+   BOOL toBFHI=false;
+
+
+   /*
+    j2kLayers
+    "sourceAET":"IRP-PROV",
+    "sendingAET":"tomografo",
+    "receivingAET":"IRP",
+    "receivingIP":"172.16.0.3",
+    "receivingPort":"11112",
+    "storeMode":"cesiB64",
+    suffix
+   
+    coercePreamble
+    coerceBlobs
+    coerceFileMetainfo
+    replaceInFileMetainfo
+    supplementToFileMetainfo
+    removeFromFileMetainfo
+    
+    coerceDataset
+    replaceInDataset
+    supplementToDataset
+    removeFromDataset
+    */
+   
+#pragma mark array of instances
+   NSMutableData *DESIdata=[NSMutableData data];
+   NSMutableArray *DESIarray=[NSMutableArray array];
+   //NSLog(@"225");
+   if (0!=task(
+        @"/usr/bin/find",
+        @[
+           DESdir,
+           @"-type",
+           @"f",
+           @"-depth",
+           @"1",
+           @"!",
+           @"-name",
+           @".*"
            
-       }
-       
-#pragma mark dispatch queue init ?
-       BOOL useDispatchQueue=false;
-       dispatch_queue_attr_t attr;
-       dispatch_queue_t seriesqueue=nil;
-       int maxSeries=[args[CDargMaxSeries] intValue];
-       if (maxSeries == 0) maxSeries=1;
-       if (maxSeries < 0) maxSeries=-maxSeries;//no dispatch queue
-       else
-       {
-          useDispatchQueue=true;
-           attr=dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_USER_INTERACTIVE, QOS_MIN_RELATIVE_PRIORITY);
-           
-           //dispatch_queue_attr_make_with_autorelease_frequency(DISPATCH_QUEUE_CONCURRENT,DISPATCH_AUTORELEASE_FREQUENCY_WORK_ITEM);
-          seriesqueue = dispatch_queue_create("com.opendicom.coercedicom.seriesqueue", attr);
-       }
+        ],
+       DESIdata,
+       nil
+     ))
+   {
+     os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "could not list CLASSIFIED series: %@", [[NSString alloc]initWithData:DESIdata encoding:NSUTF8StringEncoding]);
+     if (0!=moveCLASSIFIEDobject(DESdir,CDargFailure))
+        os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "could not move to FAILURE CLASSIFIED series: %@",DESdir);
+     return;
+   }
 
+   [DESIarray addObjectsFromArray:[[[NSString alloc]initWithData:DESIdata encoding:NSUTF8StringEncoding] componentsSeparatedByString:@"\n"]];
+   [DESIarray removeLastObject];
+   if (DESIarray.count == 0)
+   {
+      NSMutableData *rmdirData=[NSMutableData data];
+      //NSLog(@"254");
+      if (0!=task(@"/bin/rmdir",@[DESdir],rmdirData,nil))
+         os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "%@",[[NSString alloc]initWithData:rmdirData encoding:NSUTF8StringEncoding]);
+      return;
+   }
 
-#pragma mark - source loop
-       seriesTODO=[NSMutableSet set];
-       seriesDONE=[NSMutableSet set];
-       seriesFAILED=[NSMutableSet set];
-       seriesDUPLICATE=[NSMutableSet set];
-       seriesINPACS=[NSMutableSet set];
-       for (NSDictionary *deviceDict in devicesToBeProcessed)
-       {
-         if (maxSeries >0) {
-         NSString *sourceDir=[args[CDargSpool] stringByAppendingPathComponent:deviceDict[@"sendingAET"]];
-         NSArray *ePCAUs=[fileManager contentsOfDirectoryAtPath:sourceDir error:nil];
-#pragma mark · StudyUIDs loop
-         for (NSString *ePCAU in ePCAUs)
+   NSMutableString *SfullPath=[NSMutableString string];
+   NSMutableArray *Ipaths=[NSMutableArray array];
+   @try
+   {
+#pragma mark metadata de nivel serie
+      
+      NSMutableDictionary *fmiAttrs=[NSMutableDictionary dictionary];
+      NSMutableDictionary *datAttrs=[NSMutableDictionary dictionary];
+      NSMutableDictionary *natAttrs=[NSMutableDictionary dictionary];
+      NSMutableDictionary *j2kAttrs=[NSMutableDictionary dictionary];
+      NSMutableDictionary *blobDict=[NSMutableDictionary dictionary];
+      NSMutableDictionary *j2kBlobDict=[NSMutableDictionary dictionary];
+      
+      long long blobMinSize=0;
+      int blobMode=blobModeResources;
+      NSString *blobRefPrefix=@"";
+      NSString *blobRefSuffix=@"";
+      NSError *writeError=nil;
+      
+      for (NSString *DESIfullpath in DESIarray)
+      { @autoreleasepool {
+            
+         NSMutableData *data=[NSMutableData dataWithData:[NSData dataWithContentsOfFile:DESIfullpath]];
+         if (parse(data,fmiAttrs,datAttrs,natAttrs,j2kAttrs,blobDict,j2kBlobDict,blobMinSize,blobMode,blobRefPrefix, blobRefSuffix,toJ2KR,toBFHI)==failure)
          {
-            if (maxSeries >0) {
-            // starting with dot ?
-            NSString *studyPath=[sourceDir stringByAppendingPathComponent:ePCAU];
-            if ([ePCAU hasPrefix:@"."])
-            {
-                if (![fileManager removeItemAtPath:studyPath error:&error])
-                {
-                   if (@available(macOS 10.11, *))
-                      os_log(OS_LOG_DEFAULT, "can not remove %@. %@",studyPath,error.description);
-                   else NSLog(@"can not remove %@. %@",studyPath,error.description);
-                }
-                continue;
-            }
-            //does the study contain series directory?
-            NSMutableSet *Siuids=[NSMutableSet setWithArray:[fileManager contentsOfDirectoryAtPath:studyPath error:nil]];
-            for (NSString *Siuid in [Siuids allObjects] )
-            {
-                if ([Siuid hasPrefix:@"."]) [Siuids removeObject:Siuid];//case of invisible
-            }
-            if (Siuids.count==0)
-            {
-                if (![fileManager removeItemAtPath:studyPath error:&error])
-                {
-                   if (@available(macOS 10.11, *))
-                      os_log(OS_LOG_DEFAULT, "can not remove empty %@. %@",studyPath,error.description);
-                   else NSLog(@"can not remove empty %@. %@",studyPath,error.description);
-               }
-                continue;
-            }
-            for (NSString *Siuid in [Siuids allObjects] )
-            {
-                if ([Siuid hasSuffix:@".log"])
-                    [Siuids removeObject:Siuid];
-            }
-            if (Siuids.count==0) continue;//does not contain series directory
+            os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failed parsing %@",DESIfullpath);
+            [seriesFAILED addObject:DESdir];
+            moveCLASSIFIEDobject(DESIfullpath, CDargFailure);
+            return;
+         }
 
-
-
-#pragma mark ·· check with cdawldicom (TODO)
-/*
-            // add eventual additional coercion
-            // in corresponding "coerceDataset" mutable dictionary of the study
-            if (wltodayEUIDkeys)
-            {
-                //depending on the results of cdawldicom, pacsTesting will be executed, or not
-                //EUIDindex, ANindex and PIDindex indicate cdawldicom contains the usefull metadata
-               //When ANindex is found, EUIDindex is found by symlink
-               //When PIDindex is found, EUIDindex is found by symlink
-               NSString *EUIDpath=nil;
-               NSUInteger ANindex=NSNotFound;
-               NSUInteger PIDindex=NSNotFound;
-#pragma mark (2.1) StudyInstanceUID match
-               NSUInteger EUIDindex=[wltodayEUIDkeys indexOfObject:ePCAU];
-               if (EUIDindex!=NSNotFound)
+ #pragma mark compress ?
+         switch (j2kLayers) {
+            case 1://J2KR
                {
-                  EUIDpath=[wltodayEUIDFolder stringByAppendingPathComponent:wltodayEUIDkeys[EUIDindex] ];
+                  NSString *pixelKey=nil;
+                  if (datAttrs[@"00000001_7FE00010-OB"])pixelKey=@"00000001_7FE00010-OB";
+                  else if (datAttrs[@"00000001_7FE00010-OW"])pixelKey=@"00000001_7FE00010-OW";
+            
+                  if (   pixelKey
+                     && ([datAttrs[@"00000001_00280100-US"][0] intValue] != 1)
+                     && [fmiAttrs[@"00000001_00020010-UI"][0] isEqualToString:@"1.2.840.10008.1.2.1"]
+                     )
+                  {
+                     NSString *nativeUrlString=datAttrs[pixelKey][0][@"Native"][0];
+                     NSData *pixelData=nil;
+                     if ([datAttrs[pixelKey][0] isKindOfClass:[NSDictionary class]])
+                        pixelData=blobDict[datAttrs[pixelKey][0][@"Native"][0]];
+                     else pixelData=dataWithB64String(blobDict[pixelKey]);
+               
+                     NSMutableString *response=[NSMutableString string];
+                     if (compressJ2KR(
+                                    [nativeUrlString substringToIndex:nativeUrlString.length-3],
+                                    pixelData,
+                                    datAttrs,
+                                    j2kBlobDict,
+                                    j2kAttrs,
+                                    response
+                                    )==success
+                        )
+                     {
+                        //include j2k blobs
+                        [blobDict addEntriesFromDictionary:j2kBlobDict];
+                  
+                        //remove native attributes
+                        [datAttrs removeObjectForKey:pixelKey];
+                        [datAttrs addEntriesFromDictionary:j2kAttrs];
+
+                        [fmiAttrs setObject:@[@"1.2.840.10008.1.2.4.90"] forKey:@"00000001_00020010-UI"];
+                     }
+                     else
+                     {
+                        os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failed parsing %@",DESIfullpath);
+                        [seriesFAILED addObject:DESdir];
+                        moveCLASSIFIEDobject(DESIfullpath, CDargFailure);
+                        return;
+                     }
+                  }
                }
-               else
-               {
-                  //no definitive StudyInstanceUID matching
-#pragma mark dependent on an instance metadata
-
-                  //read last instance of the last series (to avoid the case of reading a .DS_store file ... which is first)
-                  //we already knwo there is one or more of them
-                  NSString *SiuidPath=[studyPath stringByAppendingPathComponent:[Siuids anyObject]];
-                  
-                  NSArray *SOPuids=[fileManager contentsOfDirectoryAtPath:SiuidPath error:nil];
-                  
-                  NSString *SOPuidPath=[SiuidPath stringByAppendingPathComponent:[SOPuids lastObject]];
-
-
-                  NSMutableDictionary *sopDict=[NSMutableDictionary dictionary];
-                  NSMutableDictionary *blobDict=[NSMutableDictionary dictionary];
-
-                  if (!D2dict(
-                              [NSData dataWithContentsOfFile:SOPuidPath],
-                              sopDict,
-                              0,//blob min size
-                              blobModeSource,
-                              @"",//prefix
-                              @"",//suffix
-                              blobDict
-                             )
-                      )
-                  {
-                     os_log(OS_LOG_DEFAULT, "can not parse  %@",SOPuidPath);
-                     continue;
-                  }
-                  
-#pragma mark (2.2) AccessionNumber match
-                  if (!wltodayANFolder) wltodayANFolder=[wltodayFolder stringByAppendingPathComponent:@"AN"];
-                  wltodayANkeys=[fileManager contentsOfDirectoryAtPath:wltodayANFolder error:nil];
-                  
-                  NSString *AN;
-                  NSArray *ANa=sopDict[@"00000001_00080050-SH"];
-                  if (!ANa) ANa=sopDict[@"00000001_00080050-1100SH"];
-                  if (ANa && ANa.count) AN=ANa[0];
-                  
-#pragma mark TODO AccessionNumber issuer
-                  
-                  
-                  ANindex=[wltodayANkeys indexOfObject:AN];
-                  if (ANindex!=NSNotFound)
-                  {
-                     EUIDpath=[fileManager destinationOfSymbolicLinkAtPath:[wltodayANFolder stringByAppendingPathComponent:wltodayANkeys[ANindex]] error:&error];
-                  }
-                  else //no definitive Accession Number matching
-                  {
-                 
-#pragma mark (2.3) PatientID match
-                      if (!wltodayPIDFolder) wltodayPIDFolder=[wltodayFolder stringByAppendingPathComponent:@"PID"];
-                      wltodayPIDkeys=[fileManager contentsOfDirectoryAtPath:wltodayPIDFolder error:nil];
-
-                  }
-
-
-             }
-*/
-            
-#pragma mark ·· SeriesUIDs loop the set contains series dirs only
-            
-            while (Siuids.count)
-            {
-                NSString *Siuid=[Siuids anyObject];
-                [Siuids removeObject:Siuid];
-
-                NSDate *modificationDate=[fileManager attributesOfItemAtPath:[studyPath stringByAppendingPathComponent:Siuid] error:nil][NSFileModificationDate];
-                if ( [modificationDate timeIntervalSinceNow] > sinceLastSeriesModif) continue;
-                //log last modified less than one minute ago
-                //may be because of receiving
-                //may be because of previous processing
-                                                
-                [seriesTODO addObject:Siuid];
+               break;
+//TODO case 4 BFMI
+            default://no compression
+               break;
+         }
                 
-               
-#pragma mark seriesTaskDict
-                //replicates deviceDict
-                NSMutableDictionary *seriesTaskDict=[NSMutableDictionary dictionaryWithDictionary:deviceDict];
+ #pragma mark coerce
 
-                //+series iuid
-                [seriesTaskDict setObject:Siuid forKey:@"Siuid"];
-               
-                //sourceAET is defined from the json dictionary
-                //receivingAET is defined from the json dictionary
+ #pragma mark · fileMetainfo
+                
+         //sourceAET (branch aet)
+         //sendingAET (device aet)
+         //receivingAET (pacs aet)
+         if (whiteList[matchInt][@"sourceAET"])[fmiAttrs setObject:@[whiteList[matchInt][@"sourceAET"]] forKey:@"00000001_00020016-AE"];
+         if (whiteList[matchInt][@"sendingAET"])[fmiAttrs setObject:@[whiteList[matchInt][@"sendingAET"]] forKey:@"00000001_00020017-AE"];
+         if (whiteList[matchInt][@"receivingAET"])[fmiAttrs setObject:@[whiteList[matchInt][@"receivingAET"]] forKey:@"00000001_00020018-AE"];
 
-               //+transferSyntaxSuffix
-               //+sendingAET (with value of sourceAET from Classified sourceAET@sourceIP^${syntax:14}^calledAET
-               //${syntax:14} = transfer syntax trunkated of the initial "1.2.840.10008." (which is the DICOM arc)
-                NSArray *sourceAETCircumflex=[deviceDict[@"sendingAET"] componentsSeparatedByString:@"^"];
-                if (sourceAETCircumflex.count > 2) [seriesTaskDict setObject:sourceAETCircumflex[1] forKey:@"transferSyntaxSuffix"];
-                NSArray *sourceAETArroba=[sourceAETCircumflex[0] componentsSeparatedByString:@"@"];
-                [seriesTaskDict setObject:sourceAETArroba[0] forKey:@"sendingAET"];
+         if (whiteList[matchInt][@"coerceFileMetainfo"]) [fmiAttrs addEntriesFromDictionary:whiteList[matchInt][@"coerceFileMetainfo"]];
 
-                //+spoolDir (series path)
-                [seriesTaskDict setObject:
-                   [studyPath stringByAppendingPathComponent:Siuid]
-                   forKey:@"spoolDir"];
-                
-                if ([deviceDict[@"storeMode"] isEqualToString:@"cesiB64"])
-                {
-                   
-                   [seriesTaskDict setObject:
-                        [NSString stringWithFormat:@"%@/%@/%@/%@",
-                         args[CDargSuccess],
-                         b64ui([ePCAU componentsSeparatedByString:@"@"][1]),
-                         b64ui([ePCAU componentsSeparatedByString:@"@"][3]),
-                         b64ui(Siuid)
-                         ]
-                       forKey:@"sendDir"];
-                }
-                else
-                [seriesTaskDict setObject:
-                     [NSString stringWithFormat:@"%@/STORE/%@/%@/SEND/%@/%@%@/%@/%@",
-                      args[CDargSuccess],
-                      deviceDict[@"storeMode"],
-                      deviceDict[@"receivingAET"],
-                      deviceDict[@"sendingAET"],
-                      deviceDict[@"devicePriority"],
-                      deviceDict[@"sendingAET"],
-                      ePCAU,
-                      Siuid]
-                    forKey:@"sendDir"];
-                                
-                [seriesTaskDict setObject:
-                    [NSString stringWithFormat:@"%@/%@/%@/%@",
-                       args[CDargFailure],
-                       deviceDict[@"sendingAET"],
-                       ePCAU,
-                       Siuid]
-                    forKey:@"failureDir"];
-                
-                [seriesTaskDict setObject:
-                   [NSString stringWithFormat:@"%@/%@/%@/%@",
-                      args[CDargOriginal],
-                      deviceDict[@"sendingAET"],
-                      ePCAU,
-                      Siuid]
-                    forKey:@"originalDir"];
-                
-                [seriesTaskDict setObject:
-                   [NSString stringWithFormat:@"%@/%@/%@/%@",
-                      args[CDargAlternates],
-                      deviceDict[@"sendingAET"],
-                      ePCAU,
-                      Siuid]
-                    forKey:@"alternatesDir"];
-                
-                [seriesTaskDict setObject:
-                   [studyPath stringByAppendingFormat:@"/%@.log",Siuid]
-                   forKey:@"spoolDirLogPath"];
+#pragma mark · blobs
+         if (whiteList[matchInt][@"coerceBlobs"]) [blobDict addEntriesFromDictionary:whiteList[matchInt][@"coerceBlobs"]];
+
+#pragma mark · coerceFileMetainfo
+
+#pragma mark · replaceInFileMetainfo
+
+#pragma mark · supplementToFileMetainfo
+
+#pragma mark · removeFromFileMetainfo
 
  
-              
-                if (useDispatchQueue) //multithread
-                   dispatch_async_f( seriesqueue, [NSDictionary dictionaryWithDictionary:seriesTaskDict], series_callback );
-                else //run sequentially on the main thread
-                   series_callback([NSDictionary dictionaryWithDictionary:seriesTaskDict]);
-                maxSeries--;
                 
-              } //os_log(OS_LOG_DEFAULT, "end of series loop");
-           }} //os_log(OS_LOG_DEFAULT, "end of study loop");
-        }} //os_log(OS_LOG_DEFAULT, "end of source loop");
-    } //os_log(OS_LOG_DEFAULT, "end of sources to be processed");
+#pragma mark · coerceDataset
+         if (whiteList[matchInt][@"coerceDataset"]) [datAttrs addEntriesFromDictionary:whiteList[matchInt][@"coerceDataset"]];
+
+                
+#pragma mark · replaceInDataset
+         NSArray *replaceKeys=[whiteList[matchInt][@"replaceInDataset"] allKeys];
+                for (NSString *replaceKey in replaceKeys)
+                {
+                   if (datAttrs[replaceKey])
+                      [datAttrs setObject:whiteList[matchInt][@"replaceInDataset"][replaceKey] forKey:replaceKey];
+                }
+
+    #pragma mark ···· supplementToDataset
+                NSArray *supplementKeys=[whiteList[matchInt][@"supplementToDataset"] allKeys];
+                for (NSString *supplementKey in supplementKeys)
+                {
+                   if (!datAttrs[supplementKey])
+                      [datAttrs setObject:whiteList[matchInt][@"supplementToDataset"][supplementKey] forKey:supplementKey];
+                }
+
+                
+    #pragma mark ···· removeFromDataset
+                for (NSString *removeKey in whiteList[matchInt][@"removeFromDataset"])
+                {
+                   if (datAttrs[removeKey])
+                      [datAttrs removeObjectForKey:removeKey];
+                }
+
+                
+   #pragma mark ···· removeFromEUIDprefixedDataset
+                if (whiteList[matchInt][@"removeFromEUIDprefixedDataset"])
+                {
+                   NSString *EUID=datAttrs[@"00000001_0020000D-UI"][0];
+                   NSArray *EUIDprefixes=[whiteList[matchInt][@"removeFromEUIDprefixedDataset"] allKeys];
+                   for (NSString *EUIDprefix in EUIDprefixes)
+                   {
+                      if ([EUID hasPrefix:EUIDprefix])
+                      {
+                         for (NSString *removeKey in whiteList[matchInt][@"removeFromEUIDprefixedDataset"][EUIDprefix])
+                         {
+                            if (datAttrs[removeKey])
+                               [datAttrs removeObjectForKey:removeKey];
+                         }
+
+                      }
+                   }
+                }
+
+                
+    #pragma mark ·· outputData init
+                NSMutableData *outputData;
+    //preamble
+                if (!whiteList[matchInt][@"coercePreamble"])
+                {
+                   outputData=[NSMutableData dataWithLength:128];
+                   [outputData appendBytes:&DICM length:4];
+                }
+                else outputData=[[NSMutableData alloc] initWithBase64EncodedString:whiteList[matchInt][@"coercePreamble"] options:0] ;
+
+                
+    //fileMetainfo
+                NSMutableData *outputFileMetainfo=[NSMutableData data];
+                if (dict2D(
+                            @"",
+                            fmiAttrs,
+                            outputFileMetainfo,
+                            6, //j2kr   !!! error with 4 j2kh
+                            blobDict
+                            ) == failure
+                    )
+                {
+                   os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "error outputFileMetainfo %@: %@",DESIfullpath,fmiAttrs.description);
+                   [seriesFAILED addObject:DESdir];
+                   moveCLASSIFIEDobject(DESIfullpath, CDargFailure);
+                   return;
+                }
+                
+                [outputData appendBytes:&_0002000_tag_vr length:8];
+                UInt32 fileMetainfoLength=(UInt32)outputFileMetainfo.length+14;//00020001
+                [outputData appendBytes:&fileMetainfoLength length:4];
+                [outputData appendBytes:&_0002001_tag_vr length:8];
+                [outputData appendBytes:&_0002001_length length:4];
+                [outputData appendBytes:&_0002001_value length:2];
+                [outputData appendData:outputFileMetainfo];
+
+
+    // dataset
+                if (dict2D(
+                            @"",
+                            datAttrs,
+                            outputData,
+                            4, //dicomExplicitJ2kIdem
+                            blobDict
+                            )==failure
+                    )
+    #pragma mark ··· failure
+                {
+                   os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "could not serialize dataset %@: %@",DESIfullpath,datAttrs.description);
+                   [seriesFAILED addObject:DESdir];
+                   moveCLASSIFIEDobject(DESIfullpath, CDargFailure);
+                   return;
+                }
+                else
+                {
+    #pragma mark ··· success
+                  NSString *Iname;
+                  if (cesiB64)
+                  {
+                     if (SfullPath.length==0)
+                     {
+                        [SfullPath setString:[NSString stringWithFormat:@"%@/%@/%@/%@/%@",
+                                           CDargs[CDargSuccess],
+                                           whiteList[matchInt][@"sourceAET"],
+                                           b64ui([datAttrs[@"00000001_00080020-DA"][0] substringToIndex:6]),
+                                           b64ui(datAttrs[@"00000001_0020000D-UI"][0]),
+                                           b64ui(datAttrs[@"00000001_0020000E-UI"][0])
+                                           ]
+                         ];
+                        BOOL isDir;
+                        if (![fs fileExistsAtPath:SfullPath isDirectory:&isDir])
+                        {
+                           //create destSubdir
+                           NSError *createDirError;
+                           if (![fs createDirectoryAtPath:SfullPath withIntermediateDirectories:YES attributes:nil error:&createDirError])
+                           {
+                              os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "could not create %@: %@",SfullPath,createDirError.description);
+                              return;
+                           }
+                        }
+                     }
+                     
+                     Iname=b64ui(datAttrs[@"00000001_00080018-UI"][0]);
+                     if (![outputData writeToFile:[SfullPath stringByAppendingPathComponent:Iname]
+                          options:0
+                          error:&writeError
+                         ])
+                     {
+                        os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "could not write dataset %@: %@",DESIfullpath,writeError.description);
+                        [seriesFAILED addObject:DESdir];
+                        moveCLASSIFIEDobject(DESIfullpath, CDargFailure);
+                        return;
+                     }
+                     [Ipaths addObject:[SfullPath stringByAppendingPathComponent:Iname]];
+                  }
+                  else //!cesiB64
+                  {
+                     if (SfullPath.length==0)
+                     {
+                        //sourceAET (branch aet)
+                        //sendingAET (device aet)
+                        //receivingAET (pacs aet)
+                        [SfullPath setString:[NSString stringWithFormat:@"%@/STORE/%@/%@/SEND/%@/%02d^%@/%@/%@",
+                                              CDargs[CDargSuccess],
+                                              whiteList[matchInt][@"storeMode"],
+                                              whiteList[matchInt][@"receivingAET"],
+                                              whiteList[matchInt][@"sourceAET"],
+                                              matchInt,
+                                              whiteList[matchInt][@"sendingAET"],
+                                              datAttrs[@"00000001_0020000D-UI"][0],
+                                              datAttrs[@"00000001_0020000E-UI"][0]
+                                              ]
+                         ];
+                         BOOL isDir;
+                         if (![fs fileExistsAtPath:SfullPath isDirectory:&isDir])
+                         {
+                            //create destSubdir
+                            NSError *createDirError;
+                            if (![fs createDirectoryAtPath:SfullPath withIntermediateDirectories:YES attributes:nil error:&createDirError])
+                            {
+                               os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "could not create %@: %@",SfullPath,createDirError.description);
+                               return;
+                            }
+                         }
+                     }
+                     
+                     if ([whiteList[matchInt][@"suffix"] length] > 0)
+                        Iname=[datAttrs[@"00000001_00080018-UI"][0] stringByAppendingPathExtension:whiteList[matchInt][@"suffix"]];
+                     else
+                        Iname=datAttrs[@"00000001_00080018-UI"][0];
+                     
+                     if (![outputData writeToFile:[SfullPath stringByAppendingPathComponent:Iname]
+                          options:0
+                          error:&writeError
+                         ])
+                     {
+                        os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "could not write dataset %@: %@",DESIfullpath,writeError.description);
+                        [seriesFAILED addObject:DESdir];
+                        moveCLASSIFIEDobject(DESIfullpath, CDargFailure);
+                        return;
+                     }
+                     [seriesDONE addObject:DESdir];
+
+                  }
+
+#pragma mark ·original to originalDir
+                  moveCLASSIFIEDobject(DESIfullpath, CDargOriginal);
+                }
+                  
+         }//end parsed
+      }//end autorelease end loop
+
+#pragma mark fileref
+      if (cesiB64 && (Ipaths.count > 0))
+      {
+         NSString *PACS=[NSString stringWithFormat:@"%@@%@:%@",
+                      whiteList[matchInt][@"receivingAET"],
+                      whiteList[matchInt][@"receivingIP"],
+                      whiteList[matchInt][@"receivingPort"]
+                      ];
+         NSMutableData *logData=[NSMutableData data];
       
+         
+         
+         
+         
+         
+         NSMutableArray *args=[NSMutableArray arrayWithArray:@[@"-fileref",@"-L",whiteList[matchInt][@"sourceAET"],PACS]];
+         [args addObjectsFromArray:Ipaths];
+         //NSLog(@"589");
+         if (0==task(@"/Users/Shared/dcm4che-2.0.29/bin/dcmsnd",args,logData,nil))
+            [seriesDONE addObject:SfullPath];
+         else
+         {
+            LOG_ERROR(@"%@",[[NSString alloc]initWithData:logData encoding:NSUTF8StringEncoding]);
+            [seriesPostscript addObject:SfullPath];
 
-#pragma mark waiting for last series to complete
-   int timeout=[args[CDargTimeout] intValue];
-   while ((seriesTODO.count > 0) && (timeout > 0))
+            //create script
+            NSError *shError=nil;
+            NSMutableString *sh=[NSMutableString stringWithFormat:@"#!sh\r/Users/Shared/dcm4che-2.0.29/bin/dcmsnd -fileref -L %@ %@ ",whiteList[matchInt][@"sourceAET"],PACS];
+            [sh appendString:[Ipaths componentsJoinedByString:@" "]];
+
+            //write script into seriesPostscript subDir
+            NSArray *beforeAfter=[SfullPath componentsSeparatedByString:[NSString stringWithFormat:@"/%@/",CDargs[CDargSuccess]]];
+            NSString *shSubdir=[CDargs[CDargSeriesPostscript] stringByAppendingPathComponent:beforeAfter[1]];
+
+            
+            BOOL isDir;
+            if (![fs fileExistsAtPath:shSubdir isDirectory:&isDir])
+            {
+               //create destSubdir
+               if (![fs createDirectoryAtPath:shSubdir withIntermediateDirectories:YES attributes:nil error:&shError])
+               {
+                  os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "could not create %@: %@",shSubdir,shError.description);
+                  os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "TODO: %@",sh);
+                  return;
+               }
+               else if (!isDir)
+               {
+                  os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "not dir %@",shSubdir);
+                  os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "TODO: %@",sh);
+                  return;
+               }
+
+               NSString *shPath=[shSubdir stringByAppendingPathComponent:_yyMMddhhmm];
+               if (0!=[sh writeToFile:shPath atomically:NO encoding:NSUTF8StringEncoding error:&shError])
+               {
+                  os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "could not write %@: %@",shPath,shError.description);
+                  os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "TODO: %@",sh);
+                  return;
+               }
+               return;
+            }
+
+            [seriesDONE addObject:DESdir];
+         }
+      }
+  }@catch (NSException *exception) {
+     os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_FAULT, "%@", exception.reason);
+  }
+  @finally {}
+}
+
+
+
+
+
+
+int main(int argc, const char * argv[]){
+   NSError *error=nil;
+   NSProcessInfo *processInfo=[NSProcessInfo processInfo];
+   CDargs=[processInfo arguments];
+   if (CDargs.count != 15)
    {
-      timeout-=5;
-      [NSThread sleepForTimeInterval:5];//wait 5 segundos
+      os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_FAULT, "bad args count: %@",[CDargs description]);
+      exit(1);
+   };
+
+
+#pragma mark global static
+   fs=[NSFileManager defaultManager];
+   headData=[@"\r\n--myboundary\r\nContent-Type: application/dicom\r\n\r\n" dataUsingEncoding:NSASCIIStringEncoding];
+   UIRegex = [NSRegularExpression regularExpressionWithPattern:@"[1-9](\\d)*(\\.0|\\.[1-9](\\d)*)*" options:0 error:NULL];
+   int maxSeries=abs([CDargs[CDargMaxSeries] intValue]);
+
+   //whitelist
+   NSData *jsonData=[NSData dataWithContentsOfFile:CDargs[CDargCoercedicomFile]];
+   if (!jsonData)
+   {
+      os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "no coercedicom json file at: %@",CDargs[CDargCoercedicomFile]);
+      exit(1);
+   };
+   whiteList=[NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:&error];
+   if (!whiteList)
+   {
+      os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "bad coercedicom json file:%@ %@",CDargs[CDargCoercedicomFile],[error description]);
+      exit(1);
    }
-   /*
-    if ((timeout==[args[CDargTimeout] intValue])&&(seriesTODO.count==0))
+   
+   sinceLastSeriesModif=[NSString stringWithFormat:@"-%@s",CDargs[CDargSinceLastSeriesModif]];
+   NSDateFormatter *_yyMMddhhmmFormatter = [[NSDateFormatter alloc]init];
+   [_yyMMddhhmmFormatter setDateFormat:@"_yyMMddhhmm"];
+   _yyMMddhhmm=[_yyMMddhhmmFormatter stringFromDate:[NSDate date]];
+   int timeout=[CDargs[CDargTimeout] intValue];
+   timeoutDate=[NSDate dateWithTimeIntervalSinceNow:timeout];
+   @autoreleasepool {
+#pragma mark CLASSIFIED
+   BOOL isDirectory=false;
+   NSMutableData *rmdirData=[NSMutableData data];
+      //NSLog(@"690");
+      if (0!=task(
+           @"/usr/bin/find",
+           @[
+              CDargs[CDargClassified],
+              @"-type",
+              @"f",
+              @"-name",
+              @".DS_Store",
+              @"-delete"
+           ],
+           rmdirData,
+           nil
+        ))
+      {
+        os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "could not list CLASSIFIED studies: %@", [[NSString alloc]initWithData:rmdirData encoding:NSUTF8StringEncoding]);
+        exit(2);
+      }
+
+    
+#pragma mark · DEa (a=any)
+    
+    if (![fs fileExistsAtPath:CDargs[CDargClassified] isDirectory:&isDirectory] || !isDirectory)
     {
-      if (@available(macOS 10.11, *))
-         os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "NO JOB");
-      else NSLog(@"NO JOB");
+       os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "no valid CLASSIFIED dir");
+       exit(1);
     }
-    */
-   if (timeout<1)
+    //Set of any dir study
+    NSMutableData *DEadirData=[NSMutableData data];
+    NSMutableSet *DEadirSet=nil;
+    //NSLog(@"720");
+    if (0!=task(
+         @"/usr/bin/find",
+         @[
+            CDargs[CDargClassified],
+            @"-type",
+            @"d",
+            @"-depth",
+            @"2"
+         ],
+         DEadirData,
+         nil
+      ))
+    {
+      os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "could not list CLASSIFIED studies: %@", [[NSString alloc]initWithData:DEadirData encoding:NSUTF8StringEncoding]);
+      exit(2);
+    }
+    else
+    {
+      DEadirSet=[NSMutableSet setWithArray:[[[NSString alloc]initWithData:DEadirData encoding:NSUTF8StringEncoding] componentsSeparatedByString:@"\n"]];
+      [DEadirSet removeObject:@""];
+    }
+    if (!DEadirSet.count)
+    {
+       os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "no studies dir found in classified");
+       exit(0);
+    }
+
+      
+#pragma mark CLASSIFIED DEf (f=full->contains dir(s))
+      NSMutableData *DEfdirData=[NSMutableData data];
+      NSMutableSet *DEfdirSet=nil;
+      //NSLog(@"752");
+      if (0!=task(
+           @"/usr/bin/find",
+           @[
+              CDargs[CDargClassified],
+              @"-type",
+              @"d",
+              @"-depth",
+              @"3",
+              @"-exec",
+              @"dirname",
+              @"{}",
+              @";"
+           ],
+           DEfdirData,
+           nil
+        ))
+      {
+         os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "could not list CLASSIFIED studies: %@", [[NSString alloc]initWithData:DEfdirData encoding:NSUTF8StringEncoding]);
+         exit(2);
+      }
+      DEfdirSet=[NSMutableSet setWithArray:[[[NSString alloc]initWithData:DEfdirData encoding:NSUTF8StringEncoding] componentsSeparatedByString:@"\n"]];
+      [DEfdirSet removeObject:@""];
+      
+#pragma mark rm empty dir (up to 100)
+      [DEadirSet minusSet:DEfdirSet];
+      if (DEadirSet.count > 0)
+      {
+         if (DEadirSet.count < 101)
+         {
+            //NSLog(@"793");
+
+            if (0!=task(@"/bin/rmdir",[DEadirSet allObjects],rmdirData,nil))
+               os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "%@",[[NSString alloc]initWithData:rmdirData encoding:NSUTF8StringEncoding]);
+         }
+         else
+         {
+            NSMutableArray *rmDirs=[NSMutableArray arrayWithArray:[DEadirSet allObjects]];
+            [rmDirs removeObjectsInRange:NSMakeRange(100,rmDirs.count-100)];
+            //NSLog(@"791");
+
+            if (0!=task(@"/bin/rmdir",rmDirs,nil,nil))
+               os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "rmdir %@",rmDirs.description);
+         }
+      }
+
+      
+#pragma mark loop white list
+    
+    NSMutableDictionary *DESdirDict=[NSMutableDictionary dictionary];//DESdirKey:matchIndex
+    NSMutableSet *DEfdirSetCurrent=[NSMutableSet set];
+    //move valid devices from array Ds to array devicesToBeProcessed
+    for (int matchIndex=0; matchIndex<whiteList.count; matchIndex++)
+    {
+       if (DESdirDict.count < maxSeries)
+       {
+           NSNumber *matchNumber=[NSNumber numberWithInt:matchIndex];
+           //key regex should be presente
+           NSDictionary *matchDict=whiteList[matchIndex];
+           NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:matchDict[@"regex"] options:0 error:&error];
+           if (!regex)
+           {
+              os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "bad coercedicom json file:%@ item:%@ %@",CDargs[CDargCoercedicomFile],matchDict.description,[error description]);
+               exit(1);
+           }
+          
+#pragma mark loop DEfdirSet for matching device study level regex filter
+          [DEfdirSetCurrent setSet:DEfdirSet];
+          
+          for ( NSString *DEdirKey in DEfdirSetCurrent)
+          {
+             if ([regex numberOfMatchesInString:DEdirKey options:0 range:NSMakeRange(0,DEdirKey.length)])
+             {
+                //study already managed. Remove from pool
+                [DEfdirSet removeObject:DEdirKey];
+                //find series
+                NSMutableData *DESdirData=[NSMutableData data];
+                //NSLog(@"830");
+
+                if (0!=task(
+                     @"/usr/bin/find",
+                     @[
+                        DEdirKey,
+                        @"-type",
+                        @"d",
+                        @"-depth",
+                        @"1"
+                     ],
+                     DESdirData,
+                     nil
+                  ))
+                {
+                  os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "could not list series of study %@: %@",DEdirKey, [[NSString alloc]initWithData:DEfdirData encoding:NSUTF8StringEncoding]);
+                  moveCLASSIFIEDobject(DEdirKey, CDargFailure);
+                }
+                else
+                {
+                  //register series to be processed
+                  NSArray *DESdirArray=[[[NSString alloc]initWithData:DESdirData encoding:NSUTF8StringEncoding] componentsSeparatedByString:@"\n"];
+                  for (int i=0; i<(DESdirArray.count-1); i++)
+                  {
+                     [DESdirDict setObject:matchNumber forKey:DESdirArray[i]];
+                  }
+                }
+             }
+          }
+       }
+    }
+    
+        
+#pragma mark mv studies with no regex match to CDargNoRegex
+   if (DESdirDict.count < maxSeries)
    {
-      if (@available(macOS 10.11, *))
-      os_log(OS_LOG_DEFAULT, "ended after %d timeout seconds. Remaining series:\r\n%@",[args[CDargTimeout] intValue],[seriesTODO description]);
-   }
-   if (seriesDONE.count > 0)
-   {
-      if (@available(macOS 10.11, *))
-      os_log(OS_LOG_DEFAULT, "COERCED %lu series",(unsigned long)seriesDONE.count);
-   }
-   if (seriesDUPLICATE.count > 0)
-   {
-      if (@available(macOS 10.11, *))
-      os_log(OS_LOG_DEFAULT, "DUPLICATE %lu series",(unsigned long)seriesDUPLICATE.count);
-   }
-   if (seriesFAILED.count > 0)
-   {
-      if (@available(macOS 10.11, *))
-         os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "FAILED series\r\n%@",seriesFAILED.description);
-      else NSLog(@"FAILED series\r\n%@",seriesFAILED.description);
-   }
-   if (seriesINPACS.count > 0)
-   {
-      if (@available(macOS 10.11, *))
-         os_log(OS_LOG_DEFAULT, "INPACS series\r\n%@",seriesINPACS.description);
-      else NSLog(@"INPACS series\r\n%@",seriesINPACS.description);
+      for ( NSString *DEdirKey in DEfdirSet) //remaing studies matching no regex
+      {
+         moveCLASSIFIEDobject(DEdirKey, CDargNoRegex);
+      }
    }
 
+       
+#pragma mark dispatch queue init ?
+   seriesPostscript=[NSMutableSet set];
+   seriesDONE=[NSMutableSet set];
+   seriesFAILED=[NSMutableSet set];
+
+   if  ([CDargs[CDargMaxSeries] intValue] > 0)
+   {
+      dispatch_queue_attr_t attr=dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_CONCURRENT, QOS_CLASS_USER_INTERACTIVE, QOS_MIN_RELATIVE_PRIORITY);
+      //dispatch_queue_attr_make_with_autorelease_frequency(DISPATCH_QUEUE_CONCURRENT,DISPATCH_AUTORELEASE_FREQUENCY_WORK_ITEM);
+      dispatch_queue_t seriesqueue = dispatch_queue_create("com.opendicom.coercedicom.seriesqueue", attr);
+      for (NSString *DESdir in DESdirDict )
+      {
+         dispatch_async_f( seriesqueue, [NSDictionary dictionaryWithObjectsAndKeys:DESdir,@"DESdir",DESdirDict[DESdir],@"matchNumber", nil], series_callback );
+      }
+      while (timeout > -5)
+      {
+         timeout-=5;
+         [NSThread sleepForTimeInterval:5];//wait 5 segundos
+      }
+
+   }
+   else
+   {
+      //run sequentially on the main thread
+      for (NSString *DESdir in DESdirDict )
+      {
+         series_callback([NSDictionary dictionaryWithObjectsAndKeys:DESdir,@"DESdir",DESdirDict[DESdir],@"matchNumber", nil]);
+         if ([NSDate date] < timeoutDate) break;
+      }
+                                
+   }
+
+
+   if (seriesFAILED.count > 0)
+      os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "FAILED series\r\n%@",seriesFAILED.description);
+   if (seriesPostscript.count > 0)
+      os_log(OS_LOG_DEFAULT, "%lu NOT REGISTERED series",(unsigned long)seriesPostscript.count);
+   if (seriesDONE.count > 0)
+      os_log(OS_LOG_DEFAULT, "%lu OK series",(unsigned long)seriesDONE.count);
 }//end autoreleaspool
-  return returnInt;//returns the number studuies processed
+  return 0;//returns the number studuies processed
 }
