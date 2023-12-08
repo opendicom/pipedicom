@@ -256,6 +256,7 @@
 		4ADA519B26881312008F98DB /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4ADA51E3268BAE59008F98DB /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4ADA522E268CBA1F008F98DB /* installerPassword.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = installerPassword.sh; sourceTree = "<group>"; };
+<<<<<<< Updated upstream
 		4AE0109D26D433DD00D5A91B /* cdamwldicom */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = cdamwldicom; sourceTree = BUILT_PRODUCTS_DIR; };
 		4AE0109F26D433DD00D5A91B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4AE010AE26D4341D00D5A91B /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -269,6 +270,9 @@
 		4AE011CA26D472D700D5A91B /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		4AE0128026D7F01700D5A91B /* libzipzap.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libzipzap.a; path = ../../../../../usr/local/lib/libzipzap.a; sourceTree = "<group>"; };
 		4AE0128226D7F03500D5A91B /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libz.a; path = ../../../../../usr/local/lib/libz.a; sourceTree = "<group>"; };
+=======
+		8489B8FB2B23A80E00CCF175 /* coercedicomIRP.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = coercedicomIRP.json; sourceTree = "<group>"; };
+>>>>>>> Stashed changes
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -574,10 +578,15 @@
 		4AD03BE126973FEE00855F3F /* coercedicom */ = {
 			isa = PBXGroup;
 			children = (
+<<<<<<< Updated upstream
 				4AAAACB72AB1DCF0009D818B /* coercedicom_dcmsnd-fileref.md */,
 				4AAAACA02AB1DAE5009D818B /* dcm4che-2.0.29 */,
 				4AAAAC932AA9212D009D818B /* coercedicomIRP.json */,
 				4AC84C29293A6EC8004C42E2 /* coercedicom.json */,
+=======
+				8489B8FB2B23A80E00CCF175 /* coercedicomIRP.json */,
+				4AD03C46269782CB00855F3F /* coercedicom.json */,
+>>>>>>> Stashed changes
 				4AD03C47269782CB00855F3F /* README.md */,
 				4AD03BE226973FEE00855F3F /* main.m */,
 			);
@@ -1012,7 +1021,11 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = "/bin/sh ";
+<<<<<<< Updated upstream
 			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\n\nif [ ! -d /usr/local/lib ]; then\n   sudo -A mkdir ~/usr/local/lib;\nfi\ncd /usr/local/lib\nif [ ! -f libopenjp2.2.5.0.dylib ]; then\n   sudo -A cp -R $PROJECT_DIR/OPENJPEG/libopenjp2.2.5.0.dylib libopenjp2.2.5.0.dylib\n   sudo -A ln -s libopenjp2.2.5.0.dylib libopenjp2.7.dylib\n   sudo -A cp $PROJECT_DIR/OPENJPEG/liblcms2.a liblcms2.a\n   sudo -A cp $PROJECT_DIR/OPENJPEG/libopenjp2.a libopenjp2.a\n   sudo -A cp $PROJECT_DIR/OPENJPEG/libpng.a libpng.a\n   sudo -A cp $PROJECT_DIR/OPENJPEG/libtiff.a libtiff.a\n   sudo -A cp $PROJECT_DIR/OPENJPEG/libz.a libz.a\n   \n   if [ ! -d /usr/local/bin ]; then\n      sudo -A mkdir ~/usr/local/bin;\n   fi\n   cd /usr/local/bin\n   sudo -A cp $PROJECT_DIR/OPENJPEG/opj_decompress opj_decompress\n   sudo -A cp $PROJECT_DIR/OPENJPEG/opj_compress opj_compress\n   sudo -A cp $PROJECT_DIR/OPENJPEG/opj_dump opj_dum\nfi\n\ncd /usr/local/bin\nif [ ! -L stdin.rawl ]; then\n    sudo -A ln -s /dev/stdin stdin.rawl\nfi\nif [ ! -L stdout.j2k ]; then\n    sudo -A ln -s /dev/stdout stdout.j2k\nfi\n\nsudo -A rm -Rf /Library/Frameworks/DCKV.framework\nsudo -A cp -R $BUILD_ROOT/Debug/DCKV.framework /Library/Frameworks/DCKV.framework\n\n   \n";
+=======
+			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\n\ncd /usr/local/bin\nif [ ! -L stdin.rawl ]; then\n    sudo -A ln -s /dev/stdin stdin.rawl\nfi\nif [ ! -L stdout.j2k ]; then\n    sudo -A ln -s /dev/stdout stdout.j2k\nfi\n\n#sudo -A rm -Rf /Library/Frameworks/DCKV.framework\n#sudo -A cp -R $BUILD_ROOT/Debug/DCKV.framework /Library/Frameworks/DCKV.framework\n\n   \n";
+>>>>>>> Stashed changes
 		};
 		4ACCF052268FBA6C006E12C2 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1114,7 +1127,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\nsudo -A cp $BUILD_ROOT/Debug/coercedicom /usr/local/bin/coercedicom\n";
+			shellScript = "export SUDO_ASKPASS=$PROJECT_DIR/installerPassword.sh\n#sudo -A cp $BUILD_ROOT/Debug/coercedicom /usr/local/bin/coercedicom\n";
 		};
 		4AE0126B26D7CF7F00D5A91B /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
