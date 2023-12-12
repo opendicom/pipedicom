@@ -52,59 +52,43 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Volumes/IN/TEST/CLASSIFIED"
+            argument = "/Volumes/IN/RECEIVING_AET/CLASSIFIED"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-<<<<<<< Updated upstream
             argument = "/Volumes/IN"
-=======
-            argument = "/Volumes/SSD1/IRP"
->>>>>>> Stashed changes
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Volumes/IN/TEST/FAILURE"
+            argument = "/Volumes/IN/RECEIVING_AET/FAILURE"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Volumes/IN/TEST/ORIGINAL"
+            argument = "/Volumes/IN/RECEIVING_AET/ORIGINALS"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-<<<<<<< Updated upstream
             argument = "/Volumes/IN/asseMALDONADO/MISMATCH_ALTERNATES"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Volumes/IN/RECEIVING_AET/MISMATCH_SOURCE"
-=======
-            argument = "/Volumes/IN/TEST/SERIESPOSTSCRIPT"
->>>>>>> Stashed changes
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Volumes/IN/TEST/NOREGEX"
+            argument = "/Volumes/IN/RECEIVING_AET/MISMATCH_CDAWL"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "/Volumes/IN/TEST/MISMATCH_CDAMWL"
+            argument = "/Volumes/IN/RECEIVING_AET/MISMATCH_PACS"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-<<<<<<< Updated upstream
             argument = "/Users/Shared/opendicom/coercedicom/RECEIVING_AET/coercedicom.json"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "/Volumes/GITHUB/pipedicomOpenjpeg/3.Ejecutables/converters/coercedicom/coercedicomIRP.json"
-=======
-            argument = "/Volumes/IN/TEST/MISMATCH_PACS"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "/Users/admin/Downloads/GiitHub/pipedicom/3.Ejecutables/converters/coercedicom/coercedicomIRP.json"
->>>>>>> Stashed changes
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
@@ -120,19 +104,11 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-<<<<<<< Updated upstream
             argument = "10"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "30"
-=======
-            argument = "-1"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "0"
->>>>>>> Stashed changes
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
