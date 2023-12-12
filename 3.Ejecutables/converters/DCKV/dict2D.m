@@ -437,7 +437,11 @@ int dict2D(
                         break;
                         
                      case 1: {
-                        NSString *string=[(attrs[key])[0] stringValue];
+                         NSString *string=nil;
+                         id ISDSvalue=attrs[key][0];
+                         if ([ISDSvalue isKindOfClass:[NSString class]])
+                             string=ISDSvalue;
+                         else string=[ISDSvalue stringValue];
                         BOOL odd=string.length % 2;
                         vl=string.length + odd;
                         [data appendBytes:&vl length:2];
@@ -448,12 +452,26 @@ int dict2D(
                         
                      default: {
                         NSMutableString *mutableString=[NSMutableString string];
-                        [mutableString appendString:[(attrs[key])[0] stringValue]];
-                        for (NSNumber *number in [attrs[key] subarrayWithRange:NSMakeRange(1,[attrs[key] count]-1)])
+                        id ISDSvalue=attrs[key][0];
+                        if ([ISDSvalue isKindOfClass:[NSString class]])
                         {
-                           [mutableString appendString:@"\\"];
-                           [mutableString appendString:[number
+                            [mutableString appendString:attrs[key][0]];
+                            for (NSString *string in [attrs[key] subarrayWithRange:NSMakeRange(1,[attrs[key] count]-1)])
+                            {
+                                [mutableString appendString:@"\\"];
+                                [mutableString appendString:string];
+                            }
+
+                        }
+                        else
+                        {
+                            [mutableString appendString:[(attrs[key])[0] stringValue]];
+                            for (NSNumber *number in [attrs[key] subarrayWithRange:NSMakeRange(1,[attrs[key] count]-1)])
+                            {
+                                [mutableString appendString:@"\\"];
+                                [mutableString appendString:[number
                                                         stringValue]];
+                            }
                         }
                         BOOL odd=mutableString.length % 2;
                         vl=mutableString.length + odd;
