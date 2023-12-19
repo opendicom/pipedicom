@@ -288,64 +288,24 @@ void series_callback(void *context){
             return;
          }
 
- #pragma mark compress ?
-         switch (j2kLayers) {
-            case 1://J2KR
-               {
-                  NSString *pixelKey=nil;
-                  if (datAttrs[@"00000001_7FE00010-OB"])pixelKey=@"00000001_7FE00010-OB";
-                  else if (datAttrs[@"00000001_7FE00010-OW"])pixelKey=@"00000001_7FE00010-OW";
-            
-                  if (   pixelKey
-                     && ([datAttrs[@"00000001_00280100-US"][0] intValue] != 1)
-                     && [fmiAttrs[@"00000001_00020010-UI"][0] isEqualToString:@"1.2.840.10008.1.2.1"]
-                     )
-                  {
-                     NSString *nativeUrlString=datAttrs[pixelKey][0][@"Native"][0];
-                     NSData *pixelData=nil;
-                     if ([datAttrs[pixelKey][0] isKindOfClass:[NSDictionary class]])
-                        pixelData=blobDict[datAttrs[pixelKey][0][@"Native"][0]];
-                     else pixelData=dataWithB64String(blobDict[pixelKey]);
-               
-                     NSMutableString *response=[NSMutableString string];
-                     if (compressJ2KR(
-                                    [nativeUrlString substringToIndex:nativeUrlString.length-3],
-                                    pixelData,
-                                    datAttrs,
-                                    j2kBlobDict,
-                                    j2kAttrs,
-                                    response
-                                    )==success
-                        )
-                     {
-                        //include j2k blobs
-                        [blobDict addEntriesFromDictionary:j2kBlobDict];
-                  
-                        //remove native attributes
-                        [datAttrs removeObjectForKey:pixelKey];
-                        [datAttrs addEntriesFromDictionary:j2kAttrs];
-
-                        [fmiAttrs setObject:@[@"1.2.840.10008.1.2.4.90"] forKey:@"00000001_00020010-UI"];
-                     }
-                     else
-                     {
-                        os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "failed parsing %@",DESIfullpath);
-                        [seriesFAILED addObject:DESdir];
-                        moveCLASSIFIEDobject(DESIfullpath, CDargFailure);
-                        return;
-                     }
-                  }
-               }
-               break;
-//TODO case 4 BFMI
-            default://no compression
-               break;
-         }
-                
  #pragma mark coerce
 
  #pragma mark · fileMetainfo
-                
+         switch ([whiteList[matchInt][@"j2kLayers"] intValue]) {
+            case 0://exe
+               [fmiAttrs setObject:@[@"1.2.840.10008.1.2.1"] forKey:@"00000001_00020010-UI"];
+               break;
+            case 1://j2kr
+               [fmiAttrs setObject:@[@"1.2.840.10008.1.2.4.90"] forKey:@"00000001_00020010-UI"];
+               break;
+            case 4://bfhi
+               [fmiAttrs setObject:@[@"1.2.840.10008.1.2.4.91"] forKey:@"00000001_00020010-UI"];
+               break;
+         }
+         
+         [fmiAttrs setObject:@[@"1.3.6.1.4.1.23650.99.111.101.114.99.101.100.105.99.111.109"] forKey:@"00000001_00020012-UI"];
+         [fmiAttrs setObject:@[@"COERCEDICOM-1.0"] forKey:@"00000001_00020013-SH"];
+
          //sourceAET (branch aet)
          //sendingAET (device aet)
          //receivingAET (pacs aet)
@@ -354,7 +314,7 @@ void series_callback(void *context){
          if (whiteList[matchInt][@"receivingAET"])[fmiAttrs setObject:@[whiteList[matchInt][@"receivingAET"]] forKey:@"00000001_00020018-AE"];
 
          if (whiteList[matchInt][@"coerceFileMetainfo"]) [fmiAttrs addEntriesFromDictionary:whiteList[matchInt][@"coerceFileMetainfo"]];
-
+         
 #pragma mark · blobs
          if (whiteList[matchInt][@"coerceBlobs"]) [blobDict addEntriesFromDictionary:whiteList[matchInt][@"coerceBlobs"]];
 
@@ -434,7 +394,7 @@ void series_callback(void *context){
                             @"",
                             fmiAttrs,
                             outputFileMetainfo,
-                            6, //j2kr   !!! error with 4 j2kh
+                            j2kr, //j2kr   !!! error with 4 j2kh
                             blobDict
                             ) == failure
                     )
@@ -459,7 +419,7 @@ void series_callback(void *context){
                             @"",
                             datAttrs,
                             outputData,
-                            4, //dicomExplicitJ2kIdem
+                            j2kr,
                             blobDict
                             )==failure
                     )
@@ -472,7 +432,59 @@ void series_callback(void *context){
                 }
                 else
                 {
-    #pragma mark ··· success
+#pragma mark ··· + j2k or native attrs
+                   
+                   /*
+                   - (undf) undefined: defaults to j2k, or native or what is into dataset in this order depending of the existence of the sets.
+                   - (natv) native: explicit little endian without compression
+                   - (j2kb) j2kBase: the quality of a miniature.
+                   - (j2kf) j2kFast: compressión con pérdida, pero muy rápido, compuesta de 2 capas
+                   - (j2kh) j2kHres: compressión con pérdida invisible, compuesta de 3 capas
+                   - (j2ki) j2kIdem: compresión sin perdida, compuesta de 4 capas
+                   - (j2kr) j2kr: compresión sin perdida, compuesta de una capa
+                   - (j2k) j2k: j2kIdem o j2kr
+                    */
+
+                   if (toJ2KR || toBFHI)
+                   {
+                      if (dict2D(
+                                  @"",
+                                  j2kAttrs,
+                                  outputData,
+                                  j2kr,
+                                  blobDict
+                                  )==failure
+                          )
+          #pragma mark ··· failure
+                      {
+                         os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "could not serialize j2kAttrs %@: %@",DESIfullpath,j2kAttrs.description);
+                         [seriesFAILED addObject:DESdir];
+                         moveCLASSIFIEDobject(DESIfullpath, CDargFailure);
+                         return;
+                      }
+                   }
+                   else if (natAttrs.count > 0)
+                   {
+                      if (dict2D(
+                                  @"",
+                                  natAttrs,
+                                  outputData,
+                                  natv,
+                                  blobDict
+                                  )==failure
+                          )
+          #pragma mark ··· failure
+                      {
+                         os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_ERROR, "could not serialize native attrs %@: %@",DESIfullpath,natAttrs.description);
+                         [seriesFAILED addObject:DESdir];
+                         moveCLASSIFIEDobject(DESIfullpath, CDargFailure);
+                         return;
+                      }
+
+                   }
+                   
+                   
+#pragma mark ··· success
                   NSString *Iname;
                   if (cesiB64)
                   {
