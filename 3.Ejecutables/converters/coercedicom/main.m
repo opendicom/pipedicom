@@ -579,6 +579,9 @@ void series_callback(void *context){
                 }
                   
          }//end parsed
+         
+#pragma mark timeout?
+         if (timeoutDate < [NSDate date]) break;
       }//end autorelease end loop
 
 #pragma mark fileref
@@ -646,7 +649,10 @@ void series_callback(void *context){
             [seriesDONE addObject:DESdir];
          }
       }
-  }@catch (NSException *exception) {
+
+      return;
+
+   }@catch (NSException *exception) {
      os_log_with_type(OS_LOG_DEFAULT, OS_LOG_TYPE_FAULT, "%@", exception.reason);
   }
   @finally {}
